@@ -59,7 +59,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"DM Sans", sans-serif',
+    fontFamily: '"Inter", sans-serif',
 
     h1: {
       fontSize: "3rem", //48px
