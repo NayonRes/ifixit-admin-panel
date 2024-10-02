@@ -2,9 +2,7 @@
   margin: 0;
   padding: 0;
 }
-body {
-  background: red;
-}
+ 
 /* width */
 .sidebar::-webkit-scrollbar {
   width: 8px;

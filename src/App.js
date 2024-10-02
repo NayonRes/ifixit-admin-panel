@@ -261,21 +261,21 @@ const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         head: {
-          color: ColorPalette.light.text.fade,
-          fontSize: "14px",
-          fontWeight: 700,
+          color: "#4A5468",
+          fontSize: "12px",
+          fontWeight: 500,
           padding: "10px",
           borderBottom: `1px solid ${ColorPalette.light.text.fade}`,
-          fontFamily: "'Mulish', sans-serif;",
-          background: "#fff",
-          borderBottom: "1px solid #E5E5E5",
+          fontFamily: '"Inter", sans-serif',
+          background: "#F9FAFB",
+          borderBottom: "0px solid #E5E5E5",
         },
         body: {
-          color: ColorPalette.light.text.light,
+          color: "#0F1624",
           fontSize: "14px",
           fontWeight: 500,
           padding: "14px 12px",
-          fontFamily: "'Mulish', sans-serif;",
+          fontFamily: '"Inter", sans-serif',
         },
       },
     },
@@ -284,6 +284,7 @@ const theme = createTheme({
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.withCredentials = true;
 function App() {
   return (
     <div>

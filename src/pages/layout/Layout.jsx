@@ -24,20 +24,21 @@ import Zoom from "@mui/material/Zoom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navigation from "../navigation/Navigation";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import { AuthContext } from "../../context/AuthContext";
 import Collapse from "@mui/material/Collapse";
 import { jwtDecode } from "jwt-decode";
-import { useSnackbar } from "notistack";
-import { ClearAllOutlined } from "@mui/icons-material";
+import { useSnackbar } from "notistack"; 
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import RefreshToken from "../../services/RefreshToken";
 import { handlePostData } from "../../services/PostDataService";
+import { getDataWithToken } from "../../services/GetDataService";
 
 const drawerWidth = 270;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
+  
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -159,9 +160,11 @@ const LightMenuTooltip = styled(({ className, ...props }) => (
 
 export default function Layout() {
   const theme = useTheme();
+  let navigate = useNavigate();
   let pathname = useLocation().pathname;
   const { ifixit_admin_panel, logout, login } = useContext(AuthContext);
   console.log("pathname", pathname);
+  const [signOutLoading, setSignOutLoading] = useState(false);
   const [open, setOpen] = useState(true);
   const [openMenu, setOpenMenu] = useState("");
   const [cartsOpen, setCartsOpen] = useState(false);
@@ -179,6 +182,37 @@ export default function Layout() {
       setPaymentOpen(false);
       setSettingsOpen(false);
     }
+  };
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
+  const fnLogout = async () => {
+    try {
+      setSignOutLoading(true);
+
+      let url = `/api/v1/user/logout`;
+      let res = await getDataWithToken(url);
+
+      if (res.status >= 200 && res.status < 300) {
+        setSignOutLoading(false);
+        logout();
+        navigate("/");
+      }
+    } catch (error) {
+      console.log("error", error);
+      setSignOutLoading(false);
+      handleSnakbarOpen(error.response.data.message.toString(), "error");
+    }
+    setSignOutLoading(false);
   };
   const handleDrawerClose = () => {
     setOpen(false);
@@ -285,7 +319,7 @@ export default function Layout() {
   const withoutLayout = ["/", "/forgot-password", "/reset-password", "/otp"];
 
   if (withoutLayout.includes(pathname)) {
-    return <Navigation notificationCartName={notificationCartName} />;
+    return <Navigation />;
   } else if (!ifixit_admin_panel.token) {
     return (
       <Box sx={{ display: "flex" }}>
@@ -315,6 +349,8 @@ export default function Layout() {
           sx={{
             "& .MuiDrawer-paper": {
               justifyContent: "space-between",
+              borderRight:"1px solid #EAECF1",
+              boxShadow:"none"
             },
           }}
         >
@@ -328,119 +364,10 @@ export default function Layout() {
             </IconButton>
           </DrawerHeader>
           <Divider /> */}
-
-          <List sx={{ pt: 0 }}>
-            <LightTooltip
-              // open={true}
-              disableFocusListener={true}
-              arrow
-              sx={{ fontSize: "16px" }}
-              title={
-                <List sx={{ pb: 0, mt: 0, pb: 0, minWidth: "238px" }}>
-                  <ListItem disablePadding sx={{ display: "block" }}>
-                    <ListItemButton
-                      onClick={() => logout()}
-                      sx={[
-                        { ...listButtonStyle },
-                        {
-                          mr: 0,
-                          ml: 0,
-                          ["& .MuiTypography-root"]: {
-                            color: "#fff",
-                          },
-                        },
-                      ]}
-                      style={{ marginBottom: "0px" }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          minWidth: 0,
-                          mr: 1,
-                          justifyContent: "center",
-                        }}
-                      >
-                        <svg
-                          width="22"
-                          height="22"
-                          viewBox="0 0 22 22"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M8.1582 6.92997C8.44237 3.62997 10.1382 2.28247 13.8507 2.28247H13.9699C18.0674 2.28247 19.7082 3.9233 19.7082 8.0208V13.9975C19.7082 18.095 18.0674 19.7358 13.9699 19.7358H13.8507C10.1657 19.7358 8.46987 18.4066 8.16737 15.1616"
-                            stroke="white"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M13.75 11H3.31836"
-                            stroke="white"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M5.36283 7.9292L2.29199 11L5.36283 14.0709"
-                            stroke="white"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </ListItemIcon>
-                      <ListItemText
-                        primary="Logout"
-                        //
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                </List>
-              }
-              placement="right"
-              TransitionComponent={Zoom}
-            >
-              {/* <Divider sx={{ mb: 1 }} /> */}
-              <ListItem
-                disablePadding
-                sx={{ display: "block", borderTop: "1px solid #E5E5E5" }}
-              >
-                <ListItemButton
-                  sx={{
-                    ...listButtonStyle,
-                    background: "none",
-                    mt: 1,
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: 1.5,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <img
-                      src="/user.png"
-                      alt="avatar"
-                      width="28px"
-                      height="28px"
-                      // style={{ position: "relative", left: 7 }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      ifixit_admin_panel.token &&
-                      jwtDecode(ifixit_admin_panel.token)?.name
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            </LightTooltip>
-          </List>
         </Drawer>
-        <Box component="main" sx={{ flexGrow: 1 }}>
+        <Box component="main" sx={{ flexGrow: 1, px: 3 }}>
           {/* <DrawerHeader /> */}
-          <Navigation notificationCartName={notificationCartName} />
+          <Navigation />
           {/* <footer
             id="footer"
             style={{
@@ -499,6 +426,8 @@ export default function Layout() {
           sx={{
             "& .MuiDrawer-paper": {
               justifyContent: "space-between",
+               borderRight:"1px solid #EAECF1",
+               boxShadow:"none"
             },
           }}
         >
@@ -533,7 +462,7 @@ export default function Layout() {
                   alignItems="center"
                   justifyContent="space-between"
                 >
-                  <Grid item xs="auto" sx={{ position: "relative" }}>
+                  <Grid size="auto" sx={{ position: "relative" }}>
                     <img
                       src="/logo.svg"
                       alt="logo"
@@ -555,8 +484,8 @@ export default function Layout() {
             <Box
               className="sidebar"
               sx={{
-                height: "Calc(100vh - 134px)",
-                // background: "red",
+                height: "Calc(100vh - 150px)",
+
                 overflowY: "auto",
                 pt: 2.5,
               }}
@@ -620,14 +549,13 @@ export default function Layout() {
               </ListItem>
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
-                  onClick={() => handleOpemMenu("")}
                   // component={Link}
-                  // to="/live-chat"
-
+                  // to="/carts"
                   sx={[
                     { ...listButtonStyle },
-                    pathname === "/live-chat" && { ...activeStyle },
+                    // pathname === "/carts" && { ...activeStyle },
                   ]}
+                  onClick={() => handleOpemMenu("User")}
                 >
                   <ListItemIcon
                     sx={{
@@ -652,10 +580,60 @@ export default function Layout() {
                       />
                     </svg>
                   </ListItemIcon>
-                  <ListItemText primary="User management" />
-                  {/* &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; 5 */}
+                  <ListItemText primary="User" />
+
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{
+                      rotate: openMenu === "User" ? "180deg" : "0deg",
+                    }}
+                  >
+                    <path
+                      d="M4 6L8 10L12 6"
+                      stroke="#656E81"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
                 </ListItemButton>
               </ListItem>
+
+              <Collapse in={openMenu === "User"}>
+                <List sx={{ pl: 4, pt: 0 }}>
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      component={Link}
+                      to="/user-list"
+                      sx={[
+                        { ...listButtonStyle },
+                        pathname === "/user-list" && { ...activeStyle },
+                      ]}
+                    >
+                      <ListItemText primary="User List" />
+                    </ListItemButton>
+                  </ListItem>
+                 
+
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      component={Link}
+                      to="/user-management"
+                      sx={[
+                        { ...listButtonStyle },
+                        pathname === "/user-management" && { ...activeStyle },
+                      ]}
+                      style={{ marginBottom: "0px" }}
+                    >
+                      <ListItemText primary="User Management" />
+                    </ListItemButton>
+                  </ListItem>
+                </List>
+              </Collapse>
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   // component={Link}
@@ -1356,8 +1334,9 @@ export default function Layout() {
                   </ListItem>
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
-                      component={Link}
-                      to="/logout"
+                      onClick={fnLogout}
+                      // component={Link}
+                      // to="/logout"
                       sx={[
                         { ...listButtonStyle },
                         {
@@ -1409,7 +1388,7 @@ export default function Layout() {
                         </svg>
                       </ListItemIcon>
                       <ListItemText
-                        primary="Logout"
+                        primary="Logout 2222"
                         //
                       />
                     </ListItemButton>
@@ -1447,7 +1426,7 @@ export default function Layout() {
                     />
                   </ListItemIcon>
                   <ListItemText>
-                    Jone Doe
+                    {ifixit_admin_panel?.user?.name}
                     <Typography
                       sx={{
                         fontSize: "12px !important",
@@ -1455,7 +1434,7 @@ export default function Layout() {
                         color: "#656E81 !important",
                       }}
                     >
-                      Admin
+                      {ifixit_admin_panel?.user?.role}
                     </Typography>
                   </ListItemText>
                   <svg
@@ -1478,9 +1457,9 @@ export default function Layout() {
             </LightTooltip>
           </List>
         </Drawer>
-        <Box component="main" sx={{ flexGrow: 1 }}>
+        <Box component="main" sx={{ flexGrow: 1, px: 3 }}>
           {/* <DrawerHeader /> */}
-          <Navigation notificationCartName={notificationCartName} />
+          <Navigation />
           {/* <footer
             id="footer"
             style={{

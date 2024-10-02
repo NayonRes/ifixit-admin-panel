@@ -9,6 +9,7 @@ import Dashboard from "../dashboard/Dashboard";
 import { Box } from "@mui/material";
 import LoginOTPVarify from "../user-forms/LoginOTPVarify";
 import ForgotPassword from "../user-forms/ForgotPassword";
+import UserList from "../users/UserList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -64,6 +65,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="user-list"
+          element={
+            <PrivateRoute>
+              <UserList />
             </PrivateRoute>
           }
         />
