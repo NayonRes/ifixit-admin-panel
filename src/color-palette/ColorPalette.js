@@ -34,7 +34,7 @@ let ColorPalette = {
       contrastText: "#fff",
     },
     text: {
-      main: "#222222",
+      main: "#343E54",
       light: "#555555",
       fade: "#969696",
       contrastText: "#fff",

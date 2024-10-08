@@ -28,7 +28,7 @@ import Grid from "@mui/material/Grid2";
 import { AuthContext } from "../../context/AuthContext";
 import Collapse from "@mui/material/Collapse";
 import { jwtDecode } from "jwt-decode";
-import { useSnackbar } from "notistack"; 
+import { useSnackbar } from "notistack";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import RefreshToken from "../../services/RefreshToken";
 import { handlePostData } from "../../services/PostDataService";
@@ -38,7 +38,7 @@ const drawerWidth = 270;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
-  
+
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -196,6 +196,8 @@ export default function Layout() {
     });
   };
   const fnLogout = async () => {
+    console.log("fnLogout-----------");
+
     try {
       setSignOutLoading(true);
 
@@ -349,8 +351,8 @@ export default function Layout() {
           sx={{
             "& .MuiDrawer-paper": {
               justifyContent: "space-between",
-              borderRight:"1px solid #EAECF1",
-              boxShadow:"none"
+              borderRight: "1px solid #EAECF1",
+              boxShadow: "none",
             },
           }}
         >
@@ -426,8 +428,8 @@ export default function Layout() {
           sx={{
             "& .MuiDrawer-paper": {
               justifyContent: "space-between",
-               borderRight:"1px solid #EAECF1",
-               boxShadow:"none"
+              borderRight: "1px solid #EAECF1",
+              boxShadow: "none",
             },
           }}
         >
@@ -617,7 +619,6 @@ export default function Layout() {
                       <ListItemText primary="User List" />
                     </ListItemButton>
                   </ListItem>
-                 
 
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
@@ -1388,7 +1389,7 @@ export default function Layout() {
                         </svg>
                       </ListItemIcon>
                       <ListItemText
-                        primary="Logout 2222"
+                        primary="Logout"
                         //
                       />
                     </ListItemButton>

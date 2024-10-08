@@ -53,7 +53,6 @@ import Badge from "@mui/material/Badge";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
-import { designationList, roleList } from "../../data";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -70,10 +69,9 @@ const UserList = () => {
   const [loading2, setLoading2] = useState(false);
   const [deleteData, setDeleteData] = useState({});
   const [orderID, setOrderID] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [number, setNumber] = useState("");
-  const [designation, setDesignation] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
   const [status, setStatus] = useState("");
@@ -185,7 +183,7 @@ const UserList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(7).keys()].map((e, i) => (
+          {[...Array(5).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -225,11 +223,10 @@ const UserList = () => {
   const clearFilter = (event) => {
     console.log("clearFilter");
     setOrderID("");
-    setName("");
-    setDesignation("");
+    setCustomerName("");
     setStatus("");
-    setEmail("");
-    setNumber("");
+    setCustomerEmail("");
+    setCustomerPhone("");
     SetCategory("");
     setMinPrice("");
     setMaxPrice("");
@@ -283,7 +280,7 @@ const UserList = () => {
           newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
         }
 
-        url = `/api/v1/user?name=${name}&email=${email}&number=${number}&designation=${designation}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+        url = `/api/v1/user?orderID=${orderID}&customerName=${customerName}&customerEmail=${customerEmail}&customerPhone=${customerPhone}&minPrice=${newMinPrice}&maxPrice=${newMaxPrice}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
           newPageNO + 1
         }`;
       }
@@ -304,6 +301,12 @@ const UserList = () => {
       setLoading(false);
       handleSnakbarOpen(error.response.data.message.toString(), "error");
     }
+  };
+
+  const check = () => {
+    console.log("startingTime", dayjs(startingTime).format("YYYY-MM-DD"));
+    let start = dayjs(startingTime).format("YYYY-MM-DD");
+    console.log("new Start", start.concat("T00:00:00"));
   };
 
   const sortByParentName = (a, b) => {
@@ -332,6 +335,7 @@ const UserList = () => {
             variant="h6"
             gutterBottom
             component="div"
+            onClick={check}
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
             User List
@@ -395,6 +399,7 @@ const UserList = () => {
               variant="h6"
               gutterBottom
               component="div"
+              onClick={check}
               sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
             >
               Details
@@ -411,67 +416,39 @@ const UserList = () => {
                 <Grid size={2}>
                   <TextField
                     sx={{ ...customeTextFeild }}
-                    id="Name"
+                    id="Customer Name"
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    label="Customer Name"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
                   />
                 </Grid>
 
                 <Grid size={2}>
                   <TextField
                     sx={{ ...customeTextFeild }}
-                    id="number"
+                    id="customerPhone"
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="Phone Number"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
+                    label="Customer Phone"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
                   />
                 </Grid>
                 <Grid size={2}>
                   <TextField
                     sx={{ ...customeTextFeild }}
-                    id="email"
+                    id="customerEmail"
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    label="Customer Email"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
                   />
-                </Grid>
-                <Grid size={2}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Designation
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Designation"
-                      value={designation}
-                      onChange={(e) => setDesignation(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {designationList?.map((item) => (
-                        <MenuItem key={item} value={item}>
-                          {item}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
                 </Grid>
                 <Grid size={2}>
                   <FormControl
@@ -549,19 +526,15 @@ const UserList = () => {
           <Table aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
-                  Name
-                </TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
 
                 <TableCell style={{ whiteSpace: "nowrap" }}>
                   Designation
                 </TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>Email</TableCell>
                 <TableCell style={{ whiteSpace: "nowrap" }}>
                   Mobile Number
                 </TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
+                <TableCell style={{ whiteSpace: "nowrap" }}>Password</TableCell>
                 <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                   Actions
                 </TableCell>
@@ -576,23 +549,23 @@ const UserList = () => {
                       key={row?.user_id}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                      <TableCell>
                         {/* {row?.image?.url?.length > 0 ? (
                           <> */}
                         <img
                           src={
                             row?.image?.url?.length > 0
                               ? row?.image?.url
-                              : "/userpic.png"
+                              : "/image/userpic.png"
                           }
                           alt=""
-                          width="30px"
-                          height="30px"
+                          width="50px"
+                          height="50px"
                           style={{
                             display: "block",
                             margin: "5px 0px",
-                            borderRadius: "100px",
-                            // border: "1px solid #d1d1d1",
+                            borderRadius: "5px",
+                            border: "1px solid #d1d1d1",
                           }}
                         />
 
@@ -602,10 +575,26 @@ const UserList = () => {
                         )} */}
                       </TableCell>
                       <TableCell>{row?.name}</TableCell>
-                      <TableCell>{row?.designation}</TableCell>
-                      <TableCell>{row?.number}</TableCell>
                       <TableCell>{row?.email}</TableCell>
+                      <TableCell>
+                        {row?.role[0]?.name ? row?.role[0]?.name : "-------"}
+                      </TableCell>
 
+                      <TableCell>
+                        <b>{row?.created_by}</b>
+
+                        <br />
+                        {moment(row?.created_at).format(
+                          "DD-MM-YYYY, h:mm:ss a"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <b>{row?.updated_by}</b>
+                        <br />
+                        {moment(row?.updated_at).format(
+                          "DD-MM-YYYY, h:mm:ss a"
+                        )}
+                      </TableCell>
                       <TableCell>
                         {row?.status ? (
                           <>

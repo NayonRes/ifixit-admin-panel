@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { makeStyles } from "@mui/styles";
-import Grid from "@mui/material/Grid";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { TextField, Typography } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
 import InputAdornment from "@mui/material/InputAdornment";
@@ -29,22 +35,50 @@ import EmailIcon from "@mui/icons-material/Email";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
-const useStyles = makeStyles((theme) => ({
-  form: {
-    padding: "50px",
-    background: "#fff",
-    borderRadius: "10px",
-    width: "400px",
-    boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-  },
-}));
+import { designationList, roleList } from "../../data";
+
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "16px 24px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  backgroundColor: "#fff",
+  // color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+};
+
+const focusedStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
+const form = {
+  padding: "50px",
+  background: "#fff",
+  borderRadius: "10px",
+  width: "400px",
+  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+};
 const AddUser = () => {
-  const classes = useStyles();
   const navigate = useNavigate();
   const uploadImage = "/image/userpic.png";
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("admin@dg.com");
-  const [password, setPassword] = useState("admin12345");
+  const [email, setEmail] = useState("");
+  const [number, setNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [designation, setDesignation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [parentName, setParentName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,11 +89,30 @@ const AddUser = () => {
   const [message, setMessage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(uploadImage);
+  const [file, setFile] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
   const handleChange = (event) => {
     setParentName(event.target.value);
   };
+  const dropzoneRef = useRef(null);
 
+  const onDrop = useCallback((acceptedFiles) => {
+    console.log("onDrop", acceptedFiles);
+    // if (!dropzoneRef.current) return;
+    const file = acceptedFiles[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // setBase64String(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+  const onFileDialogCancel = useCallback(() => {
+    console.log("File dialog was closed without selecting a file");
+    // setBase64String(""); // Update state to indicate dialog was cancelled
+  }, []);
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -147,7 +200,34 @@ const AddUser = () => {
       setLoading(false);
     }
   };
-
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    onDrop,
+    onFileDialogCancel,
+    ref: dropzoneRef,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+  });
+  const files = acceptedFiles.map((file) => (
+    <>
+      {file.path} - {file.size} bytes
+    </>
+  ));
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isFocused ? focusedStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isFocused, isDragAccept, isDragReject]
+  );
   const imageProcess = (e) => {
     if (e.target.files && e.target.files[0]) {
       let imageFile = e.target.files[0];
@@ -162,49 +242,40 @@ const AddUser = () => {
     }
   };
 
-  const getData = async () => {
-    try {
-      setRoleLoading(true);
+  const customeTextFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    // padding: "15px 20px",
 
-      const allDataUrl = `/api/v1/role/dropdownlist`;
-      let allData = await getDataWithToken(allDataUrl);
-      console.log("allData", allData.data);
+    // "& label.Mui-focused": {
+    //   color: "#A0AAB4",
+    // },
 
-      if (allData.status >= 200 && allData.status < 300) {
-        setRoleList(allData?.data?.data);
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+    "& .MuiOutlinedInput-input": {
+      // padding: "15px 24px 15px 0px",
+    },
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px",
+      "& fieldset": {
+        borderColor: "",
+      },
 
-        if (allData.data.data.length < 1) {
-          setMessage("No data found");
-        }
-      }
-      setRoleLoading(false);
-    } catch (error) {
-      console.log("error", error?.response);
-      setRoleLoading(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
-    }
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
   };
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   return (
     <>
-      <Grid
-        container
-        justifyContent="center"
-        alignItems="center"
-        style={{ height: "85vh" }}
-      >
-        <form className={classes.form} onSubmit={onSubmit}>
-          <Typography
-            variant="h5"
-            style={{ marginBottom: "30px", textAlign: "center" }}
-          >
-            Add User
-          </Typography>
-          <div style={{ textAlign: "center", marginBottom: "30px" }}>
+      <Box>
+        <form onSubmit={onSubmit}>
+          {/* <div style={{ textAlign: "center", marginBottom: "30px" }}>
             <img
               src={preview}
               alt=""
@@ -240,73 +311,185 @@ const AddUser = () => {
               type="file"
               onChange={imageProcess}
             />
-          </div>
+          </div> */}
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Full Name
+          </Typography>
           <TextField
+            required
             size="small"
-            style={{ marginBottom: "30px" }}
             fullWidth
             id="name"
-            label="User Name"
+            placeholder="Full Name"
             variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
-          <TextField
-            autoFocus
-            label="Email"
-            fullWidth
-            size="small"
-            className={classes.inputStyle}
-            style={{ marginBottom: "30px" }}
-            variant="outlined"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <FormControl
-            fullWidth
-            variant="outlined"
-            style={{ marginBottom: "30px" }}
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
           >
-            <OutlinedInput
-              type={showPassword ? "text" : "password"}
-              id="password"
-              placeholder="Password"
-              size="small"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => setShowPassword(!showPassword)}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
+            Set Password
+          </Typography>
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="password"
+            placeholder="Enter password"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Email
+          </Typography>
+          <TextField
+            required
+            type="email"
+            size="small"
+            fullWidth
+            id="email"
+            placeholder="Enter Email"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Phone Number
+          </Typography>
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="number"
+            placeholder="Enter Number"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={number}
+            onChange={(e) => {
+              setNumber(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Designation
+          </Typography>
           <FormControl fullWidth size="small" style={{ marginBottom: "30px" }}>
             <InputLabel id="demo-simple-select-label">Role</InputLabel>
             <Select
               labelId="demo-simple-select-label"
               id="parent-id"
-              value={roleId}
+              value={designation}
               label="Role"
-              onChange={(e) => setRoleId(e.target.value)}
+              onChange={(e) => setDesignation(e.target.value)}
             >
-              {roleList?.map((item, i) => (
-                <MenuItem key={item.role_id} value={item.role_id}>
-                  {item.name}
+              {designationList?.map((item) => (
+                <MenuItem key={item} value={item}>
+                  {item}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          <Box {...getRootProps({ style })}>
+            <input {...getInputProps()} />
+            {/* <Avatar
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    bgcolor: "#E5E5E5",
+                    mb: 7,
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="25"
+                    height="25"
+                    viewBox="0 0 25 25"
+                    fill="none"
+                  >
+                    <path
+                      d="M9.5 17.5V11.5L7.5 13.5"
+                      stroke="#555555"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M9.5 11.5L11.5 13.5"
+                      stroke="#555555"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M22.5 10.5V15.5C22.5 20.5 20.5 22.5 15.5 22.5H9.5C4.5 22.5 2.5 20.5 2.5 15.5V9.5C2.5 4.5 4.5 2.5 9.5 2.5H14.5"
+                      stroke="#555555"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M22.5 10.5H18.5C15.5 10.5 14.5 9.5 14.5 6.5V2.5L22.5 10.5Z"
+                      stroke="#555555"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </Avatar> */}
+           
+              <Box sx={{ pl: 1.5 }}>
+                <Typography
+                  variant="base"
+                  color="text.fade"
+                  sx={{ fontWeight: 500 }}
+                >
+                  Drag and Drop or{" "}
+                  <span style={{ color: "#687535" }}>Browser</span>
+                </Typography>
+                <Typography variant="medium" color="text.fade">
+                  Supports: jpeg, jpg, png, svg
+                </Typography>
+                {file?.path?.length > 0 && (
+                  <Typography
+                    variant="medium"
+                    color="text.light"
+                    sx={{ mt: 1 }}
+                  >
+                    <b>Uploaded:</b> {file?.path} - {file?.size} bytes
+                  </Typography>
+                )}
+              </Box>
+          
+          </Box>
           <div style={{ textAlign: "center" }}>
             <Button
               variant="contained"
@@ -326,7 +509,7 @@ const AddUser = () => {
             </Button>
           </div>
         </form>
-      </Grid>
+      </Box>
     </>
   );
 };
