@@ -296,10 +296,10 @@ const UserManagement = () => {
 
     return 0;
   };
-  useEffect(() => {
-    getData();
-    // getCategoryList();
-  }, []);
+  // useEffect(() => {
+  //   getData();
+  //   // getCategoryList();
+  // }, []);
 
   return (
     <>
@@ -423,31 +423,8 @@ const UserManagement = () => {
                 </Typography>
               </Grid>
               <Grid size={6} sx={{ textAlign: "right" }}>
-                <Button
-                  variant="contained"
-                  disableElevation
-                  sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-                  onClick={() => setAddUserDialog(true)}
-                  startIcon={
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-                        stroke="white"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  }
-                >
-                  Add User
-                </Button>
+               
+                <AddUser/>
               </Grid>
             </Grid>
             <div
@@ -682,56 +659,7 @@ const UserManagement = () => {
 
         {/* </div> */}
       </Dialog>
-      <Dialog
-        open={addUserDialog}
-        onClose={handleImageClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <Box sx={{ width: "400px" }}>
-          <DialogTitle
-            id="alert-dialog-title"
-            sx={{
-              fontSize: "20px",
-              fontFamily: '"Inter", sans-serif',
-              fontWeight: 600,
-              color: "#0F1624",
-              position: "relative",
-              px: 2,
-            }}
-          >
-            Add User
-            <IconButton
-              sx={{ position: "absolute", right: 0, top: 0 }}
-              onClick={() => setAddUserDialog(false)}
-            >
-              <svg
-                width="46"
-                height="44"
-                viewBox="0 0 46 44"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M29 16L17 28M17 16L29 28"
-                  stroke="#656E81"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </IconButton>
-          </DialogTitle>
-          <DialogContent sx={{ px: 2 }}>
-            <DialogContentText id="alert-dialog-description">
-              <AddUser />
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions sx={{ px: 2 }}>
-            <Button onClick={handleImageClose}>Close</Button>
-          </DialogActions>
-        </Box>
-      </Dialog>
+    
     </>
   );
 };
