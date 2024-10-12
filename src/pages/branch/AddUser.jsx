@@ -41,7 +41,6 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
-import { handlePostData } from "../../services/PostDataService";
 
 const baseStyle = {
   flex: 1,
@@ -88,8 +87,9 @@ const AddUser = () => {
   const [number, setNumber] = useState("");
   const [password, setPassword] = useState("");
   const [designation, setDesignation] = useState("");
-  const [branch, setBranch] = useState("");
+  const [branch, setBranch] = useState();
   const [branchList, setBranchList] = useState([]);
+
   const [loading, setLoading] = useState(false);
 
   const [roleId, setRoleId] = useState("");
@@ -177,51 +177,44 @@ const AddUser = () => {
     return isError;
   };
 
-  const clearForm = () => {
-    setName("");
-    setPassword("");
-    setDesignation("");
-    setNumber("");
-    setEmail("");
-    setBranch("");
-  };
+ 
   const onSubmit = async (e) => {
     e.preventDefault();
 
+    // let err = validation();
+    // if (err) {
+    //   return;
+    // } else {
     setLoading(true);
+    try {
+      var formdata = new FormData();
+      formdata.append("name", name);
+      formdata.append("email", email);
+      formdata.append("password", password);
+      formdata.append("branch_id", "3132131");
+      formdata.append("number", number);
+      formdata.append("designation", designation);
 
-    var formdata = new FormData();
-    formdata.append("name", name);
-    formdata.append("email", email);
-    formdata.append("password", password);
-    formdata.append("branch_id", branch);
-    formdata.append("number", number);
-    formdata.append("designation", designation);
+      formdata.append("role_id", roleId);
+      if (imageFile) {
+        formdata.append("image", imageFile);
+      }
 
-    formdata.append("role_id", roleId);
-    if (imageFile) {
-      formdata.append("image", imageFile);
+      let response = await axios({
+        url: `/api/v1/user`,
+        method: "post",
+        data: formdata,
+      });
+      if (response.status >= 200 && response.status < 300) {
+        handleSnakbarOpen("Added successfully", "success");
+        handleDialogClose();
+        // navigate("/category-list");
+      }
+    } catch (error) {
+      console.log("error", error);
+      handleSnakbarOpen(error.response.data.message, "error");
+      setLoading(false);
     }
-
-    // let response = await axios({
-    //   url: `/api/v1/user`,
-    //   method: "post",
-    //   data: formdata,
-    // });
-
-    let response = await handlePostData("/api/v1/user", formdata, true);
-
-    console.log("response", response);
-
-    if (response.status >= 200 && response.status < 300) {
-      handleSnakbarOpen("Added successfully", "success");
-      clearForm();
-      handleDialogClose();
-      // navigate("/category-list");
-    } else {
-      handleSnakbarOpen(response?.data?.message, "error");
-    }
-
     setLoading(false);
     // }
   };
@@ -654,7 +647,9 @@ const AddUser = () => {
         }}
         PaperProps={{
           component: "form",
-          onSubmit: onSubmit,
+          onSubmit: () => {
+            onSubmit;
+          },
         }}
       >
         <DialogTitle
@@ -839,60 +834,8 @@ const AddUser = () => {
               ))}
             </Select>
           </FormControl>
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Branch
-          </Typography>
+         
 
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{
-              ...customeSelectFeild,
-              "& label.Mui-focused": {
-                color: "rgba(0,0,0,0)",
-              },
-
-              "& .MuiOutlinedInput-input img": {
-                position: "relative",
-                top: "2px",
-              },
-              mb: 3,
-            }}
-          >
-            {branch.length < 1 && (
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ color: "#b3b3b3", fontWeight: 300 }}
-              >
-                Select Branch
-              </InputLabel>
-            )}
-            <Select
-              required
-              labelId="demo-simple-select-label"
-              id="baseLanguage"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 250, // Set the max height here
-                  },
-                },
-              }}
-              value={branch}
-              onChange={(e) => setBranch(e.target.value)}
-            >
-              {designationList?.map((item) => (
-                <MenuItem key={item} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <Box {...getRootProps({ style })}>
             <input {...getInputProps()} />
 

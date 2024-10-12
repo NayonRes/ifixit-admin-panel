@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const handlePostData = async (url, data, token, isFormData) => {
+const handlePostData = async (url, data, isFormData) => {
   try {
     // let xsrfToken = axios({
     //   method: "get",
@@ -10,7 +10,7 @@ const handlePostData = async (url, data, token, isFormData) => {
     // console.log("localData.token", localData.token);
 
     let headers = {
-      Authorization: `Bearer ${token}`,
+      // Authorization: `Bearer ${token}`,
     };
     if (isFormData) {
       headers["Content-Type"] = "multipart/form-data";

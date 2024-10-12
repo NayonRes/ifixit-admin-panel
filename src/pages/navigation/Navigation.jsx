@@ -11,6 +11,7 @@ import LoginOTPVarify from "../user-forms/LoginOTPVarify";
 import ForgotPassword from "../user-forms/ForgotPassword";
 import UserList from "../users/UserList";
 import UserManagement from "../users/UserManagement";
+import BranchList from "../branch/BranchList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -74,6 +75,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <UserList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="branch-list"
+          element={
+            <PrivateRoute>
+              <BranchList />
             </PrivateRoute>
           }
         />

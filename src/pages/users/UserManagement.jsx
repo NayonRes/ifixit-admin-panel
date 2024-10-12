@@ -354,14 +354,14 @@ const UserManagement = () => {
 
       <Grid container>
         <Grid sx={{ width: "264px", pr: 6, boxSizing: "border-box" }}>
-          {[...Array(7).keys()]?.map((item) => (
+          {[...Array(7).keys()]?.map((item, i) => (
             <Box
               sx={{
                 mb: 1,
                 px: 1,
                 py: 1.5,
                 borderRadius: "12px",
-                border: "1px solid #A5B5FC",
+                border: i === 0 && "1px solid #A5B5FC",
               }}
             >
               <Grid container alignItems="center">
@@ -423,8 +423,7 @@ const UserManagement = () => {
                 </Typography>
               </Grid>
               <Grid size={6} sx={{ textAlign: "right" }}>
-               
-                <AddUser/>
+                <AddUser />
               </Grid>
             </Grid>
             <div
@@ -659,7 +658,6 @@ const UserManagement = () => {
 
         {/* </div> */}
       </Dialog>
-    
     </>
   );
 };

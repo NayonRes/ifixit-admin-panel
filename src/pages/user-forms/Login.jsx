@@ -120,7 +120,7 @@ const Login = () => {
           password: password.trim(),
         };
         let response = await axios({
-          url: `/api/v1/user/login`,
+          url: `api/v1/auth/token`,
           method: "post",
           data: data,
         });
@@ -201,7 +201,7 @@ const Login = () => {
             color="text.light"
             sx={{ fontWeight: 500, mb: 4 }}
           >
-            Login as User 111
+            Login as User
           </Typography>
           <Box sx={{ mb: 1.5 }}>
             <TextField

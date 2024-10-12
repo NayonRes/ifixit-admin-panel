@@ -58,7 +58,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const UserList = () => {
+const BranchList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -334,7 +334,7 @@ const UserList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            User List
+            Branch List
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
@@ -831,4 +831,4 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+export default BranchList;
