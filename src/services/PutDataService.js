@@ -1,19 +1,23 @@
 import axios from "axios";
 
-const handlePutData = async (url, data, token) => {
-  console.log(url, data, token);
-
-  
+const handlePutData = async (url, data, isFormData) => {
+  let headers = {
+    // Authorization: `Bearer ${token}`,
+  };
+  if (isFormData) {
+    headers["Content-Type"] = "multipart/form-data";
+  }
   try {
     let response = await axios({
       method: "put",
       url: url,
       data: data,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Accept-Language": `en`,
-        "Content-Type": "multipart/form-data",
-      },
+      headers: headers,
+      // headers: {
+      //   Authorization: `Bearer ${token}`,
+      //   "Accept-Language": `en`,
+      //   "Content-Type": "multipart/form-data",
+      // },
     });
 
     return response;

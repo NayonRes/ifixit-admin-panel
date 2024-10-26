@@ -25,7 +25,7 @@ import axios from "axios";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import { AuthContext } from "../../context/AuthContext";
-import { Box, Collapse } from "@mui/material";
+import { Box, Collapse, TableContainer } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -55,6 +55,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
 import AddBranch from "./AddBranch";
+import UpdateBranch from "./UpdateBranch";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -79,7 +80,7 @@ const BranchList = () => {
   const [maxPrice, setMaxPrice] = useState(null);
   const [status, setStatus] = useState("");
   const [category, SetCategory] = useState("");
-  const [categoryList, setCategoryList] = useState([]);
+
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const [filterList, setFilterList] = useState([]);
@@ -90,15 +91,7 @@ const BranchList = () => {
   const [images, setImages] = useState([]);
   const [detailDialog, setDetailDialog] = useState(false);
   const [details, setDetails] = useState([]);
-  const [cancelProductData, setCancelProductData] = useState({});
-  const [cancelProductDialog, setCancelProductDialog] = useState(false);
-  const [cancelProductLoading, setCancelProductLoading] = useState(false);
-  const componentRef = useRef();
-  const handleDetailClickOpen = (obj) => {
-    console.log("obj", obj);
-    setDetails(obj);
-    setDetailDialog(true);
-  };
+
   const handleDetailClose = () => {
     setDetails({});
     setDetailDialog(false);
@@ -136,25 +129,10 @@ const BranchList = () => {
       },
     },
   };
-  const handleCancelProductClickOpen = (obj) => {
-    setCancelProductData(obj);
-    setCancelProductDialog(true);
-  };
-  const handleCancelProductClose = () => {
-    setCancelProductData({});
-    setCancelProductDialog(false);
-  };
-  const handleImageClickOpen = (images) => {
-    setImages(images);
-    setImageDialog(true);
-  };
+
   const handleImageClose = () => {
     setImages([]);
     setImageDialog(false);
-  };
-
-  const handleChange = (event) => {
-    SetCategory(event.target.value);
   };
 
   const handleSnakbarOpen = (msg, vrnt) => {
@@ -319,7 +297,7 @@ const BranchList = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <AddBranch clearFilter={clearFilter}/>
+          <AddBranch clearFilter={clearFilter} />
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -394,58 +372,6 @@ const BranchList = () => {
                   />
                 </Grid>
 
-                {/* <Grid size={2}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="number"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="Phone Number"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                  />
-                </Grid> */}
-                {/* <Grid size={2}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="email"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </Grid> */}
-                {/* <Grid size={2}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Designation
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Designation"
-                      value={designation}
-                      onChange={(e) => setDesignation(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {designationList?.map((item) => (
-                        <MenuItem key={item} value={item}>
-                          {item}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid> */}
                 <Grid size={2}>
                   <FormControl
                     variant="outlined"
@@ -519,25 +445,25 @@ const BranchList = () => {
             boxSizing: "border-box",
           }}
         >
-          <Table aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+          <TableContainer sx={{ maxHeight: "Calc(100vh - 250px)" }}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
 
-                <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
-                <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {!loading &&
-                tableDataList.length > 0 &&
-                tableDataList.map((row, i) => (
-                  <>
+                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {!loading &&
+                  tableDataList.length > 0 &&
+                  tableDataList.map((row, i) => (
                     <TableRow
-                      key={row?.user_id}
+                      key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell>{row?.name}</TableCell>
@@ -586,32 +512,7 @@ const BranchList = () => {
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        <IconButton
-                          variant="contained"
-                          // color="success"
-                          disableElevation
-                          component={Link}
-                          to={`/update-category`}
-                          state={{ row }}
-                        >
-                          {/* <EditOutlinedIcon /> */}
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            id="Outline"
-                            viewBox="0 0 24 24"
-                            width="18"
-                            height="18"
-                          >
-                            <path
-                              d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-                              fill="#787878"
-                            />
-                            <path
-                              d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-                              fill="#787878"
-                            />
-                          </svg>
-                        </IconButton>
+                        <UpdateBranch clearFilter={clearFilter} row={row} />
 
                         {/* <IconButton
                           variant="contained"
@@ -642,19 +543,19 @@ const BranchList = () => {
                         </IconButton> */}
                       </TableCell>
                     </TableRow>
-                  </>
-                ))}
+                  ))}
 
-              {!loading && tableDataList.length < 1 ? (
-                <TableRow>
-                  <TableCell colSpan={15} style={{ textAlign: "center" }}>
-                    <strong> {message}</strong>
-                  </TableCell>
-                </TableRow>
-              ) : null}
-              {loading && pageLoading()}
-            </TableBody>
-          </Table>
+                {!loading && tableDataList.length < 1 ? (
+                  <TableRow>
+                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                      <strong> {message}</strong>
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+                {loading && pageLoading()}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
         {tableDataList.length > 0 ? (
           <div>
