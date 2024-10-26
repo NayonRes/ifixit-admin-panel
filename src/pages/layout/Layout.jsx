@@ -201,8 +201,8 @@ export default function Layout() {
     try {
       setSignOutLoading(true);
 
-      let url = `/api/v1/user/logout`;
-      let res = await getDataWithToken(url);
+      let url = `/api/v1/auth/logout`;
+      let res = await handlePostData(url);
 
       if (res.status >= 200 && res.status < 300) {
         setSignOutLoading(false);

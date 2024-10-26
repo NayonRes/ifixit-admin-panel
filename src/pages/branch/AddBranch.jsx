@@ -78,7 +78,7 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddUser = () => {
+const AddBranch = ({clearFilter}) => {
   const navigate = useNavigate();
   const uploadImage = "/image/userpic.png";
 
@@ -88,7 +88,7 @@ const AddUser = () => {
   const [number, setNumber] = useState("");
   const [password, setPassword] = useState("");
   const [designation, setDesignation] = useState("");
-  const [branch, setBranch] = useState("");
+  const [parent_id, setParent_id] = useState("");
   const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -106,25 +106,7 @@ const AddUser = () => {
       setAddUserDialog(false);
     }
   };
-  const dropzoneRef = useRef(null);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    console.log("onDrop", acceptedFiles);
-    // if (!dropzoneRef.current) return;
-    const file = acceptedFiles[0];
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // setBase64String(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-  const onFileDialogCancel = useCallback(() => {
-    console.log("File dialog was closed without selecting a file");
-    // setBase64String(""); // Update state to indicate dialog was cancelled
-  }, []);
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -137,9 +119,7 @@ const AddUser = () => {
       autoHideDuration: duration,
     });
   };
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
+
   const validation = () => {
     let isError = false;
 
@@ -180,11 +160,8 @@ const AddUser = () => {
 
   const clearForm = () => {
     setName("");
-    setPassword("");
-    setDesignation("");
-    setNumber("");
-    setEmail("");
-    setBranch("");
+
+    setParent_id("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -193,79 +170,29 @@ const AddUser = () => {
 
     var formdata = new FormData();
     formdata.append("name", name);
-    formdata.append("email", email);
-    formdata.append("password", password);
-    formdata.append("branch_id", branch);
-    formdata.append("mobile", number);
-    formdata.append("designation", designation);
 
-    // formdata.append("role_id", roleId);
-    if (imageFile) {
-      formdata.append("image", imageFile);
-    }
+    formdata.append("parent_id", parent_id);
 
-    // let response = await axios({
-    //   url: `/api/v1/user`,
-    //   method: "post",
-    //   data: formdata,
-    // });
+    let data = {
+      name: name,
+      parent_id: parent_id,
+    };
 
-    let response = await handlePostData("/api/v1/user", formdata, true);
+    let response = await handlePostData("/api/v1/branch", formdata, false);
 
     console.log("response", response);
 
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
+      clearFilter()
       clearForm();
       handleDialogClose();
-      // navigate("/category-list");
     } else {
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
     setLoading(false);
     // }
-  };
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
-    onDrop,
-    onFileDialogCancel,
-    ref: dropzoneRef,
-    accept: { "image/*": [] },
-    maxFiles: 1,
-  });
-  const files = acceptedFiles.map((file) => (
-    <>
-      {file.path} - {file.size} bytes
-    </>
-  ));
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject]
-  );
-  const imageProcess = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      let imageFile = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (x) => {
-        setImageFile(imageFile);
-        setPreview(x.target.result);
-      };
-      reader.readAsDataURL(imageFile);
-    } else {
-      setImageFile(null);
-    }
   };
 
   const customeTextFeild = {
@@ -325,24 +252,23 @@ const AddUser = () => {
     },
   };
 
-  // const getDropdownList = async () => {
-  //   setLoading2(true);
+  const getDropdownList = async () => {
+    setLoading2(true);
 
-  //   let url = `/api/v1/branch`;
-  //   let allData = await getDataWithToken(url);
-  //   console.log("allData?.data", allData?.data);
+    let url = `/api/v1/branch/dropdown`;
+    let allData = await getDataWithToken(url);
 
-  //   if (allData.status >= 200 && allData.status < 300) {
-  //     setBranchList(allData?.data?.totalData);
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
 
-  //     if (allData.data.data.length < 1) {
-  //       setMessage("No data found");
-  //     }
-  //   }
-  //   setLoading2(false);
-  // };
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
   useEffect(() => {
-    // getDropdownList();
+    getDropdownList();
   }, []);
   return (
     <>
@@ -369,7 +295,7 @@ const AddUser = () => {
           </svg>
         }
       >
-        Add User
+        Add Branch
       </Button>
 
       <Dialog
@@ -397,7 +323,7 @@ const AddUser = () => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add User
+          Add Branch
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddUserDialog(false)}
@@ -434,7 +360,7 @@ const AddUser = () => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Full Name
+            Branch Name
           </Typography>
           <TextField
             required
@@ -449,77 +375,14 @@ const AddUser = () => {
               setName(e.target.value);
             }}
           />
+
           <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Set Password
-          </Typography>
-          <TextField
-            required
-            size="small"
-            fullWidth
-            id="password"
-            placeholder="Enter password"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-          />
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Email
-          </Typography>
-          <TextField
-            required
-            type="email"
-            size="small"
-            fullWidth
-            id="email"
-            placeholder="Enter Email"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-          />
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Phone Number
-          </Typography>
-          <TextField
-            required
-            size="small"
-            fullWidth
-            id="number"
-            placeholder="Enter Number"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
-            value={number}
-            onChange={(e) => {
-              setNumber(e.target.value);
-            }}
-          />
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Designation
+            Parent Branch
           </Typography>
 
           <FormControl
@@ -538,61 +401,7 @@ const AddUser = () => {
               mb: 3,
             }}
           >
-            {designation.length < 1 && (
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ color: "#b3b3b3", fontWeight: 300 }}
-              >
-                Select Designation
-              </InputLabel>
-            )}
-            <Select
-              required
-              labelId="demo-simple-select-label"
-              id="baseLanguage"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 250, // Set the max height here
-                  },
-                },
-              }}
-              value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
-            >
-              {designationList?.map((item) => (
-                <MenuItem key={item} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Branch
-          </Typography>
-
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{
-              ...customeSelectFeild,
-              "& label.Mui-focused": {
-                color: "rgba(0,0,0,0)",
-              },
-
-              "& .MuiOutlinedInput-input img": {
-                position: "relative",
-                top: "2px",
-              },
-              mb: 3,
-            }}
-          >
-            {branch.length < 1 && (
+            {parent_id.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -611,69 +420,16 @@ const AddUser = () => {
                   },
                 },
               }}
-              value={branch}
-              onChange={(e) => setBranch(e.target.value)}
+              value={parent_id}
+              onChange={(e) => setParent_id(e.target.value)}
             >
-              {designationList?.map((item) => (
-                <MenuItem key={item} value={item}>
-                  {item}
+              {branchList?.map((item) => (
+                <MenuItem key={item} value={item?._id}>
+                  {item?.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          <Box {...getRootProps({ style })}>
-            <input {...getInputProps()} />
-
-            <Grid container justifyContent="center">
-              <Box
-                sx={{
-                  mb: 1.5,
-                  p: 1.125,
-                  paddingBottom: "3px",
-                  borderRadius: "8px",
-                  border: "1px solid #EAECF0",
-                  boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                >
-                  <path
-                    d="M6.66666 13.3333L9.99999 10M9.99999 10L13.3333 13.3333M9.99999 10V17.5M16.6667 13.9524C17.6846 13.1117 18.3333 11.8399 18.3333 10.4167C18.3333 7.88536 16.2813 5.83333 13.75 5.83333C13.5679 5.83333 13.3975 5.73833 13.3051 5.58145C12.2184 3.73736 10.212 2.5 7.91666 2.5C4.46488 2.5 1.66666 5.29822 1.66666 8.75C1.66666 10.4718 2.36286 12.0309 3.48911 13.1613"
-                    stroke="#344054"
-                    stroke-width="1.66667"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </Box>
-            </Grid>
-            <Box sx={{ pl: 1.5, textAlign: "center" }}>
-              <Typography
-                variant="base"
-                color="text.fade"
-                sx={{ fontWeight: 400, mb: 0.5 }}
-              >
-                <span style={{ color: "#4238CA", fontWeight: 500 }}>
-                  {" "}
-                  Click to upload{" "}
-                </span>
-                or drag and drop
-              </Typography>
-              <Typography variant="medium" color="text.fade">
-                PNG, JPG (max. 400x400px)
-              </Typography>
-              {file?.path?.length > 0 && (
-                <Typography variant="medium" color="text.light" sx={{ mt: 1 }}>
-                  <b>Uploaded:</b> {file?.path} - {file?.size} bytes
-                </Typography>
-              )}
-            </Box>
-          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -722,4 +478,4 @@ const AddUser = () => {
   );
 };
 
-export default AddUser;
+export default AddBranch;

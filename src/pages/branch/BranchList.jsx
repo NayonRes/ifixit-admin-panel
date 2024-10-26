@@ -54,6 +54,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
+import AddBranch from "./AddBranch";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -185,7 +186,7 @@ const BranchList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(7).keys()].map((e, i) => (
+          {[...Array(3).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -223,20 +224,12 @@ const BranchList = () => {
   };
 
   const clearFilter = (event) => {
-    console.log("clearFilter");
-    setOrderID("");
     setName("");
-    setDesignation("");
+
     setStatus("");
-    setEmail("");
-    setNumber("");
-    SetCategory("");
-    setMinPrice("");
-    setMaxPrice("");
-    setStartingTime(null);
-    setEndingTime(null);
+
     setPage(0);
-    const newUrl = `/api/v1/order?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/branch?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -248,62 +241,50 @@ const BranchList = () => {
   };
 
   const getData = async (pageNO, limit, newUrl) => {
-    try {
-      setLoading(true);
-      let newPageNO = page;
-      let url;
-      if (pageNO >= 0) {
-        newPageNO = pageNO;
-      }
-      let newLimit = rowsPerPage;
-      if (limit) {
-        newLimit = limit;
-      }
-      if (newUrl) {
-        url = newUrl;
-      } else {
-        let newStatus = status;
-        let newMinPrice = minPrice;
-        let newMaxPrice = maxPrice;
-        let newStartingTime = "";
-        let newEndingTime = "";
-        if (status === "None") {
-          newStatus = "";
-        }
-        if (minPrice === null) {
-          newMinPrice = "";
-        }
-        if (maxPrice === null) {
-          newMaxPrice = "";
-        }
-        if (startingTime !== null) {
-          newStartingTime = dayjs(startingTime).format("YYYY-MM-DD");
-        }
-        if (endingTime !== null) {
-          newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
-        }
-
-        url = `/api/v1/user?name=${name}&email=${email}&number=${number}&designation=${designation}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
-          newPageNO + 1
-        }`;
-      }
-      let allData = await getDataWithToken(url);
-
-      if (allData.status >= 200 && allData.status < 300) {
-        setTableDataList(allData?.data?.data);
-        // setRowsPerPage(allData?.data?.limit);
-        setTotalData(allData?.data?.totalData);
-
-        if (allData.data.data.length < 1) {
-          setMessage("No data found");
-        }
-      }
-      setLoading(false);
-    } catch (error) {
-      console.log("error", error);
-      setLoading(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
+    setLoading(true);
+    let newPageNO = page;
+    let url;
+    if (pageNO >= 0) {
+      newPageNO = pageNO;
     }
+    let newLimit = rowsPerPage;
+    if (limit) {
+      newLimit = limit;
+    }
+    if (newUrl) {
+      url = newUrl;
+    } else {
+      let newStatus = status;
+
+      let newStartingTime = "";
+      let newEndingTime = "";
+      if (status === "None") {
+        newStatus = "";
+      }
+
+      if (startingTime !== null) {
+        newStartingTime = dayjs(startingTime).format("YYYY-MM-DD");
+      }
+      if (endingTime !== null) {
+        newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
+      }
+
+      url = `/api/v1/branch?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+        newPageNO + 1
+      }`;
+    }
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setTableDataList(allData?.data?.data);
+      // setRowsPerPage(allData?.data?.limit);
+      setTotalData(allData?.data?.pagination?.totalData);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading(false);
   };
 
   const sortByParentName = (a, b) => {
@@ -338,17 +319,9 @@ const BranchList = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          {/* <Button
-            disableElevation
-            variant="outlined"
-            size="large"
-            // startIcon={<FilterListIcon />}
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <FilterListOffIcon /> : <FilterListIcon />}
-          </Button> */}
+          <AddBranch clearFilter={clearFilter}/>
 
-          <IconButton
+          {/* <IconButton
             onClick={() => setOpen(!open)}
             // size="large"
             aria-label="show 5 new notifications"
@@ -371,7 +344,7 @@ const BranchList = () => {
                 />
               </svg>
             </Badge>
-          </IconButton>
+          </IconButton> */}
         </Grid>
       </Grid>
       <div
@@ -421,7 +394,7 @@ const BranchList = () => {
                   />
                 </Grid>
 
-                <Grid size={2}>
+                {/* <Grid size={2}>
                   <TextField
                     sx={{ ...customeTextFeild }}
                     id="number"
@@ -432,8 +405,8 @@ const BranchList = () => {
                     value={number}
                     onChange={(e) => setNumber(e.target.value)}
                   />
-                </Grid>
-                <Grid size={2}>
+                </Grid> */}
+                {/* <Grid size={2}>
                   <TextField
                     sx={{ ...customeTextFeild }}
                     id="email"
@@ -444,8 +417,8 @@ const BranchList = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                </Grid>
-                <Grid size={2}>
+                </Grid> */}
+                {/* <Grid size={2}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -472,7 +445,7 @@ const BranchList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
                 <Grid size={2}>
                   <FormControl
                     variant="outlined"
@@ -549,17 +522,8 @@ const BranchList = () => {
           <Table aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
-                  Name
-                </TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
 
-                <TableCell style={{ whiteSpace: "nowrap" }}>
-                  Designation
-                </TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>Email</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>
-                  Mobile Number
-                </TableCell>
                 <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
                 <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
@@ -576,35 +540,7 @@ const BranchList = () => {
                       key={row?.user_id}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell sx={{ width: "30px", pr: 0 }}>
-                        {/* {row?.image?.url?.length > 0 ? (
-                          <> */}
-                        <img
-                          src={
-                            row?.image?.url?.length > 0
-                              ? row?.image?.url
-                              : "/userpic.png"
-                          }
-                          alt=""
-                          width="30px"
-                          height="30px"
-                          style={{
-                            display: "block",
-                            margin: "5px 0px",
-                            borderRadius: "100px",
-                            // border: "1px solid #d1d1d1",
-                          }}
-                        />
-
-                        {/* </>
-                        ) : (
-                          "No Image"
-                        )} */}
-                      </TableCell>
                       <TableCell>{row?.name}</TableCell>
-                      <TableCell>{row?.designation}</TableCell>
-                      <TableCell>{row?.email}</TableCell>
-                      <TableCell>{row?.number ? row?.number : "-------"}</TableCell>
 
                       <TableCell>
                         {row?.status ? (
@@ -677,12 +613,12 @@ const BranchList = () => {
                           </svg>
                         </IconButton>
 
-                        <IconButton
+                        {/* <IconButton
                           variant="contained"
                           disableElevation
                           onClick={() => handleDeleteDialog(i, row)}
                         >
-                          {/* <DeleteOutlineIcon color="error" /> */}
+                    
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             id="Outline"
@@ -703,7 +639,7 @@ const BranchList = () => {
                               fill="#F91351"
                             />
                           </svg>
-                        </IconButton>
+                        </IconButton> */}
                       </TableCell>
                     </TableRow>
                   </>

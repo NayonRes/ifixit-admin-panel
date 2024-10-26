@@ -236,7 +236,7 @@ const UserList = () => {
     setStartingTime(null);
     setEndingTime(null);
     setPage(0);
-    const newUrl = `/api/v1/order?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/user?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -248,62 +248,56 @@ const UserList = () => {
   };
 
   const getData = async (pageNO, limit, newUrl) => {
-    try {
-      setLoading(true);
-      let newPageNO = page;
-      let url;
-      if (pageNO >= 0) {
-        newPageNO = pageNO;
-      }
-      let newLimit = rowsPerPage;
-      if (limit) {
-        newLimit = limit;
-      }
-      if (newUrl) {
-        url = newUrl;
-      } else {
-        let newStatus = status;
-        let newMinPrice = minPrice;
-        let newMaxPrice = maxPrice;
-        let newStartingTime = "";
-        let newEndingTime = "";
-        if (status === "None") {
-          newStatus = "";
-        }
-        if (minPrice === null) {
-          newMinPrice = "";
-        }
-        if (maxPrice === null) {
-          newMaxPrice = "";
-        }
-        if (startingTime !== null) {
-          newStartingTime = dayjs(startingTime).format("YYYY-MM-DD");
-        }
-        if (endingTime !== null) {
-          newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
-        }
-
-        url = `/api/v1/user?name=${name}&email=${email}&number=${number}&designation=${designation}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
-          newPageNO + 1
-        }`;
-      }
-      let allData = await getDataWithToken(url);
-
-      if (allData.status >= 200 && allData.status < 300) {
-        setTableDataList(allData?.data?.data);
-        // setRowsPerPage(allData?.data?.limit);
-        setTotalData(allData?.data?.totalData);
-
-        if (allData.data.data.length < 1) {
-          setMessage("No data found");
-        }
-      }
-      setLoading(false);
-    } catch (error) {
-      console.log("error", error);
-      setLoading(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
+    setLoading(true);
+    let newPageNO = page;
+    let url;
+    if (pageNO >= 0) {
+      newPageNO = pageNO;
     }
+    let newLimit = rowsPerPage;
+    if (limit) {
+      newLimit = limit;
+    }
+    if (newUrl) {
+      url = newUrl;
+    } else {
+      let newStatus = status;
+      let newMinPrice = minPrice;
+      let newMaxPrice = maxPrice;
+      let newStartingTime = "";
+      let newEndingTime = "";
+      if (status === "None") {
+        newStatus = "";
+      }
+      if (minPrice === null) {
+        newMinPrice = "";
+      }
+      if (maxPrice === null) {
+        newMaxPrice = "";
+      }
+      if (startingTime !== null) {
+        newStartingTime = dayjs(startingTime).format("YYYY-MM-DD");
+      }
+      if (endingTime !== null) {
+        newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
+      }
+
+      url = `/api/v1/user?name=${name}&email=${email}&mobile=${number}&designation=${designation}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+        newPageNO + 1
+      }`;
+    }
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setTableDataList(allData?.data?.data);
+      // setRowsPerPage(allData?.data?.limit);
+      setTotalData(allData?.data?.totalData);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading(false);
   };
 
   const sortByParentName = (a, b) => {
@@ -604,7 +598,9 @@ const UserList = () => {
                       <TableCell>{row?.name}</TableCell>
                       <TableCell>{row?.designation}</TableCell>
                       <TableCell>{row?.email}</TableCell>
-                      <TableCell>{row?.number ? row?.number : "-------"}</TableCell>
+                      <TableCell>
+                        {row?.mobile ? row?.mobile : "-------"}
+                      </TableCell>
 
                       <TableCell>
                         {row?.status ? (
