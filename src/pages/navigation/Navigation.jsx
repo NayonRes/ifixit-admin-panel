@@ -12,6 +12,7 @@ import ForgotPassword from "../user-forms/ForgotPassword";
 import UserList from "../users/UserList";
 import UserManagement from "../users/UserManagement";
 import BranchList from "../branch/BranchList";
+import CategoryList from "../category/CategoryList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -83,6 +84,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <BranchList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="category-list"
+          element={
+            <PrivateRoute>
+              <CategoryList />
             </PrivateRoute>
           }
         />

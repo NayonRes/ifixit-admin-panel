@@ -84,6 +84,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
+  const [status, setStatus] = useState("");
   const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -112,6 +113,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
   const clearForm = () => {
     setName("");
     setParent_id("");
+    setStatus("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -127,6 +129,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
       name: name.trim(),
 
       parent_id: parent_id?.length > 0 ? parent_id : null,
+      status: status,
     };
 
     let response = await handlePutData(
@@ -224,6 +227,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
   };
   useEffect(() => {
     setName(row?.name);
+    setStatus(row?.status);
     setParent_id(row?.parent_id === null ? "" : row?.parent_id);
   }, []);
   return (
@@ -412,6 +416,55 @@ const UpdateBranch = ({ clearFilter, row }) => {
                   {item?.name}
                 </MenuItem>
               ))}
+            </Select>
+          </FormControl>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Status
+          </Typography>
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {/* {parent_id.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Status
+              </InputLabel>
+            )} */}
+            <Select
+              // required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <MenuItem value={true}>Active</MenuItem>
+              <MenuItem value={false}>Inactive</MenuItem>
             </Select>
           </FormControl>
         </DialogContent>
