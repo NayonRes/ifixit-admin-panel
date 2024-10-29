@@ -636,7 +636,7 @@ export default function Layout() {
                 </List>
               </Collapse>
 
-              <ListItem disablePadding sx={{ display: "block" }}>
+              {/* <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   onClick={() => handleOpemMenu("")}
                   component={Link}
@@ -668,7 +668,7 @@ export default function Layout() {
                     </svg>
                   </ListItemIcon>
                   <ListItemText primary="Branch" />
-                  {/* &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; 5 */}
+               
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding sx={{ display: "block" }}>
@@ -701,9 +701,9 @@ export default function Layout() {
                     </svg>
                   </ListItemIcon>
                   <ListItemText primary="Category" />
-                  {/* &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; 5 */}
+ 
                 </ListItemButton>
-              </ListItem>
+              </ListItem> */}
 
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
@@ -1257,27 +1257,27 @@ export default function Layout() {
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
-                      to="/spare-part-list"
+                      to="/branch-list"
                       sx={[
                         { ...listButtonStyle },
-                        pathname === "/spare-part-list" && { ...activeStyle },
+                        pathname === "/branch-list" && { ...activeStyle },
                       ]}
                     >
-                      <ListItemText primary="Settings 1" />
+                      <ListItemText primary="Branch" />
                     </ListItemButton>
                   </ListItem>
 
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
-                      to="/stock-alert"
+                      to="/category-list"
                       sx={[
                         { ...listButtonStyle },
-                        pathname === "/stock-alert" && { ...activeStyle },
+                        pathname === "/category-list" && { ...activeStyle },
                       ]}
                       style={{ marginBottom: "0px" }}
                     >
-                      <ListItemText primary="Settings 2" />
+                      <ListItemText primary="Category" />
                     </ListItemButton>
                   </ListItem>
                 </List>

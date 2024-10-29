@@ -13,6 +13,7 @@ import UserList from "../users/UserList";
 import UserManagement from "../users/UserManagement";
 import BranchList from "../branch/BranchList";
 import CategoryList from "../category/CategoryList";
+import CustomerList from "../customer/CustomerList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -92,6 +93,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <CategoryList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="customer"
+          element={
+            <PrivateRoute>
+              <CustomerList />
             </PrivateRoute>
           }
         />
