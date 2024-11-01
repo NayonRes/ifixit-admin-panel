@@ -16,6 +16,8 @@ import CategoryList from "../category/CategoryList";
 import CustomerList from "../customer/CustomerList";
 import SupplierList from "../supplier/SupplierList";
 import BrandList from "../brand/BrandList";
+import DeviceList from "../device/DeviceList";
+import ModelList from "../model/ModelList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -98,7 +100,7 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
-        <Route
+          <Route
           path="category-list"
           element={
             <PrivateRoute>
@@ -106,6 +108,24 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
+        <Route
+          path="device-list"
+          element={
+            <PrivateRoute>
+              <DeviceList />
+            </PrivateRoute>
+          }
+        />
+         
+        <Route
+          path="model-list"
+          element={
+            <PrivateRoute>
+              <ModelList />
+            </PrivateRoute>
+          }
+        />
+     
         <Route
           path="customer"
           element={

@@ -1279,7 +1279,6 @@ export default function Layout() {
                       <ListItemText primary="Brand" />
                     </ListItemButton>
                   </ListItem>
-
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
@@ -1288,9 +1287,33 @@ export default function Layout() {
                         { ...listButtonStyle },
                         pathname === "/category-list" && { ...activeStyle },
                       ]}
-                      style={{ marginBottom: "0px" }}
                     >
                       <ListItemText primary="Category" />
+                    </ListItemButton>
+                  </ListItem>
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      component={Link}
+                      to="/device-list"
+                      sx={[
+                        { ...listButtonStyle },
+                        pathname === "/device-list" && { ...activeStyle },
+                      ]}
+                    >
+                      <ListItemText primary="Device" />
+                    </ListItemButton>
+                  </ListItem>
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      component={Link}
+                      to="/model-list"
+                      sx={[
+                        { ...listButtonStyle },
+                        pathname === "/model-list" && { ...activeStyle },
+                      ]}
+                      style={{ marginBottom: "0px" }}
+                    >
+                      <ListItemText primary="Model" />
                     </ListItemButton>
                   </ListItem>
                 </List>

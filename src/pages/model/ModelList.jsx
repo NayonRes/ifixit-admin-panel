@@ -54,13 +54,13 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddDevice from "./AddDevice";
-import UpdateDevice from "./UpdateDevice";
+import AddModel from "./AddModel";
+import UpdateModel from "./UpdateModel";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const DeviceList = () => {
+const ModelList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -207,7 +207,7 @@ const DeviceList = () => {
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/device?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/model?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -247,7 +247,7 @@ const DeviceList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/device?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/model?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -293,11 +293,11 @@ const DeviceList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Device List
+       Model List
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <AddDevice clearFilter={clearFilter} />
+          <AddModel clearFilter={clearFilter} />
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -512,7 +512,7 @@ const DeviceList = () => {
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        <UpdateDevice clearFilter={clearFilter} row={row} />
+                        <UpdateModel clearFilter={clearFilter} row={row} />
 
                         {/* <IconButton
                           variant="contained"
@@ -668,4 +668,4 @@ const DeviceList = () => {
   );
 };
 
-export default DeviceList;
+export default ModelList;
