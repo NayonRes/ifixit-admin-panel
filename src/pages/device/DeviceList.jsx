@@ -54,13 +54,13 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddCustomer from "./AddCustomer";
-import UpdateCustomer from "./UpdateCustomer";
+import AddDevice from "./AddDevice";
+import UpdateBranch from "./UpdateBranch";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const CustomerList = () => {
+const DeviceList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -73,12 +73,9 @@ const CustomerList = () => {
   const [deleteData, setDeleteData] = useState({});
   const [orderID, setOrderID] = useState("");
   const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [type, setType] = useState("");
-  const [remarks, setRemarks] = useState("");
-  const [rating, setRating] = useState("");
-  const [membershipId, setMembershipId] = useState("");
+  const [number, setNumber] = useState("");
+  const [designation, setDesignation] = useState("");
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
   const [status, setStatus] = useState("");
@@ -167,7 +164,7 @@ const CustomerList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(8).keys()].map((e, i) => (
+          {[...Array(3).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -176,6 +173,26 @@ const CustomerList = () => {
       );
     }
     return content;
+  };
+  const handleDelete = async () => {
+    try {
+      setLoading2(true);
+      let response = await axios({
+        url: `/api/v1/user/delete/${deleteData.row._id}`,
+        method: "delete",
+      });
+      if (response.status >= 200 && response.status < 300) {
+        handleSnakbarOpen("Deleted successfully", "success");
+        getData();
+      }
+      setDeleteDialog(false);
+      setLoading2(false);
+    } catch (error) {
+      console.log("error", error);
+      setLoading2(false);
+      handleSnakbarOpen(error.response.data.message.toString(), "error");
+      setDeleteDialog(false);
+    }
   };
 
   const handleChangePage = (event, newPage) => {
@@ -186,11 +203,11 @@ const CustomerList = () => {
 
   const clearFilter = (event) => {
     setName("");
-    setNumber("");
+
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/contact?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/device?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -230,7 +247,7 @@ const CustomerList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/contact?name=${name}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/device?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -269,18 +286,18 @@ const CustomerList = () => {
   return (
     <>
       <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
-        <Grid size={6}>
+        <Grid size={9}>
           <Typography
             variant="h6"
             gutterBottom
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Customer List
+            Device List
           </Typography>
         </Grid>
-        <Grid size={6} style={{ textAlign: "right" }}>
-          <AddCustomer clearFilter={clearFilter} />
+        <Grid size={3} style={{ textAlign: "right" }}>
+          <AddDevice clearFilter={clearFilter} />
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -354,32 +371,8 @@ const CustomerList = () => {
                     onChange={(e) => setName(e.target.value)}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="number"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="number"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="email"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </Grid>
 
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -403,9 +396,9 @@ const CustomerList = () => {
                       <MenuItem value={false}>Inactive</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid> */}
+                </Grid>
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2  }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>
@@ -457,19 +450,8 @@ const CustomerList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Mobile Number
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Email</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Customer Type
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Rating</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Membership ID
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell> */}
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
@@ -485,23 +467,8 @@ const CustomerList = () => {
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell>{row?.name}</TableCell>
-                      <TableCell>{row?.mobile}</TableCell>
+
                       <TableCell>
-                        {row?.email ? row?.email : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.type ? row?.type : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.rating ? row?.rating : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.member_id ? row?.member_id : "---------"}
-                      </TableCell>
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.remarks ? row?.remarks : "---------"}
-                      </TableCell>
-                      {/* <TableCell>
                         {row?.status ? (
                           <>
                             <TaskAltOutlinedIcon
@@ -539,13 +506,41 @@ const CustomerList = () => {
                             </span>
                           </>
                         )}
-                      </TableCell> */}
+                      </TableCell>
 
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        <UpdateCustomer clearFilter={clearFilter} row={row} />
+                        <UpdateBranch clearFilter={clearFilter} row={row} />
+
+                        {/* <IconButton
+                          variant="contained"
+                          disableElevation
+                          onClick={() => handleDeleteDialog(i, row)}
+                        >
+                    
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            id="Outline"
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                          >
+                            <path
+                              d="M21,4H17.9A5.009,5.009,0,0,0,13,0H11A5.009,5.009,0,0,0,6.1,4H3A1,1,0,0,0,3,6H4V19a5.006,5.006,0,0,0,5,5h6a5.006,5.006,0,0,0,5-5V6h1a1,1,0,0,0,0-2ZM11,2h2a3.006,3.006,0,0,1,2.829,2H8.171A3.006,3.006,0,0,1,11,2Zm7,17a3,3,0,0,1-3,3H9a3,3,0,0,1-3-3V6H18Z"
+                              fill="#F91351"
+                            />
+                            <path
+                              d="M10,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,10,18Z"
+                              fill="#F91351"
+                            />
+                            <path
+                              d="M14,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,14,18Z"
+                              fill="#F91351"
+                            />
+                          </svg>
+                        </IconButton> */}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -635,8 +630,42 @@ const CustomerList = () => {
         </DialogActions>
         {/* </div> */}
       </Dialog>
+      <Dialog
+        open={deleteDialog}
+        onClose={handleDeleteDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <div style={{ padding: "10px", minWidth: "300px" }}>
+          <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              You want to delete <b>{deleteData?.row?.name} </b>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDeleteDialogClose}>cancel</Button>
+            <Button
+              variant="contained"
+              disabled={loading2}
+              onClick={handleDelete}
+              style={{ minWidth: "100px", minHeight: "35px" }}
+              autoFocus
+              disableElevation
+            >
+              <PulseLoader
+                color={"#353b48"}
+                loading={loading2}
+                size={10}
+                speedMultiplier={0.5}
+              />{" "}
+              {loading2 === false && "Confirm"}
+            </Button>
+          </DialogActions>
+        </div>
+      </Dialog>
     </>
   );
 };
 
-export default CustomerList;
+export default DeviceList;

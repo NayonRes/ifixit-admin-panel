@@ -389,7 +389,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
               mb: 3,
             }}
           >
-            {parent_id.length < 1 && (
+            {parent_id?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -441,7 +441,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
               },
             }}
           >
-            {/* {parent_id.length < 1 && (
+            {/* {parent_id?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}

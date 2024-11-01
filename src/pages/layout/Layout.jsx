@@ -1270,6 +1270,19 @@ export default function Layout() {
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
+                      to="/brand-list"
+                      sx={[
+                        { ...listButtonStyle },
+                        pathname === "/brand-list" && { ...activeStyle },
+                      ]}
+                    >
+                      <ListItemText primary="Brand" />
+                    </ListItemButton>
+                  </ListItem>
+
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      component={Link}
                       to="/category-list"
                       sx={[
                         { ...listButtonStyle },

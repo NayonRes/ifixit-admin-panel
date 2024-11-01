@@ -341,7 +341,7 @@ const BranchList = () => {
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
         >
-          <Grid size={2}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -351,7 +351,7 @@ const BranchList = () => {
               Details
             </Typography>
           </Grid>
-          <Grid size={10}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
                 container
@@ -359,7 +359,7 @@ const BranchList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={2}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <TextField
                     sx={{ ...customeTextFeild }}
                     id="Name"
@@ -372,7 +372,7 @@ const BranchList = () => {
                   />
                 </Grid>
 
-                <Grid size={2}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -398,7 +398,7 @@ const BranchList = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid size={2}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>

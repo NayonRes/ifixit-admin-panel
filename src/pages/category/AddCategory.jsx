@@ -358,7 +358,7 @@ const AddCategory = ({ clearFilter }) => {
          
             }}
           >
-            {parent_id.length < 1 && (
+            {parent_id?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}

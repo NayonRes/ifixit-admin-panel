@@ -75,14 +75,13 @@ const SupplierList = () => {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [type, setType] = useState("");
-  const [remarks, setRemarks] = useState("");
-  const [rating, setRating] = useState("");
-  const [membershipId, setMembershipId] = useState("");
-  const [minPrice, setMinPrice] = useState(null);
-  const [maxPrice, setMaxPrice] = useState(null);
+
+  const [organizationName, setOrganizationName] = useState("");
+  const [organizationNumber, setOrganizationNumber] = useState("");
+  const [organizationEmail, setOrganizationEmail] = useState("");
+  const [organizationAddress, setOrganizationAddress] = useState("");
+
   const [status, setStatus] = useState("");
-  const [category, SetCategory] = useState("");
 
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -164,10 +163,10 @@ const SupplierList = () => {
   const pageLoading = () => {
     let content = [];
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 6; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(8).keys()].map((e, i) => (
+          {[...Array(6).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -342,32 +341,56 @@ const SupplierList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }}>
                   <TextField
                     sx={{ ...customeTextFeild }}
                     id="Name"
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="Name"
+                    label="Supplier Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }}>
                   <TextField
                     sx={{ ...customeTextFeild }}
                     id="number"
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="number"
+                    label="Supplier Number"
                     value={number}
                     onChange={(e) => setNumber(e.target.value)}
                   />
                 </Grid>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }}>
+                  <TextField
+                    sx={{ ...customeTextFeild }}
+                    id="organizationName"
+                    fullWidth
+                    size="small"
+                    variant="outlined"
+                    label="Organization Name"
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }}>
+                  <TextField
+                    sx={{ ...customeTextFeild }}
+                    id="organizationNumber"
+                    fullWidth
+                    size="small"
+                    variant="outlined"
+                    label="Organization Number"
+                    value={organizationNumber}
+                    onChange={(e) => setOrganizationNumber(e.target.value)}
+                  />
+                </Grid> */}
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -391,7 +414,7 @@ const SupplierList = () => {
                       <MenuItem value={false}>Inactive</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
@@ -444,20 +467,20 @@ const SupplierList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    {" "}
+                    Full Name
+                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Mobile Number
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Email</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Customer Type
+                    Address
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Rating</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Membership ID
-                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
 
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell> */}
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
@@ -478,16 +501,13 @@ const SupplierList = () => {
                         {row?.email ? row?.email : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.type ? row?.type : "---------"}
+                        {row?.address ? row?.address : "---------"}
                       </TableCell>
-                      <TableCell>
-                        {row?.rating ? row?.rating : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.member_id ? row?.member_id : "---------"}
+                      <TableCell sx={{ minWidth: "150px" }}>
+                        {row?.remarks ? row?.remarks : "---------"}
                       </TableCell>
 
-                      <TableCell>
+                      {/* <TableCell>
                         {row?.status ? (
                           <>
                             <TaskAltOutlinedIcon
@@ -525,13 +545,13 @@ const SupplierList = () => {
                             </span>
                           </>
                         )}
-                      </TableCell>
+                      </TableCell> */}
 
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        {/* <UpdateSupplier clearFilter={clearFilter} row={row} /> */}
+                        <UpdateSupplier clearFilter={clearFilter} row={row} />
                       </TableCell>
                     </TableRow>
                   ))}

@@ -128,10 +128,7 @@ const AddSupplier = ({ clearFilter }) => {
     setNumber("");
     setEmail("");
     setAddress("");
-    setOrganizationName("");
-    setOrganizationNumber("");
-    setOrganizationEmail("");
-    setOrganizationAddress("");
+   
     setRemarks("");
   };
   const onSubmit = async (e) => {
@@ -149,10 +146,6 @@ const AddSupplier = ({ clearFilter }) => {
       mobile: number.trim(),
       email: email.trim(),
       address: address.trim(),
-      organizationName: organizationName.trim(),
-      organizationNumber: organizationNumber.trim(),
-      organizationEmail: organizationEmail.trim(),
-      organizationAddress: organizationAddress.trim(),
 
       remarks: remarks.trim(),
     };
@@ -374,14 +367,14 @@ const AddSupplier = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Supplier Email
+                Email
               </Typography>
               <TextField
                 type="email"
                 size="small"
                 fullWidth
                 id="email"
-                placeholder="Supplier Email"
+                placeholder="Email"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={email}
@@ -397,13 +390,13 @@ const AddSupplier = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Supplier Address
+                Address
               </Typography>
               <TextField
                 size="small"
                 fullWidth
                 id="address"
-                placeholder="Supplier Address"
+                placeholder="Address"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={address}
@@ -413,7 +406,7 @@ const AddSupplier = ({ clearFilter }) => {
               />
             </Grid>
 
-            <Grid size={6}>
+            {/* <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -498,10 +491,10 @@ const AddSupplier = ({ clearFilter }) => {
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={organizationAddress}
                 onChange={(e) => {
-                  setOrganizationEmail(e.target.value);
+                  setOrganizationAddress(e.target.value);
                 }}
               />
-            </Grid>
+            </Grid> */}
 
             <Grid size={12}>
               <Typography

@@ -78,7 +78,7 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddBranch = ({ clearFilter }) => {
+const AddBrand = ({ clearFilter }) => {
   const navigate = useNavigate();
 
   const [addDialog, setAddDialog] = useState(false);
@@ -131,7 +131,7 @@ const AddBranch = ({ clearFilter }) => {
       parent_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData("/api/v1/branch", data, false);
+    let response = await handlePostData("/api/v1/brand", data, false);
 
     console.log("response", response);
 
@@ -209,7 +209,7 @@ const AddBranch = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/branch/dropdown`;
+    let url = `/api/v1/brand/dropdown`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -252,7 +252,7 @@ const AddBranch = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Branch
+        Add Brand
       </Button>
 
       <Dialog
@@ -280,7 +280,7 @@ const AddBranch = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Branch
+          Add Brand
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddDialog(false)}
@@ -317,7 +317,7 @@ const AddBranch = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Branch Name
+            Brand Name
           </Typography>
           <TextField
             required
@@ -339,7 +339,7 @@ const AddBranch = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Branch
+            Parent Brand
           </Typography>
 
           <FormControl
@@ -362,7 +362,7 @@ const AddBranch = ({ clearFilter }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Branch
+                Select Brand
               </InputLabel>
             )}
             <Select
@@ -434,4 +434,4 @@ const AddBranch = ({ clearFilter }) => {
   );
 };
 
-export default AddBranch;
+export default AddBrand;

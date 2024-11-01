@@ -90,6 +90,7 @@ const UpdateSupplier = ({ clearFilter, row }) => {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [address, setAddress] = useState();
   const [type, setType] = useState("");
   const [remarks, setRemarks] = useState("");
   const [rating, setRating] = useState("");
@@ -125,11 +126,9 @@ const UpdateSupplier = ({ clearFilter, row }) => {
     setName("");
     setNumber("");
     setEmail("");
-    setType("");
-    setRating("");
-    setMembershipId("");
+    setAddress("");
+
     setRemarks("");
-    setStatus("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -143,9 +142,11 @@ const UpdateSupplier = ({ clearFilter, row }) => {
 
     let data = {
       name: name.trim(),
+      mobile: number.trim(),
+      email: email.trim(),
+      address: address.trim(),
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
-      status: status,
+      remarks: remarks.trim(),
     };
 
     let response = await handlePutData(
@@ -231,9 +232,8 @@ const UpdateSupplier = ({ clearFilter, row }) => {
 
     setNumber(row?.mobile);
     setEmail(row?.email);
-    setType(row?.type);
-    setRating(row?.rating);
-    setMembershipId(row?.member_id);
+    setAddress(row?.address);
+
     setRemarks(row?.remarks);
     setStatus(row?.status);
   }, []);
@@ -318,7 +318,7 @@ const UpdateSupplier = ({ clearFilter, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-         Update Supplier
+          Update Supplier
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setUpdateDialog(false)}
@@ -426,132 +426,112 @@ const UpdateSupplier = ({ clearFilter, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Customer Type
-              </Typography>
-
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
-                }}
-              >
-                {type.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Customer Type
-                  </InputLabel>
-                )}
-                <Select
-                  required
-                  labelId="demo-simple-select-label"
-                  id="type"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                >
-                  {customerTypeList?.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Customer Rating
-              </Typography>
-
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
-                }}
-              >
-                {rating.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Customer Rating
-                  </InputLabel>
-                )}
-                <Select
-                  required
-                  labelId="demo-simple-select-label"
-                  id="type"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={rating}
-                  onChange={(e) => setRating(e.target.value)}
-                >
-                  {ratingList?.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Membership ID
+                Address
               </Typography>
               <TextField
                 size="small"
                 fullWidth
-                id="membershipId"
-                placeholder="Membership ID"
+                id="address"
+                placeholder="Address"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
-                value={membershipId}
+                value={address}
                 onChange={(e) => {
-                  setMembershipId(e.target.value);
+                  setAddress(e.target.value);
                 }}
               />
             </Grid>
+
+            {/* <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Organization Name
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                id="organizationName"
+                placeholder="Organization Name"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={organizationName}
+                onChange={(e) => {
+                  setOrganizationName(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Organization Number
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                id="organizationNumber"
+                placeholder="Organization Number"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={organizationNumber}
+                onChange={(e) => {
+                  setOrganizationNumber(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Organization Email
+              </Typography>
+              <TextField
+                type="email"
+                size="small"
+                fullWidth
+                id="organizationEmail"
+                placeholder="Organization Email"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={organizationEmail}
+                onChange={(e) => {
+                  setOrganizationEmail(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Organization Address
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                id="organizationAddress"
+                placeholder="Organization Address"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={organizationAddress}
+                onChange={(e) => {
+                  setOrganizationAddress(e.target.value);
+                }}
+              />
+            </Grid> */}
+
             <Grid size={12}>
               <Typography
                 variant="medium"

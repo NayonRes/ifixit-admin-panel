@@ -143,9 +143,12 @@ const UpdateCustomer = ({ clearFilter, row }) => {
 
     let data = {
       name: name.trim(),
-
-      parent_id: parent_id?.length > 0 ? parent_id : null,
-      status: status,
+      mobile: number.trim(),
+      email: email.trim(),
+      type: type.trim(),
+      rating: rating.trim(),
+      member_id: membershipId.trim(),
+      remarks: remarks.trim(),
     };
 
     let response = await handlePutData(
