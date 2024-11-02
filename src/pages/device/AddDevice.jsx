@@ -221,8 +221,7 @@ const AddDevice = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
-  useEffect(() => {
-    // getDropdownList();
+  useEffect(() => { 
   }, []);
   return (
     <>
@@ -232,7 +231,7 @@ const AddDevice = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
         startIcon={
           <svg
@@ -326,23 +325,23 @@ const AddDevice = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
+            sx={{ ...customeTextFeild  }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
             Parent Device
-          </Typography>
+          </Typography> */}
 
-          <FormControl
+          {/* <FormControl
             fullWidth
             size="small"
             sx={{
@@ -385,7 +384,7 @@ const AddDevice = ({ clearFilter }) => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

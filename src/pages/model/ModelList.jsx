@@ -293,7 +293,7 @@ const ModelList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-       Model List
+            Model List
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>

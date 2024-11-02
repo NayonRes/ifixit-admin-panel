@@ -128,7 +128,7 @@ const AddModel = ({ clearFilter }) => {
     let data = {
       name: name.trim(),
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
+      device_id: parent_id?.length > 0 ? parent_id : null,
     };
 
     let response = await handlePostData("/api/v1/model", data, false);
@@ -209,7 +209,7 @@ const AddModel = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/brand/dropdown`;
+    let url = `/api/v1/device/dropdown`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -339,7 +339,7 @@ const AddModel = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Select Brand
+            Select Device
           </Typography>
 
           <FormControl
@@ -366,7 +366,7 @@ const AddModel = ({ clearFilter }) => {
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{

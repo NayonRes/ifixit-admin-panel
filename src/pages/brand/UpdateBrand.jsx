@@ -128,7 +128,7 @@ const UpdateBrand = ({ clearFilter, row }) => {
     let data = {
       name: name.trim(),
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
+      // parent_id: parent_id?.length > 0 ? parent_id : null,
       status: status,
     };
 
@@ -228,7 +228,7 @@ const UpdateBrand = ({ clearFilter, row }) => {
   useEffect(() => {
     setName(row?.name);
     setStatus(row?.status);
-    setParent_id(row?.parent_id === null ? "" : row?.parent_id);
+    // setParent_id(row?.parent_id === null ? "" : row?.parent_id);
   }, []);
   return (
     <>
@@ -238,7 +238,7 @@ const UpdateBrand = ({ clearFilter, row }) => {
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -338,7 +338,7 @@ const UpdateBrand = ({ clearFilter, row }) => {
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -391,7 +391,7 @@ const UpdateBrand = ({ clearFilter, row }) => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
           <Typography
             variant="medium"
             color="text.main"

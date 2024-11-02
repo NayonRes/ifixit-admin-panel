@@ -128,7 +128,7 @@ const UpdateModel = ({ clearFilter, row }) => {
     let data = {
       name: name.trim(),
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
+      device_id: parent_id?.length > 0 ? parent_id : null,
       status: status,
     };
 
@@ -213,7 +213,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/brand/dropdown`;
+    let url = `/api/v1/device/dropdown`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -228,7 +228,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   useEffect(() => {
     setName(row?.name);
     setStatus(row?.status);
-    setParent_id(row?.parent_id === null ? "" : row?.parent_id);
+    setParent_id(row?.device_id === null ? "" : row?.parent_id);
   }, []);
   return (
     <>
@@ -344,7 +344,7 @@ const UpdateModel = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-        Select Brand
+            Select Brand
           </Typography>
 
           <FormControl

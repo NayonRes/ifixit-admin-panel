@@ -112,7 +112,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
   const clearForm = () => {
     setName("");
-    setParent_id("");
+
     setStatus("");
   };
   const onSubmit = async (e) => {
@@ -127,8 +127,6 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
     let data = {
       name: name.trim(),
-
-      parent_id: parent_id?.length > 0 ? parent_id : null,
       status: status,
     };
 
@@ -228,7 +226,6 @@ const UpdateDevice = ({ clearFilter, row }) => {
   useEffect(() => {
     setName(row?.name);
     setStatus(row?.status);
-    setParent_id(row?.parent_id === null ? "" : row?.parent_id);
   }, []);
   return (
     <>
@@ -264,7 +261,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -311,7 +308,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-       Update Device
+          Update Device
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setUpdateDialog(false)}
@@ -357,23 +354,23 @@ const UpdateDevice = ({ clearFilter, row }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
+            sx={{ ...customeTextFeild }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
             Parent Device
-          </Typography>
+          </Typography> */}
 
-          <FormControl
+          {/* <FormControl
             fullWidth
             size="small"
             sx={{
@@ -417,7 +414,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
           <Typography
             variant="medium"
             color="text.main"
