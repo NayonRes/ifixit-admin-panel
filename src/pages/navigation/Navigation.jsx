@@ -18,6 +18,7 @@ import SupplierList from "../supplier/SupplierList";
 import BrandList from "../brand/BrandList";
 import DeviceList from "../device/DeviceList";
 import ModelList from "../model/ModelList";
+import SparePartsList from "../spare-parts/SparePartsList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -100,7 +101,7 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
-          <Route
+        <Route
           path="category-list"
           element={
             <PrivateRoute>
@@ -116,7 +117,7 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
-         
+
         <Route
           path="model-list"
           element={
@@ -125,7 +126,15 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
-     
+        <Route
+          path="spare-parts-list"
+          element={
+            <PrivateRoute>
+              <SparePartsList />
+            </PrivateRoute>
+          }
+        />
+
         <Route
           path="customer"
           element={

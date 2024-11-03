@@ -54,11 +54,79 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import AddUser from "./AddUser";
+
+import { styled } from "@mui/material/styles";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import Stack from "@mui/material/Stack";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
+const IOSSwitch = styled((props) => (
+  <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
+))(({ theme }) => ({
+  width: 36,
+  height: 20,
+  padding: 0,
+
+  "& .MuiSwitch-switchBase": {
+    padding: 0,
+    margin: 2,
+    transitionDuration: "300ms",
+    "&.Mui-checked": {
+      transform: "translateX(16px)",
+      color: "#fff",
+      "& + .MuiSwitch-track": {
+        backgroundColor: theme.palette.primary.main,
+        opacity: 1,
+        border: 0,
+        ...theme.applyStyles("dark", {
+          backgroundColor: "#2ECA45",
+        }),
+      },
+      "&.Mui-disabled + .MuiSwitch-track": {
+        opacity: 0.5,
+      },
+    },
+    "&.Mui-focusVisible .MuiSwitch-thumb": {
+      color: "#33cf4d",
+      border: "6px solid #fff",
+    },
+    "&.Mui-disabled .MuiSwitch-thumb": {
+      color: theme.palette.grey[100],
+      ...theme.applyStyles("dark", {
+        color: theme.palette.grey[600],
+      }),
+    },
+    "&.Mui-disabled + .MuiSwitch-track": {
+      opacity: 0.7,
+      ...theme.applyStyles("dark", {
+        opacity: 0.3,
+      }),
+    },
+  },
+  "& .MuiSwitch-thumb": {
+    boxSizing: "border-box",
+    width: 16,
+    height: 16,
+  },
+  "& .MuiSwitch-track": {
+    borderRadius: 26 / 2,
+    backgroundColor: "#E9E9EA",
+    opacity: 1,
+    transition: theme.transitions.create(["background-color"], {
+      duration: 500,
+    }),
+    ...theme.applyStyles("dark", {
+      backgroundColor: "#39393D",
+    }),
+  },
+}));
+
 const UserManagement = () => {
+  const [permissionList, setPermissionList] = useState([]);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -92,6 +160,14 @@ const UserManagement = () => {
   const [cancelProductData, setCancelProductData] = useState({});
   const [cancelProductDialog, setCancelProductDialog] = useState(false);
   const [cancelProductLoading, setCancelProductLoading] = useState(false);
+
+  const [checked, setChecked] = useState(false);
+
+  const handleChange = (event) => {
+    console.log("2222222222222222222222", event.target.id);
+
+    setChecked(event.target.checked);
+  };
   const componentRef = useRef();
   const handleDetailClickOpen = (obj) => {
     console.log("obj", obj);
@@ -150,10 +226,6 @@ const UserManagement = () => {
   const handleImageClose = () => {
     setImages([]);
     setAddUserDialog(false);
-  };
-
-  const handleChange = (event) => {
-    SetCategory(event.target.value);
   };
 
   const handleSnakbarOpen = (msg, vrnt) => {
@@ -282,6 +354,28 @@ const UserManagement = () => {
       handleSnakbarOpen(error.response.data.message.toString(), "error");
     }
   };
+  const getPermissionData = async (pageNO, limit, newUrl) => {
+    try {
+      setLoading(true);
+      let url = `/api/v1/permission`;
+      let allData = await getDataWithToken(url);
+
+      if (allData.status >= 200 && allData.status < 300) {
+        setPermissionList(allData?.data?.data);
+        // setRowsPerPage(allData?.data?.limit);
+        // setTotalData(allData?.data?.totalData);
+
+        if (allData.data.data.length < 1) {
+          setMessage("No data found");
+        }
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log("error", error);
+      setLoading(false);
+      handleSnakbarOpen(error.response.data.message.toString(), "error");
+    }
+  };
 
   const sortByParentName = (a, b) => {
     const nameA = a.parent_name.toUpperCase();
@@ -296,10 +390,11 @@ const UserManagement = () => {
 
     return 0;
   };
-  // useEffect(() => {
-  //   getData();
-  //   // getCategoryList();
-  // }, []);
+  useEffect(() => {
+    getPermissionData();
+    // getData();
+    // getCategoryList();
+  }, []);
 
   return (
     <>
@@ -410,7 +505,7 @@ const UserManagement = () => {
               container
               justifyContent="space-between"
               alignItems="center"
-              sx={{ px: 1.5, mb: 1.75 }}
+              sx={{ px: 2.5, mb: 1.75 }}
             >
               <Grid size={6}>
                 <Typography
@@ -426,209 +521,32 @@ const UserManagement = () => {
                 <AddUser />
               </Grid>
             </Grid>
-            <div
-              style={{
-                overflowX: "auto",
 
-                minWidth: "100%",
-                width: "Calc(100vw - 385px)",
-                // padding: "10px 16px 0px",
-                boxSizing: "border-box",
-              }}
-            >
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
-                      Name
-                    </TableCell>
-
-                    <TableCell style={{ whiteSpace: "nowrap" }}>
-                      Designation
-                    </TableCell>
-                    <TableCell style={{ whiteSpace: "nowrap" }}>
-                      Email
-                    </TableCell>
-                    <TableCell style={{ whiteSpace: "nowrap" }}>
-                      Mobile Number
-                    </TableCell>
-                    <TableCell style={{ whiteSpace: "nowrap" }}>
-                      Status
-                    </TableCell>
-
-                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                      Actions
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {!loading &&
-                    tableDataList.length > 0 &&
-                    tableDataList.map((row, i) => (
-                      <>
-                        <TableRow
-                          key={row?.user_id}
-                          // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                        >
-                          <TableCell sx={{ width: "30px", pr: 0 }}>
-                            {/* {row?.image?.url?.length > 0 ? (
-                          <> */}
-                            <img
-                              src={
-                                row?.image?.url?.length > 0
-                                  ? row?.image?.url
-                                  : "/userpic.png"
-                              }
-                              alt=""
-                              width="30px"
-                              height="30px"
-                              style={{
-                                display: "block",
-                                margin: "5px 0px",
-                                borderRadius: "100px",
-                                // border: "1px solid #d1d1d1",
-                              }}
-                            />
-
-                            {/* </>
-                        ) : (
-                          "No Image"
-                        )} */}
-                          </TableCell>
-                          <TableCell>{row?.name}</TableCell>
-                          <TableCell>{row?.designation}</TableCell>
-                          <TableCell>{row?.number}</TableCell>
-                          <TableCell>{row?.email}</TableCell>
-
-                          <TableCell>
-                            {row?.status ? (
-                              <>
-                                <TaskAltOutlinedIcon
-                                  style={{
-                                    color: "#10ac84",
-                                    height: "16px",
-                                    position: "relative",
-                                    top: "4px",
-                                  }}
-                                />{" "}
-                                <span
-                                  style={{
-                                    color: "#10ac84",
-                                  }}
-                                >
-                                  Active &nbsp;
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <HighlightOffOutlinedIcon
-                                  style={{
-                                    color: "#ee5253",
-                                    height: "16px",
-                                    position: "relative",
-                                    top: "4px",
-                                  }}
-                                />
-                                <span
-                                  style={{
-                                    color: "#ee5253",
-                                  }}
-                                >
-                                  Inactive
-                                </span>
-                              </>
-                            )}
-                          </TableCell>
-
-                          {/* <TableCell align="center" style={{ minWidth: "130px" }}>
-                        <Invoice data={row} />
-                      </TableCell> */}
-                          <TableCell align="right">
-                            <IconButton
-                              variant="contained"
-                              // color="success"
-                              disableElevation
-                              component={Link}
-                              to={`/update-category`}
-                              state={{ row }}
-                            >
-                              {/* <EditOutlinedIcon /> */}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                id="Outline"
-                                viewBox="0 0 24 24"
-                                width="18"
-                                height="18"
-                              >
-                                <path
-                                  d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-                                  fill="#787878"
-                                />
-                                <path
-                                  d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-                                  fill="#787878"
-                                />
-                              </svg>
-                            </IconButton>
-
-                            <IconButton
-                              variant="contained"
-                              disableElevation
-                              onClick={() => handleDeleteDialog(i, row)}
-                            >
-                              {/* <DeleteOutlineIcon color="error" /> */}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                id="Outline"
-                                viewBox="0 0 24 24"
-                                width="20"
-                                height="20"
-                              >
-                                <path
-                                  d="M21,4H17.9A5.009,5.009,0,0,0,13,0H11A5.009,5.009,0,0,0,6.1,4H3A1,1,0,0,0,3,6H4V19a5.006,5.006,0,0,0,5,5h6a5.006,5.006,0,0,0,5-5V6h1a1,1,0,0,0,0-2ZM11,2h2a3.006,3.006,0,0,1,2.829,2H8.171A3.006,3.006,0,0,1,11,2Zm7,17a3,3,0,0,1-3,3H9a3,3,0,0,1-3-3V6H18Z"
-                                  fill="#F91351"
-                                />
-                                <path
-                                  d="M10,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,10,18Z"
-                                  fill="#F91351"
-                                />
-                                <path
-                                  d="M14,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,14,18Z"
-                                  fill="#F91351"
-                                />
-                              </svg>
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      </>
-                    ))}
-
-                  {!loading && tableDataList.length < 1 ? (
-                    <TableRow>
-                      <TableCell colSpan={15} style={{ textAlign: "center" }}>
-                        <strong> {message}</strong>
-                      </TableCell>
-                    </TableRow>
-                  ) : null}
-                  {loading && pageLoading()}
-                </TableBody>
-              </Table>
-            </div>
-            {tableDataList.length > 0 ? (
-              <div>
-                <TablePagination
-                  style={{ display: "block", border: "none" }}
-                  rowsPerPageOptions={[10, 20, 50]}
-                  count={totalData}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
+            <Box sx={{ px: 2.5 }}>
+              
+              <FormGroup
+                sx={{
+                  "& .MuiTypography-root": {
+                    fontSize: "14px !important",
+                    fontWeight: "500 !important",
+                  },
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <IOSSwitch
+                      sx={{
+                        m: 1,
+                      }}
+                      id="555555"
+                      checked={checked}
+                      onChange={handleChange}
+                    />
+                  }
+                  label="iOS style"
                 />
-              </div>
-            ) : (
-              <br />
-            )}
+              </FormGroup>
+            </Box>
           </div>
         </Grid>
       </Grid>
