@@ -390,6 +390,17 @@ const UserManagement = () => {
 
     return 0;
   };
+
+  function toTitleCase(str) {
+    return str
+      .split("-") // Split by hyphen
+      .map(
+        (
+          word // Capitalize each word
+        ) => word.charAt(0).toUpperCase() + word.slice(1)
+      )
+      .join(" "); // Join with a space
+  }
   useEffect(() => {
     getPermissionData();
     // getData();
@@ -523,29 +534,73 @@ const UserManagement = () => {
             </Grid>
 
             <Box sx={{ px: 2.5 }}>
-              
-              <FormGroup
-                sx={{
-                  "& .MuiTypography-root": {
-                    fontSize: "14px !important",
-                    fontWeight: "500 !important",
-                  },
-                }}
-              >
-                <FormControlLabel
-                  control={
-                    <IOSSwitch
-                      sx={{
-                        m: 1,
-                      }}
-                      id="555555"
-                      checked={checked}
-                      onChange={handleChange}
-                    />
-                  }
-                  label="iOS style"
-                />
-              </FormGroup>
+              {!loading &&
+                permissionList.length > 0 &&
+                permissionList.map((row, i) => (
+                  <Grid
+                    container
+                    sx={{
+                      borderBottom: "1px solid #EAECF1",
+                      borderTop: i === 0 && "1px solid #EAECF1",
+                      py: 2,
+                    }}
+                  >
+                    <Grid size={6}>
+                      <Typography variant="medium" sx={{fontWeight:600}}>
+                      {toTitleCase(row?.module_name)}
+                      </Typography>
+                      <FormGroup
+                        sx={{
+                          "& .MuiTypography-root": {
+                            fontSize: "14px !important",
+                            fontWeight: "500 !important",
+                          },
+                        }}
+                      >
+                        <FormControlLabel
+                          control={
+                            <IOSSwitch
+                              sx={{
+                                m: 1,
+                              }}
+                              id="555555"
+                              checked={checked}
+                              onChange={handleChange}
+                            />
+                          }
+                          label={"All"}
+                        />
+                      </FormGroup>
+                    </Grid>
+                    <Grid size={6}>
+                      {row?.permissions?.map((permission) => (
+                        <FormGroup
+                          sx={{
+                            "& .MuiTypography-root": {
+                              fontSize: "14px !important",
+                              fontWeight: "500 !important",
+                            },
+                            mb: 1.5,
+                          }}
+                        >
+                          <FormControlLabel
+                            control={
+                              <IOSSwitch
+                                sx={{
+                                  m: 1,
+                                }}
+                                id="555555"
+                                checked={checked}
+                                onChange={handleChange}
+                              />
+                            }
+                            label={toTitleCase(permission?.name)}
+                          />
+                        </FormGroup>
+                      ))}
+                    </Grid>
+                  </Grid>
+                ))}
             </Box>
           </div>
         </Grid>
