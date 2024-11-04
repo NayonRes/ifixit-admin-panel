@@ -256,36 +256,37 @@ const UserManagement = () => {
 
     for (let i = 0; i < 10; i++) {
       content.push(
-        <TableRow key={i}>
-          {[...Array(7).keys()].map((e, i) => (
-            <TableCell key={i}>
-              <Skeleton></Skeleton>
-            </TableCell>
-          ))}
-        </TableRow>
+        // <TableRow key={i}>
+        //   {[...Array(7).keys()].map((e, i) => (
+        //     <TableCell key={i}>
+        //       <Skeleton></Skeleton>
+        //     </TableCell>
+        //   ))}
+        // </TableRow>
+
+        <Grid
+          container
+          sx={{
+            borderBottom: "1px solid #EAECF1",
+            borderTop: i === 0 && "1px solid #EAECF1",
+            py: 2,
+          }}
+        >
+          <Grid size={6}>
+            <Skeleton width={170}></Skeleton>
+            <Skeleton width={250}></Skeleton>
+          </Grid>
+          <Grid size={6}>
+            {/* loop */}
+            <Skeleton width={320} sx={{ mb: 1.5 }}></Skeleton>
+            <Skeleton width={320} sx={{ mb: 1.5 }}></Skeleton>
+            <Skeleton width={320} sx={{ mb: 1.5 }}></Skeleton>
+            <Skeleton width={320} sx={{ mb: 1.5 }}></Skeleton>
+          </Grid>
+        </Grid>
       );
     }
     return content;
-  };
-  const handleDelete = async () => {
-    try {
-      setLoading2(true);
-      let response = await axios({
-        url: `/api/v1/user/delete/${deleteData.row._id}`,
-        method: "delete",
-      });
-      if (response.status >= 200 && response.status < 300) {
-        handleSnakbarOpen("Deleted successfully", "success");
-        getData();
-      }
-      setDeleteDialog(false);
-      setLoading2(false);
-    } catch (error) {
-      console.log("error", error);
-      setLoading2(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
-      setDeleteDialog(false);
-    }
   };
 
   const handleChangePage = (event, newPage) => {
@@ -459,47 +460,70 @@ const UserManagement = () => {
       </Grid>
 
       <Grid container>
-        <Grid sx={{ width: "264px", pr: 6, boxSizing: "border-box" }}>
-          {[...Array(7).keys()]?.map((item, i) => (
-            <Box
-              sx={{
-                mb: 1,
-                px: 1,
-                py: 1.5,
-                borderRadius: "12px",
-                border: i === 0 && "1px solid #A5B5FC",
-              }}
-            >
-              <Grid container alignItems="center">
-                <Grid sx={{ width: "38px" }}>
-                  <img
-                    src={
-                      item?.image?.url?.length > 0
-                        ? item?.image?.url
-                        : "/userpic.png"
-                    }
-                    alt=""
-                    width="30px"
-                    height="30px"
-                    style={{
-                      display: "block",
-                      margin: "5px 0px",
-                      borderRadius: "100px",
-                      // border: "1px solid #d1d1d1",
-                    }}
-                  />
+        <Grid
+          sx={{
+            width: "264px",
+            pr: 6,
+            boxSizing: "border-box",
+          }}
+        >
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="name"
+            placeholder="Search User"
+            variant="outlined"
+            sx={{ ...customeTextFeild, background: "#fff", mb: 2 }}
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+          />
+          <Box
+            sx={{ maxHeight: "Calc(100vh - 150px)", overflowY: "auto", pr: 1 }}
+          >
+            {[...Array(15).keys()]?.map((item, i) => (
+              <Box
+                sx={{
+                  mb: 1,
+                  px: 1,
+                  py: 1.5,
+                  borderRadius: "12px",
+                  border: i === 0 && "1px solid #A5B5FC",
+                }}
+              >
+                <Grid container alignItems="center">
+                  <Grid sx={{ width: "38px" }}>
+                    <img
+                      src={
+                        item?.image?.url?.length > 0
+                          ? item?.image?.url
+                          : "/userpic.png"
+                      }
+                      alt=""
+                      width="30px"
+                      height="30px"
+                      style={{
+                        display: "block",
+                        margin: "5px 0px",
+                        borderRadius: "100px",
+                        // border: "1px solid #d1d1d1",
+                      }}
+                    />
+                  </Grid>
+                  <Grid sx={{ flexGrow: 1 }}>
+                    <Typography variant="medium" sx={{ fontWeight: 500 }}>
+                      Wade Warren
+                    </Typography>
+                    <Typography variant="small" sx={{ color: "#475467" }}>
+                      Manager
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid sx={{ flexGrow: 1 }}>
-                  <Typography variant="medium" sx={{ fontWeight: 500 }}>
-                    Wade Warren
-                  </Typography>
-                  <Typography variant="small" sx={{ color: "#475467" }}>
-                    Manager
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Box>
-          ))}
+              </Box>
+            ))}
+          </Box>
         </Grid>
         <Grid sx={{ width: "calc(100% - 264px)" }}>
           <div
@@ -533,7 +557,13 @@ const UserManagement = () => {
               </Grid>
             </Grid>
 
-            <Box sx={{ px: 2.5 }}>
+            <Box
+              sx={{
+                px: 2.5,
+                maxHeight: "Calc(100vh - 200px)",
+                overflowY: "auto",
+              }}
+            >
               {!loading &&
                 permissionList.length > 0 &&
                 permissionList.map((row, i) => (
@@ -546,8 +576,8 @@ const UserManagement = () => {
                     }}
                   >
                     <Grid size={6}>
-                      <Typography variant="medium" sx={{fontWeight:600}}>
-                      {toTitleCase(row?.module_name)}
+                      <Typography variant="medium" sx={{ fontWeight: 600 }}>
+                        {toTitleCase(row?.module_name)}
                       </Typography>
                       <FormGroup
                         sx={{
@@ -601,6 +631,7 @@ const UserManagement = () => {
                     </Grid>
                   </Grid>
                 ))}
+              {loading && pageLoading()}
             </Box>
           </div>
         </Grid>
