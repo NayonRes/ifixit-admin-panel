@@ -79,7 +79,7 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const UpdateCategory = ({ clearFilter, row }) => {
+const UpdateVariant = ({ clearFilter, row }) => {
   const navigate = useNavigate();
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
@@ -133,7 +133,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
     };
 
     let response = await handlePutData(
-      `/api/v1/category/${row?._id}`,
+      `/api/v1/variant/${row?._id}`,
       data,
       false
     );
@@ -213,7 +213,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/category/dropdown`;
+    let url = `/api/v1/variant/dropdown`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -255,7 +255,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
           </svg>
         }
       >
-        Update Category
+        Update Variant
       </Button> */}
 
       <IconButton
@@ -311,7 +311,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Update Category
+          Update Variant
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setUpdateDialog(false)}
@@ -348,7 +348,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Category Name
+            Variant Name
           </Typography>
           <TextField
             required
@@ -370,7 +370,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Category
+            Parent Variant
           </Typography>
 
           <FormControl
@@ -394,7 +394,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Category
+                Select Variant
               </InputLabel>
             )}
             <Select
@@ -515,4 +515,4 @@ const UpdateCategory = ({ clearFilter, row }) => {
   );
 };
 
-export default UpdateCategory;
+export default UpdateVariant;

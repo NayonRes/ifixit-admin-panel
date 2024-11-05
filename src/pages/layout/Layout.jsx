@@ -1316,6 +1316,19 @@ export default function Layout() {
                       <ListItemText primary="Model" />
                     </ListItemButton>
                   </ListItem>
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      component={Link}
+                      to="/variant-list"
+                      sx={[
+                        { ...listButtonStyle },
+                        pathname === "/variant-list" && { ...activeStyle },
+                      ]}
+                      style={{ marginBottom: "0px" }}
+                    >
+                      <ListItemText primary="Variant" />
+                    </ListItemButton>
+                  </ListItem>
                 </List>
               </Collapse>
             </Box>

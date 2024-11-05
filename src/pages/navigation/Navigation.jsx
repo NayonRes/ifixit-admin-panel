@@ -18,6 +18,7 @@ import SupplierList from "../supplier/SupplierList";
 import BrandList from "../brand/BrandList";
 import DeviceList from "../device/DeviceList";
 import ModelList from "../model/ModelList";
+import VariantList from "../variant/VariantList";
 import SparePartsList from "../spare-parts/SparePartsList";
 
 // import NoMatch from "../NoMatch";
@@ -123,6 +124,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <ModelList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="variant-list"
+          element={
+            <PrivateRoute>
+              <VariantList />
             </PrivateRoute>
           }
         />
