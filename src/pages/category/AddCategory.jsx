@@ -127,11 +127,12 @@ const AddCategory = ({ clearFilter }) => {
 
     let data = {
       name: name.trim(),
+      parent_name: parent_id.trim(),
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
+      // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData("/api/v1/category", data, false);
+    let response = await handlePostData("/api/v1/category/create", data, false);
 
     console.log("response", response);
 
@@ -209,7 +210,7 @@ const AddCategory = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/category/dropdown`;
+    let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -355,7 +356,6 @@ const AddCategory = ({ clearFilter }) => {
                 position: "relative",
                 top: "2px",
               },
-         
             }}
           >
             {parent_id?.length < 1 && (
@@ -367,7 +367,7 @@ const AddCategory = ({ clearFilter }) => {
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -381,7 +381,7 @@ const AddCategory = ({ clearFilter }) => {
               onChange={(e) => setParent_id(e.target.value)}
             >
               {branchList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}

@@ -197,7 +197,7 @@ export default function Layout() {
   };
   const fnLogout = async () => {
     console.log("fnLogout-----------");
-
+    logout();
     try {
       setSignOutLoading(true);
 
@@ -206,7 +206,7 @@ export default function Layout() {
 
       if (res.status >= 200 && res.status < 300) {
         setSignOutLoading(false);
-        logout();
+        // logout();
         navigate("/");
       }
     } catch (error) {

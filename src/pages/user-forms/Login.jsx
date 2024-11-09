@@ -120,7 +120,7 @@ const Login = () => {
           password: password.trim(),
         };
         let response = await axios({
-          url: `api/v1/auth/token`,
+          url: `/api/v1/user/login`,
           method: "post",
           data: data,
         });

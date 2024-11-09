@@ -131,7 +131,7 @@ const AddModel = ({ clearFilter }) => {
       device_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData("/api/v1/model", data, false);
+    let response = await handlePostData("/api/v1/model/create", data, false);
 
     console.log("response", response);
 
@@ -209,7 +209,7 @@ const AddModel = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdown`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {

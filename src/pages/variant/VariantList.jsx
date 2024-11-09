@@ -207,7 +207,7 @@ const VariantList = () => {
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/variant?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/filter?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -247,7 +247,7 @@ const VariantList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/variant?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/filter?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -256,7 +256,7 @@ const VariantList = () => {
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
-      setTotalData(allData?.data?.pagination?.totalData);
+      setTotalData(allData?.data?.totalData);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");

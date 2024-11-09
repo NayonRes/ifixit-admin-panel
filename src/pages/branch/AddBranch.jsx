@@ -127,11 +127,12 @@ const AddBranch = ({ clearFilter }) => {
 
     let data = {
       name: name.trim(),
+      parent_name: parent_id,
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
+      // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData("/api/v1/branch", data, false);
+    let response = await handlePostData("/api/v1/branch/create", data, false);
 
     console.log("response", response);
 
@@ -209,7 +210,7 @@ const AddBranch = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/branch/dropdown`;
+    let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -366,7 +367,7 @@ const AddBranch = ({ clearFilter }) => {
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -380,7 +381,7 @@ const AddBranch = ({ clearFilter }) => {
               onChange={(e) => setParent_id(e.target.value)}
             >
               {branchList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}

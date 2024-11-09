@@ -128,10 +128,10 @@ const AddDevice = ({ clearFilter }) => {
     let data = {
       name: name.trim(),
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
+      // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData("/api/v1/device", data, false);
+    let response = await handlePostData("/api/v1/device/create", data, false);
 
     console.log("response", response);
 
@@ -221,8 +221,7 @@ const AddDevice = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
-  useEffect(() => { 
-  }, []);
+  useEffect(() => {}, []);
   return (
     <>
       <Button
@@ -325,7 +324,7 @@ const AddDevice = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild  }}
+            sx={{ ...customeTextFeild }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);

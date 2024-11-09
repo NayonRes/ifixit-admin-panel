@@ -127,11 +127,12 @@ const AddBrand = ({ clearFilter }) => {
 
     let data = {
       name: name.trim(),
+      parent_name: parent_id.trim(),
 
       // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData("/api/v1/brand", data, false);
+    let response = await handlePostData("/api/v1/brand/create", data, false);
 
     console.log("response", response);
 
@@ -209,7 +210,7 @@ const AddBrand = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/brand/dropdown`;
+    let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -232,7 +233,7 @@ const AddBrand = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          // getDropdownList();
+          getDropdownList();
         }}
         startIcon={
           <svg
@@ -326,14 +327,14 @@ const AddBrand = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
+            sx={{ ...customeTextFeild, mb: 3 }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          {/* <Typography
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -364,10 +365,10 @@ const AddBrand = ({ clearFilter }) => {
               >
                 Select Brand
               </InputLabel>
-            )}
+                )}
             <Select
-              // required
-              labelId="demo-simple-select-label"
+              required
+            labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
                 PaperProps: {
@@ -380,12 +381,12 @@ const AddBrand = ({ clearFilter }) => {
               onChange={(e) => setParent_id(e.target.value)}
             >
               {branchList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}
             </Select>
-          </FormControl> */}
+          </FormControl>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

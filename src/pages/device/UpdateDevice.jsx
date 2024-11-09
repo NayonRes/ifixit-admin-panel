@@ -131,7 +131,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
     };
 
     let response = await handlePutData(
-      `/api/v1/device/${row?._id}`,
+      `/api/v1/device/update/${row?._id}`,
       data,
       false
     );
@@ -226,7 +226,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   useEffect(() => {
     setName(row?.name);
     setStatus(row?.status);
-  }, []);
+  }, [updateDialog]);
   return (
     <>
       {/* <Button

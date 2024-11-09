@@ -128,12 +128,12 @@ const UpdateBranch = ({ clearFilter, row }) => {
     let data = {
       name: name.trim(),
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
+      parent_name: parent_id.trim(),
       status: status,
     };
 
     let response = await handlePutData(
-      `/api/v1/branch/${row?._id}`,
+      `/api/v1/branch/update/${row?._id}`,
       data,
       false
     );
@@ -213,7 +213,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/branch/dropdown`;
+    let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -226,10 +226,12 @@ const UpdateBranch = ({ clearFilter, row }) => {
     setLoading2(false);
   };
   useEffect(() => {
+    console.log("useEffect===========================", row);
+
     setName(row?.name);
     setStatus(row?.status);
-    setParent_id(row?.parent_id === null ? "" : row?.parent_id);
-  }, []);
+    setParent_id(row?.parent_name === null ? "" : row?.parent_name);
+  }, [updateDialog]);
   return (
     <>
       {/* <Button
@@ -398,7 +400,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -412,7 +414,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
               onChange={(e) => setParent_id(e.target.value)}
             >
               {branchList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}

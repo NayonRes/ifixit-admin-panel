@@ -133,7 +133,7 @@ const UpdateModel = ({ clearFilter, row }) => {
     };
 
     let response = await handlePutData(
-      `/api/v1/model/${row?._id}`,
+      `/api/v1/model/update/${row?._id}`,
       data,
       false
     );
@@ -213,7 +213,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdown`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -228,8 +228,8 @@ const UpdateModel = ({ clearFilter, row }) => {
   useEffect(() => {
     setName(row?.name);
     setStatus(row?.status);
-    setParent_id(row?.device_id === null ? "" : row?.parent_id);
-  }, []);
+    setParent_id(row?.device_id === null ? "" : row?.device_id);
+  }, [updateDialog]);
   return (
     <>
       <IconButton

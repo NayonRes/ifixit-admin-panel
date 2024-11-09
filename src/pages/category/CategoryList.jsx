@@ -256,7 +256,7 @@ const CategoryList = () => {
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
-      setTotalData(allData?.data?.pagination?.totalData);
+      setTotalData(allData?.data?.totalData);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");

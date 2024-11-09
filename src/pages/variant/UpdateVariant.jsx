@@ -128,12 +128,12 @@ const UpdateVariant = ({ clearFilter, row }) => {
     let data = {
       name: name.trim(),
 
-      parent_id: parent_id?.length > 0 ? parent_id : null,
+      parent_name: parent_id.trim(),
       status: status,
     };
 
     let response = await handlePutData(
-      `/api/v1/variant/${row?._id}`,
+      `/api/v1/filter/update/${row?._id}`,
       data,
       false
     );
@@ -213,7 +213,7 @@ const UpdateVariant = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/variant/dropdown`;
+    let url = `/api/v1/filter/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -228,8 +228,8 @@ const UpdateVariant = ({ clearFilter, row }) => {
   useEffect(() => {
     setName(row?.name);
     setStatus(row?.status);
-    setParent_id(row?.parent_id === null ? "" : row?.parent_id);
-  }, []);
+    setParent_id(row?.parent_name === null ? "" : row?.parent_name);
+  }, [updateDialog]);
   return (
     <>
       {/* <Button
@@ -398,7 +398,7 @@ const UpdateVariant = ({ clearFilter, row }) => {
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -412,7 +412,7 @@ const UpdateVariant = ({ clearFilter, row }) => {
               onChange={(e) => setParent_id(e.target.value)}
             >
               {branchList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}
