@@ -187,10 +187,11 @@ const CustomerList = () => {
   const clearFilter = (event) => {
     setName("");
     setNumber("");
+    setEmail("");
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/contact?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/customer?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -230,16 +231,17 @@ const CustomerList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/contact?name=${name}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/customer?name=${name}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
     let allData = await getDataWithToken(url);
+    console.log("allData?.data", allData?.data.data);
 
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
-      setTotalData(allData?.data?.pagination?.totalData);
+      setTotalData(allData?.data?.totalData);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -405,7 +407,7 @@ const CustomerList = () => {
                   </FormControl>
                 </Grid> */}
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2  }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>
@@ -478,8 +480,8 @@ const CustomerList = () => {
               </TableHead>
               <TableBody>
                 {!loading &&
-                  tableDataList.length > 0 &&
-                  tableDataList.map((row, i) => (
+                  tableDataList?.length > 0 &&
+                  tableDataList?.map((row, i) => (
                     <TableRow
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -490,13 +492,13 @@ const CustomerList = () => {
                         {row?.email ? row?.email : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.type ? row?.type : "---------"}
+                        {row?.customer_type ? row?.customer_type : "---------"}
                       </TableCell>
                       <TableCell>
                         {row?.rating ? row?.rating : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.member_id ? row?.member_id : "---------"}
+                        {row?.membership_id ? row?.membership_id : "---------"}
                       </TableCell>
                       <TableCell sx={{ minWidth: "150px" }}>
                         {row?.remarks ? row?.remarks : "---------"}
@@ -550,7 +552,7 @@ const CustomerList = () => {
                     </TableRow>
                   ))}
 
-                {!loading && tableDataList.length < 1 ? (
+                {!loading && tableDataList?.length < 1 ? (
                   <TableRow>
                     <TableCell colSpan={15} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
@@ -562,7 +564,7 @@ const CustomerList = () => {
             </Table>
           </TableContainer>
         </div>
-        {tableDataList.length > 0 ? (
+        {tableDataList?.length > 0 ? (
           <div>
             <TablePagination
               style={{ display: "block", border: "none" }}

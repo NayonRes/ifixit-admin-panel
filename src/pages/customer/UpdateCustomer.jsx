@@ -145,14 +145,14 @@ const UpdateCustomer = ({ clearFilter, row }) => {
       name: name.trim(),
       mobile: number.trim(),
       email: email.trim(),
-      type: type.trim(),
+      customer_type: type.trim(),
       rating: rating.trim(),
-      member_id: membershipId.trim(),
+      membership_id: membershipId.trim(),
       remarks: remarks.trim(),
     };
 
     let response = await handlePutData(
-      `/api/v1/contact/${row?._id}`,
+      `/api/v1/customer/update/${row?._id}`,
       data,
       false
     );
@@ -165,6 +165,7 @@ const UpdateCustomer = ({ clearFilter, row }) => {
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
@@ -234,12 +235,12 @@ const UpdateCustomer = ({ clearFilter, row }) => {
 
     setNumber(row?.mobile);
     setEmail(row?.email);
-    setType(row?.type);
-    setRating(row?.rating);
-    setMembershipId(row?.member_id);
+    setType(row?.customer_type ? row?.customer_type : "");
+    setRating(row?.rating ? row?.rating : "");
+    setMembershipId(row?.membership_id);
     setRemarks(row?.remarks);
     setStatus(row?.status);
-  }, []);
+  }, [updateDialog]);
   return (
     <>
       {/* <Button
@@ -447,7 +448,7 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                   },
                 }}
               >
-                {type.length < 1 && (
+                {type?.length < 1 && (
                   <InputLabel
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -502,7 +503,7 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                   },
                 }}
               >
-                {rating.length < 1 && (
+                {rating?.length < 1 && (
                   <InputLabel
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}

@@ -128,7 +128,7 @@ const AddSupplier = ({ clearFilter }) => {
     setNumber("");
     setEmail("");
     setAddress("");
-   
+
     setRemarks("");
   };
   const onSubmit = async (e) => {
@@ -150,7 +150,7 @@ const AddSupplier = ({ clearFilter }) => {
       remarks: remarks.trim(),
     };
 
-    let response = await handlePostData("/api/v1/supplier", data, false);
+    let response = await handlePostData("/api/v1/supplier/create", data, false);
 
     console.log("response", response);
 

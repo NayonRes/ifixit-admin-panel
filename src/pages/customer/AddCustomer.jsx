@@ -146,13 +146,13 @@ const AddCustomer = ({ clearFilter }) => {
       name: name.trim(),
       mobile: number.trim(),
       email: email.trim(),
-      type: type.trim(),
+      customer_type: type.trim(),
       rating: rating.trim(),
-      member_id: membershipId.trim(),
+      membership_id: membershipId.trim(),
       remarks: remarks.trim(),
     };
 
-    let response = await handlePostData("/api/v1/contact", data, false);
+    let response = await handlePostData("/api/v1/customer/create", data, false);
 
     console.log("response", response);
 

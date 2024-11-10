@@ -146,6 +146,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 

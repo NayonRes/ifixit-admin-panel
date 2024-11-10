@@ -150,7 +150,7 @@ const UpdateSupplier = ({ clearFilter, row }) => {
     };
 
     let response = await handlePutData(
-      `/api/v1/supplier/${row?._id}`,
+      `/api/v1/supplier/update/${row?._id}`,
       data,
       false
     );
@@ -163,6 +163,7 @@ const UpdateSupplier = ({ clearFilter, row }) => {
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
