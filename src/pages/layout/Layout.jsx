@@ -1311,7 +1311,6 @@ export default function Layout() {
                         { ...listButtonStyle },
                         pathname === "/model-list" && { ...activeStyle },
                       ]}
-                      style={{ marginBottom: "0px" }}
                     >
                       <ListItemText primary="Model" />
                     </ListItemButton>

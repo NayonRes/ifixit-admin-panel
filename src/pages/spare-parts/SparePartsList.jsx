@@ -53,9 +53,9 @@ import Badge from "@mui/material/Badge";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
-import { designationList, roleList } from "../../data"; 
+import { designationList, roleList } from "../../data";
 import AddSpareParts from "./AddSpareParts";
-import UpdateCustomer from "./UpdateCustomer";
+import UpdateSpareParts from "./UpdateSpareParts";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -190,7 +190,7 @@ const SparePartsList = () => {
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/contact?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/sparePart?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -230,7 +230,7 @@ const SparePartsList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/contact?name=${name}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/sparePart?name=${name}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -239,7 +239,7 @@ const SparePartsList = () => {
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
-      setTotalData(allData?.data?.pagination?.totalData);
+      setTotalData(allData?.data?.totalData);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -276,11 +276,11 @@ const SparePartsList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-         Spare Parts List
+            Spare Parts List
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-        <AddSpareParts clearFilter={clearFilter} />
+          <AddSpareParts clearFilter={clearFilter} />
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -405,7 +405,7 @@ const SparePartsList = () => {
                   </FormControl>
                 </Grid> */}
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2  }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>
@@ -456,18 +456,23 @@ const SparePartsList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>Name</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Mobile Number
+                    Brand/
+                    <br />
+                    Warranty
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Email</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Customer Type
+                    Category
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Rating</TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Price / <br />
+                    Not on sale
+                  </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Membership ID
+                    Serial No
                   </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell> */}
 
@@ -484,7 +489,18 @@ const SparePartsList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell>{row?.name}</TableCell>
+                      <TableCell sx={{ width: 50 }}>
+                        <img
+                          src={
+                            row?.images?.length > 0
+                              ? row?.images[0]?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          width={40}
+                        />
+                      </TableCell>
+                      <TableCell sx={{minWidth:"130px"}}>{row?.name}</TableCell>
                       <TableCell>{row?.mobile}</TableCell>
                       <TableCell>
                         {row?.email ? row?.email : "---------"}
@@ -545,7 +561,7 @@ const SparePartsList = () => {
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        <UpdateCustomer clearFilter={clearFilter} row={row} />
+                        <UpdateSpareParts clearFilter={clearFilter} row={row} />
                       </TableCell>
                     </TableRow>
                   ))}

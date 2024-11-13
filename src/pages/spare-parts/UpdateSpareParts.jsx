@@ -84,21 +84,28 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const UpdateCustomer = ({ clearFilter, row }) => {
+const UpdateSpareParts = ({ clearFilter, row }) => {
   const navigate = useNavigate();
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [type, setType] = useState("");
+  const [convertedContent, setConvertedContent] = useState("");
+
+  const [brandId, setBrandId] = useState([]);
+  const [categoryId, setCategoryId] = useState([]);
+  const [deviceId, setDeviceId] = useState([]);
+  const [modelId, setModelId] = useState([]);
+  const [brandList, setBrandList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
+  const [modelList, setModelList] = useState([]);
+  const [warranty, setWarranty] = useState("");
+  const [details, setDetails] = useState("");
+  const [file, setFile] = useState(null);
   const [remarks, setRemarks] = useState("");
-  const [rating, setRating] = useState("");
-  const [membershipId, setMembershipId] = useState("");
-  const [parent_id, setParent_id] = useState("");
-  const [status, setStatus] = useState("");
-  const [branchList, setBranchList] = useState([]);
+
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
@@ -123,14 +130,64 @@ const UpdateCustomer = ({ clearFilter, row }) => {
 
   const clearForm = () => {
     setName("");
-    setNumber("");
-    setEmail("");
-    setType("");
-    setRating("");
-    setMembershipId("");
+    setBrandId("");
+    setCategoryId("");
+    setDeviceId("");
+    setModelId("");
+    setWarranty("");
+    setDetails("");
+    setFile(null);
     setRemarks("");
-    setStatus("");
   };
+
+  const dropzoneRef = useRef(null);
+
+  const onDrop = useCallback((acceptedFiles) => {
+    console.log("onDrop", acceptedFiles);
+
+    // if (!dropzoneRef.current) return;
+    const file = acceptedFiles[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // setBase64String(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+  const onFileDialogCancel = useCallback(() => {
+    console.log("File dialog was closed without selecting a file");
+    // setBase64String(""); // Update state to indicate dialog was cancelled
+  }, []);
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    onDrop,
+    onFileDialogCancel,
+    ref: dropzoneRef,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+  });
+  const files = acceptedFiles.map((file) => (
+    <>
+      {file.path} - {file.size} bytes
+    </>
+  ));
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isFocused ? focusedStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isFocused, isDragAccept, isDragReject]
+  );
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -141,20 +198,22 @@ const UpdateCustomer = ({ clearFilter, row }) => {
 
     // formdata.append("parent_id", parent_id);
 
-    let data = {
-      name: name.trim(),
-      mobile: number.trim(),
-      email: email.trim(),
-      type: type.trim(),
-      rating: rating.trim(),
-      member_id: membershipId.trim(),
-      remarks: remarks.trim(),
-    };
+    const formData = new FormData();
+
+    formData.append("name", name.trim());
+    formData.append("brand_id", brandId);
+    formData.append("category_id", categoryId);
+    formData.append("device_id", deviceId);
+    formData.append("model_id", modelId);
+    formData.append("warranty", warranty);
+    formData.append("description", details.trim());
+    formData.append("remarks", remarks.trim());
+    formData.append("images", file);
 
     let response = await handlePutData(
-      `/api/v1/contact/${row?._id}`,
-      data,
-      false
+      `/api/v1/sparePart/update/${row?._id}`,
+      formData,
+      true
     );
 
     console.log("response", response);
@@ -229,17 +288,85 @@ const UpdateCustomer = ({ clearFilter, row }) => {
       },
     },
   };
+  const getBrandList = async () => {
+    setLoading2(true);
 
+    let url = `/api/v1/brand/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBrandList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
+  const getCategoryList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/category/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setCategoryList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getDeviceList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getModelList = async (id) => {
+    setLoading2(true);
+
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setModelList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
+  const handleDeviceSelect = (e) => {
+    setDeviceId(e.target.value);
+    setModelId("");
+    getModelList(e.target.value);
+  };
   useEffect(() => {
     setName(row?.name);
+    setBrandId(row?.brand_id);
+    setCategoryId(row?.category_id);
+    setDeviceId(row?.device_id);
 
-    setNumber(row?.mobile);
-    setEmail(row?.email);
-    setType(row?.type);
-    setRating(row?.rating);
-    setMembershipId(row?.member_id);
+    setModelId(row?.model_id);
+    setWarranty(row?.warranty);
+    setDetails(row?.description);
     setRemarks(row?.remarks);
-    setStatus(row?.status);
+    // setStatus(row?.status);
   }, []);
   return (
     <>
@@ -275,6 +402,12 @@ const UpdateCustomer = ({ clearFilter, row }) => {
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
+          getCategoryList();
+          getBrandList();
+          getDeviceList();
+          {
+            deviceId && getModelList(deviceId);
+          }
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -361,7 +494,7 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Full Name
+                Spare Parts Name
               </Typography>
               <TextField
                 required
@@ -384,53 +517,7 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Mobile Number
-              </Typography>
-              <TextField
-                required
-                size="small"
-                fullWidth
-                id="number"
-                placeholder="Mobile Number"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={number}
-                onChange={(e) => {
-                  setNumber(e.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Email
-              </Typography>
-              <TextField
-                type="email"
-                size="small"
-                fullWidth
-                id="email"
-                placeholder="Email"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Customer Type
+                Brand
               </Typography>
 
               <FormControl
@@ -448,18 +535,18 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                   },
                 }}
               >
-                {type.length < 1 && (
+                {brandId?.length < 1 && (
                   <InputLabel
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Customer Type
+                    Select Brand
                   </InputLabel>
                 )}
                 <Select
                   required
                   labelId="demo-simple-select-label"
-                  id="type"
+                  id="brandId"
                   MenuProps={{
                     PaperProps: {
                       sx: {
@@ -467,12 +554,12 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                       },
                     },
                   }}
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
+                  value={brandId}
+                  onChange={(e) => setBrandId(e.target.value)}
                 >
-                  {customerTypeList?.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
+                  {brandList?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -485,7 +572,7 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Customer Rating
+                Category
               </Typography>
 
               <FormControl
@@ -503,18 +590,18 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                   },
                 }}
               >
-                {rating.length < 1 && (
+                {categoryId?.length < 1 && (
                   <InputLabel
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Customer Rating
+                    Select Category
                   </InputLabel>
                 )}
                 <Select
                   required
                   labelId="demo-simple-select-label"
-                  id="type"
+                  id="categoryId"
                   MenuProps={{
                     PaperProps: {
                       sx: {
@@ -522,16 +609,150 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                       },
                     },
                   }}
-                  value={rating}
-                  onChange={(e) => setRating(e.target.value)}
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
                 >
-                  {ratingList?.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
+                  {categoryList?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Device
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {deviceId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Device
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="deviceId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={deviceId}
+                  onChange={handleDeviceSelect}
+                >
+                  {deviceList?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Model
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {modelId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Model
+                  </InputLabel>
+                )}
+                <Select
+                  disabled={deviceId?.length < 1}
+                  required
+                  labelId="demo-simple-select-label"
+                  id="modelId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={modelId}
+                  onChange={(e) => setModelId(e.target.value)}
+                >
+                  {modelList?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Warranty
+              </Typography>
+              <TextField
+                size="small"
+                type="number"
+                fullWidth
+                id="warranty"
+                placeholder="Warranty"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={warranty}
+                onChange={(e) => {
+                  setWarranty(e.target.value);
+                }}
+              />
             </Grid>
 
             <Grid size={6}>
@@ -541,22 +762,28 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Membership ID
+                Description
               </Typography>
               <TextField
+                multiline
+                rows={2}
                 size="small"
                 fullWidth
                 id="membershipId"
-                placeholder="Membership ID"
+                placeholder="Add Note"
                 variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={membershipId}
+                sx={{ ...customeTextFeild }}
+                value={details}
                 onChange={(e) => {
-                  setMembershipId(e.target.value);
+                  setDetails(e.target.value);
                 }}
               />
+              {/* <TextEditor
+                convertedContent={convertedContent}
+                setConvertedContent={setConvertedContent}
+              /> */}
             </Grid>
-            <Grid size={12}>
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -579,6 +806,74 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                   setRemarks(e.target.value);
                 }}
               />
+            </Grid>
+            <Grid size={12}>
+              {/* <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Add Note
+              </Typography> */}
+
+              <Box {...getRootProps({ style })}>
+                <input {...getInputProps()} />
+
+                <Grid container justifyContent="center">
+                  <Box
+                    sx={{
+                      mb: 1.5,
+                      p: 1.125,
+                      paddingBottom: "3px",
+                      borderRadius: "8px",
+                      border: "1px solid #EAECF0",
+                      boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                    >
+                      <path
+                        d="M6.66666 13.3333L9.99999 10M9.99999 10L13.3333 13.3333M9.99999 10V17.5M16.6667 13.9524C17.6846 13.1117 18.3333 11.8399 18.3333 10.4167C18.3333 7.88536 16.2813 5.83333 13.75 5.83333C13.5679 5.83333 13.3975 5.73833 13.3051 5.58145C12.2184 3.73736 10.212 2.5 7.91666 2.5C4.46488 2.5 1.66666 5.29822 1.66666 8.75C1.66666 10.4718 2.36286 12.0309 3.48911 13.1613"
+                        stroke="#344054"
+                        stroke-width="1.66667"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </Box>
+                </Grid>
+                <Box sx={{ pl: 1.5, textAlign: "center" }}>
+                  <Typography
+                    variant="base"
+                    color="text.fade"
+                    sx={{ fontWeight: 400, mb: 0.5 }}
+                  >
+                    <span style={{ color: "#4238CA", fontWeight: 500 }}>
+                      {" "}
+                      Click to upload{" "}
+                    </span>
+                    or drag and drop
+                  </Typography>
+                  <Typography variant="medium" color="text.fade">
+                    PNG, JPG (max. 400x400px)
+                  </Typography>
+                  {file?.path?.length > 0 && (
+                    <Typography
+                      variant="medium"
+                      color="text.light"
+                      sx={{ mt: 1 }}
+                    >
+                      <b>Uploaded:</b> {file?.path} - {file?.size} bytes
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
             </Grid>
           </Grid>
         </DialogContent>
@@ -629,4 +924,4 @@ const UpdateCustomer = ({ clearFilter, row }) => {
   );
 };
 
-export default UpdateCustomer;
+export default UpdateSpareParts;
