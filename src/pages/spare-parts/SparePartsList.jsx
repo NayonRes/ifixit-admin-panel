@@ -167,7 +167,7 @@ const SparePartsList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(8).keys()].map((e, i) => (
+          {[...Array(13).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -456,14 +456,20 @@ const SparePartsList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>Name</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Brand/
-                    <br />
-                    Warranty
+                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
+                    Name
                   </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
+
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Category
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Warranty
                   </TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Price / <br />
@@ -472,9 +478,11 @@ const SparePartsList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Description
+                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell> */}
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
@@ -500,24 +508,49 @@ const SparePartsList = () => {
                           width={40}
                         />
                       </TableCell>
-                      <TableCell sx={{minWidth:"130px"}}>{row?.name}</TableCell>
-                      <TableCell>{row?.mobile}</TableCell>
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.name}
+                      </TableCell>
+
                       <TableCell>
-                        {row?.email ? row?.email : "---------"}
+                        {row?.brand_data[0]?.name
+                          ? row?.brand_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.category_data[0]?.name
+                          ? row?.category_data[0]?.name
+                          : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.type ? row?.type : "---------"}
+                        {row?.device_data[0]?.name
+                          ? row?.device_data[0]?.name
+                          : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.rating ? row?.rating : "---------"}
+                        {row?.model_data[0]?.name
+                          ? row?.model_data[0]?.name
+                          : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.member_id ? row?.member_id : "---------"}
+                        {row?.price ? row?.price : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.warranty ? row?.warranty : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
+                      </TableCell>
+
+                      <TableCell sx={{ minWidth: "150px" }}>
+                        {row?.description ? row?.remarks : "---------"}
                       </TableCell>
                       <TableCell sx={{ minWidth: "150px" }}>
                         {row?.remarks ? row?.remarks : "---------"}
                       </TableCell>
-                      {/* <TableCell>
+                      <TableCell>
                         {row?.status ? (
                           <>
                             <TaskAltOutlinedIcon
@@ -555,7 +588,7 @@ const SparePartsList = () => {
                             </span>
                           </>
                         )}
-                      </TableCell> */}
+                      </TableCell>
 
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />

@@ -99,6 +99,7 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
   const [deviceList, setDeviceList] = useState([]);
   const [modelList, setModelList] = useState([]);
   const [warranty, setWarranty] = useState("");
+  const [price, setPrice] = useState("");
   const [details, setDetails] = useState("");
   const [file, setFile] = useState(null);
   const [remarks, setRemarks] = useState("");
@@ -135,6 +136,7 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
     setDeviceId("");
     setModelId("");
     setWarranty("");
+    setPrice("");
     setDetails("");
     setFile(null);
     setRemarks("");
@@ -206,9 +208,12 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
     formData.append("device_id", deviceId);
     formData.append("model_id", modelId);
     formData.append("warranty", warranty);
+    formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
-    formData.append("images", file);
+    {
+      file !== null && formData.append("images", file);
+    }
 
     let response = await handlePutData(
       `/api/v1/sparePart/update/${row?._id}`,
@@ -364,6 +369,7 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
 
     setModelId(row?.model_id);
     setWarranty(row?.warranty);
+    setPrice(row?.price);
     setDetails(row?.description);
     setRemarks(row?.remarks);
     // setStatus(row?.status);
@@ -487,7 +493,7 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
           }}
         >
           <Grid container spacing={2}>
-            <Grid size={6}>
+            <Grid size={12}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -751,6 +757,30 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
                 value={warranty}
                 onChange={(e) => {
                   setWarranty(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Price
+              </Typography>
+              <TextField
+                required
+                size="small"
+                type="number"
+                fullWidth
+                id="price"
+                placeholder="Price"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={price}
+                onChange={(e) => {
+                  setPrice(e.target.value);
                 }}
               />
             </Grid>
