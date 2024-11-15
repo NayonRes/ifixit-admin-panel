@@ -104,6 +104,7 @@ const AddUser = () => {
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setAddUserDialog(false);
+      clearForm();
     }
   };
   const dropzoneRef = useRef(null);
@@ -122,6 +123,7 @@ const AddUser = () => {
     }
   }, []);
   const onFileDialogCancel = useCallback(() => {
+    setFile(null);
     console.log("File dialog was closed without selecting a file");
     // setBase64String(""); // Update state to indicate dialog was cancelled
   }, []);
@@ -185,6 +187,7 @@ const AddUser = () => {
     setNumber("");
     setEmail("");
     setBranch("");
+    setFile(null);
   };
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -200,30 +203,28 @@ const AddUser = () => {
     formdata.append("designation", designation);
 
     // formdata.append("role_id", roleId);
-    if (imageFile) {
-      formdata.append("image", imageFile);
+    if (file) {
+      formdata.append("image", file);
     }
 
-    // let response = await axios({
-    //   url: `/api/v1/user`,
-    //   method: "post",
-    //   data: formdata,
-    // });
+   
 
-    let response = await handlePostData("/api/v1/user", formdata, true);
+    let response = await handlePostData("/api/v1/user/create", formdata, true);
 
     console.log("response", response);
 
     if (response.status >= 200 && response.status < 300) {
+      setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
+
       clearForm();
       handleDialogClose();
       // navigate("/category-list");
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
-    setLoading(false);
     // }
   };
   const {
@@ -325,32 +326,33 @@ const AddUser = () => {
     },
   };
 
-  // const getDropdownList = async () => {
-  //   setLoading2(true);
+  const getDropdownList = async () => {
+    setLoading2(true);
 
-  //   let url = `/api/v1/branch`;
-  //   let allData = await getDataWithToken(url);
-  //   console.log("allData?.data", allData?.data);
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data", allData?.data);
 
-  //   if (allData.status >= 200 && allData.status < 300) {
-  //     setBranchList(allData?.data?.totalData);
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
 
-  //     if (allData.data.data.length < 1) {
-  //       setMessage("No data found");
-  //     }
-  //   }
-  //   setLoading2(false);
-  // };
-  useEffect(() => {
-    // getDropdownList();
-  }, []);
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  useEffect(() => {}, []);
   return (
     <>
       <Button
         variant="contained"
         disableElevation
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-        onClick={() => setAddUserDialog(true)}
+        onClick={() => {
+          setAddUserDialog(true);
+          getDropdownList();
+        }}
         startIcon={
           <svg
             width="20"
@@ -538,7 +540,7 @@ const AddUser = () => {
               mb: 3,
             }}
           >
-            {designation.length < 1 && (
+            {designation?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -592,7 +594,7 @@ const AddUser = () => {
               mb: 3,
             }}
           >
-            {branch.length < 1 && (
+            {branch?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -614,9 +616,9 @@ const AddUser = () => {
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
             >
-              {designationList?.map((item) => (
-                <MenuItem key={item} value={item}>
-                  {item}
+              {branchList?.map((item) => (
+                <MenuItem key={item?._id} value={item?._id}>
+                  {item?.name}
                 </MenuItem>
               ))}
             </Select>

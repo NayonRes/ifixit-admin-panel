@@ -54,6 +54,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
+import UpdateUser from "./UpdateUser";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -342,7 +343,7 @@ const UserList = () => {
             {open ? <FilterListOffIcon /> : <FilterListIcon />}
           </Button> */}
 
-          <IconButton
+          {/* <IconButton
             onClick={() => setOpen(!open)}
             // size="large"
             aria-label="show 5 new notifications"
@@ -365,7 +366,7 @@ const UserList = () => {
                 />
               </svg>
             </Badge>
-          </IconButton>
+          </IconButton> */}
         </Grid>
       </Grid>
       <div
@@ -646,7 +647,8 @@ const UserList = () => {
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        <IconButton
+                        <UpdateUser clearFilter={clearFilter} row={row}/>
+                        {/* <IconButton
                           variant="contained"
                           // color="success"
                           disableElevation
@@ -654,7 +656,7 @@ const UserList = () => {
                           to={`/update-category`}
                           state={{ row }}
                         >
-                          {/* <EditOutlinedIcon /> */}
+                        
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             id="Outline"
@@ -671,7 +673,7 @@ const UserList = () => {
                               fill="#787878"
                             />
                           </svg>
-                        </IconButton>
+                        </IconButton> */}
 
                         <IconButton
                           variant="contained"

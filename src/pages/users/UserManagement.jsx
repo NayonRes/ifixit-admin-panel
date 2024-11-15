@@ -126,40 +126,15 @@ const IOSSwitch = styled((props) => (
 }));
 
 const UserManagement = () => {
-  const [permissionList, setPermissionList] = useState([]);
-  const [tableDataList, setTableDataList] = useState([]);
-  const [page, setPage] = useState(0);
-  const [totalData, setTotalData] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [loading, setLoading] = useState(false);
-  const [filterLoading, setFilterLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [deleteDialog, setDeleteDialog] = useState(false);
-  const [loading2, setLoading2] = useState(false);
-  const [deleteData, setDeleteData] = useState({});
-  const [orderID, setOrderID] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [number, setNumber] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [minPrice, setMinPrice] = useState(null);
-  const [maxPrice, setMaxPrice] = useState(null);
-  const [status, setStatus] = useState("");
-  const [category, SetCategory] = useState("");
-  const [categoryList, setCategoryList] = useState([]);
-  const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const [filterList, setFilterList] = useState([]);
-  const [startingTime, setStartingTime] = useState(null);
-  const [endingTime, setEndingTime] = useState(null);
-
-  const [addUserDialog, setAddUserDialog] = useState(false);
-  const [images, setImages] = useState([]);
-  const [detailDialog, setDetailDialog] = useState(false);
-  const [details, setDetails] = useState([]);
-  const [cancelProductData, setCancelProductData] = useState({});
-  const [cancelProductDialog, setCancelProductDialog] = useState(false);
-  const [cancelProductLoading, setCancelProductLoading] = useState(false);
+  const [userList, setUserList] = useState([]);
+  const [userData, setUserData] = useState();
+  const [name, setName] = useState("");
+  const [permissionList, setPermissionList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [loading2, setLoading2] = useState(false);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
   const [checked, setChecked] = useState(false);
 
@@ -167,16 +142,6 @@ const UserManagement = () => {
     console.log("2222222222222222222222", event.target.id);
 
     setChecked(event.target.checked);
-  };
-  const componentRef = useRef();
-  const handleDetailClickOpen = (obj) => {
-    console.log("obj", obj);
-    setDetails(obj);
-    setDetailDialog(true);
-  };
-  const handleDetailClose = () => {
-    setDetails({});
-    setDetailDialog(false);
   };
 
   const customeTextFeild = {
@@ -211,22 +176,6 @@ const UserManagement = () => {
       },
     },
   };
-  const handleCancelProductClickOpen = (obj) => {
-    setCancelProductData(obj);
-    setCancelProductDialog(true);
-  };
-  const handleCancelProductClose = () => {
-    setCancelProductData({});
-    setCancelProductDialog(false);
-  };
-  const handleImageClickOpen = (images) => {
-    setImages(images);
-    setAddUserDialog(true);
-  };
-  const handleImageClose = () => {
-    setImages([]);
-    setAddUserDialog(false);
-  };
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
@@ -239,16 +188,6 @@ const UserManagement = () => {
       variant: vrnt,
       autoHideDuration: duration,
     });
-  };
-
-  const handleDeleteDialogClose = () => {
-    setDeleteDialog(false);
-    setDeleteData({});
-  };
-
-  const handleDeleteDialog = (i, row) => {
-    setDeleteData({ index: i, row: row });
-    setDeleteDialog(true);
   };
 
   const pageLoading = () => {
@@ -289,72 +228,6 @@ const UserManagement = () => {
     return content;
   };
 
-  const handleChangePage = (event, newPage) => {
-    console.log("newPage", newPage);
-    getData(newPage);
-    setPage(newPage);
-  };
-
-  const clearFilter = (event) => {
-    console.log("clearFilter");
-    setOrderID("");
-    setName("");
-    setDesignation("");
-    setStatus("");
-    setEmail("");
-    setNumber("");
-    SetCategory("");
-    setMinPrice("");
-    setMaxPrice("");
-    setStartingTime(null);
-    setEndingTime(null);
-    setPage(0);
-    const newUrl = `/api/v1/order?limit=${rowsPerPage}&page=1`;
-    getData(0, rowsPerPage, newUrl);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    console.log("event.target.value", event.target.value);
-    setRowsPerPage(parseInt(event.target.value, rowsPerPage));
-    getData(0, event.target.value);
-    setPage(0);
-  };
-
-  const getData = async (pageNO, limit, newUrl) => {
-    try {
-      setLoading(true);
-      let newPageNO = page;
-      let url;
-      if (pageNO >= 0) {
-        newPageNO = pageNO;
-      }
-      let newLimit = rowsPerPage;
-      if (limit) {
-        newLimit = limit;
-      }
-      if (newUrl) {
-        url = newUrl;
-      } else {
-        url = `/api/v1/user/dropdownlist`;
-      }
-      let allData = await getDataWithToken(url);
-
-      if (allData.status >= 200 && allData.status < 300) {
-        setTableDataList(allData?.data?.data);
-        // setRowsPerPage(allData?.data?.limit);
-        setTotalData(allData?.data?.totalData);
-
-        if (allData.data.data.length < 1) {
-          setMessage("No data found");
-        }
-      }
-      setLoading(false);
-    } catch (error) {
-      console.log("error", error);
-      setLoading(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
-    }
-  };
   const getPermissionData = async (pageNO, limit, newUrl) => {
     try {
       setLoading(true);
@@ -362,9 +235,7 @@ const UserManagement = () => {
       let allData = await getDataWithToken(url);
 
       if (allData.status >= 200 && allData.status < 300) {
-        setPermissionList(allData?.data?.data);
-        // setRowsPerPage(allData?.data?.limit);
-        // setTotalData(allData?.data?.totalData);
+        transformPermissionData(allData?.data?.data);
 
         if (allData.data.data.length < 1) {
           setMessage("No data found");
@@ -376,6 +247,41 @@ const UserManagement = () => {
       setLoading(false);
       handleSnakbarOpen(error.response.data.message.toString(), "error");
     }
+  };
+
+  const transformPermissionData = (permissions) => {
+    const groupedData = permissions.reduce((acc, permissionsItem) => {
+      const { module_name } = permissionsItem;
+
+      // Find the module group in the accumulator
+      let moduleGroup = acc.find((group) => group.module === module_name);
+
+      // If not found, create a new group
+      if (!moduleGroup) {
+        moduleGroup = { module: module_name, permissions: [] }; // Changed to 'permissions'
+        acc.push(moduleGroup);
+      }
+
+      // Add the permission to the group
+      moduleGroup.permissions.push(permissionsItem); // Changed to 'permissions'
+
+      return acc;
+    }, []);
+    console.log("groupedData", groupedData);
+
+    setPermissionList(groupedData);
+  };
+
+  const handlePermission = (name) => {
+    console.log("name", name);
+
+    if (selectedPermissions?.includes(name)) {
+      setSelectedPermissions(
+        selectedPermissions.filter((permission) => permission !== name)
+      );
+      return;
+    }
+    setSelectedPermissions([...selectedPermissions, name]);
   };
 
   const sortByParentName = (a, b) => {
@@ -402,10 +308,26 @@ const UserManagement = () => {
       )
       .join(" "); // Join with a space
   }
+
+  const getDropdownList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/user/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setUserList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
   useEffect(() => {
     getPermissionData();
-    // getData();
-    // getCategoryList();
+    getDropdownList();
   }, []);
 
   return (
@@ -432,7 +354,7 @@ const UserManagement = () => {
             {open ? <FilterListOffIcon /> : <FilterListIcon />}
           </Button> */}
 
-          <IconButton
+          {/* <IconButton
             onClick={() => setOpen(!open)}
             // size="large"
             aria-label="show 5 new notifications"
@@ -455,7 +377,7 @@ const UserManagement = () => {
                 />
               </svg>
             </Badge>
-          </IconButton>
+          </IconButton> */}
         </Grid>
       </Grid>
 
@@ -483,46 +405,54 @@ const UserManagement = () => {
           <Box
             sx={{ maxHeight: "Calc(100vh - 150px)", overflowY: "auto", pr: 1 }}
           >
-            {[...Array(15).keys()]?.map((item, i) => (
-              <Box
-                sx={{
-                  mb: 1,
-                  px: 1,
-                  py: 1.5,
-                  borderRadius: "12px",
-                  border: i === 0 && "1px solid #A5B5FC",
-                }}
-              >
-                <Grid container alignItems="center">
-                  <Grid sx={{ width: "38px" }}>
-                    <img
-                      src={
-                        item?.image?.url?.length > 0
-                          ? item?.image?.url
-                          : "/userpic.png"
-                      }
-                      alt=""
-                      width="30px"
-                      height="30px"
-                      style={{
-                        display: "block",
-                        margin: "5px 0px",
-                        borderRadius: "100px",
-                        // border: "1px solid #d1d1d1",
-                      }}
-                    />
+            {!loading2 &&
+              userList?.length > 0 &&
+              userList?.map((item, i) => (
+                <Box
+                  sx={{
+                    mb: 1,
+                    px: 1,
+                    py: 1.5,
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    border: item?._id === userData?._id && "1px solid #A5B5FC",
+                    background: item?._id === userData?._id && "#fff",
+                    boxShadow:
+                      item?._id === userData?._id &&
+                      "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+                  }}
+                  onClick={() => setUserData(item)}
+                >
+                  <Grid container alignItems="center">
+                    <Grid sx={{ width: "38px" }}>
+                      <img
+                        src={
+                          item?.image?.url?.length > 0
+                            ? item?.image?.url
+                            : "/userpic.png"
+                        }
+                        alt=""
+                        width="30px"
+                        height="30px"
+                        style={{
+                          display: "block",
+                          margin: "5px 0px",
+                          borderRadius: "100px",
+                          // border: "1px solid #d1d1d1",
+                        }}
+                      />
+                    </Grid>
+                    <Grid sx={{ flexGrow: 1 }}>
+                      <Typography variant="medium" sx={{ fontWeight: 500 }}>
+                        {item?.name}
+                      </Typography>
+                      <Typography variant="small" sx={{ color: "#475467" }}>
+                        {item?.designation}
+                      </Typography>
+                    </Grid>
                   </Grid>
-                  <Grid sx={{ flexGrow: 1 }}>
-                    <Typography variant="medium" sx={{ fontWeight: 500 }}>
-                      Wade Warren
-                    </Typography>
-                    <Typography variant="small" sx={{ color: "#475467" }}>
-                      Manager
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Box>
-            ))}
+                </Box>
+              ))}
           </Box>
         </Grid>
         <Grid sx={{ width: "calc(100% - 264px)" }}>
@@ -548,6 +478,9 @@ const UserManagement = () => {
                   gutterBottom
                   component="div"
                   sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+                  onClick={() => {
+                    console.log("selectedPermissions", selectedPermissions);
+                  }}
                 >
                   User management settings
                 </Typography>
@@ -577,7 +510,7 @@ const UserManagement = () => {
                   >
                     <Grid size={6}>
                       <Typography variant="medium" sx={{ fontWeight: 600 }}>
-                        {toTitleCase(row?.module_name)}
+                        {row?.module}
                       </Typography>
                       <FormGroup
                         sx={{
@@ -620,11 +553,19 @@ const UserManagement = () => {
                                   m: 1,
                                 }}
                                 id="555555"
-                                checked={checked}
-                                onChange={handleChange}
+                                checked={
+                                  selectedPermissions?.includes(
+                                    permission?.permission_name
+                                  )
+                                    ? true
+                                    : false
+                                }
+                                onChange={() => {
+                                  handlePermission(permission?.permission_name);
+                                }}
                               />
                             }
-                            label={toTitleCase(permission?.name)}
+                            label={permission?.name}
                           />
                         </FormGroup>
                       ))}
@@ -636,32 +577,6 @@ const UserManagement = () => {
           </div>
         </Grid>
       </Grid>
-      <Dialog
-        open={detailDialog}
-        onClose={handleDetailClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        maxWidth="xl"
-        fullWidth={true}
-      >
-        {/* <div style={{ padding: "10px", minWidth: "300px" }}> */}
-        {/* <DialogTitle id="alert-dialog-title">{"Product Detail"}</DialogTitle> */}
-        <DialogContent>
-          <Grid container style={{ borderBottom: "1px solid #154360" }}>
-            <Grid size={6}>
-              <p>User Details</p>
-            </Grid>
-            <Grid size={6} style={{ textAlign: "right" }}>
-              <IconButton onClick={handleDetailClose}>
-                <ClearIcon style={{ color: "#205295" }} />
-              </IconButton>
-            </Grid>
-          </Grid>
-          <br />
-        </DialogContent>
-
-        {/* </div> */}
-      </Dialog>
     </>
   );
 };

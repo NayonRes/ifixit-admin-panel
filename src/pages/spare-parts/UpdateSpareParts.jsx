@@ -159,6 +159,7 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
     }
   }, []);
   const onFileDialogCancel = useCallback(() => {
+    setFile(null);
     console.log("File dialog was closed without selecting a file");
     // setBase64String(""); // Update state to indicate dialog was cancelled
   }, []);
