@@ -60,6 +60,7 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
+import { handlePutData } from "../../services/PutDataService";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -132,6 +133,7 @@ const UserManagement = () => {
   const [name, setName] = useState("");
   const [permissionList, setPermissionList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loading3, setLoading3] = useState(false);
   const [message, setMessage] = useState("");
   const [loading2, setLoading2] = useState(false);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -227,7 +229,49 @@ const UserManagement = () => {
     }
     return content;
   };
+  const onSubmit = async (e) => {
+    e.preventDefault();
 
+    if (!userData) {
+      handleSnakbarOpen("Please select user", "error");
+      return;
+    }
+    if (selectedPermissions?.length < 1) {
+      handleSnakbarOpen("Please select permissions", "error");
+      return;
+    }
+
+    setLoading3(true);
+
+    var formdata = new FormData();
+    // formdata.append("permission", selectedPermissions);
+
+    formdata.append("permission", JSON.stringify(selectedPermissions));
+
+    let response = await handlePutData(
+      `/api/v1/user/update/${userData?._id}`,
+      formdata,
+      true
+    );
+
+    console.log("response", response);
+
+    if (response.status >= 200 && response.status < 300) {
+      setLoading3(false);
+      handleSnakbarOpen("Updeated successfully", "success");
+
+      getUser();
+      setSelectedPermissions([]);
+      setUserData({});
+
+      // navigate("/category-list");
+    } else {
+      setLoading3(false);
+      handleSnakbarOpen(response?.data?.message, "error");
+    }
+
+    // }
+  };
   const getPermissionData = async (pageNO, limit, newUrl) => {
     try {
       setLoading(true);
@@ -271,7 +315,23 @@ const UserManagement = () => {
 
     setPermissionList(groupedData);
   };
+  const handleAllSelect = (e, permissionsData) => {
+    console.log("permissionsData switch", e.target.checked);
+    console.log("permissionsData", permissionsData);
 
+    let newPermissiond = permissionsData?.map((item) => item?.permission_name);
+    if (e.target.checked) {
+      const mergedArray = [
+        ...new Set([...selectedPermissions, ...newPermissiond]),
+      ];
+      setSelectedPermissions(mergedArray);
+    } else {
+      const filteredPermissions = selectedPermissions.filter(
+        (item) => !newPermissiond.includes(item)
+      );
+      setSelectedPermissions(filteredPermissions);
+    }
+  };
   const handlePermission = (name) => {
     console.log("name", name);
 
@@ -309,7 +369,7 @@ const UserManagement = () => {
       .join(" "); // Join with a space
   }
 
-  const getDropdownList = async () => {
+  const getUser = async () => {
     setLoading2(true);
 
     let url = `/api/v1/user/dropdownlist`;
@@ -327,7 +387,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     getPermissionData();
-    getDropdownList();
+    getUser();
   }, []);
 
   return (
@@ -421,7 +481,10 @@ const UserManagement = () => {
                       item?._id === userData?._id &&
                       "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
                   }}
-                  onClick={() => setUserData(item)}
+                  onClick={() => {
+                    setUserData(item);
+                    setSelectedPermissions(item?.permission);
+                  }}
                 >
                   <Grid container alignItems="center">
                     <Grid sx={{ width: "38px" }}>
@@ -486,7 +549,47 @@ const UserManagement = () => {
                 </Typography>
               </Grid>
               <Grid size={6} sx={{ textAlign: "right" }}>
-                <AddUser />
+                <AddUser getUser={getUser} />
+                <Button
+                  variant="contained"
+                  color="info"
+                  disabled={loading3}
+                  disableElevation
+                  sx={{
+                    py: 1.125,
+                    px: 2,
+                    borderRadius: "6px",
+                    minWidth: "150px",
+                    ml: 1,
+                  }}
+                  onClick={onSubmit}
+                  startIcon={
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      id="Outline"
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                    >
+                      <path
+                        d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                        fill="#fff"
+                      />
+                      <path
+                        d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                        fill="#fff"
+                      />
+                    </svg>
+                  }
+                >
+                  <PulseLoader
+                    color={"#4B46E5"}
+                    loading={loading}
+                    size={10}
+                    speedMultiplier={0.5}
+                  />{" "}
+                  {loading === false && "Update User"}
+                </Button>
               </Grid>
             </Grid>
 
@@ -527,8 +630,14 @@ const UserManagement = () => {
                                 m: 1,
                               }}
                               id="555555"
-                              checked={checked}
-                              onChange={handleChange}
+                              checked={row?.permissions
+                                ?.map((item) => item?.permission_name)
+                                .every((value) =>
+                                  selectedPermissions.includes(value)
+                                )}
+                              onChange={(e) =>
+                                handleAllSelect(e, row?.permissions)
+                              }
                             />
                           }
                           label={"All"}

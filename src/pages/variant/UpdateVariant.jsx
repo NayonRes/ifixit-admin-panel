@@ -503,7 +503,7 @@ const UpdateVariant = ({ clearFilter, row }) => {
             disableElevation
           >
             <PulseLoader
-              color={"#353b48"}
+              color={"#4B46E5"}
               loading={loading}
               size={10}
               speedMultiplier={0.5}

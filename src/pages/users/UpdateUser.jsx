@@ -212,14 +212,6 @@ const UpdateUser = ({ clearFilter, row }) => {
       formdata.append("image", file);
     }
 
-    // let response = await axios({
-    //   url: `/api/v1/user`,
-    //   method: "post",
-    //   data: formdata,
-    // });
-
-    // let response = await handlePostData("/api/v1/user/create", formdata, true);
-
     let response = await handlePutData(
       `/api/v1/user/update/${row?._id}`,
       formdata,
@@ -732,7 +724,7 @@ const UpdateUser = ({ clearFilter, row }) => {
             disableElevation
           >
             <PulseLoader
-              color={"#353b48"}
+              color={"#4B46E5"}
               loading={loading}
               size={10}
               speedMultiplier={0.5}

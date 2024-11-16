@@ -365,10 +365,10 @@ const AddBrand = ({ clearFilter }) => {
               >
                 Select Brand
               </InputLabel>
-                )}
+            )}
             <Select
               required
-            labelId="demo-simple-select-label"
+              labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
                 PaperProps: {
@@ -422,7 +422,7 @@ const AddBrand = ({ clearFilter }) => {
             disableElevation
           >
             <PulseLoader
-              color={"#353b48"}
+              color={"#4B46E5"}
               loading={loading}
               size={10}
               speedMultiplier={0.5}

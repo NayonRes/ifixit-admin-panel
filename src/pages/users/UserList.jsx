@@ -647,7 +647,7 @@ const UserList = () => {
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        <UpdateUser clearFilter={clearFilter} row={row}/>
+                        <UpdateUser clearFilter={clearFilter} row={row} />
                         {/* <IconButton
                           variant="contained"
                           // color="success"
@@ -815,7 +815,7 @@ const UserList = () => {
               disableElevation
             >
               <PulseLoader
-                color={"#353b48"}
+                color={"#4B46E5"}
                 loading={loading2}
                 size={10}
                 speedMultiplier={0.5}

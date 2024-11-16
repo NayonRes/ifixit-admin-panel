@@ -25,8 +25,8 @@ import { IconButton } from "@mui/material";
 //   },
 //   newFocusStyle: {
 //     borderRadius: "3px",
-//     border: "1px solid #353b48",
-//     outline: "1px solid #353b48",
+//     border: "1px solid #4B46E5",
+//     outline: "1px solid #4B46E5",
 //   },
 // }));
 
@@ -43,8 +43,8 @@ const ForgotPasswordOTPVarify = ({ email, reference }) => {
   // };
   // const newFocusStyle = {
   //   borderRadius: "3px",
-  //   border: "1px solid #353b48",
-  //   outline: "1px solid #353b48",
+  //   border: "1px solid #4B46E5",
+  //   outline: "1px solid #4B46E5",
   // };
 
   const Completionist = () => <span>Otp time is out</span>;
@@ -345,7 +345,7 @@ const ForgotPasswordOTPVarify = ({ email, reference }) => {
                   >
                     {loading === false && "Resend OTP"}
                     <PulseLoader
-                      color={"#353b48"}
+                      color={"#4B46E5"}
                       loading={loading}
                       size={10}
                       speedMultiplier={0.5}
@@ -487,7 +487,7 @@ const ForgotPasswordOTPVarify = ({ email, reference }) => {
                     >
                       {loading === false && "Continue"}
                       <PulseLoader
-                        color={"#353b48"}
+                        color={"#4B46E5"}
                         loading={loading}
                         size={10}
                         speedMultiplier={0.5}

@@ -78,7 +78,7 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddUser = () => {
+const AddUser = ({ getUser }) => {
   const navigate = useNavigate();
   const uploadImage = "/image/userpic.png";
 
@@ -207,8 +207,6 @@ const AddUser = () => {
       formdata.append("image", file);
     }
 
-   
-
     let response = await handlePostData("/api/v1/user/create", formdata, true);
 
     console.log("response", response);
@@ -218,6 +216,7 @@ const AddUser = () => {
       handleSnakbarOpen("Added successfully", "success");
 
       clearForm();
+      getUser();
       handleDialogClose();
       // navigate("/category-list");
     } else {
@@ -711,7 +710,7 @@ const AddUser = () => {
             disableElevation
           >
             <PulseLoader
-              color={"#353b48"}
+              color={"#4B46E5"}
               loading={loading}
               size={10}
               speedMultiplier={0.5}
