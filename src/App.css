@@ -2,7 +2,7 @@
   margin: 0;
   padding: 0;
 }
- 
+
 /* width */
 .sidebar::-webkit-scrollbar {
   width: 8px;
@@ -68,6 +68,7 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -75,4 +76,20 @@ input[type="number"]::-webkit-outer-spin-button {
   to {
     transform: rotate(360deg);
   }
+}
+
+input[type="file"]::file-selector-button {
+  border: 1px solid #d0d5dd;
+  padding: 10px 36px 10px 12px;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: .3s;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #ededee;
 }

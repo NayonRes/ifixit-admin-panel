@@ -127,6 +127,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
     let data = {
       name: name.trim(),
+      parent_name: parent_id.trim(),
       status: status,
     };
 
@@ -212,7 +213,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdown`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -226,6 +227,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   };
   useEffect(() => {
     setName(row?.name);
+    setParent_id(row?.parent_name === null ? "" : row?.parent_name);
     setStatus(row?.status);
   }, [updateDialog]);
   return (
@@ -262,7 +264,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
-          // getDropdownList();
+          getDropdownList();
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -355,23 +357,23 @@ const UpdateDevice = ({ clearFilter, row }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
+            sx={{ ...customeTextFeild, mb: 2 }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          {/* <Typography
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
             Parent Device
-          </Typography> */}
+          </Typography>
 
-          {/* <FormControl
+          <FormControl
             fullWidth
             size="small"
             sx={{
@@ -410,12 +412,12 @@ const UpdateDevice = ({ clearFilter, row }) => {
               onChange={(e) => setParent_id(e.target.value)}
             >
               {branchList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}
             </Select>
-          </FormControl> */}
+          </FormControl>
           <Typography
             variant="medium"
             color="text.main"

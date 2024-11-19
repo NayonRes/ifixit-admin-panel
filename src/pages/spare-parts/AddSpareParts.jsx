@@ -41,6 +41,12 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextEditor from "../../utils/TextEditor";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import { TableContainer } from "@mui/material";
 import {
   customerTypeList,
   designationList,
@@ -84,6 +90,12 @@ const form = {
   width: "800px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
+
+const variationObject = {
+  name: "",
+  price: 0,
+  file: null,
+};
 const AddSpareParts = ({ clearFilter }) => {
   const navigate = useNavigate();
 
@@ -107,6 +119,8 @@ const AddSpareParts = ({ clearFilter }) => {
 
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [variationList, setVariationList] = useState([]);
 
   const [message, setMessage] = useState("");
 
@@ -191,12 +205,68 @@ const AddSpareParts = ({ clearFilter }) => {
     setPrice("");
     setDetails("");
     setFile(null);
+    setVariationList([])
     setRemarks("");
+  };
+
+  const handleCreateSpareParts = async (variationList, spare_part_id) => {
+    try {
+      // Create an array of promises
+      // const promises = variationList.map((variation) =>
+      //   handlePostData("/api/v1/sparePartVariation/create", variation, true)
+      // );
+
+      const promises = variationList.map((variation) => {
+        // Prepare FormData
+
+        // name: "",
+        // price: 0,
+        // file: null,
+        const formData = new FormData();
+        formData.append("spare_part_id", spare_part_id);
+        formData.append("name", variation?.name?.trim());
+        formData.append("price", variation?.price);
+        {
+          variation?.file !== null &&
+            variation?.file !== undefined &&
+            formData.append("image", variation?.file);
+        }
+
+        // Call handlePostData for this FormData
+        return handlePostData(
+          "/api/v1/sparePartVariation/create",
+          formData,
+          true
+        );
+      });
+
+      // Wait for all promises to resolve
+      const responses = await Promise.all(promises);
+
+      // Handle all responses
+
+      const allVariationAddedSuccessfully = responses.every(
+        (item) => item.data.status >= 200 && item.data.status < 300
+      );
+
+      if (allVariationAddedSuccessfully) {
+        handleSnakbarOpen("Added successfully", "success");
+        clearFilter();
+
+        clearForm();
+        handleDialogClose();
+      } else {
+        handleSnakbarOpen("Something went wrong", "error");
+      }
+      console.log("All spare parts created successfully:", responses);
+    } catch (error) {
+      console.error("Error creating spare parts:", error);
+    }
   };
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
+    // setLoading(true);
 
     // var formdata = new FormData();
     // formdata.append("name", name);
@@ -214,8 +284,17 @@ const AddSpareParts = ({ clearFilter }) => {
     formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
+    // formData.append("variationList", variationList);
+    // formData.append("variationList", JSON.stringify(variationList));
 
-    formData.append("images", file);
+    // Append each object in variationList
+    // variationList.forEach((variation, index) => {
+    //   formData.append(`variationList[${index}][key1]`, variation.name); // Append other keys
+    //   formData.append(`variationList[${index}][key2]`, variation.price); // Example key
+    //   if (variation.file) {
+    //     formData.append(`variationList[${index}][image]`, variation.file); // Append file
+    //   }
+    // });
 
     let response = await handlePostData(
       "/api/v1/sparePart/create",
@@ -223,19 +302,21 @@ const AddSpareParts = ({ clearFilter }) => {
       true
     );
 
-    console.log("response", response);
+    console.log("response", response?.data?.data?._id);
 
     if (response.status >= 200 && response.status < 300) {
-      handleSnakbarOpen("Added successfully", "success");
-      clearFilter(); // this is for get the table list again
+      setLoading(false);
+      await handleCreateSpareParts(variationList, response?.data?.data?._id);
+      // handleSnakbarOpen("Added successfully", "success");
+      // clearFilter();
 
-      clearForm();
-      handleDialogClose();
+      // clearForm();
+      // handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
-    setLoading(false);
     // }
   };
 
@@ -804,14 +885,240 @@ const AddSpareParts = ({ clearFilter }) => {
               />
             </Grid>
             <Grid size={12}>
-              {/* <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
+              <div
+                style={{
+                  background: "#fff",
+                  border: "1px solid #EAECF1",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  padding: "16px 0",
+                  boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+                }}
               >
-                Add Note
-              </Typography> */}
+                <Grid
+                  container
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ px: 1.5, mb: 1.75 }}
+                >
+                  <Grid size={{ xs: 6 }}>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      component="div"
+                      sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+                      onClick={() => {
+                        console.log("variationList", variationList);
+                      }}
+                    >
+                      Variation Value
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6 }} sx={{ textAlign: "right" }}>
+                    <Button
+                      color="text"
+                      size="small"
+                      sx={{ border: "1px solid #F2F3F7", px: 2 }}
+                      startIcon={
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M10 4.16699V15.8337M4.16669 10.0003H15.8334"
+                            stroke="black"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      }
+                      onClick={() =>
+                        setVariationList([...variationList, variationObject])
+                      }
+                    >
+                      Add Variation
+                    </Button>
+                  </Grid>
+                </Grid>
+
+                <TableContainer>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Value
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Price
+                        </TableCell>
+
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Variation Image
+                        </TableCell>
+
+                        <TableCell
+                          align="right"
+                          style={{ whiteSpace: "nowrap" }}
+                        >
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {variationList?.length > 0 ? (
+                        variationList?.map((item, i) => (
+                          <TableRow
+
+                          // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                          >
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              {" "}
+                              <TextField
+                                required
+                                size="small"
+                                id="name"
+                                placeholder="Variation Name"
+                                variant="outlined"
+                                sx={{
+                                  ...customeTextFeild,
+                                  "& .MuiOutlinedInput-input": {
+                                    padding: "6.5px 12px",
+                                    fontSize: "14px",
+                                  },
+                                  minWidth: "150px",
+                                }}
+                                value={item.name || ""}
+                                onChange={(e) => {
+                                  const updatedValue = e.target.value;
+                                  setVariationList((prevList) =>
+                                    prevList.map((obj, index) =>
+                                      index === i
+                                        ? { ...obj, name: updatedValue }
+                                        : obj
+                                    )
+                                  );
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              <TextField
+                                required
+                                type="number"
+                                size="small"
+                                id="price"
+                                placeholder="Price"
+                                variant="outlined"
+                                sx={{
+                                  ...customeTextFeild,
+                                  "& .MuiOutlinedInput-input": {
+                                    padding: "6.5px 12px",
+                                    fontSize: "14px",
+                                  },
+                                  minWidth: "150px",
+                                }}
+                                value={item.price || ""} // Assuming 'value' is the key for the number field
+                                onChange={(e) => {
+                                  const updatedValue = e.target.value;
+                                  setVariationList((prevList) =>
+                                    prevList.map((obj, index) =>
+                                      index === i
+                                        ? { ...obj, price: updatedValue }
+                                        : obj
+                                    )
+                                  );
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              <Box sx={{ position: "relative" }}>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 20 20"
+                                  fill="none"
+                                  style={{
+                                    position: "absolute",
+                                    top: 8,
+                                    left: 90,
+                                  }}
+                                >
+                                  <path
+                                    d="M3.33333 13.5352C2.32834 12.8625 1.66666 11.7168 1.66666 10.4167C1.66666 8.46369 3.15959 6.85941 5.06645 6.68281C5.45651 4.31011 7.51687 2.5 10 2.5C12.4831 2.5 14.5435 4.31011 14.9335 6.68281C16.8404 6.85941 18.3333 8.46369 18.3333 10.4167C18.3333 11.7168 17.6717 12.8625 16.6667 13.5352M6.66666 13.3333L10 10M10 10L13.3333 13.3333M10 10V17.5"
+                                    stroke="#344054"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+
+                                <input
+                                  id="fileInput"
+                                  type="file"
+                                  accept="image/png, image/jpg, image/jpeg"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    setVariationList((prevList) =>
+                                      prevList.map((obj, index) =>
+                                        index === i ? { ...obj, file } : obj
+                                      )
+                                    );
+                                  }}
+                                />
+                              </Box>
+                            </TableCell>
+                            <TableCell
+                              sx={{ minWidth: "130px", textAlign: "right" }}
+                            >
+                              <IconButton
+                                variant="contained"
+                                // color="success"
+                                disableElevation
+                                onClick={() => {
+                                  setVariationList((prevList) =>
+                                    prevList.filter((_, index) => index !== i)
+                                  );
+                                }}
+                              >
+                                {/* <EditOutlinedIcon /> */}
+
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 20 20"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M12.2836 7.5L11.9951 15M8.00475 15L7.71629 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.8749 4.96358M16.023 4.82547L15.1331 16.3938C15.058 17.3707 14.2434 18.125 13.2636 18.125H6.73625C5.75649 18.125 4.94191 17.3707 4.86677 16.3938L3.9769 4.82547M16.023 4.82547C15.0676 4.6812 14.1012 4.57071 13.1249 4.49527M3.12494 4.96358C3.40792 4.91456 3.69192 4.86851 3.9769 4.82547M3.9769 4.82547C4.93225 4.6812 5.89868 4.57071 6.87494 4.49527M13.1249 4.49527V3.73182C13.1249 2.74902 12.3661 1.92853 11.3838 1.8971C10.9243 1.8824 10.463 1.875 9.99994 1.875C9.5369 1.875 9.07559 1.8824 8.61612 1.8971C7.63382 1.92853 6.87494 2.74902 6.87494 3.73182V4.49527M13.1249 4.49527C12.0937 4.41558 11.0516 4.375 9.99994 4.375C8.9483 4.375 7.90614 4.41558 6.87494 4.49527"
+                                    stroke="#4A5468"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={4} align="center">
+                            No variation added
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            </Grid>
+            {/* <Grid size={12}>
+          
 
               <Box {...getRootProps({ style })}>
                 <input {...getInputProps()} />
@@ -870,7 +1177,7 @@ const AddSpareParts = ({ clearFilter }) => {
                   )}
                 </Box>
               </Box>
-            </Grid>
+            </Grid> */}
           </Grid>
         </DialogContent>
 

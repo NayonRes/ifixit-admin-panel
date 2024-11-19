@@ -127,8 +127,7 @@ const AddDevice = ({ clearFilter }) => {
 
     let data = {
       name: name.trim(),
-
-      // parent_id: parent_id?.length > 0 ? parent_id : null,
+      parent_name: parent_id.trim(),
     };
 
     let response = await handlePostData("/api/v1/device/create", data, false);
@@ -209,7 +208,7 @@ const AddDevice = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdown`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -230,7 +229,7 @@ const AddDevice = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          // getDropdownList();
+          getDropdownList();
         }}
         startIcon={
           <svg
@@ -324,23 +323,23 @@ const AddDevice = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
+            sx={{ ...customeTextFeild, mb: 2 }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          {/* <Typography
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
             Parent Device
-          </Typography> */}
+          </Typography>
 
-          {/* <FormControl
+          <FormControl
             fullWidth
             size="small"
             sx={{
@@ -378,12 +377,12 @@ const AddDevice = ({ clearFilter }) => {
               onChange={(e) => setParent_id(e.target.value)}
             >
               {branchList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}
             </Select>
-          </FormControl> */}
+          </FormControl>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
