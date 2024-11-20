@@ -85,7 +85,7 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const UpdateSpareParts = ({ clearFilter, row }) => {
+const UpdateSpareParts = ({ getData, row }) => {
   const navigate = useNavigate();
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
@@ -226,8 +226,9 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
     console.log("response", response);
 
     if (response.status >= 200 && response.status < 300) {
+      setLoading(false);
       handleSnakbarOpen("Updated successfully", "success");
-      clearFilter(); // this is for get the table list again
+      getData(false); // this is for get the table list again
       clearForm();
       handleDialogClose();
     } else {
@@ -235,7 +236,6 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
-    setLoading(false);
     // }
   };
 
@@ -463,7 +463,7 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Update Customer
+          Update Spare Parts
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setUpdateDialog(false)}
@@ -849,7 +849,7 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
                 Add Note
               </Typography> */}
 
-              <Box {...getRootProps({ style })}>
+              {/* <Box {...getRootProps({ style })}>
                 <input {...getInputProps()} />
 
                 <Grid container justifyContent="center">
@@ -905,7 +905,7 @@ const UpdateSpareParts = ({ clearFilter, row }) => {
                     </Typography>
                   )}
                 </Box>
-              </Box>
+              </Box> */}
             </Grid>
           </Grid>
         </DialogContent>

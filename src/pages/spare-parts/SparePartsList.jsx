@@ -56,6 +56,7 @@ import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
 import AddSpareParts from "./AddSpareParts";
 import UpdateSpareParts from "./UpdateSpareParts";
+import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -167,7 +168,7 @@ const SparePartsList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(13).keys()].map((e, i) => (
+          {[...Array(12).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -230,7 +231,7 @@ const SparePartsList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePart?name=${name}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/sparePart?name=${name.trim()}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -456,7 +457,7 @@ const SparePartsList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
+                  <TableCell style={{ whiteSpace: "nowrap" }} >
                     Name
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
@@ -497,7 +498,7 @@ const SparePartsList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell sx={{ width: 50 }}>
+                      {/* <TableCell sx={{ width: 50 }}>
                         <img
                           src={
                             row?.images?.length > 0
@@ -507,7 +508,7 @@ const SparePartsList = () => {
                           alt=""
                           width={40}
                         />
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
                         {row?.name}
                       </TableCell>
@@ -594,7 +595,17 @@ const SparePartsList = () => {
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        <UpdateSpareParts clearFilter={clearFilter} row={row} />
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="info"
+                          startIcon={<ListAltOutlinedIcon />}
+                          component={Link}
+                          to={`/spare-parts-list/${row?._id}`}
+                        >
+                          Details
+                        </Button>
+                        {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
                       </TableCell>
                     </TableRow>
                   ))}

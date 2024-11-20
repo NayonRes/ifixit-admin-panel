@@ -205,7 +205,7 @@ const AddSpareParts = ({ clearFilter }) => {
     setPrice("");
     setDetails("");
     setFile(null);
-    setVariationList([])
+    setVariationList([]);
     setRemarks("");
   };
 
@@ -225,7 +225,7 @@ const AddSpareParts = ({ clearFilter }) => {
         const formData = new FormData();
         formData.append("spare_part_id", spare_part_id);
         formData.append("name", variation?.name?.trim());
-        formData.append("price", variation?.price);
+        formData.append("price", parseFloat(variation?.price).toFixed(2));
         {
           variation?.file !== null &&
             variation?.file !== undefined &&
@@ -305,8 +305,8 @@ const AddSpareParts = ({ clearFilter }) => {
     console.log("response", response?.data?.data?._id);
 
     if (response.status >= 200 && response.status < 300) {
-      setLoading(false);
       await handleCreateSpareParts(variationList, response?.data?.data?._id);
+      setLoading(false);
       // handleSnakbarOpen("Added successfully", "success");
       // clearFilter();
 
@@ -907,9 +907,6 @@ const AddSpareParts = ({ clearFilter }) => {
                       gutterBottom
                       component="div"
                       sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-                      onClick={() => {
-                        console.log("variationList", variationList);
-                      }}
                     >
                       Variation Value
                     </Typography>
@@ -972,8 +969,9 @@ const AddSpareParts = ({ clearFilter }) => {
                       {variationList?.length > 0 ? (
                         variationList?.map((item, i) => (
                           <TableRow
-
-                          // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
                           >
                             <TableCell sx={{ minWidth: "130px" }}>
                               {" "}
@@ -1106,7 +1104,11 @@ const AddSpareParts = ({ clearFilter }) => {
                           </TableRow>
                         ))
                       ) : (
-                        <TableRow>
+                        <TableRow
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
                           <TableCell colSpan={4} align="center">
                             No variation added
                           </TableCell>

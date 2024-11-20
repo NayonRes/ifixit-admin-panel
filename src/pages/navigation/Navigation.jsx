@@ -20,6 +20,7 @@ import DeviceList from "../device/DeviceList";
 import ModelList from "../model/ModelList";
 import VariantList from "../variant/VariantList";
 import SparePartsList from "../spare-parts/SparePartsList";
+import SparePartsDetails from "../spare-parts/SparePartsDetails";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -140,6 +141,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <SparePartsList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="spare-parts-list/:id"
+          element={
+            <PrivateRoute>
+              <SparePartsDetails />
             </PrivateRoute>
           }
         />
