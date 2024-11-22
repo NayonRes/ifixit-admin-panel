@@ -95,6 +95,14 @@ const SparePartsList = () => {
   const [images, setImages] = useState([]);
   const [detailDialog, setDetailDialog] = useState(false);
   const [details, setDetails] = useState([]);
+  const [brandId, setBrandId] = useState([]);
+  const [categoryId, setCategoryId] = useState([]);
+  const [deviceId, setDeviceId] = useState([]);
+  const [modelId, setModelId] = useState([]);
+  const [brandList, setBrandList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
+  const [modelList, setModelList] = useState([]);
 
   const handleDetailClose = () => {
     setDetails({});
@@ -184,10 +192,18 @@ const SparePartsList = () => {
     getData(newPage);
     setPage(newPage);
   };
-
+  const handleDeviceSelect = (e) => {
+    setDeviceId(e.target.value);
+    setModelId("");
+    getModelList(e.target.value);
+  };
   const clearFilter = (event) => {
     setName("");
     setNumber("");
+    setBrandId("");
+    setCategoryId("");
+    setDeviceId("");
+    setModelId("");
     setStatus("");
 
     setPage(0);
@@ -217,11 +233,27 @@ const SparePartsList = () => {
       url = newUrl;
     } else {
       let newStatus = status;
+      let newCategoryId = categoryId;
+      let newBrandId = brandId;
+      let newModelId = modelId;
+      let newDeviceId = deviceId;
 
       let newStartingTime = "";
       let newEndingTime = "";
       if (status === "None") {
         newStatus = "";
+      }
+      if (categoryId === "None") {
+        newCategoryId = "";
+      }
+      if (brandId === "None") {
+        newBrandId = "";
+      }
+      if (modelId === "None") {
+        newModelId = "";
+      }
+      if (deviceId === "None") {
+        newDeviceId = "";
       }
 
       if (startingTime !== null) {
@@ -231,7 +263,7 @@ const SparePartsList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePart?name=${name.trim()}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/sparePart?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -262,9 +294,76 @@ const SparePartsList = () => {
 
     return 0;
   };
+
+  const getBrandList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/brand/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBrandList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
+  const getCategoryList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/category/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setCategoryList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getDeviceList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getModelList = async (id) => {
+    setLoading2(true);
+
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setModelList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
   useEffect(() => {
     getData();
-    // getCategoryList();
+
+    getCategoryList();
+    getDeviceList();
+    getBrandList();
   }, []);
 
   return (
@@ -325,7 +424,7 @@ const SparePartsList = () => {
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
         >
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
+          {/* <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -334,8 +433,8 @@ const SparePartsList = () => {
             >
               Details
             </Typography>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
+          </Grid> */}
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
                 container
@@ -343,41 +442,132 @@ const SparePartsList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="Name"
-                    fullWidth
+                    required
                     size="small"
+                    fullWidth
+                    id="name"
+                    placeholder="Full Name"
                     variant="outlined"
-                    label="Name"
+                    sx={{ ...customeTextFeild }}
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                    }}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="number"
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
                     fullWidth
                     size="small"
-                    variant="outlined"
-                    label="number"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                  />
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Device
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Device"
+                      value={deviceId}
+                      onChange={handleDeviceSelect}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {deviceList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="email"
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
                     fullWidth
                     size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Model
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Model"
+                      value={modelId}
+                      onChange={(e) => setModelId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {modelList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
                     variant="outlined"
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Category
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Category"
+                      value={categoryId}
+                      onChange={(e) => setCategoryId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {categoryList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Brand
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Brand"
+                      value={brandId}
+                      onChange={(e) => setBrandId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {brandList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
 
                 {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
@@ -406,7 +596,7 @@ const SparePartsList = () => {
                   </FormControl>
                 </Grid> */}
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>
@@ -457,9 +647,7 @@ const SparePartsList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }} >
-                    Name
-                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>

@@ -283,7 +283,9 @@ const UserList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/user?name=${name}&email=${email}&mobile=${number}&designation=${designation}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/user?name=${name.trim()}&email=${email.trim()}&mobile=${encodeURIComponent(
+        number.trim()
+      )}&designation=${designation}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -314,6 +316,16 @@ const UserList = () => {
 
     return 0;
   };
+
+
+
+  function filterByNameLike(data, searchQuery) {
+    // Convert search query to lowercase for case-insensitive matching
+    const lowerCaseQuery = searchQuery.toLowerCase();
+
+    // Filter the data based on partial match in the name field
+    return data.filter(item => item.name.toLowerCase().includes(lowerCaseQuery));
+}
   useEffect(() => {
     getData();
     // getCategoryList();
@@ -555,6 +567,7 @@ const UserList = () => {
                 <TableCell style={{ whiteSpace: "nowrap" }}>
                   Mobile Number
                 </TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
                 <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
                 <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
@@ -601,6 +614,11 @@ const UserList = () => {
                       <TableCell>{row?.email}</TableCell>
                       <TableCell>
                         {row?.mobile ? row?.mobile : "-------"}
+                      </TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                        {row?.branch_data[0]?.name
+                          ? row?.branch_data[0]?.name
+                          : "-------"}
                       </TableCell>
 
                       <TableCell>

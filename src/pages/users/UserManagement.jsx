@@ -128,6 +128,7 @@ const IOSSwitch = styled((props) => (
 
 const UserManagement = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const [mainUserList, setMainUserList] = useState([]);
   const [userList, setUserList] = useState([]);
   const [userData, setUserData] = useState();
   const [name, setName] = useState("");
@@ -376,6 +377,7 @@ const UserManagement = () => {
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
+      setMainUserList(allData?.data?.data);
       setUserList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
@@ -385,6 +387,20 @@ const UserManagement = () => {
     setLoading2(false);
   };
 
+  function filterByNameLike(searchQuery) {
+    // Convert search query to lowercase for case-insensitive matching
+    const lowerCaseQuery = searchQuery.toLowerCase();
+
+    // Filter the data based on partial match in the name field
+    return mainUserList.filter((item) =>
+      item.name.toLowerCase().includes(lowerCaseQuery)
+    );
+  }
+  const handleSearch = (event) => {
+    const query = event.target.value;
+    setName(query);
+    setUserList(filterByNameLike(query)); // Filter the data dynamically
+  };
   useEffect(() => {
     getPermissionData();
     getUser();
@@ -458,9 +474,7 @@ const UserManagement = () => {
             variant="outlined"
             sx={{ ...customeTextFeild, background: "#fff", mb: 2 }}
             value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-            }}
+            onChange={handleSearch}
           />
           <Box
             sx={{ maxHeight: "Calc(100vh - 150px)", overflowY: "auto", pr: 1 }}
