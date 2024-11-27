@@ -983,10 +983,10 @@ export default function Layout() {
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
-                      to="/purchases-list"
+                      to="/purchase-list"
                       sx={[
                         { ...listButtonStyle },
-                        pathname === "/purchases-list" && { ...activeStyle },
+                        pathname === "/purchase-list" && { ...activeStyle },
                       ]}
                     >
                       <ListItemText primary="Purchases List" />

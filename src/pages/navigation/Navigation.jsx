@@ -22,6 +22,7 @@ import VariantList from "../variant/VariantList";
 import SparePartsList from "../spare-parts/SparePartsList";
 import SparePartsDetails from "../spare-parts/SparePartsDetails";
 import Repair from "../repair/Repair";
+import PurchaseList from "../purchase/PurchaseList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -159,6 +160,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <CustomerList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="purchase-list"
+          element={
+            <PrivateRoute>
+              <PurchaseList />
             </PrivateRoute>
           }
         />
