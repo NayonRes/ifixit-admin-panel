@@ -814,7 +814,7 @@ const SparePartsList = () => {
           <div>
             <TablePagination
               style={{ display: "block", border: "none" }}
-              rowsPerPageOptions={[10, 20, 50]}
+              rowsPerPageOptions={[]}
               count={totalData}
               rowsPerPage={rowsPerPage}
               page={page}

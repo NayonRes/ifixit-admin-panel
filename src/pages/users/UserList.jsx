@@ -186,7 +186,7 @@ const UserList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(7).keys()].map((e, i) => (
+          {[...Array(8).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -740,7 +740,7 @@ const UserList = () => {
           <div>
             <TablePagination
               style={{ display: "block", border: "none" }}
-              rowsPerPageOptions={[10, 20, 50]}
+              rowsPerPageOptions={[]}
               count={totalData}
               rowsPerPage={rowsPerPage}
               page={page}

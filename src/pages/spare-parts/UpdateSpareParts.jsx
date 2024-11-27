@@ -269,7 +269,9 @@ const UpdateSpareParts = ({ getData, row }) => {
   };
 
   const customeSelectFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
+ 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -279,19 +281,19 @@ const UpdateSpareParts = ({ getData, row }) => {
       borderBottomColor: "#B2BAC2",
     },
     "& .MuiOutlinedInput-input": {
-      padding: "10px 16px",
+      // padding: "10px 16px",
     },
     "& .MuiOutlinedInput-root": {
       // paddingLeft: "24px",
       "& fieldset": {
-        borderColor: "#E5E5E5",
+        borderColor: "#",
       },
 
       "&:hover fieldset": {
-        borderColor: "#E5E5E5",
+        borderColor: "#969696",
       },
       "&.Mui-focused fieldset": {
-        borderColor: "#E5E5E5",
+        borderColor: "#969696",
       },
     },
   };
