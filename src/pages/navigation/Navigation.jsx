@@ -23,6 +23,7 @@ import SparePartsList from "../spare-parts/SparePartsList";
 import SparePartsDetails from "../spare-parts/SparePartsDetails";
 import Repair from "../repair/Repair";
 import PurchaseList from "../purchase/PurchaseList";
+import RepairSearch from "../repair/RepairSearch";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -176,6 +177,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <Repair />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair-search"
+          element={
+            <PrivateRoute>
+              <RepairSearch />
             </PrivateRoute>
           }
         />
