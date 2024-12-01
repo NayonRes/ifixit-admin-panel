@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ContactForm from "./ContactForm";
 
-const AddContact = () => {
+const AddContact = ({ searchPrams, contactData }) => {
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
@@ -52,12 +52,16 @@ const AddContact = () => {
                 fill="#6368F1"
               />
             </svg>
-            <Typography variant="body2" sx={{ mt: 4 }}>
-              No contact found with
-            </Typography>
-            <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              01719761043
-            </Typography>
+            {searchPrams && (
+              <>
+                <Typography variant="body2" sx={{ mt: 4 }}>
+                  No contact found with
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  {searchPrams}
+                </Typography>
+              </>
+            )}
           </Box>
         </Grid>
         <Grid size={12}>

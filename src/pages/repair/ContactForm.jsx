@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   FormControl,
@@ -69,7 +69,7 @@ const customeSelectFeild = {
   },
 };
 
-const ContactForm = () => {
+const ContactForm = ({ contactData }) => {
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [customerType, setCustomerType] = useState("");
@@ -89,6 +89,22 @@ const ContactForm = () => {
     "Walk In",
     "Corporate",
   ]);
+
+  const getInitData = async () => {
+    if (contactData) {
+      setFullName(contactData?.name);
+      setMobile(contactData?.mobile);
+      setCustomerType(contactData?.customer_type);
+      setEmail(contactData?.email);
+      setRemark(contactData?.remarks);
+      setRating(contactData?.rating);
+      setMembershipId(contactData?.membership_id);
+    }
+  };
+
+  useEffect(() => {
+    getInitData();
+  }, []);
 
   return (
     <>

@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid2";
 import ContactForm from "./ContactForm";
 import RepairHistory from "./RepairHistory";
 
-const EditContact = () => {
+const EditContact = ({contactData}) => {
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
@@ -14,7 +14,7 @@ const EditContact = () => {
             Edit Contact
           </Typography>
         </Grid>
-        <ContactForm />
+        <ContactForm contactData={contactData} />
         <RepairHistory />
       </Grid>
     </div>

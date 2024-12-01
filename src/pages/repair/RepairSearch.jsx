@@ -1,11 +1,22 @@
 import { IconButton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import React from "react";
+import React, { useState } from "react";
 import SearchForm from "./SearchForm";
 import AddContact from "./AddContact";
 import EditContact from "./EditContact";
 
 const RepairSearch = () => {
+  const [contactData, setContactData] = useState({});
+
+  const [searchPrams, setSearchPrams] = useState("");
+  const [name, setName] = useState("");
+  const [serial, setSerial] = useState("");
+  const [passCode, setPassCode] = useState("");
+  const [brand, setBrand] = useState("");
+  const [device, setDevice] = useState("");
+  const [repairBy, setRepairBy] = useState("");
+  const [repairStatus, setRepairStatus] = useState("");
+  const [deliveryStatus, setDeliveryStatus] = useState("");
   return (
     <div>
       <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
@@ -56,10 +67,36 @@ const RepairSearch = () => {
       </Grid>
       <Grid container sx={{ background: "#fff" }}>
         <Grid size={3} sx={{ borderRight: "1px solid #EAECF1", p: 3 }}>
-          <SearchForm />
+          <SearchForm
+            contactData={contactData}
+            setContactData={setContactData}
+            searchPrams={searchPrams}
+            setSearchPrams={setSearchPrams}
+            name={name}
+            setName={setName}
+            serial={serial}
+            setSerial={setSerial}
+            passCode={passCode}
+            setPassCode={setPassCode}
+            brand={brand}
+            setBrand={setBrand}
+            device={device}
+            setDevice={setDevice}
+            repairBy={repairBy}
+            setRepairBy={setRepairBy}
+            repairStatus={repairStatus}
+            setRepairStatus={setRepairStatus}
+            deliveryStatus={deliveryStatus}
+            setDeliveryStatus={setDeliveryStatus}
+          />
         </Grid>
-        <Grid size={9}  sx={{ p: 3 }} >
-          <AddContact />
+        <Grid size={9} sx={{ p: 3 }}>
+          {contactData?._id ? (
+            <EditContact contactData={contactData} />
+          ) : (
+            <AddContact searchPrams={searchPrams} contactData={contactData} />
+          )}
+
           {/* <EditContact /> */}
         </Grid>
       </Grid>

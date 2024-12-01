@@ -12,6 +12,7 @@ import {
 import Grid from "@mui/material/Grid2";
 import { designationList, roleList } from "../../data";
 import { AccountCircle } from "@mui/icons-material";
+import { getDataWithToken } from "../../services/GetDataService";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -71,17 +72,45 @@ const customeSelectFeild = {
   },
 };
 
-const SearchForm = () => {
-  const [searchPrams, setSearchPrams] = useState("");
-  const [name, setName] = useState("");
-  const [serial, setSerial] = useState("");
-  const [passCode, setPassCode] = useState("");
-  const [brand, setBrand] = useState("");
-  const [device, setDevice] = useState("");
-  const [repairBy, setRepairBy] = useState("");
-  const [repairStatus, setRepairStatus] = useState("");
-  const [deliveryStatus, setDeliveryStatus] = useState("");
+const SearchForm = ({
+  contactData,
+  setContactData,
+  searchPrams,
+  setSearchPrams,
+  name,
+  setName,
+  serial,
+  setSerial,
+  passCode,
+  setPassCode,
+  brand,
+  setBrand,
+  device,
+  setDevice,
+  repairBy,
+  setRepairBy,
+  repairStatus,
+  setRepairStatus,
+  deliveryStatus,
+  setDeliveryStatus,
+}) => {
+  const getUser = async () => {
+    let url = `/api/v1/customer?name=${name}&mobile=${searchPrams}`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data", allData?.data.data?.[0]);
+    setContactData(allData?.data.data?.[0]);
+  };
 
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      getUser();
+    }
+  };
+
+  const handleEnterKeyPress = () => {
+    console.log("Enter key pressed:", searchPrams);
+    // Perform other actions as needed, such as making API calls or updating state
+  };
   return (
     <div>
       <div
@@ -93,6 +122,7 @@ const SearchForm = () => {
           my: 1,
         }}
       >
+        {searchPrams}
         <TextField
           required
           size="small"
@@ -105,6 +135,7 @@ const SearchForm = () => {
           onChange={(e) => {
             setSearchPrams(e.target.value);
           }}
+          onKeyDown={handleKeyDown}
           slotProps={{
             input: {
               startAdornment: (
@@ -190,6 +221,27 @@ const SearchForm = () => {
           value={passCode}
           onChange={(e) => {
             setPassCode(e.target.value);
+          }}
+        />
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Brand
+        </Typography>
+        <TextField
+          required
+          size="small"
+          fullWidth
+          id="brand"
+          placeholder="Enter Brand"
+          variant="outlined"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          value={brand}
+          onChange={(e) => {
+            setBrand(e.target.value);
           }}
         />
         <Typography
