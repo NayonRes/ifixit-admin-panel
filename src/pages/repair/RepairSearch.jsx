@@ -59,8 +59,8 @@ const RepairSearch = () => {
           <SearchForm />
         </Grid>
         <Grid size={9}  sx={{ p: 3 }} >
-          {/* <AddContact /> */}
-          <EditContact />
+          <AddContact />
+          {/* <EditContact /> */}
         </Grid>
       </Grid>
     </div>

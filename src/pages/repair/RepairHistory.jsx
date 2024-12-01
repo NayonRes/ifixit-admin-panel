@@ -11,7 +11,7 @@ import { Box, Typography } from "@mui/material";
 export default function RepairHistory() {
   return (
     <Box sx={{ width: "100%" }}>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ border: '1px solid #eee' }} >
         <Table aria-label="simple table">
           <TableHead>
             <TableHead>

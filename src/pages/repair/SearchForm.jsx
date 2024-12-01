@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Box,
   FormControl,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
@@ -10,7 +11,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { designationList, roleList } from "../../data";
-
+import { AccountCircle } from "@mui/icons-material";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -71,15 +72,15 @@ const customeSelectFeild = {
 };
 
 const SearchForm = () => {
+  const [searchPrams, setSearchPrams] = useState("");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [number, setNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [branch, setBranch] = useState("");
-  const [branchList, setBranchList] = useState([]);
-  const [loading2, setLoading2] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [serial, setSerial] = useState("");
+  const [passCode, setPassCode] = useState("");
+  const [brand, setBrand] = useState("");
+  const [device, setDevice] = useState("");
+  const [repairBy, setRepairBy] = useState("");
+  const [repairStatus, setRepairStatus] = useState("");
+  const [deliveryStatus, setDeliveryStatus] = useState("");
 
   return (
     <div>
@@ -92,6 +93,42 @@ const SearchForm = () => {
           my: 1,
         }}
       >
+        <TextField
+          required
+          size="small"
+          fullWidth
+          id="searchParams"
+          placeholder="Search"
+          variant="outlined"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          value={searchPrams}
+          onChange={(e) => {
+            setSearchPrams(e.target.value);
+          }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
+                      stroke="#667085"
+                      stroke-width="1.66667"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
         <Typography
           variant="medium"
           color="text.main"
@@ -105,7 +142,7 @@ const SearchForm = () => {
           size="small"
           fullWidth
           id="name"
-          placeholder="Full Name"
+          placeholder="Enter Full Name"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={name}
@@ -119,19 +156,19 @@ const SearchForm = () => {
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Set Password
+          Serial
         </Typography>
         <TextField
           required
           size="small"
           fullWidth
-          id="password"
-          placeholder="Enter password"
+          id="serial"
+          placeholder="Enter Serial"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={password}
+          value={serial}
           onChange={(e) => {
-            setPassword(e.target.value);
+            setSerial(e.target.value);
           }}
         />
         <Typography
@@ -140,20 +177,19 @@ const SearchForm = () => {
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Email
+          Pass Code
         </Typography>
         <TextField
           required
-          type="email"
           size="small"
           fullWidth
-          id="email"
-          placeholder="Enter Email"
+          id="passcode"
+          placeholder="Enter Pass Code"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={email}
+          value={passCode}
           onChange={(e) => {
-            setEmail(e.target.value);
+            setPassCode(e.target.value);
           }}
         />
         <Typography
@@ -162,19 +198,19 @@ const SearchForm = () => {
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Phone Number
+          Device
         </Typography>
         <TextField
           required
           size="small"
           fullWidth
-          id="number"
-          placeholder="Enter Number"
+          id="device"
+          placeholder="Enter Device"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={number}
+          value={device}
           onChange={(e) => {
-            setNumber(e.target.value);
+            setDevice(e.target.value);
           }}
         />
         <Typography
@@ -183,109 +219,63 @@ const SearchForm = () => {
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Designation
+          Repair By
         </Typography>
-
-        <FormControl
-          fullWidth
+        <TextField
+          required
           size="small"
-          sx={{
-            ...customeSelectFeild,
-            "& label.Mui-focused": {
-              color: "rgba(0,0,0,0)",
-            },
-
-            "& .MuiOutlinedInput-input img": {
-              position: "relative",
-              top: "2px",
-            },
-            mb: 3,
+          fullWidth
+          id="repairBy"
+          placeholder="Enter Repair By"
+          variant="outlined"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          value={repairBy}
+          onChange={(e) => {
+            setRepairBy(e.target.value);
           }}
-        >
-          {designation?.length < 1 && (
-            <InputLabel
-              id="demo-simple-select-label"
-              sx={{ color: "#b3b3b3", fontWeight: 300 }}
-            >
-              Select Designation
-            </InputLabel>
-          )}
-          <Select
-            required
-            labelId="demo-simple-select-label"
-            id="baseLanguage"
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  maxHeight: 250, // Set the max height here
-                },
-              },
-            }}
-            value={designation}
-            onChange={(e) => setDesignation(e.target.value)}
-          >
-            {designationList?.map((item) => (
-              <MenuItem key={item} value={item}>
-                {item}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        />
         <Typography
           variant="medium"
           color="text.main"
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Branch
+          Repair Status
         </Typography>
-
-        <FormControl
-          fullWidth
+        <TextField
+          required
           size="small"
-          sx={{
-            ...customeSelectFeild,
-            "& label.Mui-focused": {
-              color: "rgba(0,0,0,0)",
-            },
-
-            "& .MuiOutlinedInput-input img": {
-              position: "relative",
-              top: "2px",
-            },
-            mb: 3,
+          fullWidth
+          id="repairStatus"
+          placeholder="Enter Repair Status"
+          variant="outlined"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          value={repairStatus}
+          onChange={(e) => {
+            setRepairStatus(e.target.value);
           }}
+        />
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
         >
-          {branch?.length < 1 && (
-            <InputLabel
-              id="demo-simple-select-label"
-              sx={{ color: "#b3b3b3", fontWeight: 300 }}
-            >
-              Select Branch
-            </InputLabel>
-          )}
-          <Select
-            required
-            labelId="demo-simple-select-label"
-            id="baseLanguage"
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  maxHeight: 250, // Set the max height here
-                },
-              },
-            }}
-            value={branch}
-            onChange={(e) => setBranch(e.target.value)}
-          >
-            {branchList?.map((item) => (
-              <MenuItem key={item?._id} value={item?._id}>
-                {item?.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-             
+          Delivery Status
+        </Typography>
+        <TextField
+          required
+          size="small"
+          fullWidth
+          id="deliveryStatus"
+          placeholder="Enter Delivery Status"
+          variant="outlined"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          value={deliveryStatus}
+          onChange={(e) => {
+            setDeliveryStatus(e.target.value);
+          }}
+        />
       </div>
     </div>
   );

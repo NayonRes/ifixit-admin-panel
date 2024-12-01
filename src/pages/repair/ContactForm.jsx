@@ -70,13 +70,26 @@ const customeSelectFeild = {
 };
 
 const ContactForm = () => {
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [customerType, setCustomerType] = useState("");
   const [email, setEmail] = useState("");
-  const [number, setNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [branch, setBranch] = useState("");
-  const [branchList, setBranchList] = useState([]);
+  const [remark, setRemark] = useState("");
+  const [rating, setRating] = useState("");
+  const [membershipId, setMembershipId] = useState("");
+
+  const [ratingList, setRatingList] = useState([
+    { _id: 1, name: "Excellent" },
+    { _id: 2, name: "Good" },
+    { _id: 3, name: "Neutral" },
+    { _id: 4, name: "Bad" },
+    { _id: 5, name: "Very Bad" },
+  ]);
+  const [customerTypeList, setCustomerTypeList] = useState([
+    "Walk In",
+    "Corporate",
+  ]);
+
   return (
     <>
       <Grid size={6}>
@@ -92,13 +105,13 @@ const ContactForm = () => {
           required
           size="small"
           fullWidth
-          id="name"
+          id="full_name"
           placeholder="Full Name"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={name}
+          value={fullName}
           onChange={(e) => {
-            setName(e.target.value);
+            setFullName(e.target.value);
           }}
         />
       </Grid>
@@ -109,21 +122,77 @@ const ContactForm = () => {
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Set Password
+          Mobile
         </Typography>
         <TextField
           required
           size="small"
           fullWidth
-          id="password"
-          placeholder="Enter password"
+          id="mobile"
+          placeholder="Enter Number"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={password}
+          value={mobile}
           onChange={(e) => {
-            setPassword(e.target.value);
+            setMobile(e.target.value);
           }}
         />
+      </Grid>
+      <Grid size={6}>
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Customer Type
+        </Typography>
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+            mb: 3,
+          }}
+        >
+          {customerTypeList?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Customer type
+            </InputLabel>
+          )}
+          <Select
+            required
+            labelId="demo-simple-select-label"
+            id="customer_type"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={customerType}
+            onChange={(e) => setCustomerType(e.target.value)}
+          >
+            {customerTypeList?.map((item) => (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Grid>
       <Grid size={6}>
         <Typography
@@ -156,22 +225,23 @@ const ContactForm = () => {
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Phone Number
+          Remark
         </Typography>
         <TextField
           required
           size="small"
           fullWidth
-          id="number"
-          placeholder="Enter Number"
+          id="remark"
+          placeholder="Enter Remark"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={number}
+          value={remark}
           onChange={(e) => {
-            setNumber(e.target.value);
+            setRemark(e.target.value);
           }}
         />
       </Grid>
+
       <Grid size={6}>
         <Typography
           variant="medium"
@@ -179,7 +249,7 @@ const ContactForm = () => {
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Designation
+          Rating
         </Typography>
 
         <FormControl
@@ -198,18 +268,18 @@ const ContactForm = () => {
             mb: 3,
           }}
         >
-          {designation?.length < 1 && (
+          {ratingList?.length < 1 && (
             <InputLabel
               id="demo-simple-select-label"
               sx={{ color: "#b3b3b3", fontWeight: 300 }}
             >
-              Select Designation
+              Select Rating
             </InputLabel>
           )}
           <Select
             required
             labelId="demo-simple-select-label"
-            id="baseLanguage"
+            id="rating"
             MenuProps={{
               PaperProps: {
                 sx: {
@@ -217,72 +287,40 @@ const ContactForm = () => {
                 },
               },
             }}
-            value={designation}
-            onChange={(e) => setDesignation(e.target.value)}
+            value={rating}
+            onChange={(e) => setRating(e.target.value)}
           >
-            {designationList?.map((item) => (
-              <MenuItem key={item} value={item}>
-                {item}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid size={6}>
-        <Typography
-          variant="medium"
-          color="text.main"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-        >
-          Branch
-        </Typography>
-
-        <FormControl
-          fullWidth
-          size="small"
-          sx={{
-            ...customeSelectFeild,
-            "& label.Mui-focused": {
-              color: "rgba(0,0,0,0)",
-            },
-
-            "& .MuiOutlinedInput-input img": {
-              position: "relative",
-              top: "2px",
-            },
-            mb: 3,
-          }}
-        >
-          {branch?.length < 1 && (
-            <InputLabel
-              id="demo-simple-select-label"
-              sx={{ color: "#b3b3b3", fontWeight: 300 }}
-            >
-              Select Branch
-            </InputLabel>
-          )}
-          <Select
-            required
-            labelId="demo-simple-select-label"
-            id="baseLanguage"
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  maxHeight: 250, // Set the max height here
-                },
-              },
-            }}
-            value={branch}
-            onChange={(e) => setBranch(e.target.value)}
-          >
-            {branchList?.map((item) => (
+            {ratingList?.map((item) => (
               <MenuItem key={item?._id} value={item?._id}>
                 {item?.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
+      </Grid>
+      <Grid size={6}>
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Membership ID
+        </Typography>
+        <TextField
+          required
+          type="email"
+          size="small"
+          fullWidth
+          id="email"
+          placeholder="Enter Membership ID"
+          variant="outlined"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          value={membershipId}
+          onChange={(e) => {
+            setMembershipId(e.target.value);
+          }}
+        />
       </Grid>
     </>
   );
