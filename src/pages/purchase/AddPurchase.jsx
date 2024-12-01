@@ -12,7 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, TextField, Typography } from "@mui/material";
+import { Box, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
@@ -47,9 +47,18 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { TableContainer } from "@mui/material";
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { styled } from "@mui/material/styles";
+import Paper from "@mui/material/Paper";
 import {
   customerTypeList,
   designationList,
+  paymentStatusList,
+  purchaseStatusList,
   ratingList,
   roleList,
 } from "../../data";
@@ -96,12 +105,34 @@ const variationObject = {
   price: 0,
   file: null,
 };
-const AddSpareParts = ({ clearFilter }) => {
-  const navigate = useNavigate();
 
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#F9FAFB",
+  padding: "16px 12px",
+  borderRadius: "8px !important",
+  border: "1px solid #EAECF0",
+  cursor: "pointer",
+}));
+const AddPurchase = ({ clearFilter }) => {
+  const navigate = useNavigate();
+  const [value, setValue] = useState(dayjs("2022-04-17"));
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
+  const [supplierList, setSupplierList] = useState([]);
+  const [supplier, setSupplier] = useState("");
+  const [branchList, setBranchList] = useState([]);
+  const [branch, setBranch] = useState("");
   const [convertedContent, setConvertedContent] = useState("");
+  const [purchaseStatus, setPurchaseStatus] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [paidAmount, setPaidAmount] = useState();
+  const [purchaseDate, setPurchaseDate] = useState(null);
+  const [shippingCharge, setShippingCharge] = useState("");
+  const [invoiceNo, setInvoiceNo] = useState("");
+  const [searchProductText, setsearchProductText] = useState("");
+  const [productList, setProductList] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
@@ -348,11 +379,44 @@ const AddSpareParts = ({ clearFilter }) => {
       },
     },
   };
+  const custopDatePickerFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
 
+    "& .MuiInputBase-root": {
+      fontSize: "0.875rem", // Adjust font size for a smaller appearance
+      height: "2.5rem",
+    },
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+
+    "& .MuiOutlinedInput-input": {
+      // padding: "10px 16px", (uncomment if needed)
+    },
+
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px", (uncomment if needed)
+      "& fieldset": {
+        borderColor: "#", // Update with a specific color if needed
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -387,6 +451,37 @@ const AddSpareParts = ({ clearFilter }) => {
 
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
+  const getSupplierList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/supplier/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setSupplierList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getBranchList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -447,6 +542,55 @@ const AddSpareParts = ({ clearFilter }) => {
     setModelId("");
     getModelList(e.target.value);
   };
+
+  const getProducts = async (searchText, catId, bId) => {
+    setSearchLoading(true);
+    let url;
+    let newSearchProductText = searchProductText;
+
+    let newCategoryId = categoryId;
+    let newBrandId = brandId;
+    if (searchText) {
+      newSearchProductText = searchText;
+    }
+    if (categoryId === "None") {
+      newCategoryId = "";
+    }
+    if (brandId === "None") {
+      newBrandId = "";
+    }
+
+    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
+
+    let allData = await getDataWithToken(url);
+    console.log("(allData?.data?.data products", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setProductList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setSearchLoading(false);
+  };
+  const handleSelectedProduct = (row, item) => {
+    if (selectedProducts.some((res) => res._id === item._id)) {
+      setSelectedProducts(
+        selectedProducts.filter((res) => res._id !== item._id)
+      );
+    } else {
+      setSelectedProducts([
+        ...selectedProducts,
+        {
+          ...item,
+          spare_part_id: row._id,
+          quantity: "",
+          price: "",
+        },
+      ]);
+    }
+  };
   useEffect(() => {
     // getDropdownList();
   }, []);
@@ -458,6 +602,7 @@ const AddSpareParts = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
+          getSupplierList();
           getCategoryList();
           getBrandList();
           getDeviceList();
@@ -481,7 +626,7 @@ const AddSpareParts = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Spare Parts
+        Add Purchase
       </Button>
 
       <Dialog
@@ -534,15 +679,15 @@ const AddSpareParts = ({ clearFilter }) => {
         </DialogTitle>
         <DialogContent
           sx={{
-            maxWidth: "800px",
-            minWidth: "800px",
+            maxWidth: "1100px",
+            minWidth: "1100px",
             px: 2,
             borderBottom: "1px solid #EAECF1",
             my: 1,
           }}
         >
           <Grid container spacing={2}>
-            <Grid size={6}>
+            {/* <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -564,7 +709,7 @@ const AddSpareParts = ({ clearFilter }) => {
                   setName(e.target.value);
                 }}
               />
-            </Grid>
+            </Grid> */}
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -572,7 +717,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Brand
+                Supplier *
               </Typography>
 
               <FormControl
@@ -595,7 +740,7 @@ const AddSpareParts = ({ clearFilter }) => {
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Brand
+                    Select Supplier
                   </InputLabel>
                 )}
                 <Select
@@ -621,6 +766,288 @@ const AddSpareParts = ({ clearFilter }) => {
               </FormControl>
             </Grid>
             <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Purchase date*
+              </Typography>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  sx={{
+                    width: "100%",
+                    ...custopDatePickerFeild,
+                  }}
+                  // label="Controlled picker"
+                  format="DD/MM/YYYY"
+                  value={value}
+                  onChange={(newValue) => setValue(newValue)}
+                />
+              </LocalizationProvider>
+            </Grid>
+
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Purchase Status *
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {purchaseStatus?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Brand
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="purchaseStatus"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={purchaseStatus}
+                  onChange={(e) => setPurchaseStatus(e.target.value)}
+                >
+                  {purchaseStatusList?.map((item) => (
+                    <MenuItem key={item?._id} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Payment Status *
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {paymentStatus?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Brand
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="paymentStatus"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={paymentStatus}
+                  onChange={(e) => setPaymentStatus(e.target.value)}
+                >
+                  {paymentStatusList?.map((item) => (
+                    <MenuItem key={item?._id} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Shipping Charges *
+              </Typography>
+              <TextField
+                required
+                size="small"
+                type="number"
+                fullWidth
+                id="shippingCharge"
+                placeholder="Shipping Charges"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={shippingCharge}
+                onChange={(e) => {
+                  setShippingCharge(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Invoice No *
+              </Typography>
+              <TextField
+                required
+                size="small"
+                type="number"
+                fullWidth
+                id="invoiceNo"
+                placeholder="Invoice No"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={invoiceNo}
+                onChange={(e) => {
+                  setInvoiceNo(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Paid Amount *
+              </Typography>
+              <TextField
+                size="small"
+                type="number"
+                fullWidth
+                id="paidAmount"
+                placeholder="Paid Amount"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={paidAmount}
+                onChange={(e) => {
+                  setPaidAmount(e.target.value);
+                }}
+              />
+            </Grid>
+
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Add Note
+              </Typography>
+              <TextField
+                multiline
+                rows={2}
+                size="small"
+                fullWidth
+                id="membershipId"
+                placeholder="Add Note"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={remarks}
+                onChange={(e) => {
+                  setRemarks(e.target.value);
+                }}
+              />
+            </Grid>
+
+            <Grid size={12}>
+              <Divider />
+            </Grid>
+            <Grid size={8}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Search Product *
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="searchProductText"
+                placeholder="Search Product"
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                            stroke="#85888E"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{ ...customeTextFeild }}
+                value={searchProductText}
+                onChange={(e) => {
+                  setsearchProductText(e.target.value);
+                  getProducts(e.target.value);
+                }}
+              />
+            </Grid>
+
+            <Grid size={2}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -675,7 +1102,162 @@ const AddSpareParts = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={6}>
+            <Grid size={2}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Brand
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {brandId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Brand
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="brandId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={brandId}
+                  onChange={(e) => setBrandId(e.target.value)}
+                >
+                  {brandList?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid size={12}>
+              <Typography
+                variant="base"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+                onClick={() => console.log(selectedProducts)}
+              >
+                All Product
+              </Typography>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={2}>
+                  {!searchLoading &&
+                    productList.length > 0 &&
+                    productList.map(
+                      (row, rowIndex) =>
+                        row?.variation_data?.length > 0 &&
+                        row.variation_data.map((item, itemIndex) => (
+                          <Grid
+                            key={`row-${rowIndex}-item-${itemIndex}`}
+                            item
+                            size={3}
+                          >
+                            <Item
+                              sx={{
+                                border:
+                                  selectedProducts.some(
+                                    (pro) => pro?._id === item?._id
+                                  ) && "1px solid #818FF8",
+                              }}
+                              onClick={() => handleSelectedProduct(row, item)}
+                            >
+                              {" "}
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Grid container alignItems="center">
+                                  <Grid size="auto" sx={{ width: "40px" }}>
+                                    {" "}
+                                    <img
+                                      src={
+                                        item?.images?.length > 0
+                                          ? item?.images[0]?.url
+                                          : "/noImage.png"
+                                      }
+                                      alt=""
+                                      width={30}
+                                      height={40}
+                                    />
+                                  </Grid>
+                                  <Grid
+                                    size="auto"
+                                    sx={{ width: "Calc(100% - 40px)" }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="medium"
+                                        sx={{
+                                          fontWeight: 500,
+                                          color: "#344054",
+                                          overflow: "hidden",
+                                          textOverflow: "ellipsis",
+                                          whiteSpace: "nowrap",
+                                          marginRight: 1, // Optional for spacing
+                                        }}
+                                      >
+                                        {item?.name}
+                                      </Typography>
+                                      <Checkbox
+                                        sx={{
+                                          display: selectedProducts.some(
+                                            (pro) => pro?._id === item?._id
+                                          )
+                                            ? "block"
+                                            : "none",
+                                        }}
+                                        size="small"
+                                        checked={true}
+                                        inputProps={{
+                                          "aria-label": "controlled",
+                                        }}
+                                      />
+                                    </Box>
+                                  </Grid>
+                                </Grid>
+                              </Box>
+                            </Item>
+                          </Grid>
+                        ))
+                    )}
+                </Grid>
+              </Box>
+            </Grid>
+            <Grid size={12}>
+              <Divider />
+            </Grid>
+            {/* <Grid size={3}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -729,8 +1311,8 @@ const AddSpareParts = ({ clearFilter }) => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid size={4}>
+            </Grid> */}
+            {/* <Grid size={3}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -785,178 +1367,35 @@ const AddSpareParts = ({ clearFilter }) => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Warranty
-              </Typography>
-              <TextField
-                size="small"
-                type="number"
-                fullWidth
-                id="warranty"
-                placeholder="Warranty"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={warranty}
-                onChange={(e) => {
-                  setWarranty(e.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Price
-              </Typography>
-              <TextField
-                required
-                size="small"
-                type="number"
-                fullWidth
-                id="price"
-                placeholder="Price"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={price}
-                onChange={(e) => {
-                  setPrice(e.target.value);
-                }}
-              />
-            </Grid>
-
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Description
-              </Typography>
-              <TextField
-                multiline
-                rows={2}
-                size="small"
-                fullWidth
-                id="membershipId"
-                placeholder="Add Note"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={details}
-                onChange={(e) => {
-                  setDetails(e.target.value);
-                }}
-              />
-              {/* <TextEditor
-                convertedContent={convertedContent}
-                setConvertedContent={setConvertedContent}
-              /> */}
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Add Note
-              </Typography>
-              <TextField
-                multiline
-                rows={2}
-                size="small"
-                fullWidth
-                id="membershipId"
-                placeholder="Add Note"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={remarks}
-                onChange={(e) => {
-                  setRemarks(e.target.value);
-                }}
-              />
-            </Grid>
+            </Grid> */}
             <Grid size={12}>
-              <div
-                style={{
-                  background: "#fff",
-                  border: "1px solid #EAECF1",
+              <Box
+                sx={{
+                  background: "#F9FAFB",
+                  border: "1px solid #EAECF0",
                   borderRadius: "12px",
                   overflow: "hidden",
                   padding: "16px 0",
                   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+                  p: 1.5,
                 }}
               >
-                <Grid
-                  container
-                  justifyContent="space-between"
-                  alignItems="center"
-                  sx={{ px: 1.5, mb: 1.75 }}
-                >
-                  <Grid size={{ xs: 6 }}>
-                    <Typography
-                      variant="h6"
-                      gutterBottom
-                      component="div"
-                      sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-                    >
-                      Variation Value
-                    </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 6 }} sx={{ textAlign: "right" }}>
-                    <Button
-                      color="text"
-                      size="small"
-                      sx={{ border: "1px solid #F2F3F7", px: 2 }}
-                      startIcon={
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M10 4.16699V15.8337M4.16669 10.0003H15.8334"
-                            stroke="black"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      }
-                      onClick={() =>
-                        setVariationList([...variationList, variationObject])
-                      }
-                    >
-                      Add Variation
-                    </Button>
-                  </Grid>
-                </Grid>
-
                 <TableContainer>
                   <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                       <TableRow>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Value
+                          Product Name
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Quantity
                         </TableCell>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Price
                         </TableCell>
 
                         <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Variation Image
+                          Subtotal
                         </TableCell>
 
                         <TableCell
@@ -968,20 +1407,25 @@ const AddSpareParts = ({ clearFilter }) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {variationList?.length > 0 ? (
-                        variationList?.map((item, i) => (
+                      {selectedProducts?.length > 0 ? (
+                        selectedProducts?.map((item, i) => (
                           <TableRow
                             sx={{
+                              background: "#fff",
                               "&:last-child td, &:last-child th": { border: 0 },
                             }}
                           >
                             <TableCell sx={{ minWidth: "130px" }}>
                               {" "}
+                              {item.name}
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "130px" }}>
                               <TextField
                                 required
+                                type="number"
                                 size="small"
-                                id="name"
-                                placeholder="Variation Name"
+                                id="quantity"
+                                placeholder="Quantity"
                                 variant="outlined"
                                 sx={{
                                   ...customeTextFeild,
@@ -991,13 +1435,13 @@ const AddSpareParts = ({ clearFilter }) => {
                                   },
                                   minWidth: "150px",
                                 }}
-                                value={item.name || ""}
+                                value={item.quantity || ""} // Assuming 'value' is the key for the number field
                                 onChange={(e) => {
                                   const updatedValue = e.target.value;
-                                  setVariationList((prevList) =>
+                                  setSelectedProducts((prevList) =>
                                     prevList.map((obj, index) =>
                                       index === i
-                                        ? { ...obj, name: updatedValue }
+                                        ? { ...obj, quantity: updatedValue }
                                         : obj
                                     )
                                   );
@@ -1023,7 +1467,7 @@ const AddSpareParts = ({ clearFilter }) => {
                                 value={item.price || ""} // Assuming 'value' is the key for the number field
                                 onChange={(e) => {
                                   const updatedValue = e.target.value;
-                                  setVariationList((prevList) =>
+                                  setSelectedProducts((prevList) =>
                                     prevList.map((obj, index) =>
                                       index === i
                                         ? { ...obj, price: updatedValue }
@@ -1033,43 +1477,12 @@ const AddSpareParts = ({ clearFilter }) => {
                                 }}
                               />
                             </TableCell>
-                            <TableCell sx={{ minWidth: "130px" }}>
-                              <Box sx={{ position: "relative" }}>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="20"
-                                  height="20"
-                                  viewBox="0 0 20 20"
-                                  fill="none"
-                                  style={{
-                                    position: "absolute",
-                                    top: 8,
-                                    left: 90,
-                                  }}
-                                >
-                                  <path
-                                    d="M3.33333 13.5352C2.32834 12.8625 1.66666 11.7168 1.66666 10.4167C1.66666 8.46369 3.15959 6.85941 5.06645 6.68281C5.45651 4.31011 7.51687 2.5 10 2.5C12.4831 2.5 14.5435 4.31011 14.9335 6.68281C16.8404 6.85941 18.3333 8.46369 18.3333 10.4167C18.3333 11.7168 17.6717 12.8625 16.6667 13.5352M6.66666 13.3333L10 10M10 10L13.3333 13.3333M10 10V17.5"
-                                    stroke="#344054"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
 
-                                <input
-                                  id="fileInput"
-                                  type="file"
-                                  accept="image/png, image/jpg, image/jpeg"
-                                  onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    setVariationList((prevList) =>
-                                      prevList.map((obj, index) =>
-                                        index === i ? { ...obj, file } : obj
-                                      )
-                                    );
-                                  }}
-                                />
-                              </Box>
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              {item?.quantity && item?.price
+                                ? parseInt(item?.quantity) *
+                                  parseFloat(item?.price).toFixed(2)
+                                : 0}
                             </TableCell>
                             <TableCell
                               sx={{ minWidth: "130px", textAlign: "right" }}
@@ -1079,7 +1492,7 @@ const AddSpareParts = ({ clearFilter }) => {
                                 // color="success"
                                 disableElevation
                                 onClick={() => {
-                                  setVariationList((prevList) =>
+                                  setSelectedProducts((prevList) =>
                                     prevList.filter((_, index) => index !== i)
                                   );
                                 }}
@@ -1111,77 +1524,16 @@ const AddSpareParts = ({ clearFilter }) => {
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
                         >
-                          <TableCell colSpan={4} align="center">
-                            No variation added
+                          <TableCell colSpan={5} align="center">
+                            No Product selected
                           </TableCell>
                         </TableRow>
                       )}
                     </TableBody>
                   </Table>
                 </TableContainer>
-              </div>
-            </Grid>
-            {/* <Grid size={12}>
-          
-
-              <Box {...getRootProps({ style })}>
-                <input {...getInputProps()} />
-
-                <Grid container justifyContent="center">
-                  <Box
-                    sx={{
-                      mb: 1.5,
-                      p: 1.125,
-                      paddingBottom: "3px",
-                      borderRadius: "8px",
-                      border: "1px solid #EAECF0",
-                      boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                    >
-                      <path
-                        d="M6.66666 13.3333L9.99999 10M9.99999 10L13.3333 13.3333M9.99999 10V17.5M16.6667 13.9524C17.6846 13.1117 18.3333 11.8399 18.3333 10.4167C18.3333 7.88536 16.2813 5.83333 13.75 5.83333C13.5679 5.83333 13.3975 5.73833 13.3051 5.58145C12.2184 3.73736 10.212 2.5 7.91666 2.5C4.46488 2.5 1.66666 5.29822 1.66666 8.75C1.66666 10.4718 2.36286 12.0309 3.48911 13.1613"
-                        stroke="#344054"
-                        stroke-width="1.66667"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </Box>
-                </Grid>
-                <Box sx={{ pl: 1.5, textAlign: "center" }}>
-                  <Typography
-                    variant="base"
-                    color="text.fade"
-                    sx={{ fontWeight: 400, mb: 0.5 }}
-                  >
-                    <span style={{ color: "#4238CA", fontWeight: 500 }}>
-                      {" "}
-                      Click to upload{" "}
-                    </span>
-                    or drag and drop
-                  </Typography>
-                  <Typography variant="medium" color="text.fade">
-                    PNG, JPG (max. 400x400px)
-                  </Typography>
-                  {file?.path?.length > 0 && (
-                    <Typography
-                      variant="medium"
-                      color="text.light"
-                      sx={{ mt: 1 }}
-                    >
-                      <b>Uploaded:</b> {file?.path} - {file?.size} bytes
-                    </Typography>
-                  )}
-                </Box>
               </Box>
-            </Grid> */}
+            </Grid>
           </Grid>
         </DialogContent>
 
@@ -1231,4 +1583,4 @@ const AddSpareParts = ({ clearFilter }) => {
   );
 };
 
-export default AddSpareParts;
+export default AddPurchase;

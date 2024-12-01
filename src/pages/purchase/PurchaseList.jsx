@@ -54,7 +54,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddSpareParts from "./AddSpareParts";
+import AddPurchase from "./AddPurchase";
 import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -380,7 +380,7 @@ const PurchaseList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <AddSpareParts clearFilter={clearFilter} />
+          <AddPurchase clearFilter={clearFilter} />
 
           {/* <IconButton
             onClick={() => setOpen(!open)}

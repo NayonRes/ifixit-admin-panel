@@ -266,7 +266,7 @@ const AddSpareParts = ({ clearFilter }) => {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // setLoading(true);
+    setLoading(true);
 
     // var formdata = new FormData();
     // formdata.append("name", name);
@@ -352,7 +352,6 @@ const AddSpareParts = ({ clearFilter }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
