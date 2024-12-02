@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { getDataWithToken } from "../../services/GetDataService";
+import { styled } from "@mui/material/styles";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -54,15 +56,24 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddSpareParts from "./AddSpareParts";
-import UpdateSpareParts from "./UpdateSpareParts";
+// import AddSpareParts from "./AddSpareParts";
+import UpdatePurchase from "./UpdatePurchase";
 import { handlePutData } from "../../services/PutDataService";
 import AddSparePartsVariation from "./AddSparePartsVariation";
+import InputAdornment from "@mui/material/InputAdornment";
+
+import Chip from "@mui/material/Chip";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
-
-const SparePartsDetails = () => {
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#F9FAFB",
+  padding: "16px 12px",
+  borderRadius: "8px !important",
+  border: "1px solid #EAECF0",
+  cursor: "pointer",
+}));
+const PurchaseDetails = () => {
   const { id } = useParams();
   console.log("id", id);
 
@@ -70,32 +81,106 @@ const SparePartsDetails = () => {
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [loading, setLoading] = useState(false);
-  const [filterLoading, setFilterLoading] = useState(false);
+  const [loading, setLoading] = useState(false); 
   const [message, setMessage] = useState("");
-  const [deleteDialog, setDeleteDialog] = useState(false);
-  const [loading2, setLoading2] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState(false); 
   const [deleteData, setDeleteData] = useState({});
-  const [orderID, setOrderID] = useState("");
-  const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
-  const [email, setEmail] = useState("");
+  const [searchProductText, setsearchProductText] = useState("");
+  const [productList, setProductList] = useState([]);
+  
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [brandId, setBrandId] = useState([]);
+  const [categoryId, setCategoryId] = useState([]);
+  const [brandList, setBrandList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
 
-  const [status, setStatus] = useState("");
-
-  const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const [filterList, setFilterList] = useState([]);
-  const [startingTime, setStartingTime] = useState(null);
-  const [endingTime, setEndingTime] = useState(null);
-
-  const [imageDialog, setImageDialog] = useState(false);
-  const [images, setImages] = useState([]);
+ 
+  
   const [detailDialog, setDetailDialog] = useState(false);
   const [details, setDetails] = useState([]);
   const [updateData, setUpdateData] = useState({});
   const [updateVariationLoading, setUpdateVariationLoading] = useState(false);
 
+
+  const customeSelectFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+    "& .MuiOutlinedInput-input": {
+      // padding: "10px 16px",
+    },
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px",
+      "& fieldset": {
+        borderColor: "#",
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
+  const getProducts = async (searchText, catId, bId) => {
+    setSearchLoading(true);
+    let url;
+    let newSearchProductText = searchProductText;
+
+    let newCategoryId = categoryId;
+    let newBrandId = brandId;
+    if (searchText) {
+      newSearchProductText = searchText;
+    }
+    if (catId) {
+      newCategoryId = catId;
+    }
+    if (bId) {
+      newBrandId = bId;
+    }
+
+    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
+
+    let allData = await getDataWithToken(url);
+    console.log("(allData?.data?.data products", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setProductList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setSearchLoading(false);
+  };
+
+  const handleSelectedProduct = (row, item) => {
+    if (selectedProducts.some((res) => res._id === item._id)) {
+      setSelectedProducts(
+        selectedProducts.filter((res) => res._id !== item._id)
+      );
+    } else {
+      setSelectedProducts([
+        ...selectedProducts,
+        {
+          ...item,
+          spare_part_variation_id: row._id,
+          quantity: "",
+          price: "",
+        },
+      ]);
+    }
+  };
   const onVariationSubmit = async (e) => {
     e.preventDefault();
 
@@ -137,29 +222,24 @@ const SparePartsDetails = () => {
     setDetails({});
     setDetailDialog(false);
   };
-
   const customeTextFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     // padding: "15px 20px",
-    // background: "#FAFAFA",
-    "& label": {
-      fontSize: "11px",
-    },
-    "& label.Mui-focused": {
-      color: "#0F1624",
-    },
+
+    // "& label.Mui-focused": {
+    //   color: "#A0AAB4",
+    // },
 
     "& .MuiInput-underline:after": {
       borderBottomColor: "#B2BAC2",
     },
     "& .MuiOutlinedInput-input": {
-      padding: "8px 12px",
+      // padding: "15px 24px 15px 0px",
     },
     "& .MuiOutlinedInput-root": {
       // paddingLeft: "24px",
-      fontSize: "13px",
       "& fieldset": {
-        // borderColor: "rgba(0,0,0,0)",
-        borderRadius: "8px",
+        borderColor: "",
       },
 
       "&:hover fieldset": {
@@ -171,10 +251,40 @@ const SparePartsDetails = () => {
     },
   };
 
-  const handleImageClose = () => {
-    setImages([]);
-    setImageDialog(false);
-  };
+  // const customeTextFeild = {
+  //   // padding: "15px 20px",
+  //   // background: "#FAFAFA",
+  //   "& label": {
+  //     fontSize: "11px",
+  //   },
+  //   "& label.Mui-focused": {
+  //     color: "#0F1624",
+  //   },
+
+  //   "& .MuiInput-underline:after": {
+  //     borderBottomColor: "#B2BAC2",
+  //   },
+  //   "& .MuiOutlinedInput-input": {
+  //     padding: "8px 12px",
+  //   },
+  //   "& .MuiOutlinedInput-root": {
+  //     // paddingLeft: "24px",
+  //     fontSize: "13px",
+  //     "& fieldset": {
+  //       // borderColor: "rgba(0,0,0,0)",
+  //       borderRadius: "4px",
+  //     },
+
+  //     "&:hover fieldset": {
+  //       borderColor: "#969696",
+  //     },
+  //     "&.Mui-focused fieldset": {
+  //       borderColor: "#969696",
+  //     },
+  //   },
+  // };
+
+ 
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
@@ -219,7 +329,7 @@ const SparePartsDetails = () => {
   const getData = async (controlLoading) => {
     setLoading(controlLoading ?? true);
 
-    let url = `/api/v1/sparePart/${encodeURIComponent(id.trim())}`;
+    let url = `/api/v1/purchase/${encodeURIComponent(id.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
 
@@ -304,7 +414,7 @@ const SparePartsDetails = () => {
               component="div"
               sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
             >
-              Spare Parts Details
+              Purchase Details
             </Typography>
           </Grid>
         </Grid>
@@ -322,29 +432,31 @@ const SparePartsDetails = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Supplier
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Category
+                    Purchase Status
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Payment status
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Shipping Charge
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Grand total
+                  </TableCell>
 
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Warranty
-                  </TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Price / <br />
-                    Not on sale
-                  </TableCell> */}
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Serial No
+                    Purchase by
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Description
+                    Purchase Date
                   </TableCell>
+
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
@@ -354,7 +466,7 @@ const SparePartsDetails = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {!loading && Object.keys(tableDataList).length !== 0 && (
+                {/* {!loading && Object.keys(tableDataList).length !== 0 && (
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
@@ -450,10 +562,191 @@ const SparePartsDetails = () => {
                       )}
                     </TableCell>
                     <TableCell align="right">
-                      <UpdateSpareParts getData={getData} row={tableDataList} />
+                      <UpdatePurchase getData={getData} row={tableDataList} />
                     </TableCell>
                   </TableRow>
-                )}
+                )} */}
+
+                {!loading &&
+                  tableDataList.length > 0 &&
+                  tableDataList.map((row, i) => (
+                    <TableRow
+                      key={i}
+                      // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      {/* <TableCell sx={{ width: 50 }}>
+                        <img
+                          src={
+                            row?.images?.length > 0
+                              ? row?.images[0]?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          width={40}
+                        />
+                      </TableCell> */}
+
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.supplier_data[0]?.name
+                          ? row?.supplier_data[0]?.name
+                          : "---------"}
+                        <br />
+                        <Typography
+                          color="text.light"
+                          variant="medium"
+                          sx={{ fontWeight: 500 }}
+                        >
+                          {row?.supplier_data[0]?.mobile
+                            ? row?.supplier_data[0]?.mobile
+                            : "---------"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.branch_data[0]?.name
+                          ? row?.branch_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.purchase_status ? (
+                          <Chip
+                            sx={{
+                              color:
+                                row?.purchase_status === "Transit"
+                                  ? "#7527DA"
+                                  : row?.purchase_status === "Hold"
+                                  ? "#C81E1E"
+                                  : row?.purchase_status === "Recived"
+                                  ? "#046C4E"
+                                  : "#222",
+                              background:
+                                row?.purchase_status === "Transit"
+                                  ? "#F5F3FF"
+                                  : row?.purchase_status === "Hold"
+                                  ? "#FDF2F2"
+                                  : row?.purchase_status === "Recived"
+                                  ? "#F3FAF7"
+                                  : "#222",
+                            }}
+                            label={row?.purchase_status}
+                          />
+                        ) : (
+                          "---------"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {row?.payment_status ? (
+                          <Chip
+                            sx={{
+                              color:
+                                row?.payment_status === "Transit"
+                                  ? "#7527DA"
+                                  : row?.payment_status === "Hold"
+                                  ? "#C81E1E"
+                                  : row?.payment_status === "Recived"
+                                  ? "#046C4E"
+                                  : "#222",
+                              background:
+                                row?.payment_status === "Transit"
+                                  ? "#F5F3FF"
+                                  : row?.payment_status === "Hold"
+                                  ? "#FDF2F2"
+                                  : row?.payment_status === "Recived"
+                                  ? "#F3FAF7"
+                                  : "#222",
+                            }}
+                            label={row?.payment_status}
+                          />
+                        ) : (
+                          "---------"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {row?.shipping_charge
+                          ? row?.shipping_charge
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.purchase_products_data?.length > 0
+                          ? row.purchase_products_data
+                              .reduce((total, item) => {
+                                const itemTotal =
+                                  parseFloat(item?.quantity || 0) *
+                                  parseFloat(item?.unit_price || 0);
+                                return total + itemTotal;
+                              }, 0)
+                              .toFixed(2) // Formats the final total to 2 decimal places
+                          : "---------"}
+                      </TableCell>
+
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.user_data[0]?.name
+                          ? row?.user_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {moment(row?.purchase_date).format("DD MMM, YYYY")}
+                      </TableCell>
+
+                      <TableCell sx={{ minWidth: "150px" }}>
+                        {row?.remarks ? row?.remarks : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.status ? (
+                          <>
+                            <TaskAltOutlinedIcon
+                              style={{
+                                color: "#10ac84",
+                                height: "16px",
+                                position: "relative",
+                                top: "4px",
+                              }}
+                            />{" "}
+                            <span
+                              style={{
+                                color: "#10ac84",
+                              }}
+                            >
+                              Active &nbsp;
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <HighlightOffOutlinedIcon
+                              style={{
+                                color: "#ee5253",
+                                height: "16px",
+                                position: "relative",
+                                top: "4px",
+                              }}
+                            />
+                            <span
+                              style={{
+                                color: "#ee5253",
+                              }}
+                            >
+                              Inactive
+                            </span>
+                          </>
+                        )}
+                      </TableCell>
+
+                      <TableCell align="right">
+                      <UpdatePurchase getData={getData} row={tableDataList} />
+                    </TableCell>
+
+
+                    </TableRow>
+                  ))}
+
+                {!loading && tableDataList.length < 1 ? (
+                  <TableRow>
+                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                      <strong> {message}</strong>
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+                {loading && pageLoading()}
 
                 {loading && pageLoading()}
               </TableBody>
@@ -478,6 +771,7 @@ const SparePartsDetails = () => {
           justifyContent="space-between"
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
+          spacing={2}
         >
           <Grid size={{ xs: 6 }}>
             <Typography
@@ -489,7 +783,7 @@ const SparePartsDetails = () => {
                 console.log("updateData", updateData);
               }}
             >
-              Variations
+              Purchase Items
             </Typography>
           </Grid>
           <Grid size={{ xs: 6 }} sx={{ textAlign: "right" }}>
@@ -517,8 +811,276 @@ const SparePartsDetails = () => {
             >
               Add Variation
             </Button> */}
-            <AddSparePartsVariation getData={getData} tableDataList={tableDataList}/>
+            <AddSparePartsVariation
+              getData={getData}
+              tableDataList={tableDataList}
+            />
           </Grid>
+
+          <Grid size={8}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Search Product *
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                id="searchProductText"
+                placeholder="Search Product"
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                            stroke="#85888E"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{ ...customeTextFeild }}
+                value={searchProductText}
+                onChange={(e) => {
+                  setsearchProductText(e.target.value);
+                  getProducts(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={2}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Category
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {categoryId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Category
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="categoryId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={categoryId}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setCategoryId(e.target.value);
+                    getProducts(null, e.target.value);
+                  }}
+                >
+                  {categoryList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={2}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Brand
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {brandId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Brand
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="brandId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={brandId}
+                  // onChange={(e) => setBrandId(e.target.value)}
+
+                  onChange={(e) => {
+                    setBrandId(e.target.value);
+                    getProducts(null, null, e.target.value);
+                  }}
+                >
+                  {brandList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={12}>
+              <Typography
+                variant="base"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+                onClick={() => console.log(selectedProducts)}
+              >
+                All Product
+              </Typography>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={2}>
+                  {!searchLoading &&
+                    productList.length > 0 &&
+                    productList.map(
+                      (row, rowIndex) =>
+                        row?.variation_data?.length > 0 &&
+                        row.variation_data.map((item, itemIndex) => (
+                          <Grid
+                            key={`row-${rowIndex}-item-${itemIndex}`}
+                            item
+                            size={3}
+                          >
+                            <Item
+                              sx={{
+                                border:
+                                  selectedProducts.some(
+                                    (pro) => pro?._id === item?._id
+                                  ) && "1px solid #818FF8",
+                              }}
+                              onClick={() => handleSelectedProduct(row, item)}
+                            >
+                              {" "}
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Grid container alignItems="center">
+                                  <Grid size="auto" sx={{ width: "40px" }}>
+                                    {" "}
+                                    <img
+                                      src={
+                                        item?.images?.length > 0
+                                          ? item?.images[0]?.url
+                                          : "/noImage.png"
+                                      }
+                                      alt=""
+                                      width={30}
+                                      height={40}
+                                    />
+                                  </Grid>
+                                  <Grid
+                                    size="auto"
+                                    sx={{ width: "Calc(100% - 40px)" }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="medium"
+                                        sx={{
+                                          fontWeight: 500,
+                                          color: "#344054",
+                                          overflow: "hidden",
+                                          textOverflow: "ellipsis",
+                                          whiteSpace: "nowrap",
+                                          marginRight: 1, // Optional for spacing
+                                        }}
+                                      >
+                                        {item?.name}
+                                      </Typography>
+                                      <Checkbox
+                                        sx={{
+                                          display: selectedProducts.some(
+                                            (pro) => pro?._id === item?._id
+                                          )
+                                            ? "block"
+                                            : "none",
+                                        }}
+                                        size="small"
+                                        checked={true}
+                                        inputProps={{
+                                          "aria-label": "controlled",
+                                        }}
+                                      />
+                                    </Box>
+                                  </Grid>
+                                </Grid>
+                              </Box>
+                            </Item>
+                          </Grid>
+                        ))
+                    )}
+                </Grid>
+              </Box>
+            </Grid>
         </Grid>
 
         <TableContainer>
@@ -728,4 +1290,4 @@ const SparePartsDetails = () => {
   );
 };
 
-export default SparePartsDetails;
+export default PurchaseDetails;

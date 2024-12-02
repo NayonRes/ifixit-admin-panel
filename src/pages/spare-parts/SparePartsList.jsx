@@ -734,7 +734,7 @@ const SparePartsList = () => {
                       </TableCell>
 
                       <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.description ? row?.remarks : "---------"}
+                        {row?.description ? row?.description : "---------"}
                       </TableCell>
                       <TableCell sx={{ minWidth: "150px" }}>
                         {row?.remarks ? row?.remarks : "---------"}
@@ -789,7 +789,7 @@ const SparePartsList = () => {
                           color="info"
                           startIcon={<ListAltOutlinedIcon />}
                           component={Link}
-                          to={`/spare-parts-list/${row?._id}`}
+                          to={`/spare-parts/${row?._id}`}
                         >
                           Details
                         </Button>

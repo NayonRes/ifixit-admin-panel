@@ -205,7 +205,7 @@ const SparePartsDetails = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(13).keys()].map((e, i) => (
+          {[...Array(12).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>

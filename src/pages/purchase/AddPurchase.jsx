@@ -15,26 +15,16 @@ import Select from "@mui/material/Select";
 import { Box, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
-import PulseLoader from "react-spinners/PulseLoader";
-import axios from "axios";
+import PulseLoader from "react-spinners/PulseLoader"; 
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
+ 
 import Checkbox from "@mui/material/Checkbox";
-import EmailIcon from "@mui/icons-material/Email";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+ 
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -92,19 +82,6 @@ const acceptStyle = {
 const rejectStyle = {
   borderColor: "#ff1744",
 };
-const form = {
-  padding: "50px",
-  background: "#fff",
-  borderRadius: "10px",
-  width: "800px",
-  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-};
-
-const variationObject = {
-  name: "",
-  price: 0,
-  file: null,
-};
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#F9FAFB",
@@ -115,7 +92,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 const AddPurchase = ({ clearFilter }) => {
   const navigate = useNavigate();
-  const [value, setValue] = useState(dayjs("2022-04-17"));
+  const [value, setValue] = useState(null);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [supplierList, setSupplierList] = useState([]);
@@ -133,6 +110,8 @@ const AddPurchase = ({ clearFilter }) => {
   const [productList, setProductList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [purchaseBy, setPurchaseBy] = useState("");
+  const [userList, setUserList] = useState([]);
 
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
@@ -227,108 +206,48 @@ const AddPurchase = ({ clearFilter }) => {
   };
 
   const clearForm = () => {
-    setName("");
+    setSupplier("");
+    setPurchaseDate(null);
+    setPurchaseStatus("");
+    setPaymentStatus("");
     setBrandId("");
     setCategoryId("");
-    setDeviceId("");
-    setModelId("");
-    setWarranty("");
     setPrice("");
-    setDetails("");
-    setFile(null);
-    setVariationList([]);
+    setsearchProductText("");
+    setProductList([]);
+    setSelectedProducts([]);
     setRemarks("");
   };
 
-  const handleCreateSpareParts = async (variationList, spare_part_id) => {
-    try {
-      // Create an array of promises
-      // const promises = variationList.map((variation) =>
-      //   handlePostData("/api/v1/sparePartVariation/create", variation, true)
-      // );
-
-      const promises = variationList.map((variation) => {
-        // Prepare FormData
-
-        // name: "",
-        // price: 0,
-        // file: null,
-        const formData = new FormData();
-        formData.append("spare_part_id", spare_part_id);
-        formData.append("name", variation?.name?.trim());
-        formData.append("price", parseFloat(variation?.price).toFixed(2));
-        {
-          variation?.file !== null &&
-            variation?.file !== undefined &&
-            formData.append("image", variation?.file);
-        }
-
-        // Call handlePostData for this FormData
-        return handlePostData(
-          "/api/v1/sparePartVariation/create",
-          formData,
-          true
-        );
-      });
-
-      // Wait for all promises to resolve
-      const responses = await Promise.all(promises);
-
-      // Handle all responses
-
-      const allVariationAddedSuccessfully = responses.every(
-        (item) => item.data.status >= 200 && item.data.status < 300
-      );
-
-      if (allVariationAddedSuccessfully) {
-        handleSnakbarOpen("Added successfully", "success");
-        clearFilter();
-
-        clearForm();
-        handleDialogClose();
-      } else {
-        handleSnakbarOpen("Something went wrong", "error");
-      }
-      console.log("All spare parts created successfully:", responses);
-    } catch (error) {
-      console.error("Error creating spare parts:", error);
-    }
-  };
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // setLoading(true);
+    setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
-
-    // formdata.append("parent_id", parent_id);
+    if (!purchaseDate) {
+      handleSnakbarOpen("Please select a purchase date", "error");
+      return;
+    }
+    if (selectedProducts?.length < 1) {
+      handleSnakbarOpen("Please select purchase product", "error");
+      return;
+    }
 
     const formData = new FormData();
+    // const selectedDateWithTime = dayjs(purchaseDate).toDate();
+    formData.append("supplier_id", supplier);
+    formData.append("user_id", purchaseBy);
+    formData.append("purchase_date", dayjs(purchaseDate).toDate());
+    formData.append("purchase_status", purchaseStatus);
+    formData.append("payment_status", paymentStatus);
+    formData.append("branch_id", branch);
+    formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
 
-    formData.append("name", name.trim());
-    formData.append("brand_id", brandId);
-    formData.append("category_id", categoryId);
-    formData.append("device_id", deviceId);
-    formData.append("model_id", modelId);
-    formData.append("warranty", warranty);
-    formData.append("price", price);
-    formData.append("description", details.trim());
-    formData.append("remarks", remarks.trim());
-    // formData.append("variationList", variationList);
-    // formData.append("variationList", JSON.stringify(variationList));
-
-    // Append each object in variationList
-    // variationList.forEach((variation, index) => {
-    //   formData.append(`variationList[${index}][key1]`, variation.name); // Append other keys
-    //   formData.append(`variationList[${index}][key2]`, variation.price); // Example key
-    //   if (variation.file) {
-    //     formData.append(`variationList[${index}][image]`, variation.file); // Append file
-    //   }
-    // });
+    formData.append("remarks", remarks);
+    formData.append("selectedProducts", JSON.stringify(selectedProducts));
 
     let response = await handlePostData(
-      "/api/v1/sparePart/create",
+      "/api/v1/purchase/create",
       formData,
       true
     );
@@ -336,13 +255,12 @@ const AddPurchase = ({ clearFilter }) => {
     console.log("response", response?.data?.data?._id);
 
     if (response.status >= 200 && response.status < 300) {
-      await handleCreateSpareParts(variationList, response?.data?.data?._id);
+      // await handleCreateSpareParts(variationList, response?.data?.data?._id);
       setLoading(false);
-      // handleSnakbarOpen("Added successfully", "success");
-      // clearFilter();
-
-      // clearForm();
-      // handleDialogClose();
+      handleSnakbarOpen("Added successfully", "success");
+      clearFilter();
+      clearForm();
+      handleDialogClose();
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -489,6 +407,21 @@ const AddPurchase = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
+  const getUserList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/user/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setUserList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
 
   const getCategoryList = async () => {
     setLoading2(true);
@@ -553,11 +486,11 @@ const AddPurchase = ({ clearFilter }) => {
     if (searchText) {
       newSearchProductText = searchText;
     }
-    if (categoryId === "None") {
-      newCategoryId = "";
+    if (catId) {
+      newCategoryId = catId;
     }
-    if (brandId === "None") {
-      newBrandId = "";
+    if (bId) {
+      newBrandId = bId;
     }
 
     url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
@@ -584,7 +517,7 @@ const AddPurchase = ({ clearFilter }) => {
         ...selectedProducts,
         {
           ...item,
-          spare_part_id: row._id,
+          spare_part_variation_id: row._id,
           quantity: "",
           price: "",
         },
@@ -604,8 +537,11 @@ const AddPurchase = ({ clearFilter }) => {
           setAddDialog(true);
           getSupplierList();
           getCategoryList();
+          getBranchList();
           getBrandList();
-          getDeviceList();
+          getUserList();
+          // getBrandList();
+          // getDeviceList();
           // getDropdownList();
         }}
         startIcon={
@@ -735,7 +671,7 @@ const AddPurchase = ({ clearFilter }) => {
                   },
                 }}
               >
-                {brandId?.length < 1 && (
+                {supplier?.length < 1 && (
                   <InputLabel
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -746,7 +682,7 @@ const AddPurchase = ({ clearFilter }) => {
                 <Select
                   required
                   labelId="demo-simple-select-label"
-                  id="brandId"
+                  id="supplier"
                   MenuProps={{
                     PaperProps: {
                       sx: {
@@ -754,14 +690,16 @@ const AddPurchase = ({ clearFilter }) => {
                       },
                     },
                   }}
-                  value={brandId}
-                  onChange={(e) => setBrandId(e.target.value)}
+                  value={supplier}
+                  onChange={(e) => setSupplier(e.target.value)}
                 >
-                  {brandList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {supplierList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -777,18 +715,143 @@ const AddPurchase = ({ clearFilter }) => {
 
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
+                  id="purchaseDate"
                   sx={{
                     width: "100%",
                     ...custopDatePickerFeild,
                   }}
                   // label="Controlled picker"
                   format="DD/MM/YYYY"
-                  value={value}
-                  onChange={(newValue) => setValue(newValue)}
+                  maxDate={dayjs()}
+                  value={purchaseDate}
+                  onChange={(newValue) => {
+                    setPurchaseDate(newValue);
+                  }}
                 />
               </LocalizationProvider>
             </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Branch *
+              </Typography>
 
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {branch?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Branch *
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="branch"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={branch}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setBranch(e.target.value);
+                  }}
+                >
+                  {branchList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>{" "}
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Select Purchase By *
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {purchaseBy?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Purchase By
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="purchaseBy"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={purchaseBy}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setPurchaseBy(e.target.value);
+                  }}
+                >
+                  {userList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -899,7 +962,7 @@ const AddPurchase = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={4}>
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -923,7 +986,7 @@ const AddPurchase = ({ clearFilter }) => {
                 }}
               />
             </Grid>
-            <Grid size={4}>
+            {/* <Grid size={4}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -969,9 +1032,8 @@ const AddPurchase = ({ clearFilter }) => {
                   setPaidAmount(e.target.value);
                 }}
               />
-            </Grid>
-
-            <Grid size={12}>
+            </Grid> */}
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -981,8 +1043,6 @@ const AddPurchase = ({ clearFilter }) => {
                 Add Note
               </Typography>
               <TextField
-                multiline
-                rows={2}
                 size="small"
                 fullWidth
                 id="membershipId"
@@ -995,7 +1055,6 @@ const AddPurchase = ({ clearFilter }) => {
                 }}
               />
             </Grid>
-
             <Grid size={12}>
               <Divider />
             </Grid>
@@ -1009,7 +1068,6 @@ const AddPurchase = ({ clearFilter }) => {
                 Search Product *
               </Typography>
               <TextField
-                required
                 size="small"
                 fullWidth
                 id="searchProductText"
@@ -1046,7 +1104,6 @@ const AddPurchase = ({ clearFilter }) => {
                 }}
               />
             </Grid>
-
             <Grid size={2}>
               <Typography
                 variant="medium"
@@ -1081,7 +1138,6 @@ const AddPurchase = ({ clearFilter }) => {
                   </InputLabel>
                 )}
                 <Select
-                  required
                   labelId="demo-simple-select-label"
                   id="categoryId"
                   MenuProps={{
@@ -1092,13 +1148,20 @@ const AddPurchase = ({ clearFilter }) => {
                     },
                   }}
                   value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setCategoryId(e.target.value);
+                    getProducts(null, e.target.value);
+                  }}
                 >
-                  {categoryList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {categoryList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -1136,7 +1199,6 @@ const AddPurchase = ({ clearFilter }) => {
                   </InputLabel>
                 )}
                 <Select
-                  required
                   labelId="demo-simple-select-label"
                   id="brandId"
                   MenuProps={{
@@ -1147,17 +1209,23 @@ const AddPurchase = ({ clearFilter }) => {
                     },
                   }}
                   value={brandId}
-                  onChange={(e) => setBrandId(e.target.value)}
+                  // onChange={(e) => setBrandId(e.target.value)}
+
+                  onChange={(e) => {
+                    setBrandId(e.target.value);
+                    getProducts(null, null, e.target.value);
+                  }}
                 >
-                  {brandList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {brandList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
-
             <Grid size={12}>
               <Typography
                 variant="base"
