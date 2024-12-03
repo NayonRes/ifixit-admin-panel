@@ -55,12 +55,14 @@ import Badge from "@mui/material/Badge";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
-import { designationList, roleList } from "../../data";
+import { designationList, purchaseStatusList, roleList } from "../../data";
 // import AddSpareParts from "./AddSpareParts";
 import UpdatePurchase from "./UpdatePurchase";
 import { handlePutData } from "../../services/PutDataService";
 import AddSparePartsVariation from "./AddSparePartsVariation";
 import InputAdornment from "@mui/material/InputAdornment";
+import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
+import BallotOutlinedIcon from "@mui/icons-material/BallotOutlined";
 
 import Chip from "@mui/material/Chip";
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -81,13 +83,13 @@ const PurchaseDetails = () => {
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [deleteDialog, setDeleteDialog] = useState(false); 
+  const [deleteDialog, setDeleteDialog] = useState(false);
   const [deleteData, setDeleteData] = useState({});
   const [searchProductText, setsearchProductText] = useState("");
   const [productList, setProductList] = useState([]);
-  
+
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [brandId, setBrandId] = useState([]);
@@ -96,13 +98,11 @@ const PurchaseDetails = () => {
   const [categoryList, setCategoryList] = useState([]);
 
   const { enqueueSnackbar } = useSnackbar();
- 
-  
+
   const [detailDialog, setDetailDialog] = useState(false);
   const [details, setDetails] = useState([]);
   const [updateData, setUpdateData] = useState({});
   const [updateVariationLoading, setUpdateVariationLoading] = useState(false);
-
 
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -181,26 +181,24 @@ const PurchaseDetails = () => {
       ]);
     }
   };
-  const onVariationSubmit = async (e) => {
+  const onProductSubmit = async (e) => {
     e.preventDefault();
 
     setUpdateVariationLoading(true);
 
-    const formData = new FormData();
-
-    formData.append("name", updateData?.name.trim());
-    formData.append("price", parseFloat(updateData?.price).toFixed(2));
-
-    {
-      updateData?.file !== null &&
-        updateData?.file !== undefined &&
-        formData.append("images", updateData?.file);
-    }
+    let data = {
+      purchase_id: updateData.purchase_id,
+      spare_part_id: updateData.spare_part_id,
+      spare_part_variation_id: updateData.spare_part_variation_id,
+      quantity: parseInt(updateData.quantity),
+      unit_price: parseFloat(updateData.unit_price).toFixed(2),
+      purchase_product_status: updateData.purchase_product_status,
+    };
 
     let response = await handlePutData(
-      `/api/v1/sparePartVariation/update/${updateData?._id}`,
-      formData,
-      true
+      `/api/v1/purchaseProduct/update/${updateData?._id}`,
+      data,
+      false
     );
 
     console.log("response", response);
@@ -221,6 +219,36 @@ const PurchaseDetails = () => {
   const handleDetailClose = () => {
     setDetails({});
     setDetailDialog(false);
+  };
+  const customeSelectFeildSmall = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+    "& .MuiOutlinedInput-input": {
+      padding: "6px 16px",
+      fontSize: "14px",
+    },
+
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px",
+      "& fieldset": {
+        borderColor: "#",
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
   };
   const customeTextFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -283,8 +311,6 @@ const PurchaseDetails = () => {
   //     },
   //   },
   // };
-
- 
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
@@ -358,31 +384,13 @@ const PurchaseDetails = () => {
   };
 
   // Handler for updating the updateData object
-  const handleInputChange = (e) => {
-    const { id, value } = e.target; // Get the input's id and value
+  const handleInputChange = (field, value) => {
     setUpdateData((prevData) => ({
       ...prevData,
-      [id]: value, // Dynamically update the field
+      [field]: value, // Update the specific field
     }));
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]; // Get the first selected file
-    if (file) {
-      const reader = new FileReader();
-
-      // Convert file to a Base64 URL for preview or upload
-      reader.onload = () => {
-        setUpdateData((prevData) => ({
-          ...prevData,
-          imagePreview: reader.result, // Store the preview (optional)
-          file: file, // Store the file object (for actual upload)
-        }));
-      };
-
-      reader.readAsDataURL(file); // Read file as Base64
-    }
-  };
   useEffect(() => {
     getData();
     // getCategoryList();
@@ -732,10 +740,8 @@ const PurchaseDetails = () => {
                       </TableCell>
 
                       <TableCell align="right">
-                      <UpdatePurchase getData={getData} row={tableDataList} />
-                    </TableCell>
-
-
+                        <UpdatePurchase getData={getData} row={tableDataList} />
+                      </TableCell>
                     </TableRow>
                   ))}
 
@@ -773,51 +779,15 @@ const PurchaseDetails = () => {
           sx={{ px: 1.5, mb: 1.75 }}
           spacing={2}
         >
-          <Grid size={{ xs: 6 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              component="div"
-              sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-              onClick={() => {
-                console.log("updateData", updateData);
-              }}
-            >
-              Purchase Items
-            </Typography>
-          </Grid>
-          <Grid size={{ xs: 6 }} sx={{ textAlign: "right" }}>
-            {/* <Button
-              color="text"
-              size="small"
-              sx={{ border: "1px solid #F2F3F7", px: 2 }}
-              startIcon={
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M10 4.16699V15.8337M4.16669 10.0003H15.8334"
-                    stroke="black"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              }
-            >
-              Add Variation
-            </Button> */}
+          {/* <Grid size={{ xs: 6 }} sx={{ textAlign: "right" }}>
+          
             <AddSparePartsVariation
               getData={getData}
               tableDataList={tableDataList}
             />
-          </Grid>
+          </Grid> */}
 
-          <Grid size={8}>
+          {/* <Grid size={8}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -984,17 +954,17 @@ const PurchaseDetails = () => {
                     ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid size={12}>
-              <Typography
-                variant="base"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-                onClick={() => console.log(selectedProducts)}
-              >
-                All Product
-              </Typography>
-              <Box sx={{ flexGrow: 1 }}>
+            </Grid> */}
+          <Grid size={12}>
+            <Typography
+              variant="base"
+              gutterBottom
+              sx={{ fontWeight: 500 }}
+              onClick={() => console.log(updateData)}
+            >
+              All Product
+            </Typography>
+            {/* <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
                   {!searchLoading &&
                     productList.length > 0 &&
@@ -1079,183 +1049,325 @@ const PurchaseDetails = () => {
                         ))
                     )}
                 </Grid>
-              </Box>
-            </Grid>
-        </Grid>
+              </Box> */}
 
-        <TableContainer>
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ whiteSpace: "nowrap" }}>Image</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+            <Grid size={12}>
+              <Box
+                sx={{
+                  background: "#F9FAFB",
+                  border: "1px solid #EAECF0",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  padding: "16px 0",
+                  boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+                  p: 1.5,
+                }}
+              >
+                <TableContainer>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Product Name
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Status
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Quantity
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Price
+                        </TableCell>
 
-                <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {!loading &&
-              Object.keys(tableDataList).length !== 0 &&
-              tableDataList?.variation_data?.length > 0 ? (
-                tableDataList?.variation_data?.map((item, i) => (
-                  <TableRow
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell>
-                      {updateData._id === item._id ? (
-                        <Box sx={{ position: "relative" }}>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            style={{
-                              position: "absolute",
-                              top: 8,
-                              left: 90,
-                            }}
-                          >
-                            <path
-                              d="M3.33333 13.5352C2.32834 12.8625 1.66666 11.7168 1.66666 10.4167C1.66666 8.46369 3.15959 6.85941 5.06645 6.68281C5.45651 4.31011 7.51687 2.5 10 2.5C12.4831 2.5 14.5435 4.31011 14.9335 6.68281C16.8404 6.85941 18.3333 8.46369 18.3333 10.4167C18.3333 11.7168 17.6717 12.8625 16.6667 13.5352M6.66666 13.3333L10 10M10 10L13.3333 13.3333M10 10V17.5"
-                              stroke="#344054"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Subtotal
+                        </TableCell>
 
-                          <input
-                            id="fileInput"
-                            type="file"
-                            accept="image/png, image/jpg, image/jpeg"
-                            onChange={handleFileChange} // Handle file input changes
-                          />
-                        </Box>
-                      ) : (
-                        <img
-                          src={
-                            item?.images?.length > 0
-                              ? item?.images[0]?.url
-                              : "/noImage.png"
-                          }
-                          alt=""
-                          width={40}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell sx={{ minWidth: "130px" }}>
-                      {updateData._id === item._id ? (
-                        <TextField
-                          required
-                          size="small"
-                          id="name"
-                          placeholder="Variation Name"
-                          variant="outlined"
-                          sx={{
-                            ...customeTextFeild,
-                            "& .MuiOutlinedInput-input": {
-                              padding: "6.5px 12px",
-                              fontSize: "14px",
-                            },
-                            minWidth: "150px",
-                          }}
-                          value={updateData?.name || ""}
-                          onChange={handleInputChange} // Attach the onChange handler
-                        />
-                      ) : (
-                        <>{item?.name}</>
-                      )}
-                    </TableCell>
-                    <TableCell sx={{ minWidth: "130px" }}>
-                      {updateData._id === item._id ? (
-                        <TextField
-                          required
-                          type="number"
-                          size="small"
-                          id="price"
-                          placeholder="Price"
-                          variant="outlined"
-                          sx={{
-                            ...customeTextFeild,
-                            "& .MuiOutlinedInput-input": {
-                              padding: "6.5px 12px",
-                              fontSize: "14px",
-                            },
-                            minWidth: "150px",
-                          }}
-                          value={updateData.price || ""} // Assuming 'value' is the key for the number field
-                          onChange={handleInputChange} // Attach the onChange handler
-                        />
-                      ) : (
-                        item?.price
-                      )}
-                    </TableCell>
-
-                    <TableCell
-                      sx={{ whiteSpace: "nowrap", textAlign: "right" }}
-                    >
-                      {updateData._id === item._id ? (
-                        <>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="text"
-                            disabled={updateVariationLoading}
-                            sx={{ mr: 1 }}
-                            onClick={() => {
-                              setUpdateData({});
-                            }}
-                          >
-                            {" "}
-                            Cancel
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            disabled={updateVariationLoading}
-                            sx={{ minHeight: "33px", minWidth: "80px" }}
-                            onClick={onVariationSubmit}
-                          >
-                            <PulseLoader
-                              color={"#4B46E5"}
-                              loading={updateVariationLoading}
-                              size={10}
-                              speedMultiplier={0.5}
-                            />{" "}
-                            {updateVariationLoading === false && "Update"}
-                          </Button>
-                        </>
-                      ) : (
-                        <IconButton
-                          variant="contained"
-                          // color="success"
-                          disableElevation
-                          onClick={() => setUpdateData(item)}
+                        <TableCell
+                          align="right"
+                          style={{ whiteSpace: "nowrap" }}
                         >
-                          {/* <EditOutlinedIcon /> */}
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {tableDataList[0]?.purchase_products_data?.length > 0 ? (
+                        tableDataList[0]?.purchase_products_data?.map(
+                          (item, i) => (
+                            <TableRow
+                              sx={{
+                                background: "#fff",
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              <TableCell sx={{ minWidth: "130px" }}>
+                                {" "}
+                                {item?.spare_part_variation_details[0]?.name}
+                              </TableCell>
+                              <TableCell sx={{ minWidth: "130px" }}>
+                                {updateData._id === item._id ? (
+                                  <FormControl
+                                    fullWidth
+                                    size="small"
+                                    sx={{
+                                      ...customeSelectFeildSmall,
+                                      "& label.Mui-focused": {
+                                        color: "rgba(0,0,0,0)",
+                                      },
 
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            id="Outline"
-                            viewBox="0 0 24 24"
-                            width="18"
-                            height="18"
-                          >
-                            <path
-                              d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-                              fill="#787878"
-                            />
-                            <path
-                              d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-                              fill="#787878"
-                            />
-                          </svg>
+                                      "& .MuiOutlinedInput-input img": {
+                                        position: "relative",
+                                        top: "2px",
+                                      },
+                                    }}
+                                  >
+                                    {updateData?.purchase_product_status
+                                      ?.length < 1 && (
+                                      <InputLabel
+                                        id="demo-simple-select-label"
+                                        sx={{
+                                          color: "#b3b3b3",
+                                          fontWeight: 300,
+                                          fontSize: "14px",
+                                        }}
+                                      >
+                                        Select Brand
+                                      </InputLabel>
+                                    )}
+                                    <Select
+                                      required
+                                      labelId="demo-simple-select-label"
+                                      id="purchase_product_status"
+                                      MenuProps={{
+                                        PaperProps: {
+                                          sx: {
+                                            maxHeight: 250, // Set the max height here
 
-                          {/* <svg
+                                            "& .MuiMenuItem-root": {
+                                              fontSize: "14px",
+                                            },
+                                          },
+                                        },
+                                      }}
+                                      // value={purchaseStatus}
+                                      // onChange={(e) =>
+                                      //   setPurchaseStatus(e.target.value)
+                                      // }
+
+                                      value={
+                                        updateData?.purchase_product_status ||
+                                        ""
+                                      }
+                                      onChange={(e) =>
+                                        handleInputChange(
+                                          "purchase_product_status",
+                                          e.target.value
+                                        )
+                                      }
+                                    >
+                                      {purchaseStatusList?.map((item) => (
+                                        <MenuItem key={item} value={item}>
+                                          {item}
+                                        </MenuItem>
+                                      ))}
+                                    </Select>
+                                  </FormControl>
+                                ) : (
+                                  <Chip
+                                    sx={{
+                                      color:
+                                        item.purchase_product_status ===
+                                        "Transit"
+                                          ? "#7527DA"
+                                          : item.purchase_product_status ===
+                                            "Hold"
+                                          ? "#C81E1E"
+                                          : item.purchase_product_status ===
+                                            "Recived"
+                                          ? "#046C4E"
+                                          : "#222",
+                                      background:
+                                        item.purchase_product_status ===
+                                        "Transit"
+                                          ? "#F5F3FF"
+                                          : item.purchase_product_status ===
+                                            "Hold"
+                                          ? "#FDF2F2"
+                                          : item.purchase_product_status ===
+                                            "Recived"
+                                          ? "#F3FAF7"
+                                          : "#222",
+                                    }}
+                                    label={item.purchase_product_status}
+                                  />
+                                )}
+                              </TableCell>
+                              <TableCell sx={{ minWidth: "10px" }}>
+                                {updateData._id === item._id ? (
+                                  <TextField
+                                    required
+                                    type="number"
+                                    size="small"
+                                    id="quantity"
+                                    placeholder="Quantity"
+                                    variant="outlined"
+                                    sx={{
+                                      ...customeTextFeild,
+                                      "& .MuiOutlinedInput-input": {
+                                        padding: "6.5px 12px",
+                                        fontSize: "14px",
+                                      },
+                                      minWidth: "150px",
+                                    }}
+                                    value={updateData?.quantity || ""}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        "quantity",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  item.quantity
+                                )}
+                              </TableCell>
+                              <TableCell sx={{ minWidth: "130px" }}>
+                                {updateData._id === item._id ? (
+                                  <TextField
+                                    required
+                                    type="number"
+                                    size="small"
+                                    id="unit_price"
+                                    placeholder="Price"
+                                    variant="outlined"
+                                    sx={{
+                                      ...customeTextFeild,
+                                      "& .MuiOutlinedInput-input": {
+                                        padding: "6.5px 12px",
+                                        fontSize: "14px",
+                                      },
+                                      minWidth: "150px",
+                                    }}
+                                    value={updateData?.unit_price || ""}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        "unit_price",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  item.unit_price
+                                )}
+                              </TableCell>
+
+                              <TableCell sx={{ minWidth: "130px" }}>
+                                {updateData._id === item._id
+                                  ? updateData?.quantity &&
+                                    updateData?.unit_price
+                                    ? parseInt(updateData?.quantity) *
+                                      parseFloat(
+                                        updateData?.unit_price
+                                      ).toFixed(2)
+                                    : 0
+                                  : item?.quantity && item?.unit_price
+                                  ? parseInt(item?.quantity) *
+                                    parseFloat(item?.unit_price).toFixed(2)
+                                  : 0}
+                              </TableCell>
+                              <TableCell sx={{ minWidth: "130px" }}>
+                                {item?.is_sku_generated ? (
+                                  <Button
+                                    variant="outlined"
+                                    color="info"
+                                    size="small"
+                                    startIcon={<ListAltOutlinedIcon />}
+                                  >
+                                    Get SKU
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    variant="outlined"
+                                    color="secondary"
+                                    size="small"
+                                    startIcon={<BallotOutlinedIcon />}
+                                  >
+                                    Generate SKU
+                                  </Button>
+                                )}
+                              </TableCell>
+                              <TableCell
+                                sx={{
+                                  whiteSpace: "nowrap",
+                                  textAlign: "right",
+                                }}
+                              >
+                                {updateData._id === item._id ? (
+                                  <>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      color="text"
+                                      disabled={updateVariationLoading}
+                                      sx={{ mr: 1 }}
+                                      onClick={() => {
+                                        setUpdateData({});
+                                      }}
+                                    >
+                                      {" "}
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="contained"
+                                      disabled={updateVariationLoading}
+                                      sx={{
+                                        minHeight: "33px",
+                                        minWidth: "80px",
+                                      }}
+                                      onClick={onProductSubmit}
+                                    >
+                                      <PulseLoader
+                                        color={"#4B46E5"}
+                                        loading={updateVariationLoading}
+                                        size={10}
+                                        speedMultiplier={0.5}
+                                      />{" "}
+                                      {updateVariationLoading === false &&
+                                        "Update"}
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <IconButton
+                                    variant="contained"
+                                    // color="success"
+                                    disableElevation
+                                    onClick={() => setUpdateData(item)}
+                                  >
+                                    {/* <EditOutlinedIcon /> */}
+
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      id="Outline"
+                                      viewBox="0 0 24 24"
+                                      width="18"
+                                      height="18"
+                                    >
+                                      <path
+                                        d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                                        fill="#787878"
+                                      />
+                                      <path
+                                        d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                                        fill="#787878"
+                                      />
+                                    </svg>
+
+                                    {/* <svg
                           width="20"
                           height="20"
                           viewBox="0 0 20 20"
@@ -1270,21 +1382,30 @@ const PurchaseDetails = () => {
                             stroke-linejoin="round"
                           />
                         </svg> */}
-                        </IconButton>
+                                  </IconButton>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )
+                      ) : (
+                        <TableRow
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell colSpan={7} align="center">
+                            No Product selected
+                          </TableCell>
+                        </TableRow>
                       )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} align="center">
-                    No variation added
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            </Grid>
+          </Grid>
+        </Grid>
       </div>
     </>
   );

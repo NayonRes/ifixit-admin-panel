@@ -15,16 +15,16 @@ import Select from "@mui/material/Select";
 import { Box, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
-import PulseLoader from "react-spinners/PulseLoader"; 
+import PulseLoader from "react-spinners/PulseLoader";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
- 
+
 import Checkbox from "@mui/material/Checkbox";
- 
+
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -213,6 +213,9 @@ const AddPurchase = ({ clearFilter }) => {
     setBrandId("");
     setCategoryId("");
     setPrice("");
+    setShippingCharge("");
+    setBranch("");
+    setPurchaseBy("");
     setsearchProductText("");
     setProductList([]);
     setSelectedProducts([]);
@@ -228,9 +231,18 @@ const AddPurchase = ({ clearFilter }) => {
       handleSnakbarOpen("Please select a purchase date", "error");
       return;
     }
+    let newSelectedProduct = [];
     if (selectedProducts?.length < 1) {
       handleSnakbarOpen("Please select purchase product", "error");
       return;
+    } else {
+      newSelectedProduct = selectedProducts?.map((item, i) => ({
+        spare_part_id: item.spare_part_id,
+        spare_part_variation_id: item.spare_part_variation_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        purchase_product_status: item.purchase_product_status,
+      }));
     }
 
     const formData = new FormData();
@@ -346,6 +358,36 @@ const AddPurchase = ({ clearFilter }) => {
     "& .MuiOutlinedInput-input": {
       // padding: "10px 16px",
     },
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px",
+      "& fieldset": {
+        borderColor: "#",
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
+  const customeSelectFeildSmall = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+    "& .MuiOutlinedInput-input": {
+      padding: "6px 16px",
+      fontSize: "14px",
+    },
+
     "& .MuiOutlinedInput-root": {
       // paddingLeft: "24px",
       "& fieldset": {
@@ -507,7 +549,14 @@ const AddPurchase = ({ clearFilter }) => {
     }
     setSearchLoading(false);
   };
-  const handleSelectedProduct = (row, item) => {
+  const handleSelectedProduct = (item) => {
+    console.log("item", item);
+
+    // spare_part_id: element._id,
+    //     spare_part_variation_id: element.spare_part_variation_id,
+    //     quantity: element.quantity,
+    //     unit_price: element.unit_price,
+    //     purchase_product_status: element.purchase_product_status,
     if (selectedProducts.some((res) => res._id === item._id)) {
       setSelectedProducts(
         selectedProducts.filter((res) => res._id !== item._id)
@@ -517,9 +566,11 @@ const AddPurchase = ({ clearFilter }) => {
         ...selectedProducts,
         {
           ...item,
-          spare_part_variation_id: row._id,
+          spare_part_id: item.spare_part_id,
+          spare_part_variation_id: item._id,
+          purchase_product_status: "",
           quantity: "",
-          price: "",
+          unit_price: "",
         },
       ]);
     }
@@ -882,7 +933,7 @@ const AddPurchase = ({ clearFilter }) => {
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Brand
+                    Select Purchase Status
                   </InputLabel>
                 )}
                 <Select
@@ -937,7 +988,7 @@ const AddPurchase = ({ clearFilter }) => {
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Brand
+                    Select Purchase Status
                   </InputLabel>
                 )}
                 <Select
@@ -1255,7 +1306,7 @@ const AddPurchase = ({ clearFilter }) => {
                                     (pro) => pro?._id === item?._id
                                   ) && "1px solid #818FF8",
                               }}
-                              onClick={() => handleSelectedProduct(row, item)}
+                              onClick={() => handleSelectedProduct(item)}
                             >
                               {" "}
                               <Box sx={{ flexGrow: 1 }}>
@@ -1456,6 +1507,9 @@ const AddPurchase = ({ clearFilter }) => {
                           Product Name
                         </TableCell>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Status
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
                           Quantity
                         </TableCell>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -1486,6 +1540,78 @@ const AddPurchase = ({ clearFilter }) => {
                             <TableCell sx={{ minWidth: "130px" }}>
                               {" "}
                               {item.name}
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "180px" }}>
+                              <FormControl
+                                fullWidth
+                                size="small"
+                                sx={{
+                                  ...customeSelectFeildSmall,
+                                  "& label.Mui-focused": {
+                                    color: "rgba(0,0,0,0)",
+                                  },
+
+                                  "& .MuiOutlinedInput-input img": {
+                                    position: "relative",
+                                    top: "2px",
+                                  },
+                                }}
+                              >
+                                {item.purchase_product_status?.length < 1 && (
+                                  <InputLabel
+                                    id="demo-simple-select-label"
+                                    sx={{
+                                      color: "#b3b3b3",
+                                      fontWeight: 300,
+                                      fontSize: "14px",
+                                    }}
+                                  >
+                                    Select Brand
+                                  </InputLabel>
+                                )}
+                                <Select
+                                  required
+                                  labelId="demo-simple-select-label"
+                                  id="purchaseStatus"
+                                  MenuProps={{
+                                    PaperProps: {
+                                      sx: {
+                                        maxHeight: 250, // Set the max height here
+
+                                        "& .MuiMenuItem-root": {
+                                          fontSize: "14px",
+                                        },
+                                      },
+                                    },
+                                  }}
+                                  // value={purchaseStatus}
+                                  // onChange={(e) =>
+                                  //   setPurchaseStatus(e.target.value)
+                                  // }
+
+                                  value={item.purchase_product_status || ""} // Assuming 'value' is the key for the number field
+                                  onChange={(e) => {
+                                    const updatedValue = e.target.value;
+                                    setSelectedProducts((prevList) =>
+                                      prevList.map((obj, index) =>
+                                        index === i
+                                          ? {
+                                              ...obj,
+                                              purchase_product_status:
+                                                updatedValue,
+                                            }
+                                          : obj
+                                      )
+                                    );
+                                  }}
+                                >
+                                  {purchaseStatusList?.map((item) => (
+                                    <MenuItem key={item?._id} value={item}>
+                                      {item}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
                             </TableCell>
                             <TableCell sx={{ minWidth: "130px" }}>
                               <TextField
@@ -1532,13 +1658,13 @@ const AddPurchase = ({ clearFilter }) => {
                                   },
                                   minWidth: "150px",
                                 }}
-                                value={item.price || ""} // Assuming 'value' is the key for the number field
+                                value={item.unit_price || ""} // Assuming 'value' is the key for the number field
                                 onChange={(e) => {
                                   const updatedValue = e.target.value;
                                   setSelectedProducts((prevList) =>
                                     prevList.map((obj, index) =>
                                       index === i
-                                        ? { ...obj, price: updatedValue }
+                                        ? { ...obj, unit_price: updatedValue }
                                         : obj
                                     )
                                   );
@@ -1547,9 +1673,9 @@ const AddPurchase = ({ clearFilter }) => {
                             </TableCell>
 
                             <TableCell sx={{ minWidth: "130px" }}>
-                              {item?.quantity && item?.price
+                              {item?.quantity && item?.unit_price
                                 ? parseInt(item?.quantity) *
-                                  parseFloat(item?.price).toFixed(2)
+                                  parseFloat(item?.unit_price).toFixed(2)
                                 : 0}
                             </TableCell>
                             <TableCell
@@ -1592,7 +1718,7 @@ const AddPurchase = ({ clearFilter }) => {
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
                         >
-                          <TableCell colSpan={5} align="center">
+                          <TableCell colSpan={6} align="center">
                             No Product selected
                           </TableCell>
                         </TableRow>
