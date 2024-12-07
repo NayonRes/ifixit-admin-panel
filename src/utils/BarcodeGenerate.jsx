@@ -10,9 +10,15 @@ const BarcodeGenerate = ({ list }) => {
     <div>
       <div>
         <button onClick={handlePrint}>Print</button>
-        <div ref={contentRef}>
-          adfasdas <Barcode value="10000005" width={2} height={30} />
-        </div>
+
+        {list?.length > 0 &&
+          list?.map((item, i) => {
+            return (
+              <div ref={contentRef} key={i}>
+                <Barcode value={item?.sku_number} width={2} height={30} />
+              </div>
+            );
+          })}
       </div>
     </div>
   );

@@ -642,7 +642,7 @@ const AddPurchase = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Spare Parts
+          Add Purchase
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddDialog(false)}
@@ -1566,7 +1566,7 @@ const AddPurchase = ({ clearFilter }) => {
                                       fontSize: "14px",
                                     }}
                                   >
-                                    Select Brand
+                                    Select Status
                                   </InputLabel>
                                 )}
                                 <Select

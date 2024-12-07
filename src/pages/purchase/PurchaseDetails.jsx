@@ -105,10 +105,11 @@ const PurchaseDetails = () => {
   const [details, setDetails] = useState([]);
   const [updateData, setUpdateData] = useState({});
   const [updateVariationLoading, setUpdateVariationLoading] = useState(false);
-  const [generateSKUDetails, setGenerateSKUDetails] = useState(false);
+  const [generateSKUDetails, setGenerateSKUDetails] = useState({});
   const [generateSKULoading, setGenerateSKULoading] = useState(false);
   const [skuLoading, setSkuLoading] = useState(false);
   const [skuList, setSkuList] = useState([]);
+  const [generateSkuData, setGenerateSkuData] = useState({});
 
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -224,6 +225,7 @@ const PurchaseDetails = () => {
   const handleGenerateSKU = async (item) => {
     setGenerateSKULoading(true);
     setGenerateSKUDetails(item);
+
     let data = {
       purchase_id: item.purchase_id,
       purchase_product_id: item._id,
@@ -406,8 +408,8 @@ const PurchaseDetails = () => {
     }
     setLoading(false);
   };
-
   const getSKU = async (item) => {
+    setGenerateSkuData(item);
     setSkuLoading(true);
     setSkuList([]);
 
@@ -434,7 +436,7 @@ const PurchaseDetails = () => {
 
     if (allData.status >= 200 && allData.status < 300) {
       setSkuList(allData?.data?.data);
-
+      setGenerateSkuData({});
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
@@ -1361,24 +1363,62 @@ const PurchaseDetails = () => {
                                     variant="outlined"
                                     color="info"
                                     size="small"
-                                    startIcon={<ListAltOutlinedIcon />}
+                                    disabled={skuLoading}
+                                    sx={{
+                                      minWidth: "138px",
+                                      minHeight: "33px",
+                                    }}
+                                    startIcon={
+                                      item?._id !== generateSkuData?._id && (
+                                        <ListAltOutlinedIcon />
+                                      )
+                                    }
                                     onClick={() => {
                                       getSKU(item);
                                     }}
                                   >
-                                    Get SKU
+                                    <PulseLoader
+                                      color={"#1e88e5"}
+                                      loading={
+                                        skuLoading &&
+                                        item?._id === generateSkuData?._id
+                                      }
+                                      size={10}
+                                      speedMultiplier={0.5}
+                                    />
+                                    {item?._id !== generateSkuData?._id &&
+                                      "Get SKU"}
                                   </Button>
                                 ) : (
                                   <Button
                                     variant="outlined"
                                     color="secondary"
                                     size="small"
-                                    startIcon={<BallotOutlinedIcon />}
+                                    disabled={generateSKULoading}
+                                    sx={{
+                                      minWidth: "138px",
+                                      minHeight: "33px",
+                                    }}
+                                    startIcon={
+                                      item?._id !== generateSKUDetails?._id && (
+                                        <BallotOutlinedIcon />
+                                      )
+                                    }
                                     onClick={() => {
                                       handleGenerateSKU(item);
                                     }}
                                   >
-                                    Generate SKU
+                                    <PulseLoader
+                                      color={"#7642af"}
+                                      loading={
+                                        generateSKULoading &&
+                                        item?._id === generateSKUDetails?._id
+                                      }
+                                      size={10}
+                                      speedMultiplier={0.5}
+                                    />
+                                    {item?._id !== generateSKUDetails?._id &&
+                                      "Generate SKU"}
                                   </Button>
                                 )}
                               </TableCell>
@@ -1489,7 +1529,7 @@ const PurchaseDetails = () => {
           </Grid>
         </Grid>
       </div>
-      <BarcodeGenerate />
+      <BarcodeGenerate list={skuList} />
     </>
   );
 };
