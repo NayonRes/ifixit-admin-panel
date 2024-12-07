@@ -83,7 +83,7 @@ input[type="file"]::file-selector-button {
   padding: 10px 36px 10px 12px;
   border-radius: 8px;
   background-color: #fff;
-  transition: .3s;
+  transition: 0.3s;
   color: #344054;
   font-size: 12px;
   font-weight: 600;
@@ -92,4 +92,10 @@ input[type="file"]::file-selector-button {
 
 input[type="file"]::file-selector-button:hover {
   background-color: #ededee;
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+  }
 }

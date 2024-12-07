@@ -237,8 +237,8 @@ const AddPurchase = ({ clearFilter }) => {
       return;
     } else {
       newSelectedProduct = selectedProducts?.map((item, i) => ({
-        spare_part_id: item.spare_part_id,
-        spare_part_variation_id: item.spare_part_variation_id,
+        spare_parts_id: item.spare_parts_id,
+        spare_parts_variation_id: item.spare_parts_variation_id,
         quantity: item.quantity,
         unit_price: item.unit_price,
         purchase_product_status: item.purchase_product_status,
@@ -552,8 +552,8 @@ const AddPurchase = ({ clearFilter }) => {
   const handleSelectedProduct = (item) => {
     console.log("item", item);
 
-    // spare_part_id: element._id,
-    //     spare_part_variation_id: element.spare_part_variation_id,
+    // spare_parts_id: element._id,
+    //     spare_parts_variation_id: element.spare_parts_variation_id,
     //     quantity: element.quantity,
     //     unit_price: element.unit_price,
     //     purchase_product_status: element.purchase_product_status,
@@ -566,8 +566,8 @@ const AddPurchase = ({ clearFilter }) => {
         ...selectedProducts,
         {
           ...item,
-          spare_part_id: item.spare_part_id,
-          spare_part_variation_id: item._id,
+          spare_parts_id: item.spare_parts_id,
+          spare_parts_variation_id: item._id,
           purchase_product_status: "",
           quantity: "",
           unit_price: "",

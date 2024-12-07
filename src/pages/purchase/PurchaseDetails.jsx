@@ -65,6 +65,8 @@ import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import BallotOutlinedIcon from "@mui/icons-material/BallotOutlined";
 
 import Chip from "@mui/material/Chip";
+import { handlePostData } from "../../services/PostDataService";
+import BarcodeGenerate from "../../utils/BarcodeGenerate";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -103,6 +105,10 @@ const PurchaseDetails = () => {
   const [details, setDetails] = useState([]);
   const [updateData, setUpdateData] = useState({});
   const [updateVariationLoading, setUpdateVariationLoading] = useState(false);
+  const [generateSKUDetails, setGenerateSKUDetails] = useState(false);
+  const [generateSKULoading, setGenerateSKULoading] = useState(false);
+  const [skuLoading, setSkuLoading] = useState(false);
+  const [skuList, setSkuList] = useState([]);
 
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -174,7 +180,7 @@ const PurchaseDetails = () => {
         ...selectedProducts,
         {
           ...item,
-          spare_part_variation_id: row._id,
+          spare_parts_variation_id: row._id,
           quantity: "",
           price: "",
         },
@@ -188,8 +194,8 @@ const PurchaseDetails = () => {
 
     let data = {
       purchase_id: updateData.purchase_id,
-      spare_part_id: updateData.spare_part_id,
-      spare_part_variation_id: updateData.spare_part_variation_id,
+      spare_parts_id: updateData.spare_parts_id,
+      spare_parts_variation_id: updateData.spare_parts_variation_id,
       quantity: parseInt(updateData.quantity),
       unit_price: parseFloat(updateData.unit_price).toFixed(2),
       purchase_product_status: updateData.purchase_product_status,
@@ -210,6 +216,38 @@ const PurchaseDetails = () => {
       setUpdateData({});
     } else {
       setUpdateVariationLoading(false);
+      handleSnakbarOpen(response?.data?.message, "error");
+    }
+
+    // }
+  };
+  const handleGenerateSKU = async (item) => {
+    setGenerateSKULoading(true);
+    setGenerateSKUDetails(item);
+    let data = {
+      purchase_id: item.purchase_id,
+      purchase_product_id: item._id,
+      spare_parts_id: item.spare_parts_id,
+      spare_parts_variation_id: item.spare_parts_variation_id,
+      branch_id: tableDataList[0]?.branch_id,
+      quantity: parseInt(item.quantity),
+    };
+
+    let response = await handlePostData(
+      `/api/v1/sparePartsStock/create`,
+      data,
+      false
+    );
+
+    console.log("response", response);
+
+    if (response.status >= 200 && response.status < 300) {
+      setGenerateSKULoading(false);
+      handleSnakbarOpen("Generate SKU successfully", "success");
+      getData(false);
+      setGenerateSKUDetails({});
+    } else {
+      setGenerateSKULoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
@@ -367,6 +405,41 @@ const PurchaseDetails = () => {
       }
     }
     setLoading(false);
+  };
+
+  const getSKU = async (item) => {
+    setSkuLoading(true);
+    setSkuList([]);
+
+    // purchase_id: item.purchase_id,
+    //   purchase_product_id: item._id,
+    //   spare_parts_id: item.spare_parts_id,
+    //   spare_parts_variation_id: item.spare_parts_variation_id,
+    //   branch_id: tableDataList[0]?.branch_id,
+    //   quantity: parseInt(item.quantity),
+
+    let url = `/api/v1/sparePartsStock/stock-skus-details?sku_number=${encodeURIComponent(
+      ""
+    )}&stock_status=${encodeURIComponent(
+      ""
+    )}&spare_parts_id=${encodeURIComponent(
+      item.spare_parts_id
+    )}&spare_parts_variation_id=${encodeURIComponent(
+      item.spare_parts_variation_id
+    )}&branch_id=${encodeURIComponent(
+      tableDataList[0]?.branch_id
+    )}&purchase_id=${encodeURIComponent(item.purchase_id)}`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setSkuList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setSkuLoading(false);
   };
 
   const sortByParentName = (a, b) => {
@@ -1083,6 +1156,9 @@ const PurchaseDetails = () => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Subtotal
                         </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          SKUs
+                        </TableCell>
 
                         <TableCell
                           align="right"
@@ -1286,6 +1362,9 @@ const PurchaseDetails = () => {
                                     color="info"
                                     size="small"
                                     startIcon={<ListAltOutlinedIcon />}
+                                    onClick={() => {
+                                      getSKU(item);
+                                    }}
                                   >
                                     Get SKU
                                   </Button>
@@ -1295,6 +1374,9 @@ const PurchaseDetails = () => {
                                     color="secondary"
                                     size="small"
                                     startIcon={<BallotOutlinedIcon />}
+                                    onClick={() => {
+                                      handleGenerateSKU(item);
+                                    }}
                                   >
                                     Generate SKU
                                   </Button>
@@ -1407,6 +1489,7 @@ const PurchaseDetails = () => {
           </Grid>
         </Grid>
       </div>
+      <BarcodeGenerate />
     </>
   );
 };

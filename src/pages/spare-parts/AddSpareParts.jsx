@@ -209,7 +209,7 @@ const AddSpareParts = ({ clearFilter }) => {
     setRemarks("");
   };
 
-  const handleCreateSpareParts = async (variationList, spare_part_id) => {
+  const handleCreateSpareParts = async (variationList, spare_parts_id) => {
     try {
       // Create an array of promises
       // const promises = variationList.map((variation) =>
@@ -223,7 +223,7 @@ const AddSpareParts = ({ clearFilter }) => {
         // price: 0,
         // file: null,
         const formData = new FormData();
-        formData.append("spare_part_id", spare_part_id);
+        formData.append("spare_parts_id", spare_parts_id);
         formData.append("name", variation?.name?.trim());
         formData.append("price", parseFloat(variation?.price).toFixed(2));
         {
@@ -611,11 +611,13 @@ const AddSpareParts = ({ clearFilter }) => {
                   value={brandId}
                   onChange={(e) => setBrandId(e.target.value)}
                 >
-                  {brandList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {brandList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -666,11 +668,13 @@ const AddSpareParts = ({ clearFilter }) => {
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
                 >
-                  {categoryList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {categoryList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -721,15 +725,17 @@ const AddSpareParts = ({ clearFilter }) => {
                   value={deviceId}
                   onChange={handleDeviceSelect}
                 >
-                  {deviceList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {deviceList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={4}>
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -785,7 +791,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={4}>
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -808,7 +814,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 }}
               />
             </Grid>
-            <Grid size={4}>
+            {/* <Grid size={4}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -831,7 +837,7 @@ const AddSpareParts = ({ clearFilter }) => {
                   setPrice(e.target.value);
                 }}
               />
-            </Grid>
+            </Grid> */}
 
             <Grid size={6}>
               <Typography
