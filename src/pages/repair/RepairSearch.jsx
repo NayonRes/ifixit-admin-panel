@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import SearchForm from "./SearchForm";
 import AddContact from "./AddContact";
 import EditContact from "./EditContact";
+import ModelList from "./ModelList";
 
 const RepairSearch = () => {
   const [contactData, setContactData] = useState({});
@@ -91,13 +92,17 @@ const RepairSearch = () => {
           />
         </Grid>
         <Grid size={9} sx={{ p: 3 }}>
-          {contactData?._id ? (
+          {!brand && contactData?._id ? (
             <EditContact contactData={contactData} />
-          ) : (
+          ) : !brand && !contactData?._id ? (
             <AddContact searchPrams={searchPrams} contactData={contactData} />
+          ) : (
+            ""
           )}
 
-          {/* <EditContact /> */}
+          {brand === "Apple" && (
+            <ModelList device={device} setDevice={setDevice} />
+          )}
         </Grid>
       </Grid>
     </div>

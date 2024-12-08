@@ -94,6 +94,12 @@ const SearchForm = ({
   deliveryStatus,
   setDeliveryStatus,
 }) => {
+
+  const [brandList, setBrandList] = useState([
+    "Apple",
+    "Samsung",
+    "Google",
+  ]);
   const getUser = async () => {
     let url = `/api/v1/customer?name=${name}&mobile=${searchPrams}`;
     let allData = await getDataWithToken(url);
@@ -231,19 +237,51 @@ const SearchForm = ({
         >
           Brand
         </Typography>
-        <TextField
-          required
-          size="small"
+        <FormControl
           fullWidth
-          id="brand"
-          placeholder="Enter Brand"
-          variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
-          value={brand}
-          onChange={(e) => {
-            setBrand(e.target.value);
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+            mb: 3,
           }}
-        />
+        >
+          {brandList?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Brand
+            </InputLabel>
+          )}
+          <Select
+            required
+            labelId="demo-simple-select-label"
+            id="customer_type"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+          >
+            {brandList?.map((item) => (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Typography
           variant="medium"
           color="text.main"

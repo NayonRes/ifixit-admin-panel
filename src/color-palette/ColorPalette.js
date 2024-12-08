@@ -38,6 +38,7 @@ let ColorPalette = {
       light: "#555555",
       fade: "#969696",
       contrastText: "#fff",
+      bg: "#F9FAFB",
     },
     border: {
       main: "#E5E5E5",
