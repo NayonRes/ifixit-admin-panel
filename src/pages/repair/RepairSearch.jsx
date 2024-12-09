@@ -1,12 +1,17 @@
-import { IconButton, Typography } from "@mui/material";
+import { Button, IconButton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import React, { useState } from "react";
 import SearchForm from "./SearchForm";
 import AddContact from "./AddContact";
 import EditContact from "./EditContact";
 import ModelList from "./ModelList";
+import { useNavigate } from "react-router-dom";
+import IssueList from "./IssueList";
+
 
 const RepairSearch = () => {
+  const navigate = useNavigate();
+
   const [contactData, setContactData] = useState({});
 
   const [searchPrams, setSearchPrams] = useState("");
@@ -18,6 +23,9 @@ const RepairSearch = () => {
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
+
+  const [issue, setIssue] = useState("");
+
   return (
     <div>
       <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
@@ -32,38 +40,30 @@ const RepairSearch = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          {/* <Button
+          <Button
+            variant="contained"
             disableElevation
-            variant="outlined"
-            size="large"
-            // startIcon={<FilterListIcon />}
-            onClick={() => setOpen(!open)}
+            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            onClick={() => navigate("/repair")}
+            startIcon={
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 15 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14 12.85L1 12.85L1 14.15L14 14.15L14 12.85ZM14 8.85002L1 8.85002L1 10.15L14 10.15L14 8.85002ZM1 4.85003L14 4.85003L14 6.15003L1 6.15002L1 4.85003ZM14 0.850025L1 0.850025L1 2.15002L14 2.15002L14 0.850025Z"
+                  fill="currentColor"
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            }
           >
-            {open ? <FilterListOffIcon /> : <FilterListIcon />}
-          </Button> */}
-
-          <IconButton
-            // onClick={() => setOpen(!open)}
-            // size="large"
-            aria-label="show 5 new notifications"
-            color="inherit"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
-                stroke="#667085"
-                stroke-width="1.66667"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </IconButton>
+            Repair List
+          </Button>
         </Grid>
       </Grid>
       <Grid container sx={{ background: "#fff" }}>
@@ -100,9 +100,10 @@ const RepairSearch = () => {
             ""
           )}
 
-          {brand === "Apple" && (
+          {brand === "Apple" && !device && (
             <ModelList device={device} setDevice={setDevice} />
           )}
+          {device && <IssueList issue={issue} setIssue={setIssue} /> }
         </Grid>
       </Grid>
     </div>
