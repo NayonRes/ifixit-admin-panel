@@ -24,6 +24,8 @@ import SparePartsDetails from "../spare-parts/SparePartsDetails";
 import Repair from "../repair/Repair";
 import PurchaseList from "../purchase/PurchaseList";
 import PurchaseDetails from "../purchase/PurchaseDetails";
+import StockAlertList from "../stock-alert/StockAlertList";
+import AddStockList from "../stock-alert/AddStockList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -144,6 +146,22 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <SparePartsList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stock-alert"
+          element={
+            <PrivateRoute>
+              <StockAlertList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="add-stock-alert"
+          element={
+            <PrivateRoute>
+              <AddStockList />
             </PrivateRoute>
           }
         />

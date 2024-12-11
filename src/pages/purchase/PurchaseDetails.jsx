@@ -250,6 +250,7 @@ const PurchaseDetails = () => {
       getData(false);
       setGenerateSKUDetails({});
     } else {
+      setGenerateSKUDetails({});
       setGenerateSKULoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
@@ -417,13 +418,6 @@ const PurchaseDetails = () => {
     setSkuLoading(true);
     setSkuList([]);
 
-    // purchase_id: item.purchase_id,
-    //   purchase_product_id: item._id,
-    //   spare_parts_id: item.spare_parts_id,
-    //   spare_parts_variation_id: item.spare_parts_variation_id,
-    //   branch_id: tableDataList[0]?.branch_id,
-    //   quantity: parseInt(item.quantity),
-
     let url = `/api/v1/sparePartsStock/stock-skus-details?sku_number=${encodeURIComponent(
       ""
     )}&stock_status=${encodeURIComponent(
@@ -446,22 +440,12 @@ const PurchaseDetails = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setGenerateSkuData({});
+      setGenerateSKULoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setSkuLoading(false);
-  };
-
-  const sortByParentName = (a, b) => {
-    const nameA = a.parent_name.toUpperCase();
-    const nameB = b.parent_name.toUpperCase();
-
-    if (nameA < nameB) {
-      return -1;
-    }
-    if (nameA > nameB) {
-      return 1;
-    }
-
-    return 0;
   };
 
   // Handler for updating the updateData object
@@ -1505,22 +1489,6 @@ const PurchaseDetails = () => {
                                         fill="#787878"
                                       />
                                     </svg>
-
-                                    {/* <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M12.2836 7.5L11.9951 15M8.00475 15L7.71629 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.8749 4.96358M16.023 4.82547L15.1331 16.3938C15.058 17.3707 14.2434 18.125 13.2636 18.125H6.73625C5.75649 18.125 4.94191 17.3707 4.86677 16.3938L3.9769 4.82547M16.023 4.82547C15.0676 4.6812 14.1012 4.57071 13.1249 4.49527M3.12494 4.96358C3.40792 4.91456 3.69192 4.86851 3.9769 4.82547M3.9769 4.82547C4.93225 4.6812 5.89868 4.57071 6.87494 4.49527M13.1249 4.49527V3.73182C13.1249 2.74902 12.3661 1.92853 11.3838 1.8971C10.9243 1.8824 10.463 1.875 9.99994 1.875C9.5369 1.875 9.07559 1.8824 8.61612 1.8971C7.63382 1.92853 6.87494 2.74902 6.87494 3.73182V4.49527M13.1249 4.49527C12.0937 4.41558 11.0516 4.375 9.99994 4.375C8.9483 4.375 7.90614 4.41558 6.87494 4.49527"
-                            stroke="#4A5468"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg> */}
                                   </IconButton>
                                 )}
                               </TableCell>
@@ -1551,7 +1519,7 @@ const PurchaseDetails = () => {
           background: "#fff",
           border: "1px solid #EAECF1",
           borderRadius: "12px",
-          overflow: "hidden",
+
           padding: "16px",
           boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
           marginTop: "20px",
@@ -1563,9 +1531,10 @@ const PurchaseDetails = () => {
           sx={{ fontWeight: 500 }}
           onClick={() => console.log(updateData)}
         >
-          SKU and Barcode
+          SKU and Barcode &nbsp;
           {skuList?.length > 0 && `of ${skuProductName} (${skuList?.length})`}
         </Typography>
+
         <BarcodeGenerate list={skuList} />
       </Box>
     </>

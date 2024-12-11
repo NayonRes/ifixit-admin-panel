@@ -12,7 +12,14 @@ const BarcodeGenerate = ({ list }) => {
     <>
       {list?.length > 0 && (
         <>
-          <Box sx={{ background: "#F9FAFB", py: 2 }}>
+          <Box
+            sx={{
+              background: "#F9FAFB",
+              py: 2,
+              maxHeight: "500px",
+              overflowX: "auto",
+            }}
+          >
             <Box ref={contentRef}>
               {list?.length > 0 &&
                 list?.map((item, i) => {
