@@ -739,18 +739,22 @@ const StockTransferList = () => {
                       </TableCell>
 
                       <TableCell align="right">
-                        {/* <Button
+                        <Button
                           size="small"
                           variant="outlined"
                           color="info"
                           startIcon={<ListAltOutlinedIcon />}
                           component={Link}
-                          to={`/purchase/${row?._id}`}
+                          to={`/stock-transfer/details/${row?._id}`}
                         >
                           Details
-                        </Button> */}
-
+                        </Button>
+                        &nbsp;
                         <IconButton
+                          disabled={row?.transfer_status === "Received"}
+                          sx={{
+                            opacity: row?.transfer_status === "Received" && 0.5,
+                          }}
                           variant="contained"
                           // color="success"
                           disableElevation

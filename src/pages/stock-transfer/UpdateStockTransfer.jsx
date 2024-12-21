@@ -49,6 +49,7 @@ import { handlePutData } from "../../services/PutDataService";
 
 import { handlePostData } from "../../services/PostDataService";
 import moment from "moment";
+import { transferStatusList } from "../../data";
 
 const baseStyle = {
   flex: 1,
@@ -100,6 +101,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
   const [shippingCharge, setShippingCharge] = useState("");
 
   const [note, setNote] = useState("");
+  const [transferStatus, setTransferStatus] = useState("");
 
   const [branch, setBranch] = useState("");
   const [purchaseStatus, setPurchaseStatus] = useState("");
@@ -166,6 +168,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
     let data = {
       transfer_from: transferFrom,
       transfer_to: transferTo,
+      transfer_status: transferStatus,
       shipping_charge: parseInt(shippingCharge),
       remarks: note,
       transfer_stocks_sku: skus,
@@ -435,6 +438,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
       setTransferTo(allData?.data?.data?.transfer_to);
       setShippingCharge(allData?.data?.data?.shipping_charge);
       setNote(allData?.data?.data?.remarks);
+      setTransferStatus(allData?.data?.data?.transfer_status);
       let newSKUdetails = allData?.data?.data?.sku_details?.map((item) => ({
         ...item,
         spare_parts_name: allData?.data?.data?.spare_parts_details?.find(
@@ -520,7 +524,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
             </LocalizationProvider>
           </Grid> */}
 
-            <Grid size={6}>
+            <Grid size={4}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -575,7 +579,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={6}>
+            <Grid size={4}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -630,8 +634,63 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Transfer Status
+              </Typography>
 
-            <Grid size={6}>
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {transferStatus.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Transfer To
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="type"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={transferStatus}
+                  onChange={(e) => setTransferStatus(e.target.value)}
+                >
+                  {transferStatusList?.map((item) => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid size={4}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -655,7 +714,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                 }}
               />
             </Grid>
-            <Grid size={6}>
+            <Grid size={8}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -883,11 +942,11 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                       Product Name
                     </TableCell>
                     <TableCell style={{ whiteSpace: "nowrap" }}>
-                      Purchase date
+                      Purchase Date
                     </TableCell>
 
                     <TableCell style={{ whiteSpace: "nowrap" }}>
-                      Purchase price
+                      Purchase Price
                     </TableCell>
                     <TableCell style={{ whiteSpace: "nowrap" }}>
                       SKU Number

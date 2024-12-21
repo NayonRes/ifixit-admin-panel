@@ -31,6 +31,7 @@ import PurchaseReturnList from "../purchase-return/PurchaseReturnList";
 import AddStockTransfer from "../stock-transfer/AddStockTransfer";
 import StockTransferList from "../stock-transfer/StockTransferList";
 import UpdateStockTransfer from "../stock-transfer/UpdateStockTransfer";
+import DetailsStockTransfer from "../stock-transfer/DetailsStockTransfer";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -199,6 +200,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <UpdateStockTransfer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stock-transfer/details/:id"
+          element={
+            <PrivateRoute>
+              <DetailsStockTransfer />
             </PrivateRoute>
           }
         />
