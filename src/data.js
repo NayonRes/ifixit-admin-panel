@@ -8,6 +8,7 @@ export const customerTypeList = [
 export const ratingList = ["Excellent", "Good", "Neutral", "Bad", "Very Bad"];
 export const purchaseStatusList = ["Transit", "Hold", "Received"];
 export const paymentStatusList = ["Transit", "Hold", "Paid"];
+export const transferStatusList = ["Pending", "Received" ];
 
 export const roleList = [
   { id: 1, name: "Admin" },
