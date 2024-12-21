@@ -229,11 +229,13 @@ const AddPurchase = ({ clearFilter }) => {
 
     if (!purchaseDate) {
       handleSnakbarOpen("Please select a purchase date", "error");
+      setLoading(false);
       return;
     }
     let newSelectedProduct = [];
     if (selectedProducts?.length < 1) {
       handleSnakbarOpen("Please select purchase product", "error");
+      setLoading(false);
       return;
     } else {
       newSelectedProduct = selectedProducts?.map((item, i) => ({

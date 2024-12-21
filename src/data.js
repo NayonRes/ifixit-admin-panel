@@ -6,8 +6,8 @@ export const customerTypeList = [
   "Friends & Family",
 ];
 export const ratingList = ["Excellent", "Good", "Neutral", "Bad", "Very Bad"];
-export const purchaseStatusList = ["Transit", "Hold", "Recived"];
-export const paymentStatusList = ["Transit", "Hold", "Recived"];
+export const purchaseStatusList = ["Transit", "Hold", "Received"];
+export const paymentStatusList = ["Transit", "Hold", "Paid"];
 
 export const roleList = [
   { id: 1, name: "Admin" },

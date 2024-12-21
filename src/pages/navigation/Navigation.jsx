@@ -25,7 +25,12 @@ import Repair from "../repair/Repair";
 import PurchaseList from "../purchase/PurchaseList";
 import PurchaseDetails from "../purchase/PurchaseDetails";
 import StockAlertList from "../stock-alert/StockAlertList";
-import AddStockList from "../stock-alert/AddStockList";
+import AddStockLimit from "../stock-alert/AddStockLimit";
+import AddPurchaseReturn from "../purchase-return/AddPurchaseReturn";
+import PurchaseReturnList from "../purchase-return/PurchaseReturnList";
+import AddStockTransfer from "../stock-transfer/AddStockTransfer";
+import StockTransferList from "../stock-transfer/StockTransferList";
+import UpdateStockTransfer from "../stock-transfer/UpdateStockTransfer";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -161,7 +166,47 @@ const Navigation = ({ notificationCartName }) => {
           path="add-stock-alert"
           element={
             <PrivateRoute>
-              <AddStockList />
+              <AddStockLimit />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="purchase-return-list"
+          element={
+            <PrivateRoute>
+              <PurchaseReturnList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="purchase-return"
+          element={
+            <PrivateRoute>
+              <AddPurchaseReturn />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="add-stock-transfer"
+          element={
+            <PrivateRoute>
+              <AddStockTransfer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stock-transfer/:id"
+          element={
+            <PrivateRoute>
+              <UpdateStockTransfer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stock-transfer-list"
+          element={
+            <PrivateRoute>
+              <StockTransferList />
             </PrivateRoute>
           }
         />

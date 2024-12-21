@@ -25,7 +25,7 @@ import axios from "axios";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import { AuthContext } from "../../context/AuthContext";
-import { Box, Collapse, TableContainer } from "@mui/material";
+import { Box, Chip, Collapse, TableContainer } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -54,14 +54,14 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddStockLimit from "./AddStockLimit";
+// import AddPurchaseReturn from "./AddPurchaseReturn";
 // import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const StockAlertList = () => {
+const StockTransferList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -178,7 +178,7 @@ const StockAlertList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(4).keys()].map((e, i) => (
+          {[...Array(8).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -248,9 +248,7 @@ const StockAlertList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/stockCounterAndLimit?name=${name.trim()}&branch_id=${newBranch}&page=${
-        newPageNO + 1
-      }`;
+      url = `/api/v1/transferStock?page=${newPageNO + 1}`;
     }
     let allData = await getDataWithToken(url);
 
@@ -363,7 +361,7 @@ const StockAlertList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Stock Alert
+            Stock Transfer List
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
@@ -372,7 +370,7 @@ const StockAlertList = () => {
             disableElevation
             sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
             component={Link}
-            to="/add-stock-alert"
+            to="/add-stock-transfer"
             startIcon={
               <svg
                 width="20"
@@ -391,9 +389,9 @@ const StockAlertList = () => {
               </svg>
             }
           >
-            Add Stock Alert
+            Add Stock Transfer
           </Button>
-          {/* <AddStockLimit clearFilter={clearFilter} /> */}
+          {/* <AddPurchaseReturn clearFilter={clearFilter} /> */}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -635,15 +633,25 @@ const StockAlertList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Product Name
+                    Transfer Date
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Alert Limit
+                    Transfer From
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Transfer To
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Total Items
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Available
+                    Shipping charge
+                  </TableCell>
+                  <TableCell style={{ minWidth: "150px" }}>Note</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                    Actions
                   </TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
@@ -676,137 +684,104 @@ const StockAlertList = () => {
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       {/* <TableCell sx={{ width: 50 }}>
-                        <img
-                          src={
-                            row?.images?.length > 0
-                              ? row?.images[0]?.url
-                              : "/noImage.png"
-                          }
-                          alt=""
-                          width={40}
-                        />
-                      </TableCell> */}
-                      <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.sparepart_data
-                          ? row?.sparepart_data[0]?.name
-                          : "---------"}{" "}
-                        &nbsp;{" "}
-                        {row?.spare_parts_variation_data
-                          ? row?.spare_parts_variation_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.branch_data
-                          ? row?.branch_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>{row?.stock_limit} PCs</TableCell>
-                      <TableCell
-                        sx={{
-                          color:
-                            row?.total_stock < row?.stock_limit
-                              ? "#D92D20"
-                              : row?.total_stock === row?.stock_limit
-                              ? "#DC6803"
-                              : "#35b522",
-                        }}
-                      >
-                        {row?.total_stock} PCs
-                      </TableCell>
-
-                      {/* <TableCell>
-                        {row?.category_data[0]?.name
-                          ? row?.category_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.device_data[0]?.name
-                          ? row?.device_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.model_data[0]?.name
-                          ? row?.model_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.price ? row?.price : "---------"}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.warranty ? row?.warranty : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
-                      </TableCell>
-
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.description ? row?.description : "---------"}
-                      </TableCell>
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.remarks ? row?.remarks : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.status ? (
-                          <>
-                            <TaskAltOutlinedIcon
-                              style={{
-                                color: "#10ac84",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
-                            />{" "}
-                            <span
-                              style={{
-                                color: "#10ac84",
-                              }}
-                            >
-                              Active &nbsp;
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <HighlightOffOutlinedIcon
-                              style={{
-                                color: "#ee5253",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
+                            <img
+                              src={
+                                row?.images?.length > 0
+                                  ? row?.images[0]?.url
+                                  : "/noImage.png"
+                              }
+                              alt=""
+                              width={40}
                             />
-                            <span
-                              style={{
-                                color: "#ee5253",
-                              }}
-                            >
-                              Inactive
-                            </span>
-                          </>
+                          </TableCell> */}
+
+                      <TableCell>
+                        {moment(row?.created_at).format("DD/MM/YYYY")}
+                      </TableCell>
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.transfer_from_data
+                          ? row?.transfer_from_data[0]?.name
+                          : "---------"}{" "}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.transfer_to_data
+                          ? row?.transfer_to_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+
+                      <TableCell>{row?.transfer_stocks_sku?.length}</TableCell>
+                      <TableCell>{row?.shipping_charge}</TableCell>
+                      <TableCell> {row?.remarks}</TableCell>
+
+                      <TableCell>
+                        {row?.transfer_status ? (
+                          <Chip
+                            sx={{
+                              color:
+                                row?.transfer_status === "Pending"
+                                  ? "#C81E1E"
+                                  : row?.transfer_status === "Received"
+                                  ? "#046C4E"
+                                  : "#222",
+                              background:
+                                row?.transfer_status === "Pending"
+                                  ? "#FDF2F2"
+                                  : row?.transfer_status === "Received"
+                                  ? "#F3FAF7"
+                                  : "#222",
+                            }}
+                            label={row?.transfer_status}
+                          />
+                        ) : (
+                          "---------"
                         )}
                       </TableCell>
 
-                   
                       <TableCell align="right">
-                        <Button
+                        {/* <Button
                           size="small"
                           variant="outlined"
                           color="info"
                           startIcon={<ListAltOutlinedIcon />}
                           component={Link}
-                          to={`/spare-parts/${row?._id}`}
+                          to={`/purchase/${row?._id}`}
                         >
                           Details
-                        </Button>
-                   
-                      </TableCell> */}
+                        </Button> */}
+
+                        <IconButton
+                          variant="contained"
+                          // color="success"
+                          disableElevation
+                          component={Link}
+                          to={`/stock-transfer/${row?._id}`}
+                        >
+                          {/* <EditOutlinedIcon /> */}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            id="Outline"
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                          >
+                            <path
+                              d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                              fill="#787878"
+                            />
+                            <path
+                              d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                              fill="#787878"
+                            />
+                          </svg>
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
@@ -893,4 +868,4 @@ const StockAlertList = () => {
   );
 };
 
-export default StockAlertList;
+export default StockTransferList;

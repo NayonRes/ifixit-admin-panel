@@ -765,7 +765,7 @@ const PurchaseList = () => {
                                   ? "#7527DA"
                                   : row?.purchase_status === "Hold"
                                   ? "#C81E1E"
-                                  : row?.purchase_status === "Recived"
+                                  : row?.purchase_status === "Received"
                                   ? "#046C4E"
                                   : "#222",
                               background:
@@ -773,7 +773,7 @@ const PurchaseList = () => {
                                   ? "#F5F3FF"
                                   : row?.purchase_status === "Hold"
                                   ? "#FDF2F2"
-                                  : row?.purchase_status === "Recived"
+                                  : row?.purchase_status === "Received"
                                   ? "#F3FAF7"
                                   : "#222",
                             }}
@@ -792,7 +792,7 @@ const PurchaseList = () => {
                                   ? "#7527DA"
                                   : row?.payment_status === "Hold"
                                   ? "#C81E1E"
-                                  : row?.payment_status === "Recived"
+                                  : row?.payment_status === "Paid"
                                   ? "#046C4E"
                                   : "#222",
                               background:
@@ -800,7 +800,7 @@ const PurchaseList = () => {
                                   ? "#F5F3FF"
                                   : row?.payment_status === "Hold"
                                   ? "#FDF2F2"
-                                  : row?.payment_status === "Recived"
+                                  : row?.payment_status === "Paid"
                                   ? "#F3FAF7"
                                   : "#222",
                             }}

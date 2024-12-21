@@ -90,19 +90,15 @@ const Item = styled(Paper)(({ theme }) => ({
   border: "1px solid #EAECF0",
   cursor: "pointer",
 }));
-const AddStockList = ({ clearFilter }) => {
+const AddStockLimit = ({ clearFilter }) => {
   const navigate = useNavigate();
-  const [value, setValue] = useState(null);
   const [addDialog, setAddDialog] = useState(false);
-  const [name, setName] = useState("");
   const [supplierList, setSupplierList] = useState([]);
   const [supplier, setSupplier] = useState("");
   const [branchList, setBranchList] = useState([]);
   const [branch, setBranch] = useState("");
-  const [convertedContent, setConvertedContent] = useState("");
   const [purchaseStatus, setPurchaseStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
-  const [paidAmount, setPaidAmount] = useState();
   const [purchaseDate, setPurchaseDate] = useState(null);
   const [shippingCharge, setShippingCharge] = useState("");
   const [invoiceNo, setInvoiceNo] = useState("");
@@ -115,24 +111,19 @@ const AddStockList = ({ clearFilter }) => {
 
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
-  const [deviceId, setDeviceId] = useState([]);
-  const [modelId, setModelId] = useState([]);
+
   const [brandList, setBrandList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
-  const [deviceList, setDeviceList] = useState([]);
-  const [modelList, setModelList] = useState([]);
-  const [warranty, setWarranty] = useState("");
+
   const [price, setPrice] = useState("");
-  const [details, setDetails] = useState("");
   const [file, setFile] = useState(null);
   const [remarks, setRemarks] = useState("");
 
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [variationList, setVariationList] = useState([]);
-
   const [message, setMessage] = useState("");
+  const [details, setDetails] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -140,58 +131,8 @@ const AddStockList = ({ clearFilter }) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setAddDialog(false);
     }
-    clearForm();
   };
 
-  const dropzoneRef = useRef(null);
-
-  const onDrop = useCallback((acceptedFiles) => {
-    console.log("onDrop", acceptedFiles);
-
-    // if (!dropzoneRef.current) return;
-    const file = acceptedFiles[0];
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // setBase64String(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-  const onFileDialogCancel = useCallback(() => {
-    setFile(null);
-    console.log("File dialog was closed without selecting a file");
-    // setBase64String(""); // Update state to indicate dialog was cancelled
-  }, []);
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
-    onDrop,
-    onFileDialogCancel,
-    ref: dropzoneRef,
-    accept: { "image/*": [] },
-    maxFiles: 1,
-  });
-  const files = acceptedFiles.map((file) => (
-    <>
-      {file.path} - {file.size} bytes
-    </>
-  ));
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject]
-  );
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -205,80 +146,59 @@ const AddStockList = ({ clearFilter }) => {
     });
   };
 
-  const clearForm = () => {
-    setSupplier("");
-    setPurchaseDate(null);
-    setPurchaseStatus("");
-    setPaymentStatus("");
-    setBrandId("");
-    setCategoryId("");
-    setPrice("");
-    setShippingCharge("");
-    setBranch("");
-    setPurchaseBy("");
-    setsearchProductText("");
-    setProductList([]);
-    setSelectedProducts([]);
-    setRemarks("");
-  };
-
   const onSubmit = async (e) => {
     e.preventDefault();
+    try {
+      // Create an array of promises
+      // const promises = variationList.map((variation) =>
+      //   handlePostData("/api/v1/sparePartVariation/create", variation, true)
+      // );
 
-    setLoading(true);
+      if (branchList.filter((branch) => branch?.limit).length < 1) {
+        return handleSnakbarOpen("Please enter the limit", "error");
+      }
+      setLoading(true);
+      const promises = branchList
+        .filter((branch) => branch?.limit)
+        .map((branch) => {
+          let data = {
+            spare_parts_id: details.spare_parts_id,
+            spare_parts_variation_id: details._id,
+            branch_id: branch?._id,
+            stock_limit: branch?.limit ? parseInt(branch?.limit) : 0,
+          };
 
-    if (!purchaseDate) {
-      handleSnakbarOpen("Please select a purchase date", "error");
-      return;
-    }
-    let newSelectedProduct = [];
-    if (selectedProducts?.length < 1) {
-      handleSnakbarOpen("Please select purchase product", "error");
-      return;
-    } else {
-      newSelectedProduct = selectedProducts?.map((item, i) => ({
-        spare_parts_id: item.spare_parts_id,
-        spare_parts_variation_id: item.spare_parts_variation_id,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        purchase_product_status: item.purchase_product_status,
-      }));
-    }
+          // Call handlePostData for this FormData
+          return handlePostData(
+            "/api/v1/stockCounterAndLimit/create-limit",
+            data,
+            false
+          );
+        });
 
-    const formData = new FormData();
-    // const selectedDateWithTime = dayjs(purchaseDate).toDate();
-    formData.append("supplier_id", supplier);
-    formData.append("user_id", purchaseBy);
-    formData.append("purchase_date", dayjs(purchaseDate).toDate());
-    formData.append("purchase_status", purchaseStatus);
-    formData.append("payment_status", paymentStatus);
-    formData.append("branch_id", branch);
-    formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
+      // Wait for all promises to resolve
+      const responses = await Promise.all(promises);
 
-    formData.append("remarks", remarks);
-    formData.append("selectedProducts", JSON.stringify(selectedProducts));
+      // Handle all responses
 
-    let response = await handlePostData(
-      "/api/v1/purchase/create",
-      formData,
-      true
-    );
+      const allVariationAddedSuccessfully = responses.every(
+        (item) => item.data.status >= 200 && item.data.status < 300
+      );
 
-    console.log("response", response?.data?.data?._id);
-
-    if (response.status >= 200 && response.status < 300) {
-      // await handleCreateSpareParts(variationList, response?.data?.data?._id);
+      if (allVariationAddedSuccessfully) {
+        setLoading(false);
+        handleSnakbarOpen("Added successfully", "success");
+        setBranchList(branchList?.map((item) => ({ ...item, limit: "" })));
+        handleDialogClose();
+      } else {
+        setLoading(false);
+        handleSnakbarOpen("Something went wrong", "error");
+      }
+      console.log("All spare parts created successfully:", responses);
+    } catch (error) {
       setLoading(false);
-      handleSnakbarOpen("Added successfully", "success");
-      clearFilter();
-      clearForm();
-      handleDialogClose();
-    } else {
-      setLoading(false);
-      handleSnakbarOpen(response?.data?.message, "error");
+      console.error("Error creating spare parts:", error);
     }
-
-    // }
   };
 
   const customeTextFeild = {
@@ -419,21 +339,6 @@ const AddStockList = ({ clearFilter }) => {
     setLoading2(false);
   };
 
-  const getSupplierList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/supplier/dropdownlist`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setSupplierList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    }
-    setLoading2(false);
-  };
   const getBranchList = async () => {
     setLoading2(true);
 
@@ -441,22 +346,13 @@ const AddStockList = ({ clearFilter }) => {
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      let newBranchWithLimit = allData?.data?.data?.map((item) => ({
+        ...item,
+        limit: "",
+      }));
+      console.log("newBranchWithLimit", newBranchWithLimit);
 
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    }
-    setLoading2(false);
-  };
-  const getUserList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/user/dropdownlist`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setUserList(allData?.data?.data);
+      setBranchList(newBranchWithLimit);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -479,43 +375,6 @@ const AddStockList = ({ clearFilter }) => {
       }
     }
     setLoading2(false);
-  };
-  const getDeviceList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/device/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    console.log("allData?.data?.data", allData?.data?.data);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setDeviceList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    }
-    setLoading2(false);
-  };
-  const getModelList = async (id) => {
-    setLoading2(true);
-
-    let url = `/api/v1/model/device-model?deviceId=${id}`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setModelList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    }
-    setLoading2(false);
-  };
-
-  const handleDeviceSelect = (e) => {
-    setDeviceId(e.target.value);
-    setModelId("");
-    getModelList(e.target.value);
   };
 
   const getProducts = async (searchText, catId, bId) => {
@@ -551,66 +410,41 @@ const AddStockList = ({ clearFilter }) => {
   };
   const handleSelectedProduct = (item) => {
     console.log("item", item);
+    setDetails(item);
+    setAddDialog(true);
 
-    if (selectedProducts.some((res) => res._id === item._id)) {
-      setSelectedProducts(
-        selectedProducts.filter((res) => res._id !== item._id)
-      );
-    } else {
-      setSelectedProducts([
-        ...selectedProducts,
-        {
-          ...item,
-          spare_parts_id: item.spare_parts_id,
-          spare_parts_variation_id: item._id,
-          purchase_product_status: "",
-          quantity: "",
-          unit_price: "",
-        },
-      ]);
-    }
+    // if (selectedProducts.some((res) => res._id === item._id)) {
+    //   setSelectedProducts(
+    //     selectedProducts.filter((res) => res._id !== item._id)
+    //   );
+    // } else {
+    //   setSelectedProducts([
+    //     ...selectedProducts,
+    //     {
+    //       ...item,
+    //       spare_parts_id: item.spare_parts_id,
+    //       spare_parts_variation_id: item._id,
+    //       purchase_product_status: "",
+    //       quantity: "",
+    //       unit_price: "",
+    //     },
+    //   ]);
+    // }
+  };
+
+  const handleLimitChange = (index, value) => {
+    const updatedList = [...branchList];
+    updatedList[index].limit = value;
+    setBranchList(updatedList);
   };
   useEffect(() => {
     // getDropdownList();
+    getCategoryList();
+    getBrandList();
+    getBranchList();
   }, []);
   return (
     <>
-      {/* <Button
-        variant="contained"
-        disableElevation
-        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-        onClick={() => {
-          setAddDialog(true);
-          getSupplierList();
-          getCategoryList();
-          getBranchList();
-          getBrandList();
-          getUserList();
-          // getBrandList();
-          // getDeviceList();
-          // getDropdownList();
-        }}
-        startIcon={
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        }
-      >
-        Add Purchase
-      </Button> */}
-
       <Box container sx={{ padding: "24px 0" }}>
         <Typography
           variant="h6"
@@ -633,8 +467,6 @@ const AddStockList = ({ clearFilter }) => {
         }}
       >
         <Grid container spacing={2}>
-         
-         
           <Grid size={8}>
             <Typography
               variant="medium"
@@ -804,7 +636,6 @@ const AddStockList = ({ clearFilter }) => {
             </FormControl>
           </Grid>
           <Grid size={12}>
-           
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 {!searchLoading &&
@@ -892,12 +723,137 @@ const AddStockList = ({ clearFilter }) => {
               </Grid>
             </Box>
           </Grid>
-         
-       
         </Grid>
       </div>
+
+      <Dialog
+        open={addDialog}
+        onClose={handleDialogClose}
+        sx={{
+          "& .MuiPaper-root": {
+            borderRadius: "16px", // Customize the border-radius here
+          },
+        }}
+        PaperProps={{
+          component: "form",
+          onSubmit: onSubmit,
+        }}
+        maxWidth="xl"
+      >
+        <DialogTitle
+          id="alert-dialog-title"
+          sx={{
+            fontSize: "20px",
+            fontFamily: '"Inter", sans-serif',
+            fontWeight: 600,
+            color: "#0F1624",
+            position: "relative",
+            px: 2,
+            borderBottom: "1px solid #EAECF1",
+          }}
+        >
+          Add Alert Limit
+          <IconButton
+            sx={{ position: "absolute", right: 0, top: 0 }}
+            onClick={() => setAddDialog(false)}
+          >
+            <svg
+              width="46"
+              height="44"
+              viewBox="0 0 46 44"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M29 16L17 28M17 16L29 28"
+                stroke="#656E81"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </IconButton>
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            maxWidth: "600px",
+            minWidth: "600px",
+            px: 2,
+            borderBottom: "1px solid #EAECF1",
+            my: 1,
+          }}
+        >
+          <Grid container spacing={2}>
+            {branchList?.map((item, i) => (
+              <Grid size={6}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  {item?.name}
+                </Typography>
+                <TextField
+                  type="number"
+                  size="small"
+                  fullWidth
+                  id="branch"
+                  placeholder="Enter Alert Limit"
+                  variant="outlined"
+                  sx={{ ...customeTextFeild }}
+                  value={item?.limit}
+                  onChange={(e) => handleLimitChange(i, e.target.value)}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 2 }}>
+          <Button
+            variant="outlined"
+            onClick={handleDialogClose}
+            sx={{
+              px: 2,
+              py: 1.25,
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#344054",
+              border: "1px solid #D0D5DD",
+              boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+            }}
+          >
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            disabled={loading}
+            type="submit"
+            sx={{
+              px: 2,
+              py: 1.25,
+              fontSize: "14px",
+              fontWeight: 600,
+              minWidth: "127px",
+              minHeight: "44px",
+            }}
+            // style={{ minWidth: "180px", minHeight: "35px" }}
+            autoFocus
+            disableElevation
+          >
+            <PulseLoader
+              color={"#4B46E5"}
+              loading={loading}
+              size={10}
+              speedMultiplier={0.5}
+            />{" "}
+            {loading === false && "Save changes"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
 
-export default AddStockList;
+export default AddStockLimit;

@@ -54,14 +54,14 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddStockLimit from "./AddStockLimit";
+import AddPurchaseReturn from "./AddPurchaseReturn";
 // import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const StockAlertList = () => {
+const PurchaseReturnList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -178,7 +178,7 @@ const StockAlertList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(4).keys()].map((e, i) => (
+          {[...Array(6).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -248,7 +248,7 @@ const StockAlertList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/stockCounterAndLimit?name=${name.trim()}&branch_id=${newBranch}&page=${
+      url = `/api/v1/sparePartsStock?stock_status=Returned&branch_id=${newBranch}&page=${
         newPageNO + 1
       }`;
     }
@@ -363,7 +363,7 @@ const StockAlertList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Stock Alert
+            Purchase Return List
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
@@ -372,7 +372,7 @@ const StockAlertList = () => {
             disableElevation
             sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
             component={Link}
-            to="/add-stock-alert"
+            to="/purchase-return"
             startIcon={
               <svg
                 width="20"
@@ -391,9 +391,9 @@ const StockAlertList = () => {
               </svg>
             }
           >
-            Add Stock Alert
+            Purchase Return
           </Button>
-          {/* <AddStockLimit clearFilter={clearFilter} /> */}
+          {/* <AddPurchaseReturn clearFilter={clearFilter} /> */}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -637,14 +637,18 @@ const StockAlertList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Product Name
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Alert Limit
+                    Purchase date
                   </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Available
+                    Purchase price
                   </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    SKU Number
+                  </TableCell>
+                  <TableCell style={{ minWidth: "150px" }}>Note</TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
@@ -676,16 +680,16 @@ const StockAlertList = () => {
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       {/* <TableCell sx={{ width: 50 }}>
-                        <img
-                          src={
-                            row?.images?.length > 0
-                              ? row?.images[0]?.url
-                              : "/noImage.png"
-                          }
-                          alt=""
-                          width={40}
-                        />
-                      </TableCell> */}
+                            <img
+                              src={
+                                row?.images?.length > 0
+                                  ? row?.images[0]?.url
+                                  : "/noImage.png"
+                              }
+                              alt=""
+                              width={40}
+                            />
+                          </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
                         {row?.sparepart_data
                           ? row?.sparepart_data[0]?.name
@@ -697,116 +701,28 @@ const StockAlertList = () => {
                       </TableCell>
 
                       <TableCell>
+                        {moment(row?.purchase_data[0]?.purchase_date).format(
+                          "DD/MM/YYYY"
+                        )}
+                      </TableCell>
+                      <TableCell>
                         {row?.branch_data
                           ? row?.branch_data[0]?.name
                           : "---------"}
                       </TableCell>
-                      <TableCell>{row?.stock_limit} PCs</TableCell>
-                      <TableCell
-                        sx={{
-                          color:
-                            row?.total_stock < row?.stock_limit
-                              ? "#D92D20"
-                              : row?.total_stock === row?.stock_limit
-                              ? "#DC6803"
-                              : "#35b522",
-                        }}
-                      >
-                        {row?.total_stock} PCs
-                      </TableCell>
-
-                      {/* <TableCell>
-                        {row?.category_data[0]?.name
-                          ? row?.category_data[0]?.name
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.purchase_products_data
+                          ? row?.purchase_products_data[0]?.unit_price
                           : "---------"}
                       </TableCell>
-                      <TableCell>
-                        {row?.device_data[0]?.name
-                          ? row?.device_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.model_data[0]?.name
-                          ? row?.model_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.price ? row?.price : "---------"}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.warranty ? row?.warranty : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
-                      </TableCell>
-
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.description ? row?.description : "---------"}
-                      </TableCell>
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.remarks ? row?.remarks : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.status ? (
-                          <>
-                            <TaskAltOutlinedIcon
-                              style={{
-                                color: "#10ac84",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
-                            />{" "}
-                            <span
-                              style={{
-                                color: "#10ac84",
-                              }}
-                            >
-                              Active &nbsp;
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <HighlightOffOutlinedIcon
-                              style={{
-                                color: "#ee5253",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
-                            />
-                            <span
-                              style={{
-                                color: "#ee5253",
-                              }}
-                            >
-                              Inactive
-                            </span>
-                          </>
-                        )}
-                      </TableCell>
-
-                   
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="info"
-                          startIcon={<ListAltOutlinedIcon />}
-                          component={Link}
-                          to={`/spare-parts/${row?._id}`}
-                        >
-                          Details
-                        </Button>
-                   
-                      </TableCell> */}
+                      <TableCell>{row?.sku_number}</TableCell>
+                      <TableCell> {row?.remarks}</TableCell>
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
@@ -893,4 +809,4 @@ const StockAlertList = () => {
   );
 };
 
-export default StockAlertList;
+export default PurchaseReturnList;

@@ -689,7 +689,7 @@ const PurchaseDetails = () => {
                                   ? "#7527DA"
                                   : row?.purchase_status === "Hold"
                                   ? "#C81E1E"
-                                  : row?.purchase_status === "Recived"
+                                  : row?.purchase_status === "Received"
                                   ? "#046C4E"
                                   : "#222",
                               background:
@@ -697,7 +697,7 @@ const PurchaseDetails = () => {
                                   ? "#F5F3FF"
                                   : row?.purchase_status === "Hold"
                                   ? "#FDF2F2"
-                                  : row?.purchase_status === "Recived"
+                                  : row?.purchase_status === "Received"
                                   ? "#F3FAF7"
                                   : "#222",
                             }}
@@ -716,7 +716,7 @@ const PurchaseDetails = () => {
                                   ? "#7527DA"
                                   : row?.payment_status === "Hold"
                                   ? "#C81E1E"
-                                  : row?.payment_status === "Recived"
+                                  : row?.payment_status === "Paid"
                                   ? "#046C4E"
                                   : "#222",
                               background:
@@ -724,7 +724,7 @@ const PurchaseDetails = () => {
                                   ? "#F5F3FF"
                                   : row?.payment_status === "Hold"
                                   ? "#FDF2F2"
-                                  : row?.payment_status === "Recived"
+                                  : row?.payment_status === "Paid"
                                   ? "#F3FAF7"
                                   : "#222",
                             }}
@@ -1255,7 +1255,7 @@ const PurchaseDetails = () => {
                                             "Hold"
                                           ? "#C81E1E"
                                           : item.purchase_product_status ===
-                                            "Recived"
+                                            "Received"
                                           ? "#046C4E"
                                           : "#222",
                                       background:
@@ -1266,7 +1266,7 @@ const PurchaseDetails = () => {
                                             "Hold"
                                           ? "#FDF2F2"
                                           : item.purchase_product_status ===
-                                            "Recived"
+                                            "Received"
                                           ? "#F3FAF7"
                                           : "#222",
                                     }}
@@ -1348,8 +1348,8 @@ const PurchaseDetails = () => {
                                   : 0}
                               </TableCell>
                               <TableCell sx={{ minWidth: "130px" }}>
-                                {/* "Recived" */}
-                                {item.purchase_product_status === "Recived" ? (
+                                {/* "Received" */}
+                                {item.purchase_product_status === "Received" ? (
                                   <>
                                     {item?.is_sku_generated ? (
                                       <Button
