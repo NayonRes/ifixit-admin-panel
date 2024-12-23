@@ -1469,7 +1469,16 @@ const PurchaseDetails = () => {
                                     variant="contained"
                                     // color="success"
                                     disableElevation
+                                    disabled={
+                                      item.purchase_product_status ===
+                                      "Received"
+                                    }
                                     onClick={() => setUpdateData(item)}
+                                    sx={{
+                                      opacity:
+                                        item.purchase_product_status ===
+                                          "Received" && 0.5,
+                                    }}
                                   >
                                     {/* <EditOutlinedIcon /> */}
 
