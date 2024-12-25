@@ -76,14 +76,15 @@ const ContactForm = ({ contactData }) => {
   const [email, setEmail] = useState("");
   const [remark, setRemark] = useState("");
   const [rating, setRating] = useState("");
+  const [color, setColor] = useState("");
   const [membershipId, setMembershipId] = useState("");
 
   const [ratingList, setRatingList] = useState([
-    { _id: 1, name: "Excellent" },
-    { _id: 2, name: "Good" },
-    { _id: 3, name: "Neutral" },
-    { _id: 4, name: "Bad" },
-    { _id: 5, name: "Very Bad" },
+    { _id: 1, name: "Excellent", color: "#6439FF" },
+    { _id: 2, name: "Good", color: "#00B781" },
+    { _id: 3, name: "Neutral", color: "#79D7BE" },
+    { _id: 4, name: "Bad", color: "#F0BB78" },
+    { _id: 5, name: "Very Bad", color: "#EB5B00" },
   ]);
   const [customerTypeList, setCustomerTypeList] = useState([
     "Walk In",
@@ -292,10 +293,25 @@ const ContactForm = ({ contactData }) => {
               Select Rating
             </InputLabel>
           )}
+          <span
+            style={{
+              background: color,
+              height: 16,
+              width: 16,
+              borderRadius: "50%",
+              marginRight: 10,
+              position: "absolute",
+              left: 12,
+              top: 12,
+            }}
+          ></span>
           <Select
             required
             labelId="demo-simple-select-label"
             id="rating"
+            sx={{
+              paddingLeft: 2,
+            }}
             MenuProps={{
               PaperProps: {
                 sx: {
@@ -303,11 +319,24 @@ const ContactForm = ({ contactData }) => {
                 },
               },
             }}
-            value={rating}
+            value={`${rating}`}
             onChange={(e) => setRating(e.target.value)}
           >
             {ratingList?.map((item) => (
-              <MenuItem key={item?._id} value={item?._id}>
+              <MenuItem
+                key={item?._id}
+                value={item?._id}
+                onClick={() => setColor(item?.color)}
+              >
+                <span
+                  style={{
+                    background: item?.color,
+                    height: 16,
+                    width: 16,
+                    borderRadius: "50%",
+                    marginRight: 10,
+                  }}
+                ></span>{" "}
                 {item?.name}
               </MenuItem>
             ))}

@@ -94,14 +94,9 @@ const SearchForm = ({
   deliveryStatus,
   setDeliveryStatus,
 }) => {
-
-  const [brandList, setBrandList] = useState([
-    "Apple",
-    "Samsung",
-    "Google",
-  ]);
-  const getUser = async () => {
-    let url = `/api/v1/customer?name=${name}&mobile=${searchPrams}`;
+  const [brandList, setBrandList] = useState(["Apple", "Samsung", "Google"]);
+  const getUser = async (searchValue) => {
+    let url = `/api/v1/customer?name=${name}&mobile=${searchValue}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data", allData?.data.data?.[0]);
     setContactData(allData?.data.data?.[0]);
@@ -113,10 +108,16 @@ const SearchForm = ({
     }
   };
 
-  const handleEnterKeyPress = () => {
-    console.log("Enter key pressed:", searchPrams);
-    // Perform other actions as needed, such as making API calls or updating state
+  const handleSearch = (e) => {
+    let searchValue = e.target.value;
+    if (searchValue.length <= 11) {
+      setSearchPrams(searchValue);
+    }
+    if (searchValue.length === 11) {
+      getUser(searchValue);
+    }
   };
+
   return (
     <div>
       <div
@@ -130,6 +131,7 @@ const SearchForm = ({
       >
         {searchPrams}
         <TextField
+        type="number"
           required
           size="small"
           fullWidth
@@ -138,10 +140,8 @@ const SearchForm = ({
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={searchPrams}
-          onChange={(e) => {
-            setSearchPrams(e.target.value);
-          }}
-          onKeyDown={handleKeyDown}
+          onChange={handleSearch}
+          // onKeyDown={handleKeyDown}
           slotProps={{
             input: {
               startAdornment: (
