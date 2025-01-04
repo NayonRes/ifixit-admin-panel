@@ -250,7 +250,7 @@ const Repair = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/user?name=${name.trim()}&email=${email.trim()}&mobile=${encodeURIComponent(
+      url = `/api/v1/repair?name=${name.trim()}&email=${email.trim()}&mobile=${encodeURIComponent(
         number.trim()
       )}&designation=${designation}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
@@ -308,7 +308,7 @@ const Repair = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair
+            Repair 
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
