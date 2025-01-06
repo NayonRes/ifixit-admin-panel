@@ -38,17 +38,17 @@ const RepairList = ({
           <TableHead>
             <TableRow>
               <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
-                Name
+              Invoice ID
               </TableCell>
 
               <TableCell style={{ whiteSpace: "nowrap" }}>
-                Designation
+              Date / Branch
               </TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>Email</TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>Name / Number</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>
-                Mobile Number
+              Bill
               </TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>Issues</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
               <TableCell align="right" style={{ whiteSpace: "nowrap" }}>

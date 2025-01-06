@@ -3,6 +3,7 @@ import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
+import RepairChecklist from "./RepairChecklist";
 
 const style = {
   nav: {
@@ -68,6 +69,7 @@ const style = {
 const ModelList = ({ device, setDevice }) => {
   return (
     <div>
+      <RepairChecklist />
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
