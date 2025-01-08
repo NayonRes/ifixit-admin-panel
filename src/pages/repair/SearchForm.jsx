@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   FormControl,
@@ -9,9 +9,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import { designationList, roleList } from "../../data";
-import { AccountCircle } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
 
 const customeTextFeild = {
@@ -94,12 +91,25 @@ const SearchForm = ({
   deliveryStatus,
   setDeliveryStatus,
 }) => {
-  const [brandList, setBrandList] = useState(["Apple", "Samsung", "Google"]);
+  const [brandList, setBrandList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
   const getUser = async (searchValue) => {
     let url = `/api/v1/customer?name=${name}&mobile=${searchValue}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data", allData?.data.data?.[0]);
     setContactData(allData?.data.data?.[0]);
+  };
+
+  const getBrand = async () => {
+    let url = `/api/v1/brand`;
+    let allData = await getDataWithToken(url);
+    setBrandList(allData?.data.data);
+  };
+
+  const getDevice = async () => {
+    let url = `/api/v1/device`;
+    let allData = await getDataWithToken(url);
+    setDeviceList(allData?.data.data);
   };
 
   const handleKeyDown = (event) => {
@@ -118,6 +128,11 @@ const SearchForm = ({
     }
   };
 
+  useEffect(() => {
+    getBrand();
+    getDevice();
+  }, []);
+
   return (
     <div>
       <div
@@ -131,7 +146,7 @@ const SearchForm = ({
       >
         {searchPrams}
         <TextField
-        type="number"
+          type="number"
           required
           size="small"
           fullWidth
@@ -273,11 +288,13 @@ const SearchForm = ({
               },
             }}
             value={brand}
-            onChange={(e) => setBrand(e.target.value)}
+            onChange={(e) => {
+              setBrand(e.target.value);
+            }}
           >
             {brandList?.map((item) => (
-              <MenuItem key={item} value={item}>
-                {item}
+              <MenuItem key={item.brand_id} value={item.brand_id}>
+                {item.name}
               </MenuItem>
             ))}
           </Select>
@@ -290,7 +307,7 @@ const SearchForm = ({
         >
           Device
         </Typography>
-        <TextField
+        {/* <TextField
           required
           size="small"
           fullWidth
@@ -302,7 +319,52 @@ const SearchForm = ({
           onChange={(e) => {
             setDevice(e.target.value);
           }}
-        />
+        /> */}
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+            mb: 3,
+          }}
+        >
+          {deviceList?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Device
+            </InputLabel>
+          )}
+          <Select
+            required
+            labelId="demo-simple-select-label"
+            id="device"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={device}
+            onChange={(e) => setDevice(e.target.value)}
+          >
+            {deviceList?.map((item) => (
+              <MenuItem key={item} value={item.device_id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Typography
           variant="medium"
           color="text.main"

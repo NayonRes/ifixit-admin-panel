@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
-import { BackHand } from "@mui/icons-material";
-import RepairChecklist from "./RepairChecklist";
+import { getDataWithToken } from "../../services/GetDataService";
 
 const style = {
   nav: {
@@ -67,9 +66,21 @@ const style = {
 };
 
 const ModelList = ({ device, setDevice }) => {
+  const [parentList, setParentList] = useState([]);
+  const getParent = async () => {
+    let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    let allData = await getDataWithToken(url);
+    console.log("list", allData?.data.data);
+    setParentList(allData?.data.data);
+  };
+
+  useEffect(() => {
+    getParent();
+  }, []);
+
   return (
     <div>
-      <RepairChecklist />
+      {/* <RepairChecklist /> */}
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>

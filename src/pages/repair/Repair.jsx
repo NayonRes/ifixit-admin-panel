@@ -103,25 +103,10 @@ const Repair = () => {
       },
     },
   };
-  const handleCancelProductClickOpen = (obj) => {
-    setCancelProductData(obj);
-    setCancelProductDialog(true);
-  };
-  const handleCancelProductClose = () => {
-    setCancelProductData({});
-    setCancelProductDialog(false);
-  };
-  const handleImageClickOpen = (images) => {
-    setImages(images);
-    setImageDialog(true);
-  };
+
   const handleImageClose = () => {
     setImages([]);
     setImageDialog(false);
-  };
-
-  const handleChange = (event) => {
-    SetCategory(event.target.value);
   };
 
   const handleSnakbarOpen = (msg, vrnt) => {
@@ -270,29 +255,6 @@ const Repair = () => {
     setLoading(false);
   };
 
-  const sortByParentName = (a, b) => {
-    const nameA = a.parent_name.toUpperCase();
-    const nameB = b.parent_name.toUpperCase();
-
-    if (nameA < nameB) {
-      return -1;
-    }
-    if (nameA > nameB) {
-      return 1;
-    }
-
-    return 0;
-  };
-
-  function filterByNameLike(data, searchQuery) {
-    // Convert search query to lowercase for case-insensitive matching
-    const lowerCaseQuery = searchQuery.toLowerCase();
-
-    // Filter the data based on partial match in the name field
-    return data.filter((item) =>
-      item.name.toLowerCase().includes(lowerCaseQuery)
-    );
-  }
   useEffect(() => {
     getData();
     // getCategoryList();
@@ -308,7 +270,7 @@ const Repair = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair 
+            Repair
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>

@@ -51,7 +51,7 @@ const RepairChecklist = () => {
   return (
     <div>
       <Dialog
-        open={true}
+        open={open}
         onClose={handleDialogClose}
         sx={{
           "& .MuiPaper-root": {
@@ -143,7 +143,7 @@ const RepairChecklist = () => {
               boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
             }}
           >
-            Close
+            Close oo
           </Button>
           <Button
             variant="contained"

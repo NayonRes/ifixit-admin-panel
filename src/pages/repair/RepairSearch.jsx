@@ -8,7 +8,6 @@ import ModelList from "./ModelList";
 import { useNavigate } from "react-router-dom";
 import IssueList from "./IssueList";
 
-
 const RepairSearch = () => {
   const navigate = useNavigate();
 
@@ -91,7 +90,9 @@ const RepairSearch = () => {
             setDeliveryStatus={setDeliveryStatus}
           />
         </Grid>
-        <Grid size={9} sx={{ p: 3 }}>
+        {/*  TODO: don't remove */}
+
+        {/* <Grid size={9} sx={{ p: 3 }}>
           {!brand && contactData?._id ? (
             <EditContact contactData={contactData} />
           ) : !brand && !contactData?._id ? (
@@ -104,6 +105,21 @@ const RepairSearch = () => {
             <ModelList device={device} setDevice={setDevice} />
           )}
           {device && <IssueList issue={issue} setIssue={setIssue} /> }
+        </Grid> */}
+        {/*  TODO: don't remove */}
+        <Grid size={9} sx={{ p: 3 }}>
+          {!brand && contactData?._id ? (
+            <EditContact contactData={contactData} />
+          ) : !brand && !contactData?._id ? (
+            <AddContact searchPrams={searchPrams} contactData={contactData} />
+          ) : (
+            ""
+          )}
+
+          {device === "Primary" && !device && (
+            <ModelList device={device} setDevice={setDevice} />
+          )}
+          {brand && <ModelList device={device} setDevice={setDevice} /> }
         </Grid>
       </Grid>
     </div>
