@@ -264,6 +264,7 @@ const DeviceList = () => {
     }
     setLoading(false);
   };
+ 
 
   const sortByParentName = (a, b) => {
     const nameA = a.parent_name.toUpperCase();
@@ -492,6 +493,7 @@ const DeviceList = () => {
                                               )} */}
                       </TableCell>
                       <TableCell>{row?.name}</TableCell>
+                      <TableCell>{row?.parent_name}</TableCell>
 
                       <TableCell>
                         {row?.status ? (

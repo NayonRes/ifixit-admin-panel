@@ -279,6 +279,21 @@ const AddDevice = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
+  const getDropdownListWithChildren = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/parent-child-list`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
   useEffect(() => {}, []);
   return (
     <>
@@ -289,6 +304,7 @@ const AddDevice = ({ clearFilter }) => {
         onClick={() => {
           setAddDialog(true);
           getDropdownList();
+          // getDropdownListWithChildren();
         }}
         startIcon={
           <svg
