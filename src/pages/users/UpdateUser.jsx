@@ -90,6 +90,7 @@ const UpdateUser = ({ clearFilter, row }) => {
   const [password, setPassword] = useState("");
   const [designation, setDesignation] = useState("");
   const [branch, setBranch] = useState("");
+  const [salary, setSalary] = useState();
   const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -189,6 +190,7 @@ const UpdateUser = ({ clearFilter, row }) => {
     setNumber("");
     setEmail("");
     setBranch("");
+    setSalary("");
     setFile(null);
   };
 
@@ -203,6 +205,7 @@ const UpdateUser = ({ clearFilter, row }) => {
     formdata.append("branch_id", branch);
     formdata.append("mobile", number.trim());
     formdata.append("designation", designation);
+    formdata.append("salary", parseFloat(salary).toFixed(2));
     formdata.append("status", status);
     if (password) {
       formdata.append("password", password.trim());
@@ -308,7 +311,6 @@ const UpdateUser = ({ clearFilter, row }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -356,6 +358,7 @@ const UpdateUser = ({ clearFilter, row }) => {
     setPassword(row?.password);
     setEmail(row?.email);
     setNumber(row?.mobile);
+    setSalary(row?.salary);
     setDesignation(row?.designation);
     setBranch(row?.branch_data[0]?._id);
     setStatus(row?.status);
@@ -415,7 +418,7 @@ const UpdateUser = ({ clearFilter, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add User
+          Update User
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddUserDialog(false)}
@@ -487,7 +490,7 @@ const UpdateUser = ({ clearFilter, row }) => {
               setPassword(e.target.value);
             }}
           />
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -508,7 +511,7 @@ const UpdateUser = ({ clearFilter, row }) => {
             onChange={(e) => {
               setEmail(e.target.value);
             }}
-          />
+          /> */}
           <Typography
             variant="medium"
             color="text.main"
@@ -525,9 +528,35 @@ const UpdateUser = ({ clearFilter, row }) => {
             placeholder="Enter Number"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}
+            inputProps={{
+              minLength: 11, // Minimum length
+              maxLength: 11, // Maximum length
+            }}
             value={number}
             onChange={(e) => {
               setNumber(e.target.value);
+            }}
+          />
+
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Salary
+          </Typography>
+          <TextField
+            type="number"
+            size="small"
+            fullWidth
+            id="salary"
+            placeholder="Enter Salary"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={salary}
+            onChange={(e) => {
+              setSalary(e.target.value);
             }}
           />
           <Typography
