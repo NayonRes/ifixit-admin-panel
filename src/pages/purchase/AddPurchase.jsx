@@ -47,6 +47,7 @@ import Paper from "@mui/material/Paper";
 import {
   customerTypeList,
   designationList,
+  paymentMethodList,
   paymentStatusList,
   purchaseStatusList,
   ratingList,
@@ -103,6 +104,7 @@ const AddPurchase = ({ clearFilter }) => {
   const [purchaseStatus, setPurchaseStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [paidAmount, setPaidAmount] = useState();
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [purchaseDate, setPurchaseDate] = useState(null);
   const [shippingCharge, setShippingCharge] = useState("");
   const [invoiceNo, setInvoiceNo] = useState("");
@@ -211,6 +213,8 @@ const AddPurchase = ({ clearFilter }) => {
     setPurchaseStatus("");
     setPaymentStatus("");
     setBrandId("");
+    setPaymentMethod("");
+    setPaidAmount("");
     setCategoryId("");
     setPrice("");
     setShippingCharge("");
@@ -255,6 +259,8 @@ const AddPurchase = ({ clearFilter }) => {
     formData.append("purchase_status", purchaseStatus);
     formData.append("payment_status", paymentStatus);
     formData.append("branch_id", branch);
+    formData.append("payment_method", paymentMethod);
+    formData.append("paid_amount", paidAmount);
     formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
 
     formData.append("remarks", remarks);
@@ -960,7 +966,7 @@ const AddPurchase = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={6}>
+            {/* <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -1014,7 +1020,7 @@ const AddPurchase = ({ clearFilter }) => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -1062,15 +1068,69 @@ const AddPurchase = ({ clearFilter }) => {
                   setInvoiceNo(e.target.value);
                 }}
               />
-            </Grid>
-            <Grid size={4}>
+            </Grid>*/}
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Paid Amount *
+                Payment Method
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {paymentMethod?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Purchase Method
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="paymentStatus"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  {paymentMethodList?.map((item) => (
+                    <MenuItem key={item?._id} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Paid Amount
               </Typography>
               <TextField
                 size="small"
@@ -1085,7 +1145,7 @@ const AddPurchase = ({ clearFilter }) => {
                   setPaidAmount(e.target.value);
                 }}
               />
-            </Grid> */}
+            </Grid>
             <Grid size={6}>
               <Typography
                 variant="medium"

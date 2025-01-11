@@ -224,6 +224,8 @@ const PurchaseDetails = () => {
     // }
   };
   const handleGenerateSKU = async (item) => {
+    console.log("spare_part_details", item?.spare_part_details);
+
     setGenerateSKULoading(true);
     setGenerateSKUDetails(item);
 
@@ -232,7 +234,12 @@ const PurchaseDetails = () => {
       purchase_product_id: item._id,
       spare_parts_id: item.spare_parts_id,
       spare_parts_variation_id: item.spare_parts_variation_id,
+      supplier_id: tableDataList[0]?.supplier_id,
       branch_id: tableDataList[0]?.branch_id,
+      brand_id: item?.spare_part_details[0]?.brand_id,
+      category_id: item?.spare_part_details[0]?.category_id,
+      device_id: item?.spare_part_details[0]?.device_id,
+      model_id: item?.spare_part_details[0]?.model_id,
       quantity: parseInt(item.quantity),
     };
 
@@ -380,7 +387,7 @@ const PurchaseDetails = () => {
   const pageLoading = () => {
     let content = [];
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 1; i++) {
       content.push(
         <TableRow key={i}>
           {[...Array(13).keys()].map((e, i) => (
@@ -517,10 +524,16 @@ const PurchaseDetails = () => {
                     Payment status
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Payment Method
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Paid Amount
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
                     Shipping Charge
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Grand total
+                    Items Grand total
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -707,7 +720,43 @@ const PurchaseDetails = () => {
                           "---------"
                         )}
                       </TableCell>
-                      <TableCell>
+
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                        {row?.paid_amount === 0 ? (
+                          <Chip
+                            sx={{
+                              color: "#C81E1E",
+                              background: "#FDF2F2",
+                            }}
+                            label="Not Paid"
+                          />
+                        ) : row.purchase_products_data
+                            .reduce((total, item) => {
+                              const itemTotal =
+                                parseFloat(item?.quantity || 0) *
+                                parseFloat(item?.unit_price || 0);
+                              return total + itemTotal;
+                            }, 0)
+                            .toFixed(2) > row?.paid_amount ? (
+                          <Chip
+                            sx={{
+                              color: "#7527DA",
+                              background: "#F5F3FF",
+                            }}
+                            label="Partially Paid"
+                          />
+                        ) : (
+                          <Chip
+                            sx={{
+                              color: "#046C4E",
+                              background: "#F3FAF7",
+                            }}
+                            label="Paid"
+                          />
+                        )}
+                      </TableCell>
+
+                      {/* <TableCell>
                         {row?.payment_status ? (
                           <Chip
                             sx={{
@@ -733,10 +782,18 @@ const PurchaseDetails = () => {
                         ) : (
                           "---------"
                         )}
+                      </TableCell> */}
+                      <TableCell>
+                        {row?.payment_method
+                          ? row?.payment_method
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.paid_amount ? row?.paid_amount.toFixed(2) : 0}
                       </TableCell>
                       <TableCell>
                         {row?.shipping_charge
-                          ? row?.shipping_charge
+                          ? row?.shipping_charge.toFixed(2)
                           : "---------"}
                       </TableCell>
                       <TableCell>
@@ -819,7 +876,7 @@ const PurchaseDetails = () => {
                 ) : null}
                 {loading && pageLoading()}
 
-                {loading && pageLoading()}
+                {/* {loading && pageLoading()} */}
               </TableBody>
             </Table>
           </TableContainer>

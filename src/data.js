@@ -14,6 +14,7 @@ export const customerTypeList = [
 export const ratingList = ["Excellent", "Good", "Neutral", "Bad", "Very Bad"];
 export const purchaseStatusList = ["Transit", "Hold", "Received"];
 export const paymentStatusList = ["Transit", "Hold", "Paid"];
+export const paymentMethodList = ["Cash", "UCB Bank", "BRAC Bank", "City Bank"];
 export const transferStatusList = ["Pending", "Received"];
 
 export const roleList = [

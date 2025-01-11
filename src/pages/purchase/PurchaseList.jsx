@@ -183,7 +183,7 @@ const PurchaseList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(11).keys()].map((e, i) => (
+          {[...Array(13).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -694,12 +694,18 @@ const PurchaseList = () => {
                     Payment status
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Shipping Charge
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Grand total
+                    Payment Method
                   </TableCell>
 
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Paid Amount
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Items Grand total
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Shipping Charge
+                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Purchase by
                   </TableCell>
@@ -783,7 +789,41 @@ const PurchaseList = () => {
                           "---------"
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                        {row?.paid_amount === 0 ? (
+                          <Chip
+                            sx={{
+                              color: "#C81E1E",
+                              background: "#FDF2F2",
+                            }}
+                            label="Not Paid"
+                          />
+                        ) : row.purchase_products_data
+                            .reduce((total, item) => {
+                              const itemTotal =
+                                parseFloat(item?.quantity || 0) *
+                                parseFloat(item?.unit_price || 0);
+                              return total + itemTotal;
+                            }, 0)
+                            .toFixed(2) > row?.paid_amount ? (
+                          <Chip
+                            sx={{
+                              color: "#7527DA",
+                              background: "#F5F3FF",
+                            }}
+                            label="Partially Paid"
+                          />
+                        ) : (
+                          <Chip
+                            sx={{
+                              color: "#046C4E",
+                              background: "#F3FAF7",
+                            }}
+                            label="Paid"
+                          />
+                        )}
+                      </TableCell>
+                      {/* <TableCell>
                         {row?.payment_status ? (
                           <Chip
                             sx={{
@@ -809,11 +849,16 @@ const PurchaseList = () => {
                         ) : (
                           "---------"
                         )}
-                      </TableCell>
+                      </TableCell> */}
+
                       <TableCell>
-                        {row?.shipping_charge
-                          ? row?.shipping_charge
+                        {row?.payment_method
+                          ? row?.payment_method
                           : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.paid_amount ? row?.paid_amount.toFixed(2) : 0}
                       </TableCell>
                       <TableCell>
                         {row?.purchase_products_data?.length > 0
@@ -824,7 +869,13 @@ const PurchaseList = () => {
                                   parseFloat(item?.unit_price || 0);
                                 return total + itemTotal;
                               }, 0)
-                              .toFixed(2) // Formats the final total to 2 decimal places
+                              .toFixed(2)
+                          : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.shipping_charge
+                          ? row?.shipping_charge.toFixed(2)
                           : "---------"}
                       </TableCell>
 
