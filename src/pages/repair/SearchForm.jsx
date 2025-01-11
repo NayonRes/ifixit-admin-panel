@@ -307,7 +307,7 @@ const SearchForm = ({
         >
           Device
         </Typography>
-        {/* <TextField
+        <TextField
           required
           size="small"
           fullWidth
@@ -316,11 +316,11 @@ const SearchForm = ({
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={device}
-          onChange={(e) => {
-            setDevice(e.target.value);
-          }}
-        /> */}
-        <FormControl
+          // onChange={(e) => {
+          //   setDevice(e.target.value);
+          // }}
+        />
+        {/* <FormControl
           fullWidth
           size="small"
           sx={{
@@ -364,7 +364,7 @@ const SearchForm = ({
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
         <Typography
           variant="medium"
           color="text.main"

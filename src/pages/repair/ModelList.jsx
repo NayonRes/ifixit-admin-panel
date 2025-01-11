@@ -67,11 +67,13 @@ const style = {
 
 const ModelList = ({ device, setDevice }) => {
   const [parentList, setParentList] = useState([]);
+  const [items, setItems] = useState([]);
   const [childList, setChildList] = useState([]);
   const [parent, setParent] = useState("");
   const [child, setChild] = useState("");
   const getParent = async () => {
-    let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    let url = `/api/v1/device/parent-child-list`;
     let allData = await getDataWithToken(url);
     console.log("primary list", allData?.data.data);
     setParentList(allData?.data.data);
@@ -79,10 +81,9 @@ const ModelList = ({ device, setDevice }) => {
 
   const handleChangeParent = async (name) => {
     setParent(name);
-    let url = `/api/v1/device/get-by-parent?parent_name=${name}`;
-    let allData = await getDataWithToken(url);
-    console.log("child list", allData?.data?.data);
-    setChildList(allData?.data?.data);
+    let items = parentList.filter((item) => item.parent_name == name);
+    console.log(items);
+    setItems(items[0].items);
   };
 
   const handleChangeChild = (name) => {
@@ -111,15 +112,17 @@ const ModelList = ({ device, setDevice }) => {
               parentList?.map((data, index) => (
                 <Box
                   role="button"
-                  sx={parent == data?.name ? style.linkActive : style.link}
+                  sx={
+                    parent == data?.parent_name ? style.linkActive : style.link
+                  }
                   key={index}
-                  onClick={() => handleChangeParent(data?.name)}
+                  onMouseEnter={() => handleChangeParent(data?.parent_name)}
                 >
-                  {data?.name}
+                  {data?.parent_name}
                 </Box>
               ))}
           </Box>
-          <Box sx={style.nav} style={{ marginTop: 20 }}>
+          {/* <Box sx={style.nav} style={{ marginTop: 20 }}>
             {childList?.length > 0 &&
               childList?.map((data, index) => (
                 <Box
@@ -131,65 +134,35 @@ const ModelList = ({ device, setDevice }) => {
                   {data?.name}
                 </Box>
               ))}
-          </Box>
+          </Box> */}
         </Grid>
       </Grid>
       <Grid container spacing={2} sx={{ mt: 3 }}>
-        <Grid size={3}>
-          <Box
-            sx={device === "iPhone 15 Pro Max" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setDevice("iPhone 15 Pro Max")}
-          >
-            <Box>
-              <img src="/iphone.png" alt="" />
-            </Box>
+        {items.length > 0 &&
+          items.map((item, index) => (
+            <Grid size={3} key={index}>
+              <Box
+                sx={device == item.name ? style.cardActive : style.card}
+                role="button"
+                onClick={() => setDevice(item.name)}
+              >
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <img
+                    src={item?.image?.url ? item?.image?.url : "/noImage.png"}
+                    alt=""
+                    style={{ maxWidth: 30 }}
+                  />
+                </Box>
 
-            <Typography variant="body1">iPhone 15 Pro Max</Typography>
-            {device === "iPhone 15 Pro Max" && (
-              <Box>
-                <Checkbox checked={device === "iPhone 15 Pro Max"} />
+                <Typography variant="body1">{item.name}</Typography>
+                {device == item.name && (
+                  <Box>
+                    <Checkbox checked={device == item.name} />
+                  </Box>
+                )}
               </Box>
-            )}
-          </Box>
-        </Grid>
-        <Grid size={3}>
-          <Box
-            sx={device === "iPhone 12" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setDevice("iPhone 12")}
-          >
-            <Box>
-              <img src="/iphone.png" alt="" />
-            </Box>
-
-            <Typography variant="body1">iPhone 12</Typography>
-            {device === "iPhone 12" && (
-              <Box>
-                <Checkbox checked={device === "iPhone 12"} />
-              </Box>
-            )}
-          </Box>
-        </Grid>
-
-        <Grid size={3}>
-          <Box
-            sx={device === "iPhone 13" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setDevice("iPhone 13")}
-          >
-            <Box>
-              <img src="/iphone.png" alt="" />
-            </Box>
-
-            <Typography variant="body1">iPhone 13</Typography>
-            {device === "iPhone 13" && (
-              <Box>
-                <Checkbox checked={device === "iPhone 13"} />
-              </Box>
-            )}
-          </Box>
-        </Grid>
+            </Grid>
+          ))}
       </Grid>
     </div>
   );
