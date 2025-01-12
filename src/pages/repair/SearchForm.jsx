@@ -82,6 +82,8 @@ const SearchForm = ({
   setPassCode,
   brand,
   setBrand,
+  brand_id,
+  setBrandId,
   device,
   setDevice,
   repairBy,
@@ -90,14 +92,30 @@ const SearchForm = ({
   setRepairStatus,
   deliveryStatus,
   setDeliveryStatus,
+  parentList,
+  setParentList,
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
+
   const getUser = async (searchValue) => {
     let url = `/api/v1/customer?name=${name}&mobile=${searchValue}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data", allData?.data.data?.[0]);
     setContactData(allData?.data.data?.[0]);
+  };
+
+  const getParent = async () => {
+    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    let url = `/api/v1/device/parent-child-list`;
+    let allData = await getDataWithToken(url);
+    console.log("primary list", allData?.data.data);
+    let p = allData?.data?.data;
+    setParentList(p);
+    let items = p.filter((item) => item.parent_name == "Primary");
+    let newItems = items[0].items.filter((device) => device.name !== "Primary");
+    console.log("hello", newItems);
+    setBrandList(newItems);
   };
 
   const getBrand = async () => {
@@ -129,7 +147,8 @@ const SearchForm = ({
   };
 
   useEffect(() => {
-    getBrand();
+    // getBrand();
+    getParent();
     getDevice();
   }, []);
 
@@ -292,8 +311,12 @@ const SearchForm = ({
               setBrand(e.target.value);
             }}
           >
-            {brandList?.map((item) => (
-              <MenuItem key={item.brand_id} value={item.brand_id}>
+            {brandList?.map((item, index) => (
+              <MenuItem
+                key={index}
+                value={item.name}
+                onClick={() => setBrandId(item.device_id)}
+              >
                 {item.name}
               </MenuItem>
             ))}

@@ -65,19 +65,25 @@ const style = {
   },
 };
 
-const ModelList = ({ device, setDevice }) => {
-  const [parentList, setParentList] = useState([]);
+const ModelList = ({
+  device,
+  setDevice,
+  brand,
+  brand_id,
+  parentList,
+  setParentList,
+}) => {
   const [items, setItems] = useState([]);
   const [childList, setChildList] = useState([]);
   const [parent, setParent] = useState("");
   const [child, setChild] = useState("");
-  const getParent = async () => {
-    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let url = `/api/v1/device/parent-child-list`;
-    let allData = await getDataWithToken(url);
-    console.log("primary list", allData?.data.data);
-    setParentList(allData?.data.data);
-  };
+  // const getParent = async () => {
+  //   // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+  //   let url = `/api/v1/device/parent-child-list`;
+  //   let allData = await getDataWithToken(url);
+  //   console.log("primary list", allData?.data.data);
+  //   setParentList(allData?.data.data);
+  // };
   const getTechnician = async () => {
     // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
     let url = `/api/v1/user/dropdownlist?designation=Technician`;
@@ -86,10 +92,13 @@ const ModelList = ({ device, setDevice }) => {
   };
 
   const handleChangeParent = async (name) => {
-    setParent(name);
+    console.log("name", name);
     let items = parentList.filter((item) => item.parent_name == name);
-    console.log(items);
-    setItems(items[0].items);
+    console.log("parent", items[0]?.items);
+    setItems(items[0]?.items);
+    setParent(name);
+    // let items = parentList.filter((item) => item.parent_name == name);
+    // console.log(items);
   };
 
   const handleChangeChild = (name) => {
@@ -99,10 +108,20 @@ const ModelList = ({ device, setDevice }) => {
     console.log("after child list", allData?.data?.data);
   };
 
+  const getTopItems = () => {
+    // console.log("c list", brand);
+    let items = parentList.filter((item) => item.parent_name == brand);
+    // console.log("cc", items[0]?.items);
+    setChildList(items[0]?.items);
+  };
+
   useEffect(() => {
-    getParent();
+    getTopItems();
     getTechnician();
   }, []);
+  useEffect(() => {
+    getTopItems();
+  }, [brand]);
 
   return (
     <div>
@@ -115,17 +134,15 @@ const ModelList = ({ device, setDevice }) => {
         </Grid>
         <Grid size={12}>
           <Box sx={style.nav}>
-            {parentList?.length > 0 &&
-              parentList?.map((data, index) => (
+            {childList?.length > 0 &&
+              childList?.map((data, index) => (
                 <Box
                   role="button"
-                  sx={
-                    parent == data?.parent_name ? style.linkActive : style.link
-                  }
+                  sx={parent == data?.name ? style.linkActive : style.link}
                   key={index}
-                  onMouseEnter={() => handleChangeParent(data?.parent_name)}
+                  onMouseEnter={() => handleChangeParent(data?.name)}
                 >
-                  {data?.parent_name}
+                  {data?.name}
                 </Box>
               ))}
           </Box>
@@ -145,7 +162,8 @@ const ModelList = ({ device, setDevice }) => {
         </Grid>
       </Grid>
       <Grid container spacing={2} sx={{ mt: 3 }}>
-        {items.length > 0 &&
+        {items &&
+          items.length > 0 &&
           items.map((item, index) => (
             <Grid size={3} key={index}>
               <Box

@@ -18,10 +18,12 @@ const RepairSearch = () => {
   const [serial, setSerial] = useState("");
   const [passCode, setPassCode] = useState("");
   const [brand, setBrand] = useState("");
+  const [brand_id, setBrandId] = useState("");
   const [device, setDevice] = useState("");
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
+  const [parentList, setParentList] = useState([]);
 
   const [issue, setIssue] = useState("");
 
@@ -80,6 +82,8 @@ const RepairSearch = () => {
             setPassCode={setPassCode}
             brand={brand}
             setBrand={setBrand}
+            brand_id={brand_id}
+            setBrandId={setBrandId}
             device={device}
             setDevice={setDevice}
             repairBy={repairBy}
@@ -88,6 +92,8 @@ const RepairSearch = () => {
             setRepairStatus={setRepairStatus}
             deliveryStatus={deliveryStatus}
             setDeliveryStatus={setDeliveryStatus}
+            parentList={parentList}
+            setParentList={setParentList} 
           />
         </Grid>
         {/*  TODO: don't remove */}
@@ -119,7 +125,7 @@ const RepairSearch = () => {
           {device === "Primary" && !device && (
             <ModelList device={device} setDevice={setDevice} />
           )}
-          {brand && <ModelList device={device} setDevice={setDevice} /> }
+          {brand && <ModelList device={device} setDevice={setDevice}  brand={brand} brand_id={brand_id} parentList={parentList} setParentList={setParentList} /> }
         </Grid>
       </Grid>
     </div>
