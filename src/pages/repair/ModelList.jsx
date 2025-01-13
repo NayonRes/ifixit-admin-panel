@@ -13,6 +13,16 @@ const style = {
     borderBottom: `1px solid ${ColorPalette.light.primary.light}`,
     width: "100%",
   },
+  nav2: {
+    display: "flex",
+    alignItems: "center",
+    gap: 3,
+    pb: 2,
+    pt: 2,
+    borderBottom: `1px solid ${ColorPalette.light.primary.light}`,
+
+    width: "100%",
+  },
   link: {
     cursor: "pointer",
     display: "flex",
@@ -54,7 +64,7 @@ const style = {
   cardActive: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     gap: 2,
     border: `1px solid ${ColorPalette.light.primary.main}`,
     backgroundColor: ColorPalette.light.text.bg,
@@ -73,10 +83,15 @@ const ModelList = ({
   parentList,
   setParentList,
 }) => {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState([
+    { name: "Primary", items: [] },
+    { name: "Secondary", items: [] },
+  ]);
   const [childList, setChildList] = useState([]);
+  const [subChildList, setSubChildList] = useState([]);
   const [parent, setParent] = useState("");
   const [child, setChild] = useState("");
+  const [device_id, set_device_id] = useState("");
   // const getParent = async () => {
   //   // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
   //   let url = `/api/v1/device/parent-child-list`;
@@ -91,19 +106,21 @@ const ModelList = ({
     console.log("technician list", allData?.data.data);
   };
 
-  const handleChangeParent = async (name) => {
-    console.log("name", name);
+  const handleChangeParent = async (name, device_id) => {
+    // console.log("name", name, device_id);
+    set_device_id(device_id);
     let items = parentList.filter((item) => item.parent_name == name);
     console.log("parent", items[0]?.items);
-    setItems(items[0]?.items);
+    setSubChildList(items[0]?.items);
     setParent(name);
     // let items = parentList.filter((item) => item.parent_name == name);
     // console.log(items);
   };
 
-  const handleChangeChild = (name) => {
+  const handleChangeChild = (name, device_id) => {
     setChild(name);
-    let url = `/api/v1/device/get-by-parent?parent_name=${name}`;
+    set_device_id(device_id);
+    let url = `/api/v1/model/get-by-device?device_id=${device_id}`;
     let allData = getDataWithToken(url);
     console.log("after child list", allData?.data?.data);
   };
@@ -140,12 +157,29 @@ const ModelList = ({
                   role="button"
                   sx={parent == data?.name ? style.linkActive : style.link}
                   key={index}
-                  onMouseEnter={() => handleChangeParent(data?.name)}
+                  onMouseEnter={() =>
+                    handleChangeParent(data?.name, data?.device_id)
+                  }
                 >
                   {data?.name}
                 </Box>
               ))}
           </Box>
+          {
+            subChildList?.length > 0 &&  <Box sx={style.nav2}>
+            {
+              subChildList?.map((data, index) => (
+                <Button
+                  variant={child == data?.name ? "contained" : "outlined"}
+                  key={index}
+                  onClick={() => handleChangeChild(data?.name, data?.device_id)}
+                >
+                  {data?.name}
+                </Button>
+              ))}
+          </Box>
+          }
+         
           {/* <Box sx={style.nav} style={{ marginTop: 20 }}>
             {childList?.length > 0 &&
               childList?.map((data, index) => (
@@ -171,15 +205,15 @@ const ModelList = ({
                 role="button"
                 onClick={() => setDevice(item.name)}
               >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <img
                     src={item?.image?.url ? item?.image?.url : "/noImage.png"}
                     alt=""
                     style={{ maxWidth: 30 }}
                   />
+                  <Typography variant="body1">{item.name}</Typography>
                 </Box>
 
-                <Typography variant="body1">{item.name}</Typography>
                 {device == item.name && (
                   <Box>
                     <Checkbox checked={device == item.name} />

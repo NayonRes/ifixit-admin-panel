@@ -1,4 +1,4 @@
-import { Button, IconButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import React, { useState } from "react";
 import SearchForm from "./SearchForm";
@@ -93,7 +93,7 @@ const RepairSearch = () => {
             deliveryStatus={deliveryStatus}
             setDeliveryStatus={setDeliveryStatus}
             parentList={parentList}
-            setParentList={setParentList} 
+            setParentList={setParentList}
           />
         </Grid>
         {/*  TODO: don't remove */}
@@ -113,7 +113,16 @@ const RepairSearch = () => {
           {device && <IssueList issue={issue} setIssue={setIssue} /> }
         </Grid> */}
         {/*  TODO: don't remove */}
-        <Grid size={9} sx={{ p: 3 }}>
+        <Grid
+          size={9}
+          sx={{
+            p: 3,
+            borderBottom: "1px solid #EAECF1",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
           {!brand && contactData?._id ? (
             <EditContact contactData={contactData} />
           ) : !brand && !contactData?._id ? (
@@ -125,7 +134,28 @@ const RepairSearch = () => {
           {device === "Primary" && !device && (
             <ModelList device={device} setDevice={setDevice} />
           )}
-          {brand && <ModelList device={device} setDevice={setDevice}  brand={brand} brand_id={brand_id} parentList={parentList} setParentList={setParentList} /> }
+          {brand && (
+            <ModelList
+              device={device}
+              setDevice={setDevice}
+              brand={brand}
+              brand_id={brand_id}
+              parentList={parentList}
+              setParentList={setParentList}
+            />
+          )}
+          <Box
+            sx={{
+              borderTop: "1px solid #EAECF1",
+              pt: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 2,
+            }}
+          >
+            <Button variant="outlined">Back</Button>
+            <Button variant="contained">Next</Button>
+          </Box>
         </Grid>
       </Grid>
     </div>
