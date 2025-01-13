@@ -54,14 +54,14 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddSpareParts from "./AddSpareParts";
-import UpdateSpareParts from "./UpdateSpareParts";
+import AddStockLimit from "./AddStockLimit";
+// import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const SparePartsList = () => {
+const StockAlertList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -99,6 +99,8 @@ const SparePartsList = () => {
   const [categoryId, setCategoryId] = useState([]);
   const [deviceId, setDeviceId] = useState([]);
   const [modelId, setModelId] = useState([]);
+  const [branchList, setBranchList] = useState([]);
+  const [branch, setBranch] = useState("");
   const [brandList, setBrandList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -176,7 +178,7 @@ const SparePartsList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(12).keys()].map((e, i) => (
+          {[...Array(4).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -199,15 +201,10 @@ const SparePartsList = () => {
   };
   const clearFilter = (event) => {
     setName("");
-    setNumber("");
-    setBrandId("");
-    setCategoryId("");
-    setDeviceId("");
-    setModelId("");
-    setStatus("");
+    setBranch("");
 
     setPage(0);
-    const newUrl = `/api/v1/sparePart?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/stockCounterAndLimit?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -232,28 +229,16 @@ const SparePartsList = () => {
     if (newUrl) {
       url = newUrl;
     } else {
+      let newBranch = branch;
       let newStatus = status;
-      let newCategoryId = categoryId;
-      let newBrandId = brandId;
-      let newModelId = modelId;
-      let newDeviceId = deviceId;
 
       let newStartingTime = "";
       let newEndingTime = "";
       if (status === "None") {
         newStatus = "";
       }
-      if (categoryId === "None") {
-        newCategoryId = "";
-      }
-      if (brandId === "None") {
-        newBrandId = "";
-      }
-      if (modelId === "None") {
-        newModelId = "";
-      }
-      if (deviceId === "None") {
-        newDeviceId = "";
+      if (branch === "None") {
+        newBranch = "";
       }
 
       if (startingTime !== null) {
@@ -263,7 +248,7 @@ const SparePartsList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePart?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/stockCounterAndLimit?name=${name.trim()}&branch_id=${newBranch}&page=${
         newPageNO + 1
       }`;
     }
@@ -281,20 +266,21 @@ const SparePartsList = () => {
     setLoading(false);
   };
 
-  const sortByParentName = (a, b) => {
-    const nameA = a.parent_name.toUpperCase();
-    const nameB = b.parent_name.toUpperCase();
+  const getBranchList = async () => {
+    setLoading2(true);
 
-    if (nameA < nameB) {
-      return -1;
-    }
-    if (nameA > nameB) {
-      return 1;
-    }
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
 
-    return 0;
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
   };
-
   const getBrandList = async () => {
     setLoading2(true);
 
@@ -360,10 +346,11 @@ const SparePartsList = () => {
 
   useEffect(() => {
     getData();
+    getBranchList();
 
-    getCategoryList();
-    getDeviceList();
-    getBrandList();
+    // getCategoryList();
+    // getDeviceList();
+    // getBrandList();
   }, []);
 
   return (
@@ -376,11 +363,37 @@ const SparePartsList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Spare Parts List
+            Stock Alert
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <AddSpareParts clearFilter={clearFilter} />
+          <Button
+            variant="contained"
+            disableElevation
+            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            component={Link}
+            to="/add-stock-alert"
+            startIcon={
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                  stroke="white"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            }
+          >
+            Add Stock Alert
+          </Button>
+          {/* <AddStockLimit clearFilter={clearFilter} /> */}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -424,7 +437,7 @@ const SparePartsList = () => {
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
         >
-          {/* <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -433,8 +446,8 @@ const SparePartsList = () => {
             >
               Details
             </Typography>
-          </Grid> */}
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
                 container
@@ -442,7 +455,7 @@ const SparePartsList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
                     required
                     size="small"
@@ -456,8 +469,8 @@ const SparePartsList = () => {
                       setName(e.target.value);
                     }}
                   />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -484,8 +497,8 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -512,8 +525,8 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -540,7 +553,7 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -550,18 +563,18 @@ const SparePartsList = () => {
                     sx={{ ...customeTextFeild }}
                   >
                     <InputLabel id="demo-status-outlined-label">
-                      Brand
+                      Branch
                     </InputLabel>
                     <Select
                       fullWidth
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
-                      label="Brand"
-                      value={brandId}
-                      onChange={(e) => setBrandId(e.target.value)}
+                      label="Branch"
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
                     >
                       <MenuItem value="None">None</MenuItem>
-                      {brandList?.map((item) => (
+                      {branchList?.map((item) => (
                         <MenuItem key={item?._id} value={item?._id}>
                           {item?.name}
                         </MenuItem>
@@ -569,32 +582,6 @@ const SparePartsList = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Status
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Status"
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      <MenuItem value={true}>Active</MenuItem>
-                      <MenuItem value={false}>Inactive</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
 
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
@@ -647,23 +634,25 @@ const SparePartsList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Product Name
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Alert Limit
+                  </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Category
+                    Available
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Warranty
                   </TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Price / <br />
-                    Not on sale
-                  </TableCell> */}
+                 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
                   </TableCell>
@@ -675,7 +664,7 @@ const SparePartsList = () => {
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -698,16 +687,35 @@ const SparePartsList = () => {
                         />
                       </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.name}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.brand_data[0]?.name
-                          ? row?.brand_data[0]?.name
+                        {row?.sparepart_data
+                          ? row?.sparepart_data[0]?.name
+                          : "---------"}{" "}
+                        &nbsp;{" "}
+                        {row?.spare_parts_variation_data
+                          ? row?.spare_parts_variation_data[0]?.name
                           : "---------"}
                       </TableCell>
 
                       <TableCell>
+                        {row?.branch_data
+                          ? row?.branch_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>{row?.stock_limit} PCs</TableCell>
+                      <TableCell
+                        sx={{
+                          color:
+                            row?.total_stock < row?.stock_limit
+                              ? "#D92D20"
+                              : row?.total_stock === row?.stock_limit
+                              ? "#DC6803"
+                              : "#35b522",
+                        }}
+                      >
+                        {row?.total_stock} PCs
+                      </TableCell>
+
+                      {/* <TableCell>
                         {row?.category_data[0]?.name
                           ? row?.category_data[0]?.name
                           : "---------"}
@@ -779,9 +787,7 @@ const SparePartsList = () => {
                         )}
                       </TableCell>
 
-                      {/* <TableCell align="center" style={{ minWidth: "130px" }}>
-                        <Invoice data={row} />
-                      </TableCell> */}
+                   
                       <TableCell align="right">
                         <Button
                           size="small"
@@ -793,8 +799,8 @@ const SparePartsList = () => {
                         >
                           Details
                         </Button>
-                        {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
-                      </TableCell>
+                   
+                      </TableCell> */}
                     </TableRow>
                   ))}
 
@@ -887,4 +893,4 @@ const SparePartsList = () => {
   );
 };
 
-export default SparePartsList;
+export default StockAlertList;

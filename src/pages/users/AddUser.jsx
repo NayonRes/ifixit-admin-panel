@@ -89,6 +89,7 @@ const AddUser = ({ getUser }) => {
   const [password, setPassword] = useState("");
   const [designation, setDesignation] = useState("");
   const [branch, setBranch] = useState("");
+  const [salary, setSalary] = useState();
   const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -103,8 +104,10 @@ const AddUser = ({ getUser }) => {
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
-      setAddUserDialog(false);
+      console.log("handleDialogClose");
+
       clearForm();
+      setAddUserDialog(false);
     }
   };
   const dropzoneRef = useRef(null);
@@ -181,12 +184,15 @@ const AddUser = ({ getUser }) => {
   };
 
   const clearForm = () => {
+    console.log("clearForm");
+
     setName("");
     setPassword("");
     setDesignation("");
     setNumber("");
     setEmail("");
     setBranch("");
+    setSalary("");
     setFile(null);
   };
   const onSubmit = async (e) => {
@@ -200,6 +206,7 @@ const AddUser = ({ getUser }) => {
     formdata.append("password", password);
     formdata.append("branch_id", branch);
     formdata.append("mobile", number);
+    formdata.append("salary", parseFloat(salary).toFixed(2));
     formdata.append("designation", designation);
 
     // formdata.append("role_id", roleId);
@@ -300,7 +307,6 @@ const AddUser = ({ getUser }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -403,7 +409,7 @@ const AddUser = ({ getUser }) => {
           Add User
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => setAddUserDialog(false)}
+            onClick={() => handleDialogClose()}
           >
             <svg
               width="46"
@@ -511,9 +517,34 @@ const AddUser = ({ getUser }) => {
             placeholder="Enter Number"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}
+            inputProps={{
+              minLength: 11, // Minimum length
+              maxLength: 11, // Maximum length
+            }}
             value={number}
             onChange={(e) => {
               setNumber(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Salary
+          </Typography>
+          <TextField
+            type="number"
+            size="small"
+            fullWidth
+            id="salary"
+            placeholder="Enter Salary"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={salary}
+            onChange={(e) => {
+              setSalary(e.target.value);
             }}
           />
           <Typography

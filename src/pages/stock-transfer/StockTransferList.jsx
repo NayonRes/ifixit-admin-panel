@@ -25,7 +25,7 @@ import axios from "axios";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import { AuthContext } from "../../context/AuthContext";
-import { Box, Collapse, TableContainer } from "@mui/material";
+import { Box, Chip, Collapse, TableContainer } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -54,14 +54,14 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddSpareParts from "./AddSpareParts";
-import UpdateSpareParts from "./UpdateSpareParts";
+// import AddPurchaseReturn from "./AddPurchaseReturn";
+// import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const SparePartsList = () => {
+const StockTransferList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -99,6 +99,8 @@ const SparePartsList = () => {
   const [categoryId, setCategoryId] = useState([]);
   const [deviceId, setDeviceId] = useState([]);
   const [modelId, setModelId] = useState([]);
+  const [branchList, setBranchList] = useState([]);
+  const [branch, setBranch] = useState("");
   const [brandList, setBrandList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -176,7 +178,7 @@ const SparePartsList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(12).keys()].map((e, i) => (
+          {[...Array(8).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -199,15 +201,10 @@ const SparePartsList = () => {
   };
   const clearFilter = (event) => {
     setName("");
-    setNumber("");
-    setBrandId("");
-    setCategoryId("");
-    setDeviceId("");
-    setModelId("");
-    setStatus("");
+    setBranch("");
 
     setPage(0);
-    const newUrl = `/api/v1/sparePart?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/stockCounterAndLimit?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -232,28 +229,16 @@ const SparePartsList = () => {
     if (newUrl) {
       url = newUrl;
     } else {
+      let newBranch = branch;
       let newStatus = status;
-      let newCategoryId = categoryId;
-      let newBrandId = brandId;
-      let newModelId = modelId;
-      let newDeviceId = deviceId;
 
       let newStartingTime = "";
       let newEndingTime = "";
       if (status === "None") {
         newStatus = "";
       }
-      if (categoryId === "None") {
-        newCategoryId = "";
-      }
-      if (brandId === "None") {
-        newBrandId = "";
-      }
-      if (modelId === "None") {
-        newModelId = "";
-      }
-      if (deviceId === "None") {
-        newDeviceId = "";
+      if (branch === "None") {
+        newBranch = "";
       }
 
       if (startingTime !== null) {
@@ -263,9 +248,7 @@ const SparePartsList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePart?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
-        newPageNO + 1
-      }`;
+      url = `/api/v1/transferStock?page=${newPageNO + 1}`;
     }
     let allData = await getDataWithToken(url);
 
@@ -281,20 +264,21 @@ const SparePartsList = () => {
     setLoading(false);
   };
 
-  const sortByParentName = (a, b) => {
-    const nameA = a.parent_name.toUpperCase();
-    const nameB = b.parent_name.toUpperCase();
+  const getBranchList = async () => {
+    setLoading2(true);
 
-    if (nameA < nameB) {
-      return -1;
-    }
-    if (nameA > nameB) {
-      return 1;
-    }
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
 
-    return 0;
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
   };
-
   const getBrandList = async () => {
     setLoading2(true);
 
@@ -360,10 +344,11 @@ const SparePartsList = () => {
 
   useEffect(() => {
     getData();
+    getBranchList();
 
-    getCategoryList();
-    getDeviceList();
-    getBrandList();
+    // getCategoryList();
+    // getDeviceList();
+    // getBrandList();
   }, []);
 
   return (
@@ -376,11 +361,37 @@ const SparePartsList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Spare Parts List
+            Stock Transfer List
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <AddSpareParts clearFilter={clearFilter} />
+          <Button
+            variant="contained"
+            disableElevation
+            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            component={Link}
+            to="/add-stock-transfer"
+            startIcon={
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                  stroke="white"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            }
+          >
+            Add Stock Transfer
+          </Button>
+          {/* <AddPurchaseReturn clearFilter={clearFilter} /> */}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -424,7 +435,7 @@ const SparePartsList = () => {
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
         >
-          {/* <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -433,8 +444,8 @@ const SparePartsList = () => {
             >
               Details
             </Typography>
-          </Grid> */}
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
                 container
@@ -442,7 +453,7 @@ const SparePartsList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
                     required
                     size="small"
@@ -456,8 +467,8 @@ const SparePartsList = () => {
                       setName(e.target.value);
                     }}
                   />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -484,8 +495,8 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -512,8 +523,8 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -540,7 +551,7 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -550,18 +561,18 @@ const SparePartsList = () => {
                     sx={{ ...customeTextFeild }}
                   >
                     <InputLabel id="demo-status-outlined-label">
-                      Brand
+                      Branch
                     </InputLabel>
                     <Select
                       fullWidth
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
-                      label="Brand"
-                      value={brandId}
-                      onChange={(e) => setBrandId(e.target.value)}
+                      label="Branch"
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
                     >
                       <MenuItem value="None">None</MenuItem>
-                      {brandList?.map((item) => (
+                      {branchList?.map((item) => (
                         <MenuItem key={item?._id} value={item?._id}>
                           {item?.name}
                         </MenuItem>
@@ -569,32 +580,6 @@ const SparePartsList = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Status
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Status"
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      <MenuItem value={true}>Active</MenuItem>
-                      <MenuItem value={false}>Inactive</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
 
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
@@ -647,23 +632,35 @@ const SparePartsList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Transfer Date
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Transfer From
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Transfer To
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Total Items
+                  </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Category
+                    Shipping charge
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                  <TableCell style={{ minWidth: "150px" }}>Note</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                    Actions
+                  </TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Warranty
                   </TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Price / <br />
-                    Not on sale
-                  </TableCell> */}
+                 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
                   </TableCell>
@@ -675,7 +672,7 @@ const SparePartsList = () => {
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -687,101 +684,60 @@ const SparePartsList = () => {
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       {/* <TableCell sx={{ width: 50 }}>
-                        <img
-                          src={
-                            row?.images?.length > 0
-                              ? row?.images[0]?.url
-                              : "/noImage.png"
-                          }
-                          alt=""
-                          width={40}
-                        />
-                      </TableCell> */}
-                      <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.name}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.brand_data[0]?.name
-                          ? row?.brand_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.category_data[0]?.name
-                          ? row?.category_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.device_data[0]?.name
-                          ? row?.device_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.model_data[0]?.name
-                          ? row?.model_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.price ? row?.price : "---------"}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.warranty ? row?.warranty : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
-                      </TableCell>
-
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.description ? row?.description : "---------"}
-                      </TableCell>
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.remarks ? row?.remarks : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.status ? (
-                          <>
-                            <TaskAltOutlinedIcon
-                              style={{
-                                color: "#10ac84",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
-                            />{" "}
-                            <span
-                              style={{
-                                color: "#10ac84",
-                              }}
-                            >
-                              Active &nbsp;
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <HighlightOffOutlinedIcon
-                              style={{
-                                color: "#ee5253",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
+                            <img
+                              src={
+                                row?.images?.length > 0
+                                  ? row?.images[0]?.url
+                                  : "/noImage.png"
+                              }
+                              alt=""
+                              width={40}
                             />
-                            <span
-                              style={{
-                                color: "#ee5253",
-                              }}
-                            >
-                              Inactive
-                            </span>
-                          </>
+                          </TableCell> */}
+
+                      <TableCell>
+                        {moment(row?.created_at).format("DD/MM/YYYY")}
+                      </TableCell>
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.transfer_from_data
+                          ? row?.transfer_from_data[0]?.name
+                          : "---------"}{" "}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.transfer_to_data
+                          ? row?.transfer_to_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+
+                      <TableCell>{row?.transfer_stocks_sku?.length}</TableCell>
+                      <TableCell>{row?.shipping_charge}</TableCell>
+                      <TableCell> {row?.remarks}</TableCell>
+
+                      <TableCell>
+                        {row?.transfer_status ? (
+                          <Chip
+                            sx={{
+                              color:
+                                row?.transfer_status === "Pending"
+                                  ? "#C81E1E"
+                                  : row?.transfer_status === "Received"
+                                  ? "#046C4E"
+                                  : "#222",
+                              background:
+                                row?.transfer_status === "Pending"
+                                  ? "#FDF2F2"
+                                  : row?.transfer_status === "Received"
+                                  ? "#F3FAF7"
+                                  : "#222",
+                            }}
+                            label={row?.transfer_status}
+                          />
+                        ) : (
+                          "---------"
                         )}
                       </TableCell>
 
-                      {/* <TableCell align="center" style={{ minWidth: "130px" }}>
-                        <Invoice data={row} />
-                      </TableCell> */}
                       <TableCell align="right">
                         <Button
                           size="small"
@@ -789,18 +745,81 @@ const SparePartsList = () => {
                           color="info"
                           startIcon={<ListAltOutlinedIcon />}
                           component={Link}
-                          to={`/spare-parts/${row?._id}`}
+                          to={`/stock-transfer/details/${row?._id}`}
                         >
                           Details
                         </Button>
-                        {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
+                        &nbsp;
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="text"
+                          disabled={row?.transfer_status === "Received"}
+                          sx={{
+                            "& svg": {
+                              opacity:
+                                row?.transfer_status === "Received" && 0.5,
+                            },
+                          }}
+                          startIcon={
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              id="Outline"
+                              viewBox="0 0 24 24"
+                              width="16"
+                              height="16"
+                            >
+                              <path
+                                d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                                fill="#787878"
+                              />
+                              <path
+                                d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                                fill="#787878"
+                              />
+                            </svg>
+                          }
+                          component={Link}
+                          to={`/stock-transfer/${row?._id}`}
+                        >
+                          Details
+                        </Button>
+                        {/* <IconButton
+                          disabled={row?.transfer_status === "Received"}
+                          sx={{
+                            opacity: row?.transfer_status === "Received" && 0.5,
+                          }}
+                          variant="contained"
+                          // color="success"
+                          disableElevation
+                          component={Link}
+                          to={`/stock-transfer/${row?._id}`}
+                        >
+                     
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            id="Outline"
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                          >
+                            <path
+                              d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                              fill="#787878"
+                            />
+                            <path
+                              d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                              fill="#787878"
+                            />
+                          </svg>
+                        </IconButton> */}
                       </TableCell>
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
@@ -887,4 +906,4 @@ const SparePartsList = () => {
   );
 };
 
-export default SparePartsList;
+export default StockTransferList;

@@ -264,6 +264,7 @@ const DeviceList = () => {
     }
     setLoading(false);
   };
+ 
 
   const sortByParentName = (a, b) => {
     const nameA = a.parent_name.toUpperCase();
@@ -466,7 +467,33 @@ const DeviceList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
+                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                        {/* {row?.image?.url?.length > 0 ? (
+                                                <> */}
+                        <img
+                          src={
+                            row?.image?.url?.length > 0
+                              ? row?.image?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "6px",
+                            width: "20px",
+                            height: "40px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+
+                        {/* </>
+                                              ) : (
+                                                "No Image"
+                                              )} */}
+                      </TableCell>
                       <TableCell>{row?.name}</TableCell>
+                      <TableCell>{row?.parent_name}</TableCell>
 
                       <TableCell>
                         {row?.status ? (

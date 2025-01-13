@@ -42,10 +42,18 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
-
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { styled } from "@mui/material/styles";
 import {
   customerTypeList,
   designationList,
+  paymentMethodList,
+  paymentStatusList,
+  purchaseStatusList,
   ratingList,
   roleList,
 } from "../../data";
@@ -85,11 +93,27 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const UpdateSpareParts = ({ getData, row }) => {
+const UpdatePurchase = ({ getData, row }) => {
   const navigate = useNavigate();
   const [updateDialog, setUpdateDialog] = useState(false);
-  const [name, setName] = useState("");
+
+  const [supplierList, setSupplierList] = useState([]);
+  const [supplier, setSupplier] = useState("");
+  const [branchList, setBranchList] = useState([]);
+  const [branch, setBranch] = useState("");
   const [convertedContent, setConvertedContent] = useState("");
+  const [purchaseStatus, setPurchaseStatus] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [paidAmount, setPaidAmount] = useState();
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [purchaseDate, setPurchaseDate] = useState(null);
+  const [shippingCharge, setShippingCharge] = useState("");
+  const [invoiceNo, setInvoiceNo] = useState("");
+
+  const [purchaseBy, setPurchaseBy] = useState("");
+  const [userList, setUserList] = useState([]);
+
+  const [name, setName] = useState("");
 
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
@@ -136,6 +160,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     setCategoryId("");
     setDeviceId("");
     setModelId("");
+
     setWarranty("");
     setPrice("");
     setDetails("");
@@ -143,55 +168,42 @@ const UpdateSpareParts = ({ getData, row }) => {
     setRemarks("");
   };
 
-  const dropzoneRef = useRef(null);
+  const custopDatePickerFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
 
-  const onDrop = useCallback((acceptedFiles) => {
-    console.log("onDrop", acceptedFiles);
+    "& .MuiInputBase-root": {
+      fontSize: "0.875rem", // Adjust font size for a smaller appearance
+      height: "2.5rem",
+    },
 
-    // if (!dropzoneRef.current) return;
-    const file = acceptedFiles[0];
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // setBase64String(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-  const onFileDialogCancel = useCallback(() => {
-    setFile(null);
-    console.log("File dialog was closed without selecting a file");
-    // setBase64String(""); // Update state to indicate dialog was cancelled
-  }, []);
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
-    onDrop,
-    onFileDialogCancel,
-    ref: dropzoneRef,
-    accept: { "image/*": [] },
-    maxFiles: 1,
-  });
-  const files = acceptedFiles.map((file) => (
-    <>
-      {file.path} - {file.size} bytes
-    </>
-  ));
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject]
-  );
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+
+    "& .MuiOutlinedInput-input": {
+      // padding: "10px 16px", (uncomment if needed)
+    },
+
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px", (uncomment if needed)
+      "& fieldset": {
+        borderColor: "#", // Update with a specific color if needed
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -203,22 +215,20 @@ const UpdateSpareParts = ({ getData, row }) => {
     // formdata.append("parent_id", parent_id);
 
     const formData = new FormData();
+    formData.append("supplier_id", supplier);
+    formData.append("user_id", purchaseBy);
+    formData.append("purchase_date", dayjs(purchaseDate).toDate());
+    formData.append("purchase_status", purchaseStatus);
+    formData.append("payment_status", paymentStatus);
+    formData.append("branch_id", branch);
+    formData.append("payment_method", paymentMethod);
+    formData.append("paid_amount", paidAmount);
+    formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
 
-    formData.append("name", name.trim());
-    formData.append("brand_id", brandId);
-    formData.append("category_id", categoryId);
-    formData.append("device_id", deviceId);
-    formData.append("model_id", modelId);
-    formData.append("warranty", warranty);
-    formData.append("price", price);
-    formData.append("description", details.trim());
-    formData.append("remarks", remarks.trim());
-    {
-      file !== null && formData.append("images", file);
-    }
+    formData.append("remarks", remarks);
 
     let response = await handlePutData(
-      `/api/v1/sparePart/update/${row?._id}`,
+      `/api/v1/purchase/update/${row[0]?._id}`,
       formData,
       true
     );
@@ -271,7 +281,6 @@ const UpdateSpareParts = ({ getData, row }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -365,17 +374,69 @@ const UpdateSpareParts = ({ getData, row }) => {
     setModelId("");
     getModelList(e.target.value);
   };
-  useEffect(() => {
-    setName(row?.name);
-    setBrandId(row?.brand_id);
-    setCategoryId(row?.category_id);
-    setDeviceId(row?.device_id);
 
-    setModelId(row?.model_id);
-    setWarranty(row?.warranty);
-    setPrice(row?.price);
-    setDetails(row?.description);
-    setRemarks(row?.remarks);
+  const getSupplierList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/supplier/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setSupplierList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getBranchList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getUserList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/user/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setUserList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
+  useEffect(() => {
+    setSupplier(row[0]?.supplier_id);
+    setPaidAmount(row[0]?.paid_amount);
+    setPaymentMethod(row[0]?.payment_method);
+    // setPurchaseDate(row[0]?.purchase_date);
+
+    if (row[0]?.purchase_date) {
+      setPurchaseDate(dayjs(row[0]?.purchase_date));
+    }
+    setBranch(row[0]?.branch_id);
+    setPurchaseBy(row[0]?.user_id);
+    setPurchaseStatus(row[0]?.purchase_status);
+    setPaymentStatus(row[0]?.payment_status);
+    setShippingCharge(row[0]?.shipping_charge);
+    setRemarks(row[0]?.remarks);
+
     // setStatus(row?.status);
   }, []);
   return (
@@ -412,12 +473,9 @@ const UpdateSpareParts = ({ getData, row }) => {
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
-          getCategoryList();
-          getBrandList();
-          getDeviceList();
-          {
-            deviceId && getModelList(deviceId);
-          }
+          getSupplierList();
+          getBranchList();
+          getUserList();
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -465,7 +523,7 @@ const UpdateSpareParts = ({ getData, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Update Spare Parts
+          Update Purchase
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setUpdateDialog(false)}
@@ -497,29 +555,6 @@ const UpdateSpareParts = ({ getData, row }) => {
           }}
         >
           <Grid container spacing={2}>
-            <Grid size={12}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Spare Parts Name
-              </Typography>
-              <TextField
-                required
-                size="small"
-                fullWidth
-                id="name"
-                placeholder="Full Name"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-              />
-            </Grid>
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -527,7 +562,7 @@ const UpdateSpareParts = ({ getData, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Brand
+                Supplier *
               </Typography>
 
               <FormControl
@@ -545,7 +580,213 @@ const UpdateSpareParts = ({ getData, row }) => {
                   },
                 }}
               >
-                {brandId?.length < 1 && (
+                {supplier?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Supplier
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="supplier"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={supplier}
+                  onChange={(e) => setSupplier(e.target.value)}
+                >
+                  {supplierList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Purchase date*
+              </Typography>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="purchaseDate"
+                  sx={{
+                    width: "100%",
+                    ...custopDatePickerFeild,
+                  }}
+                  // label="Controlled picker"
+                  format="DD/MM/YYYY"
+                  maxDate={dayjs()}
+                  value={purchaseDate}
+                  onChange={(newValue) => {
+                    setPurchaseDate(newValue);
+                  }}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Branch *
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {branch?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Branch *
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="branch"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={branch}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setBranch(e.target.value);
+                  }}
+                >
+                  {branchList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>{" "}
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Select Purchase By *
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {purchaseBy?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Purchase By
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="purchaseBy"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={purchaseBy}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setPurchaseBy(e.target.value);
+                  }}
+                >
+                  {userList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Purchase Status *
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {purchaseStatus?.length < 1 && (
                   <InputLabel
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -556,7 +797,7 @@ const UpdateSpareParts = ({ getData, row }) => {
                 <Select
                   required
                   labelId="demo-simple-select-label"
-                  id="brandId"
+                  id="purchaseStatus"
                   MenuProps={{
                     PaperProps: {
                       sx: {
@@ -564,25 +805,25 @@ const UpdateSpareParts = ({ getData, row }) => {
                       },
                     },
                   }}
-                  value={brandId}
-                  onChange={(e) => setBrandId(e.target.value)}
+                  value={purchaseStatus}
+                  onChange={(e) => setPurchaseStatus(e.target.value)}
                 >
-                  {brandList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
+                  {purchaseStatusList?.map((item) => (
+                    <MenuItem key={item?._id} value={item}>
+                      {item}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={6}>
+            {/* <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Category
+                Payment Status *
               </Typography>
 
               <FormControl
@@ -600,18 +841,18 @@ const UpdateSpareParts = ({ getData, row }) => {
                   },
                 }}
               >
-                {categoryId?.length < 1 && (
+                {paymentStatus?.length < 1 && (
                   <InputLabel
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Category
+                    Select Brand
                   </InputLabel>
                 )}
                 <Select
                   required
                   labelId="demo-simple-select-label"
-                  id="categoryId"
+                  id="paymentStatus"
                   MenuProps={{
                     PaperProps: {
                       sx: {
@@ -619,17 +860,17 @@ const UpdateSpareParts = ({ getData, row }) => {
                       },
                     },
                   }}
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
+                  value={paymentStatus}
+                  onChange={(e) => setPaymentStatus(e.target.value)}
                 >
-                  {categoryList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
+                  {paymentStatusList?.map((item) => (
+                    <MenuItem key={item?._id} value={item}>
+                      {item}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -637,158 +878,70 @@ const UpdateSpareParts = ({ getData, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Device
-              </Typography>
-
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
-                }}
-              >
-                {deviceId?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Device
-                  </InputLabel>
-                )}
-                <Select
-                  required
-                  labelId="demo-simple-select-label"
-                  id="deviceId"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={deviceId}
-                  onChange={handleDeviceSelect}
-                >
-                  {deviceList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Model
-              </Typography>
-
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
-                }}
-              >
-                {modelId?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Model
-                  </InputLabel>
-                )}
-                <Select
-                  disabled={deviceId?.length < 1}
-                  required
-                  labelId="demo-simple-select-label"
-                  id="modelId"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={modelId}
-                  onChange={(e) => setModelId(e.target.value)}
-                >
-                  {modelList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Warranty
-              </Typography>
-              <TextField
-                size="small"
-                type="number"
-                fullWidth
-                id="warranty"
-                placeholder="Warranty"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={warranty}
-                onChange={(e) => {
-                  setWarranty(e.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Price
+                Shipping Charges *
               </Typography>
               <TextField
                 required
                 size="small"
                 type="number"
                 fullWidth
-                id="price"
-                placeholder="Price"
+                id="shippingCharge"
+                placeholder="Shipping Charges"
                 variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={price}
+                sx={{ ...customeTextFeild }}
+                value={shippingCharge}
                 onChange={(e) => {
-                  setPrice(e.target.value);
+                  setShippingCharge(e.target.value);
                 }}
               />
             </Grid>
-
+            {/* <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Invoice No *
+              </Typography>
+              <TextField
+                required
+                size="small"
+                type="number"
+                fullWidth
+                id="invoiceNo"
+                placeholder="Invoice No"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={invoiceNo}
+                onChange={(e) => {
+                  setInvoiceNo(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Paid Amount *
+              </Typography>
+              <TextField
+                size="small"
+                type="number"
+                fullWidth
+                id="paidAmount"
+                placeholder="Paid Amount"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={paidAmount}
+                onChange={(e) => {
+                  setPaidAmount(e.target.value);
+                }}
+              />
+            </Grid> */}
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -796,26 +949,75 @@ const UpdateSpareParts = ({ getData, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Description
+                Payment Method
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {paymentMethod?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Purchase Method
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="paymentStatus"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  {paymentMethodList?.map((item) => (
+                    <MenuItem key={item?._id} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Paid Amount
               </Typography>
               <TextField
-                multiline
-                rows={2}
                 size="small"
+                type="number"
                 fullWidth
-                id="membershipId"
-                placeholder="Add Note"
+                id="paidAmount"
+                placeholder="Paid Amount"
                 variant="outlined"
                 sx={{ ...customeTextFeild }}
-                value={details}
+                value={paidAmount}
                 onChange={(e) => {
-                  setDetails(e.target.value);
+                  setPaidAmount(e.target.value);
                 }}
               />
-              {/* <TextEditor
-                convertedContent={convertedContent}
-                setConvertedContent={setConvertedContent}
-              /> */}
             </Grid>
             <Grid size={6}>
               <Typography
@@ -827,8 +1029,6 @@ const UpdateSpareParts = ({ getData, row }) => {
                 Add Note
               </Typography>
               <TextField
-                multiline
-                rows={2}
                 size="small"
                 fullWidth
                 id="membershipId"
@@ -840,74 +1040,6 @@ const UpdateSpareParts = ({ getData, row }) => {
                   setRemarks(e.target.value);
                 }}
               />
-            </Grid>
-            <Grid size={12}>
-              {/* <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Add Note
-              </Typography> */}
-
-              {/* <Box {...getRootProps({ style })}>
-                <input {...getInputProps()} />
-
-                <Grid container justifyContent="center">
-                  <Box
-                    sx={{
-                      mb: 1.5,
-                      p: 1.125,
-                      paddingBottom: "3px",
-                      borderRadius: "8px",
-                      border: "1px solid #EAECF0",
-                      boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                    >
-                      <path
-                        d="M6.66666 13.3333L9.99999 10M9.99999 10L13.3333 13.3333M9.99999 10V17.5M16.6667 13.9524C17.6846 13.1117 18.3333 11.8399 18.3333 10.4167C18.3333 7.88536 16.2813 5.83333 13.75 5.83333C13.5679 5.83333 13.3975 5.73833 13.3051 5.58145C12.2184 3.73736 10.212 2.5 7.91666 2.5C4.46488 2.5 1.66666 5.29822 1.66666 8.75C1.66666 10.4718 2.36286 12.0309 3.48911 13.1613"
-                        stroke="#344054"
-                        stroke-width="1.66667"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </Box>
-                </Grid>
-                <Box sx={{ pl: 1.5, textAlign: "center" }}>
-                  <Typography
-                    variant="base"
-                    color="text.fade"
-                    sx={{ fontWeight: 400, mb: 0.5 }}
-                  >
-                    <span style={{ color: "#4238CA", fontWeight: 500 }}>
-                      {" "}
-                      Click to upload{" "}
-                    </span>
-                    or drag and drop
-                  </Typography>
-                  <Typography variant="medium" color="text.fade">
-                    PNG, JPG (max. 400x400px)
-                  </Typography>
-                  {file?.path?.length > 0 && (
-                    <Typography
-                      variant="medium"
-                      color="text.light"
-                      sx={{ mt: 1 }}
-                    >
-                      <b>Uploaded:</b> {file?.path} - {file?.size} bytes
-                    </Typography>
-                  )}
-                </Box>
-              </Box> */}
             </Grid>
           </Grid>
         </DialogContent>
@@ -958,4 +1090,4 @@ const UpdateSpareParts = ({ getData, row }) => {
   );
 };
 
-export default UpdateSpareParts;
+export default UpdatePurchase;

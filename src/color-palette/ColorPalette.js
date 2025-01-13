@@ -9,7 +9,7 @@ let ColorPalette = {
       contrastText: "#fff",
     },
     secondary: {
-      main: "#3A9B7A",
+      main: "#7642af",
       light: "#EEFAF6",
       contrastText: "#fff",
     },

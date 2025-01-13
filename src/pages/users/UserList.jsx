@@ -186,7 +186,7 @@ const UserList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(8).keys()].map((e, i) => (
+          {[...Array(9).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -317,15 +317,15 @@ const UserList = () => {
     return 0;
   };
 
-
-
   function filterByNameLike(data, searchQuery) {
     // Convert search query to lowercase for case-insensitive matching
     const lowerCaseQuery = searchQuery.toLowerCase();
 
     // Filter the data based on partial match in the name field
-    return data.filter(item => item.name.toLowerCase().includes(lowerCaseQuery));
-}
+    return data.filter((item) =>
+      item.name.toLowerCase().includes(lowerCaseQuery)
+    );
+  }
   useEffect(() => {
     getData();
     // getCategoryList();
@@ -568,6 +568,7 @@ const UserList = () => {
                   Mobile Number
                 </TableCell>
                 <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>Salary</TableCell>
                 <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
                 <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
@@ -615,12 +616,13 @@ const UserList = () => {
                       <TableCell>
                         {row?.mobile ? row?.mobile : "-------"}
                       </TableCell>
+
                       <TableCell sx={{ whiteSpace: "nowrap" }}>
                         {row?.branch_data[0]?.name
                           ? row?.branch_data[0]?.name
                           : "-------"}
                       </TableCell>
-
+                      <TableCell>{row?.salary}</TableCell>
                       <TableCell>
                         {row?.status ? (
                           <>

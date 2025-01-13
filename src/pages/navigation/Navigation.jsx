@@ -22,8 +22,17 @@ import VariantList from "../variant/VariantList";
 import SparePartsList from "../spare-parts/SparePartsList";
 import SparePartsDetails from "../spare-parts/SparePartsDetails";
 import Repair from "../repair/Repair";
-import PurchaseList from "../purchase/PurchaseList";
 import RepairSearch from "../repair/RepairSearch";
+import PurchaseList from "../purchase/PurchaseList";
+import PurchaseDetails from "../purchase/PurchaseDetails";
+import StockAlertList from "../stock-alert/StockAlertList";
+import AddStockLimit from "../stock-alert/AddStockLimit";
+import AddPurchaseReturn from "../purchase-return/AddPurchaseReturn";
+import PurchaseReturnList from "../purchase-return/PurchaseReturnList";
+import AddStockTransfer from "../stock-transfer/AddStockTransfer";
+import StockTransferList from "../stock-transfer/StockTransferList";
+import UpdateStockTransfer from "../stock-transfer/UpdateStockTransfer";
+import DetailsStockTransfer from "../stock-transfer/DetailsStockTransfer";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -148,10 +157,82 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
-          path="spare-parts-list/:id"
+          path="stock-alert"
+          element={
+            <PrivateRoute>
+              <StockAlertList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="add-stock-alert"
+          element={
+            <PrivateRoute>
+              <AddStockLimit />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="purchase-return-list"
+          element={
+            <PrivateRoute>
+              <PurchaseReturnList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="purchase-return"
+          element={
+            <PrivateRoute>
+              <AddPurchaseReturn />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="add-stock-transfer"
+          element={
+            <PrivateRoute>
+              <AddStockTransfer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stock-transfer/:id"
+          element={
+            <PrivateRoute>
+              <UpdateStockTransfer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stock-transfer/details/:id"
+          element={
+            <PrivateRoute>
+              <DetailsStockTransfer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stock-transfer-list"
+          element={
+            <PrivateRoute>
+              <StockTransferList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="spare-parts/:id"
           element={
             <PrivateRoute>
               <SparePartsDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="purchase/:id"
+          element={
+            <PrivateRoute>
+              <PurchaseDetails />
             </PrivateRoute>
           }
         />

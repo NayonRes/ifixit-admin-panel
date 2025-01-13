@@ -206,7 +206,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
 
     const formData = new FormData();
 
-    formData.append("spare_part_id", tableDataList?._id);
+    formData.append("spare_parts_id", tableDataList?._id);
     formData.append("name", name?.trim());
     formData.append("price", parseFloat(price).toFixed(2));
     {
@@ -269,7 +269,6 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",

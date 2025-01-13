@@ -787,7 +787,7 @@ export default function Layout() {
                       <ListItemText primary="Customer" />
                     </ListItemButton>
                   </ListItem>
-                  <ListItem disablePadding sx={{ display: "block" }}>
+                  {/* <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
                       to="/customer-group"
@@ -798,9 +798,9 @@ export default function Layout() {
                     >
                       <ListItemText primary="Customer Group" />
                     </ListItemButton>
-                  </ListItem>
+                  </ListItem> */}
 
-                  <ListItem disablePadding sx={{ display: "block" }}>
+                  {/* <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
                       to="/import-export"
@@ -812,7 +812,7 @@ export default function Layout() {
                     >
                       <ListItemText primary="Import & Export" />
                     </ListItemButton>
-                  </ListItem>
+                  </ListItem> */}
                 </List>
               </Collapse>
 
@@ -893,7 +893,7 @@ export default function Layout() {
                       <ListItemText primary="Spare parts List" />
                     </ListItemButton>
                   </ListItem>
-                  <ListItem disablePadding sx={{ display: "block" }}>
+                  {/* <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
                       to="/add-spare-parts"
@@ -904,7 +904,7 @@ export default function Layout() {
                     >
                       <ListItemText primary="Add Spare parts" />
                     </ListItemButton>
-                  </ListItem>
+                  </ListItem> */}
 
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
@@ -992,7 +992,7 @@ export default function Layout() {
                       <ListItemText primary="Purchases List" />
                     </ListItemButton>
                   </ListItem>
-                  <ListItem disablePadding sx={{ display: "block" }}>
+                  {/* <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
                       to="/add-purchase"
@@ -1003,8 +1003,8 @@ export default function Layout() {
                     >
                       <ListItemText primary="Add Purchase" />
                     </ListItemButton>
-                  </ListItem>
-                  <ListItem disablePadding sx={{ display: "block" }}>
+                  </ListItem> */}
+                  {/* <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
                       to="/purchase-return"
@@ -1015,7 +1015,7 @@ export default function Layout() {
                     >
                       <ListItemText primary="Purchase Return" />
                     </ListItemButton>
-                  </ListItem>
+                  </ListItem> */}
 
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
@@ -1076,12 +1076,12 @@ export default function Layout() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   onClick={() => handleOpemMenu("")}
-                  // component={Link}
-                  // to="/live-chat"
+                  component={Link}
+                  to="/stock-transfer-list"
 
                   sx={[
                     { ...listButtonStyle },
-                    pathname === "/live-chat" && { ...activeStyle },
+                    pathname === "/stock-transfer-list" && { ...activeStyle },
                   ]}
                 >
                   <ListItemIcon
