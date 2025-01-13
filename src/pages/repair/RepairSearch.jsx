@@ -7,6 +7,8 @@ import EditContact from "./EditContact";
 import ModelList from "./ModelList";
 import { useNavigate } from "react-router-dom";
 import IssueList from "./IssueList";
+import TechnicianList from "./TechnicianList";
+import RepairStatusList from "./RepairStatusList";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
@@ -24,6 +26,8 @@ const RepairSearch = () => {
   const [repairStatus, setRepairStatus] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [parentList, setParentList] = useState([]);
+  const [steps, setSteps] = useState(0);
+  const [technician, setTechnician] = useState("");
 
   const [issue, setIssue] = useState("");
 
@@ -134,7 +138,7 @@ const RepairSearch = () => {
           {device === "Primary" && !device && (
             <ModelList device={device} setDevice={setDevice} />
           )}
-          {brand && (
+          {steps == 0 && (
             <ModelList
               device={device}
               setDevice={setDevice}
@@ -142,6 +146,21 @@ const RepairSearch = () => {
               brand_id={brand_id}
               parentList={parentList}
               setParentList={setParentList}
+            />
+          )}
+          {steps == 1 && <IssueList issue={issue} setIssue={setIssue} />}
+          {steps == 2 && (
+            <TechnicianList
+              technician={technician}
+              setTechnician={setTechnician}
+              issue={issue}
+              setIssue={setIssue}
+            />
+          )}
+          {steps == 3 && (
+            <RepairStatusList
+            repairStatus={repairStatus}
+            setRepairStatus={setRepairStatus}
             />
           )}
           <Box
@@ -153,8 +172,12 @@ const RepairSearch = () => {
               gap: 2,
             }}
           >
-            <Button variant="outlined">Back</Button>
-            <Button variant="contained">Next</Button>
+            <Button variant="outlined" onClick={() => setSteps(steps - 1)}>
+              Back
+            </Button>
+            <Button variant="contained" onClick={() => setSteps(steps + 1)}>
+              Next
+            </Button>
           </Box>
         </Grid>
       </Grid>

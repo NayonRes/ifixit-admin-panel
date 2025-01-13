@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
+import { getDataWithToken } from "../../services/GetDataService";
 
 const style = {
   nav: {
@@ -42,7 +43,7 @@ const style = {
   card: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     gap: 2,
     border: `1px solid ${ColorPalette.light.primary.light}`,
     backgroundColor: ColorPalette.light.text.bg,
@@ -54,7 +55,7 @@ const style = {
   cardActive: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     gap: 2,
     border: `1px solid ${ColorPalette.light.primary.main}`,
     backgroundColor: ColorPalette.light.text.bg,
@@ -65,13 +66,27 @@ const style = {
   },
 };
 
-const IssueList = ({ issue, setIssue }) => {
+const TechnicianList = ({ technician, setTechnician, issue, setIssue }) => {
+  const [TechnicianList, setTechnicianList] = useState([]);
+
+  const getTechnician = async () => {
+    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    let url = `/api/v1/user/dropdownlist?designation=Technician`;
+    let allData = await getDataWithToken(url);
+    console.log("technician list", allData?.data.data);
+    setTechnicianList(allData?.data.data);
+  };
+
+  useEffect(() => {
+    getTechnician();
+  }, []);
+
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-            Select Issue
+            Repair By
           </Typography>
         </Grid>
         <Grid size={12}>
@@ -94,7 +109,7 @@ const IssueList = ({ issue, setIssue }) => {
                   fill="#667085"
                 />
               </svg>
-              Issue
+              Jamuna
             </Box>
             <Box sx={style.link}>
               <svg
@@ -111,68 +126,40 @@ const IssueList = ({ issue, setIssue }) => {
                   fill="#667085"
                 />
               </svg>
-              Display
+              Mascot Plaza
             </Box>
           </Box>
         </Grid>
       </Grid>
       <Grid container spacing={2} sx={{ mt: 3 }}>
-        <Grid size={3}>
-          <Box
-            sx={issue === "Display Assemble" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setIssue("Display Assemble")}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <img src="/iphone.png" alt="" />
-              <Typography variant="body1">Display Assemble</Typography>
-            </Box>
+        {TechnicianList.length > 0 &&
+          TechnicianList.map((item, index) => (
+            <Grid size={3} key={index}>
+              <Box
+                sx={technician === item._id ? style.cardActive : style.card}
+                role="button"
+                onClick={() => setTechnician(item._id)}
+              >
+                <Box>
+                  <img src="/userpic.png" alt="" />
+                </Box>
 
-            {issue === "Display Assemble" && (
-              <Box>
-                <Checkbox checked={issue === "Display Assemble"} />
+                <Box>
+                  <Typography variant="body1">{item.name}</Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: "2px" }}
+                  >
+                    {item.designation}
+                  </Typography>
+                </Box>
               </Box>
-            )}
-          </Box>
-        </Grid>
-        <Grid size={3}>
-          <Box
-            sx={issue === "Camera Issues" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setIssue("Camera Issues")}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <img src="/iphone.png" alt="" />
-              <Typography variant="body1">Camera Issues</Typography>
-            </Box>
-            {issue === "Camera Issues" && (
-              <Box>
-                <Checkbox checked={issue === "Camera Issues"} />
-              </Box>
-            )}
-          </Box>
-        </Grid>
-
-        <Grid size={3}>
-          <Box
-            sx={issue === "Battery Assemble" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setIssue("Battery Assemble")}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <img src="/iphone.png" alt="" />
-              <Typography variant="body1">Battery Assemble</Typography>
-            </Box>
-            {issue === "Battery Assemble" && (
-              <Box>
-                <Checkbox checked={issue === "Battery Assemble"} />
-              </Box>
-            )}
-          </Box>
-        </Grid>
+            </Grid>
+          ))}
       </Grid>
     </div>
   );
 };
 
-export default IssueList;
+export default TechnicianList;

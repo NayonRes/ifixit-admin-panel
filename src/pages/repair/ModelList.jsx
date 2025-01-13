@@ -99,12 +99,7 @@ const ModelList = ({
   //   console.log("primary list", allData?.data.data);
   //   setParentList(allData?.data.data);
   // };
-  const getTechnician = async () => {
-    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let url = `/api/v1/user/dropdownlist?designation=Technician`;
-    let allData = await getDataWithToken(url);
-    console.log("technician list", allData?.data.data);
-  };
+
 
   const handleChangeParent = async (name, device_id) => {
     // console.log("name", name, device_id);
@@ -134,7 +129,6 @@ const ModelList = ({
 
   useEffect(() => {
     getTopItems();
-    getTechnician();
   }, []);
   useEffect(() => {
     getTopItems();
