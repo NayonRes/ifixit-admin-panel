@@ -152,7 +152,7 @@ const ModelList = ({
                   sx={parent == data?.name ? style.linkActive : style.link}
                   key={index}
                   onMouseEnter={() =>
-                    handleChangeParent(data?.name, data?.device_id)
+                    handleChangeParent(data?.name, data?._id)
                   }
                 >
                   {data?.name}
@@ -166,7 +166,7 @@ const ModelList = ({
                 <Button
                   variant={child == data?.name ? "contained" : "outlined"}
                   key={index}
-                  onClick={() => handleChangeChild(data?.name, data?.device_id)}
+                  onClick={() => handleChangeChild(data?.name, data?._id)}
                 >
                   {data?.name}
                 </Button>

@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import IssueList from "./IssueList";
 import TechnicianList from "./TechnicianList";
 import RepairStatusList from "./RepairStatusList";
+import PaymentList from "./PaymentList";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const RepairSearch = () => {
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
   const [steps, setSteps] = useState(0);
   const [technician, setTechnician] = useState("");
@@ -159,8 +161,14 @@ const RepairSearch = () => {
           )}
           {steps == 3 && (
             <RepairStatusList
-            repairStatus={repairStatus}
-            setRepairStatus={setRepairStatus}
+              repairStatus={repairStatus}
+              setRepairStatus={setRepairStatus}
+            />
+          )}
+          {steps == 4 && (
+            <PaymentList
+              paymentStatus={paymentStatus}
+              setPaymentStatus={setPaymentStatus}
             />
           )}
           <Box
