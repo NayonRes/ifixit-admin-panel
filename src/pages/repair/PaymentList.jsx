@@ -122,16 +122,39 @@ const PaymentList = ({ paymentStatus, setPaymentStatus }) => {
     <div>
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
-          <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-            Payment Status
-          </Typography>
+          <Box sx={{ display: "flex", justifyContent: 'space-between' }} >
+            <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
+              Payment Status
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontWeight: 600, mb: 3 }}
+            >
+              Payment Received Time: 15/04/2024 12:35:38
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
 
-      <Grid container spacing={2} sx={{ mt: 3 }}>
+      <Grid
+        container
+        spacing={0}
+        sx={{
+          mt: 0,
+          borderRadius: "8px 8px 0 0",
+          border: "3px solid #eee",
+          borderRadius: 2,
+        }}
+      >
         {statusList.length > 0 &&
           statusList.map((item, index) => (
-            <Grid size={12} key={index}>
+            <Grid
+              size={12}
+              key={index}
+              sx={{ p: 1 }}
+              style={index % 2 === 0 ? { background: "#F9FAFB" } : null}
+            >
               <Box
                 sx={{
                   display: "flex",
@@ -159,10 +182,9 @@ const PaymentList = ({ paymentStatus, setPaymentStatus }) => {
                 <Box sx={{ flex: 1 }}>
                   <TextField
                     required
-                    type="text"
+                    type="number"
                     size="small"
                     fullWidth
-                    placeholder="Enter Membership ID"
                     variant="outlined"
                     sx={{ ...customeTextFeild, mb: 0 }}
                     // value={membershipId}
@@ -174,6 +196,53 @@ const PaymentList = ({ paymentStatus, setPaymentStatus }) => {
               </Box>
             </Grid>
           ))}
+        <Grid
+          size={12}
+          sx={{
+            p: 1,
+            background: ColorPalette.light.primary.main,
+            color: "white",
+            borderRadius: "0 0 8px 8px",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              height: "100%",
+              gap: 3,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                flex: 1,
+              }}
+            >
+              <Box></Box>
+              <Box>Total Amount</Box>
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <TextField
+                required
+                type="number"
+                size="small"
+                fullWidth
+                variant="outlined"
+                sx={{ mb: 0, background: "#fff", borderRadius: 1 }}
+                // value={membershipId}
+                // onChange={(e) => {
+                //   setMembershipId(e.target.value);
+                // }}
+              />
+            </Box>
+          </Box>
+        </Grid>
       </Grid>
     </div>
   );

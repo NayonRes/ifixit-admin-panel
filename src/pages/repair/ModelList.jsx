@@ -3,6 +3,7 @@ import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
+import RepairChecklist from "./RepairChecklist";
 
 const style = {
   nav: {
@@ -84,8 +85,8 @@ const ModelList = ({
   setParentList,
 }) => {
   const [items, setItems] = useState([
-    { name: "Primary", items: [] },
-    { name: "Secondary", items: [] },
+    // { name: "Primary", items: [] },
+    // { name: "Secondary", items: [] },
   ]);
   const [childList, setChildList] = useState([]);
   const [subChildList, setSubChildList] = useState([]);
@@ -100,24 +101,28 @@ const ModelList = ({
   //   setParentList(allData?.data.data);
   // };
 
-
   const handleChangeParent = async (name, device_id) => {
-    // console.log("name", name, device_id);
+    console.log("name", name, device_id);
     set_device_id(device_id);
     let items = parentList.filter((item) => item.parent_name == name);
     console.log("parent", items[0]?.items);
     setSubChildList(items[0]?.items);
     setParent(name);
+    // TODO: WORKING
+    if (!items[0]?.items) {
+      handleChangeChild(name, device_id);
+    }
     // let items = parentList.filter((item) => item.parent_name == name);
     // console.log(items);
   };
 
-  const handleChangeChild = (name, device_id) => {
+  const handleChangeChild = async (name, device_id) => {
     setChild(name);
     set_device_id(device_id);
     let url = `/api/v1/model/get-by-device?device_id=${device_id}`;
-    let allData = getDataWithToken(url);
+    let allData = await getDataWithToken(url);
     console.log("after child list", allData?.data?.data);
+    setItems(allData?.data?.data);
   };
 
   const getTopItems = () => {
@@ -136,7 +141,7 @@ const ModelList = ({
 
   return (
     <div>
-      {/* <RepairChecklist /> */}
+      <RepairChecklist />
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
@@ -151,18 +156,15 @@ const ModelList = ({
                   role="button"
                   sx={parent == data?.name ? style.linkActive : style.link}
                   key={index}
-                  onMouseEnter={() =>
-                    handleChangeParent(data?.name, data?._id)
-                  }
+                  onClick={() => handleChangeParent(data?.name, data?._id)}
                 >
                   {data?.name}
                 </Box>
               ))}
           </Box>
-          {
-            subChildList?.length > 0 &&  <Box sx={style.nav2}>
-            {
-              subChildList?.map((data, index) => (
+          {subChildList?.length > 0 && (
+            <Box sx={style.nav2}>
+              {subChildList?.map((data, index) => (
                 <Button
                   variant={child == data?.name ? "contained" : "outlined"}
                   key={index}
@@ -171,9 +173,9 @@ const ModelList = ({
                   {data?.name}
                 </Button>
               ))}
-          </Box>
-          }
-         
+            </Box>
+          )}
+
           {/* <Box sx={style.nav} style={{ marginTop: 20 }}>
             {childList?.length > 0 &&
               childList?.map((data, index) => (
@@ -216,6 +218,22 @@ const ModelList = ({
               </Box>
             </Grid>
           ))}
+
+        {/* {items && items.length == 0 && (
+          <Grid size={12}>
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: 600,
+                mb: 3,
+                mt: 3,
+                textAlign: "center",
+              }}
+            >
+              No Data Found
+            </Typography>
+          </Grid>
+        )} */}
       </Grid>
     </div>
   );
