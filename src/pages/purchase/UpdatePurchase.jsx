@@ -893,6 +893,7 @@ const UpdatePurchase = ({ getData, row }) => {
                 onChange={(e) => {
                   setShippingCharge(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
             </Grid>
             {/* <Grid size={4}>
@@ -1017,6 +1018,7 @@ const UpdatePurchase = ({ getData, row }) => {
                 onChange={(e) => {
                   setPaidAmount(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
             </Grid>
             <Grid size={6}>

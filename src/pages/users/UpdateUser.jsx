@@ -558,6 +558,7 @@ const UpdateUser = ({ clearFilter, row }) => {
             onChange={(e) => {
               setSalary(e.target.value);
             }}
+            onWheel={(e) => e.target.blur()}
           />
           <Typography
             variant="medium"

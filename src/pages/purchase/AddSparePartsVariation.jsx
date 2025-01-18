@@ -504,6 +504,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 onChange={(e) => {
                   setPrice(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
             </Grid>
 

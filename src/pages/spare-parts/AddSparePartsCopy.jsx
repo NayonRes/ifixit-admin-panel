@@ -40,16 +40,20 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { handlePostData } from "../../services/PostDataService";
-import { handlePutData } from "../../services/PutDataService";
-
+import TextEditor from "../../utils/TextEditor";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import { TableContainer } from "@mui/material";
 import {
   customerTypeList,
   designationList,
   ratingList,
   roleList,
 } from "../../data";
-import TextEditor from "../../utils/TextEditor";
+import { handlePostData } from "../../services/PostDataService";
 
 const baseStyle = {
   flex: 1,
@@ -83,12 +87,19 @@ const form = {
   padding: "50px",
   background: "#fff",
   borderRadius: "10px",
-  width: "400px",
+  width: "800px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const UpdateSpareParts = ({ getData, row }) => {
+
+const variationObject = {
+  name: "",
+  price: 0,
+  file: null,
+};
+const AddSpareParts = ({ clearFilter }) => {
   const navigate = useNavigate();
-  const [updateDialog, setUpdateDialog] = useState(false);
+
+  const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [convertedContent, setConvertedContent] = useState("");
 
@@ -109,39 +120,17 @@ const UpdateSpareParts = ({ getData, row }) => {
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [variationList, setVariationList] = useState([]);
+
   const [message, setMessage] = useState("");
+
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
-      setUpdateDialog(false);
+      setAddDialog(false);
     }
-  };
-
-  const handleSnakbarOpen = (msg, vrnt) => {
-    let duration;
-    if (vrnt === "error") {
-      duration = 3000;
-    } else {
-      duration = 1000;
-    }
-    enqueueSnackbar(msg, {
-      variant: vrnt,
-      autoHideDuration: duration,
-    });
-  };
-
-  const clearForm = () => {
-    setName("");
-    setBrandId("");
-    setCategoryId("");
-    setDeviceId("");
-    setModelId("");
-    setWarranty("");
-    setPrice("");
-    setDetails("");
-    setFile(null);
-    setRemarks("");
+    clearForm();
   };
 
   const dropzoneRef = useRef(null);
@@ -193,6 +182,87 @@ const UpdateSpareParts = ({ getData, row }) => {
     }),
     [isFocused, isDragAccept, isDragReject]
   );
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
+
+  const clearForm = () => {
+    setName("");
+    setBrandId("");
+    setCategoryId("");
+    setDeviceId("");
+    setModelId("");
+    setWarranty("");
+    setPrice("");
+    setDetails("");
+    setFile(null);
+    setVariationList([]);
+    setRemarks("");
+  };
+
+  const handleCreateSpareParts = async (variationList, spare_parts_id) => {
+    try {
+      // Create an array of promises
+      // const promises = variationList.map((variation) =>
+      //   handlePostData("/api/v1/sparePartVariation/create", variation, true)
+      // );
+
+      const promises = variationList.map((variation) => {
+        // Prepare FormData
+
+        // name: "",
+        // price: 0,
+        // file: null,
+        const formData = new FormData();
+        formData.append("spare_parts_id", spare_parts_id);
+        formData.append("name", variation?.name?.trim());
+        formData.append("price", parseFloat(variation?.price).toFixed(2));
+        {
+          variation?.file !== null &&
+            variation?.file !== undefined &&
+            formData.append("image", variation?.file);
+        }
+
+        // Call handlePostData for this FormData
+        return handlePostData(
+          "/api/v1/sparePartVariation/create",
+          formData,
+          true
+        );
+      });
+
+      // Wait for all promises to resolve
+      const responses = await Promise.all(promises);
+
+      // Handle all responses
+
+      const allVariationAddedSuccessfully = responses.every(
+        (item) => item.data.status >= 200 && item.data.status < 300
+      );
+
+      if (allVariationAddedSuccessfully) {
+        handleSnakbarOpen("Added successfully", "success");
+        clearFilter();
+
+        clearForm();
+        handleDialogClose();
+      } else {
+        handleSnakbarOpen("Something went wrong", "error");
+      }
+      console.log("All spare parts created successfully:", responses);
+    } catch (error) {
+      console.error("Error creating spare parts:", error);
+    }
+  };
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -211,27 +281,37 @@ const UpdateSpareParts = ({ getData, row }) => {
     formData.append("device_id", deviceId);
     formData.append("model_id", modelId);
     formData.append("warranty", warranty);
-    // formData.append("price", price);
+    formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
-    {
-      file !== null && formData.append("images", file);
-    }
+    // formData.append("variationList", variationList);
+    // formData.append("variationList", JSON.stringify(variationList));
 
-    let response = await handlePutData(
-      `/api/v1/sparePart/update/${row?._id}`,
+    // Append each object in variationList
+    // variationList.forEach((variation, index) => {
+    //   formData.append(`variationList[${index}][key1]`, variation.name); // Append other keys
+    //   formData.append(`variationList[${index}][key2]`, variation.price); // Example key
+    //   if (variation.file) {
+    //     formData.append(`variationList[${index}][image]`, variation.file); // Append file
+    //   }
+    // });
+
+    let response = await handlePostData(
+      "/api/v1/sparePart/create",
       formData,
       true
     );
 
-    console.log("response", response);
+    console.log("response", response?.data?.data?._id);
 
     if (response.status >= 200 && response.status < 300) {
+      await handleCreateSpareParts(variationList, response?.data?.data?._id);
       setLoading(false);
-      handleSnakbarOpen("Updated successfully", "success");
-      getData(false); // this is for get the table list again
-      clearForm();
-      handleDialogClose();
+      // handleSnakbarOpen("Added successfully", "success");
+      // clearFilter();
+
+      // clearForm();
+      // handleDialogClose();
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -297,6 +377,7 @@ const UpdateSpareParts = ({ getData, row }) => {
       },
     },
   };
+
   const getBrandList = async () => {
     setLoading2(true);
 
@@ -366,25 +447,21 @@ const UpdateSpareParts = ({ getData, row }) => {
     getModelList(e.target.value);
   };
   useEffect(() => {
-    setName(row?.name);
-    setBrandId(row?.brand_id);
-    setCategoryId(row?.category_id);
-    setDeviceId(row?.device_id);
-
-    setModelId(row?.model_id);
-    setWarranty(row?.warranty);
-    // setPrice(row?.price);
-    setDetails(row?.description);
-    setRemarks(row?.remarks);
-    // setStatus(row?.status);
+    // getDropdownList();
   }, []);
   return (
     <>
-      {/* <Button
+      <Button
         variant="contained"
         disableElevation
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-        onClick={() => setUpdateDialog(true)}
+        onClick={() => {
+          setAddDialog(true);
+          getCategoryList();
+          getBrandList();
+          getDeviceList();
+          // getDropdownList();
+        }}
         startIcon={
           <svg
             width="20"
@@ -403,44 +480,11 @@ const UpdateSpareParts = ({ getData, row }) => {
           </svg>
         }
       >
-        Update Branch
-      </Button> */}
-
-      <IconButton
-        variant="contained"
-        // color="success"
-        disableElevation
-        onClick={() => {
-          setUpdateDialog(true);
-          getCategoryList();
-          getBrandList();
-          getDeviceList();
-          {
-            deviceId && getModelList(deviceId);
-          }
-        }}
-      >
-        {/* <EditOutlinedIcon /> */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          id="Outline"
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-        >
-          <path
-            d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-            fill="#787878"
-          />
-          <path
-            d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-            fill="#787878"
-          />
-        </svg>
-      </IconButton>
+        Add Spare Parts
+      </Button>
 
       <Dialog
-        open={updateDialog}
+        open={addDialog}
         onClose={handleDialogClose}
         sx={{
           "& .MuiPaper-root": {
@@ -465,10 +509,10 @@ const UpdateSpareParts = ({ getData, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Update Spare Parts
+          Add Spare Parts
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => setUpdateDialog(false)}
+            onClick={() => setAddDialog(false)}
           >
             <svg
               width="46"
@@ -567,11 +611,13 @@ const UpdateSpareParts = ({ getData, row }) => {
                   value={brandId}
                   onChange={(e) => setBrandId(e.target.value)}
                 >
-                  {brandList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {brandList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -622,11 +668,13 @@ const UpdateSpareParts = ({ getData, row }) => {
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
                 >
-                  {categoryList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {categoryList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -677,11 +725,13 @@ const UpdateSpareParts = ({ getData, row }) => {
                   value={deviceId}
                   onChange={handleDeviceSelect}
                 >
-                  {deviceList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {deviceList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -765,7 +815,7 @@ const UpdateSpareParts = ({ getData, row }) => {
                 onWheel={(e) => e.target.blur()}
               />
             </Grid>
-            {/* <Grid size={6}>
+            {/* <Grid size={4}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -789,32 +839,8 @@ const UpdateSpareParts = ({ getData, row }) => {
                 }}
               />
             </Grid> */}
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Add Note
-              </Typography>
-              <TextField
-                multiline
-                rows={1}
-                size="small"
-                fullWidth
-                id="membershipId"
-                placeholder="Add Note"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={remarks}
-                onChange={(e) => {
-                  setRemarks(e.target.value);
-                }}
-              />
-            </Grid>
 
-            <Grid size={12}>
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -823,7 +849,7 @@ const UpdateSpareParts = ({ getData, row }) => {
               >
                 Description
               </Typography>
-              {/* <TextField
+              <TextField
                 multiline
                 rows={2}
                 size="small"
@@ -836,25 +862,276 @@ const UpdateSpareParts = ({ getData, row }) => {
                 onChange={(e) => {
                   setDetails(e.target.value);
                 }}
-              /> */}
-              <TextEditor
-                convertedContent={details}
-                setConvertedContent={setDetails}
-                data={details}
               />
+              {/* <TextEditor
+                convertedContent={convertedContent}
+                setConvertedContent={setConvertedContent}
+              /> */}
             </Grid>
-
-            <Grid size={12}>
-              {/* <Typography
+            <Grid size={6}>
+              <Typography
                 variant="medium"
                 color="text.main"
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
                 Add Note
-              </Typography> */}
+              </Typography>
+              <TextField
+                multiline
+                rows={2}
+                size="small"
+                fullWidth
+                id="membershipId"
+                placeholder="Add Note"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={remarks}
+                onChange={(e) => {
+                  setRemarks(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={12}>
+              <div
+                style={{
+                  background: "#fff",
+                  border: "1px solid #EAECF1",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  padding: "16px 0",
+                  boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+                }}
+              >
+                <Grid
+                  container
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ px: 1.5, mb: 1.75 }}
+                >
+                  <Grid size={{ xs: 6 }}>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      component="div"
+                      sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+                    >
+                      Variations
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6 }} sx={{ textAlign: "right" }}>
+                    <Button
+                      color="text"
+                      size="small"
+                      sx={{ border: "1px solid #F2F3F7", px: 2 }}
+                      startIcon={
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M10 4.16699V15.8337M4.16669 10.0003H15.8334"
+                            stroke="black"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      }
+                      onClick={() =>
+                        setVariationList([...variationList, variationObject])
+                      }
+                    >
+                      Add Variation
+                    </Button>
+                  </Grid>
+                </Grid>
 
-              {/* <Box {...getRootProps({ style })}>
+                <TableContainer>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Value
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                         Sell Price
+                        </TableCell>
+
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Variation Image
+                        </TableCell>
+
+                        <TableCell
+                          align="right"
+                          style={{ whiteSpace: "nowrap" }}
+                        >
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {variationList?.length > 0 ? (
+                        variationList?.map((item, i) => (
+                          <TableRow
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              {" "}
+                              <TextField
+                                required
+                                size="small"
+                                id="name"
+                                placeholder="Variation Name"
+                                variant="outlined"
+                                sx={{
+                                  ...customeTextFeild,
+                                  "& .MuiOutlinedInput-input": {
+                                    padding: "6.5px 12px",
+                                    fontSize: "14px",
+                                  },
+                                  minWidth: "150px",
+                                }}
+                                value={item.name || ""}
+                                onChange={(e) => {
+                                  const updatedValue = e.target.value;
+                                  setVariationList((prevList) =>
+                                    prevList.map((obj, index) =>
+                                      index === i
+                                        ? { ...obj, name: updatedValue }
+                                        : obj
+                                    )
+                                  );
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              <TextField
+                                required
+                                type="number"
+                                size="small"
+                                id="price"
+                                placeholder="Price"
+                                variant="outlined"
+                                sx={{
+                                  ...customeTextFeild,
+                                  "& .MuiOutlinedInput-input": {
+                                    padding: "6.5px 12px",
+                                    fontSize: "14px",
+                                  },
+                                  minWidth: "150px",
+                                }}
+                                value={item.price || ""} // Assuming 'value' is the key for the number field
+                                onChange={(e) => {
+                                  const updatedValue = e.target.value;
+                                  setVariationList((prevList) =>
+                                    prevList.map((obj, index) =>
+                                      index === i
+                                        ? { ...obj, price: updatedValue }
+                                        : obj
+                                    )
+                                  );
+                                }}
+                                onWheel={(e) => e.target.blur()}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              <Box sx={{ position: "relative" }}>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 20 20"
+                                  fill="none"
+                                  style={{
+                                    position: "absolute",
+                                    top: 8,
+                                    left: 90,
+                                  }}
+                                >
+                                  <path
+                                    d="M3.33333 13.5352C2.32834 12.8625 1.66666 11.7168 1.66666 10.4167C1.66666 8.46369 3.15959 6.85941 5.06645 6.68281C5.45651 4.31011 7.51687 2.5 10 2.5C12.4831 2.5 14.5435 4.31011 14.9335 6.68281C16.8404 6.85941 18.3333 8.46369 18.3333 10.4167C18.3333 11.7168 17.6717 12.8625 16.6667 13.5352M6.66666 13.3333L10 10M10 10L13.3333 13.3333M10 10V17.5"
+                                    stroke="#344054"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+
+                                <input
+                                  id="fileInput"
+                                  type="file"
+                                  accept="image/png, image/jpg, image/jpeg"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    setVariationList((prevList) =>
+                                      prevList.map((obj, index) =>
+                                        index === i ? { ...obj, file } : obj
+                                      )
+                                    );
+                                  }}
+                                />
+                              </Box>
+                            </TableCell>
+                            <TableCell
+                              sx={{ minWidth: "130px", textAlign: "right" }}
+                            >
+                              <IconButton
+                                variant="contained"
+                                // color="success"
+                                disableElevation
+                                onClick={() => {
+                                  setVariationList((prevList) =>
+                                    prevList.filter((_, index) => index !== i)
+                                  );
+                                }}
+                              >
+                                {/* <EditOutlinedIcon /> */}
+
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 20 20"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M12.2836 7.5L11.9951 15M8.00475 15L7.71629 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.8749 4.96358M16.023 4.82547L15.1331 16.3938C15.058 17.3707 14.2434 18.125 13.2636 18.125H6.73625C5.75649 18.125 4.94191 17.3707 4.86677 16.3938L3.9769 4.82547M16.023 4.82547C15.0676 4.6812 14.1012 4.57071 13.1249 4.49527M3.12494 4.96358C3.40792 4.91456 3.69192 4.86851 3.9769 4.82547M3.9769 4.82547C4.93225 4.6812 5.89868 4.57071 6.87494 4.49527M13.1249 4.49527V3.73182C13.1249 2.74902 12.3661 1.92853 11.3838 1.8971C10.9243 1.8824 10.463 1.875 9.99994 1.875C9.5369 1.875 9.07559 1.8824 8.61612 1.8971C7.63382 1.92853 6.87494 2.74902 6.87494 3.73182V4.49527M13.1249 4.49527C12.0937 4.41558 11.0516 4.375 9.99994 4.375C8.9483 4.375 7.90614 4.41558 6.87494 4.49527"
+                                    stroke="#4A5468"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell colSpan={4} align="center">
+                            No variation added
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            </Grid>
+            {/* <Grid size={12}>
+          
+
+              <Box {...getRootProps({ style })}>
                 <input {...getInputProps()} />
 
                 <Grid container justifyContent="center">
@@ -910,8 +1187,8 @@ const UpdateSpareParts = ({ getData, row }) => {
                     </Typography>
                   )}
                 </Box>
-              </Box> */}
-            </Grid>
+              </Box>
+            </Grid> */}
           </Grid>
         </DialogContent>
 
@@ -961,4 +1238,4 @@ const UpdateSpareParts = ({ getData, row }) => {
   );
 };
 
-export default UpdateSpareParts;
+export default AddSpareParts;

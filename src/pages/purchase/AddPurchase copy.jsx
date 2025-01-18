@@ -16,7 +16,7 @@ import { Box, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
@@ -278,10 +278,9 @@ const AddPurchase = ({ clearFilter }) => {
       // await handleCreateSpareParts(variationList, response?.data?.data?._id);
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
-      // clearFilter();
+      clearFilter();
       clearForm();
       handleDialogClose();
-      navigate("/purchase-list");
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -508,8 +507,7 @@ const AddPurchase = ({ clearFilter }) => {
   const getModelList = async (id) => {
     setLoading2(true);
 
-    // let url = `/api/v1/model/device-model?deviceId=${id}`;
-    let url = `/api/v1/model/dropdownlist`;
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -525,34 +523,27 @@ const AddPurchase = ({ clearFilter }) => {
   const handleDeviceSelect = (e) => {
     setDeviceId(e.target.value);
     setModelId("");
-    // getModelList(e.target.value);
+    getModelList(e.target.value);
   };
 
-  const getProducts = async (searchText, bId, dId, mId, catId) => {
+  const getProducts = async (searchText, catId, bId) => {
     setSearchLoading(true);
     let url;
     let newSearchProductText = searchProductText;
-    let newBrandId = brandId;
-    let newDeviceId = deviceId;
-    let newModelId = modelId;
+
     let newCategoryId = categoryId;
+    let newBrandId = brandId;
     if (searchText) {
       newSearchProductText = searchText;
-    }
-    if (bId) {
-      newBrandId = bId;
-    }
-    if (dId) {
-      newDeviceId = dId;
-    }
-    if (mId) {
-      newModelId = mId;
     }
     if (catId) {
       newCategoryId = catId;
     }
+    if (bId) {
+      newBrandId = bId;
+    }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -593,42 +584,103 @@ const AddPurchase = ({ clearFilter }) => {
     }
   };
   useEffect(() => {
-    getSupplierList();
-    getCategoryList();
-    getBranchList();
-    getBrandList();
-    getUserList();
-    // getBrandList();
-    getDeviceList();
-    getModelList();
     // getDropdownList();
   }, []);
   return (
     <>
-      <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
-        <Grid size={6}>
-          <Typography
-            variant="h6"
-            gutterBottom
-            component="div"
-            sx={{ color: "#0F1624", fontWeight: 600 }}
-          >
-            Add Purchase
-          </Typography>
-        </Grid>
-        <Grid size={6} style={{ textAlign: "right" }}></Grid>
-      </Grid>
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #EAECF1",
-          borderRadius: "12px",
-          overflow: "hidden",
-          padding: "16px",
-          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+      <Button
+        variant="contained"
+        disableElevation
+        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+        onClick={() => {
+          setAddDialog(true);
+          getSupplierList();
+          getCategoryList();
+          getBranchList();
+          getBrandList();
+          getUserList();
+          // getBrandList();
+          // getDeviceList();
+          // getDropdownList();
         }}
+        startIcon={
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        }
       >
-        <form onSubmit={onSubmit}>
+        Add Purchase
+      </Button>
+
+      <Dialog
+        open={addDialog}
+        onClose={handleDialogClose}
+        sx={{
+          "& .MuiPaper-root": {
+            borderRadius: "16px", // Customize the border-radius here
+          },
+        }}
+        PaperProps={{
+          component: "form",
+          onSubmit: onSubmit,
+        }}
+        maxWidth="xl"
+      >
+        <DialogTitle
+          id="alert-dialog-title"
+          sx={{
+            fontSize: "20px",
+            fontFamily: '"Inter", sans-serif',
+            fontWeight: 600,
+            color: "#0F1624",
+            position: "relative",
+            px: 2,
+            borderBottom: "1px solid #EAECF1",
+          }}
+        >
+          Add Purchase
+          <IconButton
+            sx={{ position: "absolute", right: 0, top: 0 }}
+            onClick={() => setAddDialog(false)}
+          >
+            <svg
+              width="46"
+              height="44"
+              viewBox="0 0 46 44"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M29 16L17 28M17 16L29 28"
+                stroke="#656E81"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </IconButton>
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            maxWidth: "1100px",
+            minWidth: "1100px",
+            px: 2,
+            borderBottom: "1px solid #EAECF1",
+            my: 1,
+          }}
+        >
           <Grid container spacing={2}>
             {/* <Grid size={6}>
               <Typography
@@ -1121,198 +1173,51 @@ const AddPurchase = ({ clearFilter }) => {
             <Grid size={12}>
               <Divider />
             </Grid>
-            <Grid size={12}>
-              <Typography
-                variant="base"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-                onClick={() => console.log(selectedProducts)}
-              >
-                Search Product
-              </Typography>
-            </Grid>
-            <Grid size={2}>
+            <Grid size={8}>
               <Typography
                 variant="medium"
                 color="text.main"
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Brand
+                Search Product *
               </Typography>
-
-              <FormControl
-                fullWidth
+              <TextField
                 size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
+                fullWidth
+                id="searchProductText"
+                placeholder="Search Product"
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                            stroke="#85888E"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </InputAdornment>
+                    ),
                   },
                 }}
-              >
-                {brandId?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Brand
-                  </InputLabel>
-                )}
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="brandId"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={brandId}
-                  // onChange={(e) => setBrandId(e.target.value)}
-
-                  onChange={(e) => {
-                    setBrandId(e.target.value);
-                    getProducts(null, e.target.value);
-                  }}
-                >
-                  {brandList
-                    ?.filter((obj) => obj.name !== "Primary")
-                    ?.map((item) => (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={2}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Device
-              </Typography>
-
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
+                sx={{ ...customeTextFeild }}
+                value={searchProductText}
+                onChange={(e) => {
+                  setsearchProductText(e.target.value);
+                  getProducts(e.target.value);
                 }}
-              >
-                {deviceId?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Brand
-                  </InputLabel>
-                )}
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="deviceId"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={deviceId}
-                  // onChange={(e) => setBrandId(e.target.value)}
-
-                  onChange={(e) => {
-                    setDeviceId(e.target.value);
-                    getProducts(null, null, e.target.value);
-                  }}
-                >
-                  {deviceList
-                    ?.filter((obj) => obj.name !== "Primary")
-                    ?.map((item) => (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={2}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Model
-              </Typography>
-
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
-                }}
-              >
-                {modelId?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Model
-                  </InputLabel>
-                )}
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="modelId"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={modelId}
-                  // onChange={(e) => setCategoryId(e.target.value)}
-
-                  onChange={(e) => {
-                    setModelId(e.target.value);
-                    getProducts(null, null, null, e.target.value);
-                  }}
-                >
-                  {modelList
-                    ?.filter((obj) => obj.name !== "Primary")
-                    ?.map((item) => (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
+              />
             </Grid>
             <Grid size={2}>
               <Typography
@@ -1362,7 +1267,7 @@ const AddPurchase = ({ clearFilter }) => {
 
                   onChange={(e) => {
                     setCategoryId(e.target.value);
-                    getProducts(null, null, null, null, e.target.value);
+                    getProducts(null, e.target.value);
                   }}
                 >
                   {categoryList
@@ -1375,54 +1280,74 @@ const AddPurchase = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={12}>
+            <Grid size={2}>
               <Typography
                 variant="medium"
                 color="text.main"
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Search Product *
+                Brand
               </Typography>
-              <TextField
-                size="small"
+
+              <FormControl
                 fullWidth
-                id="searchProductText"
-                placeholder="Search Product"
-                variant="outlined"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
-                            stroke="#85888E"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </InputAdornment>
-                    ),
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
                   },
                 }}
-                sx={{ ...customeTextFeild }}
-                value={searchProductText}
-                onChange={(e) => {
-                  setsearchProductText(e.target.value);
-                  getProducts(e.target.value);
-                }}
-              />
+              >
+                {brandId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Brand
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="brandId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={brandId}
+                  // onChange={(e) => setBrandId(e.target.value)}
+
+                  onChange={(e) => {
+                    setBrandId(e.target.value);
+                    getProducts(null, null, e.target.value);
+                  }}
+                >
+                  {brandList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid size={12}>
-              <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
+              <Typography
+                variant="base"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+                onClick={() => console.log(selectedProducts)}
+              >
                 All Product
               </Typography>
               <Box sx={{ flexGrow: 1 }}>
@@ -1870,54 +1795,50 @@ const AddPurchase = ({ clearFilter }) => {
               </Box>
             </Grid>
           </Grid>
+        </DialogContent>
 
-          <Box
-            sx={{ p: 2, marginTop: "1px solid #EAECF0", textAlign: "right" }}
+        <DialogActions sx={{ px: 2 }}>
+          <Button
+            variant="outlined"
+            onClick={handleDialogClose}
+            sx={{
+              px: 2,
+              py: 1.25,
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#344054",
+              border: "1px solid #D0D5DD",
+              boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+            }}
           >
-            <Button
-              variant="outlined"
-              sx={{
-                mr: 2,
-                px: 2,
-                py: 1.25,
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "#344054",
-                border: "1px solid #D0D5DD",
-                boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-              }}
-              component={Link}
-              to="/purchase-list"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              disabled={loading}
-              type="submit"
-              sx={{
-                px: 2,
-                py: 1.25,
-                fontSize: "14px",
-                fontWeight: 600,
-                minWidth: "127px",
-                minHeight: "44px",
-              }}
-              // style={{ minWidth: "180px", minHeight: "35px" }}
-              autoFocus
-              disableElevation
-            >
-              <PulseLoader
-                color={"#4B46E5"}
-                loading={loading}
-                size={10}
-                speedMultiplier={0.5}
-              />{" "}
-              {loading === false && "Save changes"}
-            </Button>
-          </Box>
-        </form>
-      </div>
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            disabled={loading}
+            type="submit"
+            sx={{
+              px: 2,
+              py: 1.25,
+              fontSize: "14px",
+              fontWeight: 600,
+              minWidth: "127px",
+              minHeight: "44px",
+            }}
+            // style={{ minWidth: "180px", minHeight: "35px" }}
+            autoFocus
+            disableElevation
+          >
+            <PulseLoader
+              color={"#4B46E5"}
+              loading={loading}
+              size={10}
+              speedMultiplier={0.5}
+            />{" "}
+            {loading === false && "Save changes"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

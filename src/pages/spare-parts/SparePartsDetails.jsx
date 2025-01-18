@@ -205,7 +205,7 @@ const SparePartsDetails = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(12).keys()].map((e, i) => (
+          {[...Array(11).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -342,9 +342,9 @@ const SparePartsDetails = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Description
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
@@ -400,11 +400,11 @@ const SparePartsDetails = () => {
                         : "---------"}
                     </TableCell>
 
-                    <TableCell sx={{ minWidth: "150px" }}>
+                    {/* <TableCell sx={{ minWidth: "150px" }}>
                       {tableDataList?.description
-                        ? tableDataList?.remarks
+                        ? tableDataList?.description
                         : "---------"}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell sx={{ minWidth: "150px" }}>
                       {tableDataList?.remarks
                         ? tableDataList?.remarks
@@ -517,7 +517,10 @@ const SparePartsDetails = () => {
             >
               Add Variation
             </Button> */}
-            <AddSparePartsVariation getData={getData} tableDataList={tableDataList}/>
+            <AddSparePartsVariation
+              getData={getData}
+              tableDataList={tableDataList}
+            />
           </Grid>
         </Grid>
 
@@ -527,7 +530,9 @@ const SparePartsDetails = () => {
               <TableRow>
                 <TableCell style={{ whiteSpace: "nowrap" }}>Image</TableCell>
                 <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>
+                  Sell Price
+                </TableCell>
 
                 <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                   Actions
@@ -627,6 +632,7 @@ const SparePartsDetails = () => {
                           }}
                           value={updateData.price || ""} // Assuming 'value' is the key for the number field
                           onChange={handleInputChange} // Attach the onChange handler
+                          onWheel={(e) => e.target.blur()}
                         />
                       ) : (
                         item?.price

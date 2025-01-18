@@ -546,6 +546,7 @@ const AddUser = ({ getUser }) => {
             onChange={(e) => {
               setSalary(e.target.value);
             }}
+            onWheel={(e) => e.target.blur()}
           />
           <Typography
             variant="medium"

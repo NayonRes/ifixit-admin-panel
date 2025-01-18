@@ -176,7 +176,7 @@ const SparePartsList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(12).keys()].map((e, i) => (
+          {[...Array(11).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -380,7 +380,39 @@ const SparePartsList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <AddSpareParts clearFilter={clearFilter} />
+          <Button
+            variant="contained"
+            disableElevation
+            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            component={Link}
+            to="/add-spare-parts"
+            // onClick={() => {
+            //   setAddDialog(true);
+            //   getCategoryList();
+            //   getBrandList();
+            //   getDeviceList();
+            // }}
+            startIcon={
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                  stroke="white"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            }
+          >
+            Add Spare Parts
+          </Button>
+          {/* <AddSpareParts clearFilter={clearFilter} /> */}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -667,9 +699,9 @@ const SparePartsList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Description
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
@@ -733,9 +765,9 @@ const SparePartsList = () => {
                         {row?.sparePart_id ? row?.sparePart_id : "---------"}
                       </TableCell>
 
-                      <TableCell sx={{ minWidth: "150px" }}>
+                      {/* <TableCell sx={{ minWidth: "150px" }}>
                         {row?.description ? row?.description : "---------"}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell sx={{ minWidth: "150px" }}>
                         {row?.remarks ? row?.remarks : "---------"}
                       </TableCell>
