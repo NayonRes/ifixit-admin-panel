@@ -36,6 +36,7 @@ const allIssueList = [
 
 const RepairChecklist = () => {
   const [open, setOpen] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [issueList, setIssueList] = useState(allIssueList);
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
@@ -107,7 +108,7 @@ const RepairChecklist = () => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add User
+          Pre Repair Checklist
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setOpen(false)}
@@ -230,11 +231,11 @@ const RepairChecklist = () => {
           >
             <PulseLoader
               color={"#4B46E5"}
-              // loading={loading}
+              loading={loading}
               size={10}
               speedMultiplier={0.5}
             />{" "}
-            {/* {loading === false && "Save changes"} */}
+            {loading === false && "Save changes"}
           </Button>
         </DialogActions>
       </Dialog>

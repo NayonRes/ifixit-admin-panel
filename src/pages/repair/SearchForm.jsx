@@ -94,6 +94,10 @@ const SearchForm = ({
   setDeliveryStatus,
   parentList,
   setParentList,
+  technician,
+  technicianName,
+  allIssue,
+  
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -404,10 +408,10 @@ const SearchForm = ({
           placeholder="Enter Repair By"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={repairBy}
-          onChange={(e) => {
-            setRepairBy(e.target.value);
-          }}
+          value={technicianName}
+          // onChange={(e) => {
+          //   setRepairBy(e.target.value);
+          // }}
         />
         <Typography
           variant="medium"

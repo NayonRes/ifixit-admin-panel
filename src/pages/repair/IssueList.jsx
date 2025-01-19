@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, Button, Checkbox, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Chip, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
+import RepairChecklist from './RepairChecklist'
 
 const style = {
   nav: {
@@ -65,9 +66,24 @@ const style = {
   },
 };
 
-const IssueList = ({ issue, setIssue }) => {
+const issueArr = [
+  { id: 1, name: "Display Assemble", price: 300, pice: 5 },
+  { id: 2, name: "Battery Assemble", price: 1000, pice: 30 },
+  { id: 3, name: "Audio Issue", price: 600, pice: 5 },
+];
+
+const IssueList = ({ issue, setIssue, allIssue, setAllIssue }) => {
+  const handleCheckboxChange = (issue, isChecked) => {
+    if (isChecked) {
+      setAllIssue((prev) => [...prev, issue]); // Add issue to the array
+    } else {
+      setAllIssue((prev) => prev.filter((item) => item.id !== issue.id)); // Remove issue from the array
+    }
+    console.log("all", allIssue);
+  };
   return (
     <div>
+      <RepairChecklist />
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
@@ -117,15 +133,56 @@ const IssueList = ({ issue, setIssue }) => {
         </Grid>
       </Grid>
       <Grid container spacing={2} sx={{ mt: 3 }}>
-        <Grid size={3}>
+        {issueArr.map((item, index) => (
+          <Grid size={3}>
+            <Box
+              // sx={issue === "Display Assemble" ? style.cardActive : style.card}
+              sx={style.cardActive}
+              role="button"
+              // onClick={() => setIssue("Display Assemble")}
+            >
+              <Box
+                key={index}
+                sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+              >
+                <Typography variant="body1">{item.name}</Typography>
+                <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                  <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
+                    {item.price}TK
+                  </Typography>
+
+                  <Chip label={`${item.pice}PCs`} />
+                </Box>
+              </Box>
+
+              {/* {issue === "Display Assemble" && ( */}
+                <Box>
+                  <Checkbox
+                    // checked={issue === "Display Assemble"}
+                    onChange={(e) =>
+                      handleCheckboxChange(item, e.target.checked)
+                    }
+                  />
+                </Box>
+              {/* )} */}
+            </Box>
+          </Grid>
+        ))}
+        {/* <Grid size={3}>
           <Box
             sx={issue === "Display Assemble" ? style.cardActive : style.card}
             role="button"
             onClick={() => setIssue("Display Assemble")}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <img src="/iphone.png" alt="" />
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Typography variant="body1">Display Assemble</Typography>
+              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
+                  300TK
+                </Typography>
+
+                <Chip label="9 PCs" />
+              </Box>
             </Box>
 
             {issue === "Display Assemble" && (
@@ -141,9 +198,15 @@ const IssueList = ({ issue, setIssue }) => {
             role="button"
             onClick={() => setIssue("Camera Issues")}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <img src="/iphone.png" alt="" />
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Typography variant="body1">Camera Issues</Typography>
+              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
+                  1000TK
+                </Typography>
+
+                <Chip label="9 PCs" />
+              </Box>
             </Box>
             {issue === "Camera Issues" && (
               <Box>
@@ -151,17 +214,23 @@ const IssueList = ({ issue, setIssue }) => {
               </Box>
             )}
           </Box>
-        </Grid>
+        </Grid> */}
 
-        <Grid size={3}>
+        {/* <Grid size={3}>
           <Box
             sx={issue === "Battery Assemble" ? style.cardActive : style.card}
             role="button"
             onClick={() => setIssue("Battery Assemble")}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <img src="/iphone.png" alt="" />
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Typography variant="body1">Battery Assemble</Typography>
+              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
+                  300TK
+                </Typography>
+
+                <Chip label="9 PCs" />
+              </Box>
             </Box>
             {issue === "Battery Assemble" && (
               <Box>
@@ -169,7 +238,7 @@ const IssueList = ({ issue, setIssue }) => {
               </Box>
             )}
           </Box>
-        </Grid>
+        </Grid> */}
       </Grid>
     </div>
   );

@@ -3,7 +3,7 @@ import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
-import RepairChecklist from "./RepairChecklist";
+
 
 const style = {
   nav: {
@@ -141,7 +141,7 @@ const ModelList = ({
 
   return (
     <div>
-      <RepairChecklist />
+      
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>

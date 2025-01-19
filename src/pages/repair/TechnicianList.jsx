@@ -66,7 +66,12 @@ const style = {
   },
 };
 
-const TechnicianList = ({ technician, setTechnician, issue, setIssue }) => {
+const TechnicianList = ({
+  technician,
+  setTechnician,
+  technicianName,
+  setTechnicianName,
+}) => {
   const [TechnicianList, setTechnicianList] = useState([]);
 
   const getTechnician = async () => {
@@ -138,7 +143,7 @@ const TechnicianList = ({ technician, setTechnician, issue, setIssue }) => {
               <Box
                 sx={technician === item._id ? style.cardActive : style.card}
                 role="button"
-                onClick={() => setTechnician(item._id)}
+                onClick={() => {setTechnician(item._id); setTechnicianName(item.name)}}
               >
                 <Box>
                   <img src="/userpic.png" alt="" />
@@ -151,7 +156,7 @@ const TechnicianList = ({ technician, setTechnician, issue, setIssue }) => {
                     color="text.secondary"
                     sx={{ mt: "2px" }}
                   >
-                    {item.designation}
+                    {item.designation} {item.name}
                   </Typography>
                 </Box>
               </Box>

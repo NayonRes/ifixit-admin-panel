@@ -30,8 +30,10 @@ const RepairSearch = () => {
   const [parentList, setParentList] = useState([]);
   const [steps, setSteps] = useState(0);
   const [technician, setTechnician] = useState("");
+  const [technicianName, setTechnicianName] = useState("");
 
   const [issue, setIssue] = useState("");
+  const [allIssue, setAllIssue] = useState([]);
 
   return (
     <div>
@@ -100,6 +102,9 @@ const RepairSearch = () => {
             setDeliveryStatus={setDeliveryStatus}
             parentList={parentList}
             setParentList={setParentList}
+            technician={technician}
+            technicianName={technicianName}
+            allIssue={allIssue}
           />
         </Grid>
         {/*  TODO: don't remove */}
@@ -150,13 +155,13 @@ const RepairSearch = () => {
               setParentList={setParentList}
             />
           )}
-          {steps == 1 && <IssueList issue={issue} setIssue={setIssue} />}
+          {steps == 1 && <IssueList issue={issue} setIssue={setIssue} allIssue={allIssue} setAllIssue={setAllIssue} />}
           {steps == 2 && (
             <TechnicianList
               technician={technician}
               setTechnician={setTechnician}
-              issue={issue}
-              setIssue={setIssue}
+              technicianName={technicianName}
+              setTechnicianName={setTechnicianName}
             />
           )}
           {steps == 3 && (
