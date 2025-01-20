@@ -117,12 +117,40 @@ let statusList = [
   { name: "Bkash", color: "#EBE9FE", icon: bkash },
   { name: "Due", color: "#FDEAD7", icon: due },
 ];
-const PaymentList = ({ paymentStatus, setPaymentStatus }) => {
+const PaymentList = ({
+  paymentStatus,
+  setPaymentStatus,
+  payment_info,
+  set_payment_info,
+}) => {
+  const [amounts, setAmounts] = useState([]);
+
+  const handleChange = (name, value) => {
+    const updatedAmounts = [...amounts];
+    const index = updatedAmounts.findIndex((item) => item.name === name);
+
+    if (value === 0) {
+      // Remove the entry if the amount is 0
+      if (index !== -1) {
+        updatedAmounts.splice(index, 1);
+      }
+    } else {
+      if (index !== -1) {
+        updatedAmounts[index].amount = value;
+      } else {
+        updatedAmounts.push({ name, amount: value });
+      }
+    }
+
+    setAmounts(updatedAmounts);
+    set_payment_info(updatedAmounts);
+  };
+
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
-          <Box sx={{ display: "flex", justifyContent: 'space-between' }} >
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
               Payment Status
             </Typography>
@@ -187,6 +215,9 @@ const PaymentList = ({ paymentStatus, setPaymentStatus }) => {
                     fullWidth
                     variant="outlined"
                     sx={{ ...customeTextFeild, mb: 0 }}
+                    onChange={(e) =>
+                      handleChange(item.name, parseFloat(e.target.value) || 0)
+                    }
                     // value={membershipId}
                     // onChange={(e) => {
                     //   setMembershipId(e.target.value);

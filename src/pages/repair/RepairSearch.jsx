@@ -36,6 +36,11 @@ const RepairSearch = () => {
   const [allIssue, setAllIssue] = useState([]);
   const [repair_checklist, set_repair_checklist] = useState({});
 
+  const [due_amount, set_due_amount] = useState("");
+  const [discount_amount, set_discount_amount] = useState("");
+  
+  const [payment_info, set_payment_info] = useState([]);
+
   return (
     <div>
       <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
@@ -184,6 +189,8 @@ const RepairSearch = () => {
             <PaymentList
               paymentStatus={paymentStatus}
               setPaymentStatus={setPaymentStatus}
+              payment_info={payment_info}
+              set_payment_info={set_payment_info}
             />
           )}
           <Box
@@ -204,6 +211,25 @@ const RepairSearch = () => {
           </Box>
         </Grid>
       </Grid>
+      <Box>
+        customer_id, branch_id
+        <br />
+        pass_code : {passCode}
+        <br />
+        brand_id: {brand_id} <br />
+        deliveryStatus: {deliveryStatus} <br />
+        due_amount: {due_amount} <br />
+        discount_amount: {discount_amount} <br />
+        payment_status: {paymentStatus} <br />
+        repair_by: {technician} <br />
+        repair_status: {repairStatus} <br />
+        {/* issues: {allIssue} <br /> */}
+        {/* repair_checklist: {repair_checklist} <br /> */}
+        {/* payment_info: {payment_info} */}
+        remarks: - <br />
+        status : - <br />
+        created_by: -
+      </Box>
     </div>
   );
 };
