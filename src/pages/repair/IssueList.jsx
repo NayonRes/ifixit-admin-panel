@@ -86,11 +86,13 @@ const IssueList = ({
     } else {
       setAllIssue((prev) => prev.filter((item) => item.id !== issue.id)); // Remove issue from the array
     }
-    console.log("all", allIssue);
   };
   return (
     <div>
-      <RepairChecklist set_repair_checklist={set_repair_checklist} repair_checklist={repair_checklist} />
+      <RepairChecklist
+        set_repair_checklist={set_repair_checklist}
+        repair_checklist={repair_checklist}
+      />
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>

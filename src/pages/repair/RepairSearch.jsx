@@ -38,8 +38,58 @@ const RepairSearch = () => {
 
   const [due_amount, set_due_amount] = useState("");
   const [discount_amount, set_discount_amount] = useState("");
-  
+
   const [payment_info, set_payment_info] = useState([]);
+
+  const handleSubmit = () => {
+    // <Box>
+    //     customer_id, branch_id
+    //     <br />
+    //     pass_code : {passCode}
+    //     <br />
+    //     brand_id: {brand_id} <br />
+    //     deliveryStatus: {deliveryStatus} <br />
+    //     due_amount: {due_amount} <br />
+    //     discount_amount: {discount_amount} <br />
+    //     payment_status: {paymentStatus} <br />
+    //     repair_by: {technician} <br />
+    //     repair_status: {repairStatus} <br />
+    //     {/* issues: {allIssue} <br /> */}
+    //     {/* repair_checklist: {repair_checklist} <br /> */}
+    //     payment_info: {payment_info}
+    //     remarks: - <br />
+    //     status : - <br />
+    //     created_by: -
+    //   </Box>
+    let allIssueModified = allIssue.map((item) => {
+      let d = {
+        name: item.name,
+        price: item.price,
+      };
+      return d;
+    });
+    console.log("allIssueModified", allIssueModified);
+    const data = {
+      customer_id: "-",
+      branch_id: "-",
+      pass_code: passCode,
+      brand_id: brand_id,
+      deliveryStatus: deliveryStatus,
+      due_amount: due_amount,
+      discount_amount: discount_amount,
+      payment_status: paymentStatus,
+      repair_by: technician,
+      repair_status: repairStatus,
+      issues: allIssueModified,
+      repair_checklist: repair_checklist,
+      payment_info: payment_info,
+      remarks: "-",
+      status: "-",
+      created_by: "-",
+    };
+
+    console.log("final data", data);
+  };
 
   return (
     <div>
@@ -208,6 +258,11 @@ const RepairSearch = () => {
             <Button variant="contained" onClick={() => setSteps(steps + 1)}>
               Next
             </Button>
+            {steps == 4 && (
+              <Button variant="contained" onClick={handleSubmit}>
+                Submit
+              </Button>
+            )}
           </Box>
         </Grid>
       </Grid>
