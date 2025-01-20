@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -15,9 +16,38 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import { useSnackbar } from "notistack";
 
-import React, { useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
+
+const customeTextFeild = {
+  boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+  // padding: "15px 20px",
+
+  // "& label.Mui-focused": {
+  //   color: "#A0AAB4",
+  // },
+
+  "& .MuiInput-underline:after": {
+    borderBottomColor: "#B2BAC2",
+  },
+  "& .MuiOutlinedInput-input": {
+    // padding: "15px 24px 15px 0px",
+  },
+  "& .MuiOutlinedInput-root": {
+    // paddingLeft: "24px",
+    "& fieldset": {
+      borderColor: "",
+    },
+
+    "&:hover fieldset": {
+      borderColor: "#969696",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#969696",
+    },
+  },
+};
 
 const allIssueList = [
   { name: "Power ON", status: false },
@@ -40,11 +70,13 @@ const allIssueList = [
 ];
 
 const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
+  const { enqueueSnackbar } = useSnackbar();
+
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [issueList, setIssueList] = useState(allIssueList);
 
-  const [has_power, set_has_power] = useState();
+  const [has_power, set_has_power] = useState(false);
   const [battery_health, set_battery_health] = useState("");
   const [note, set_note] = useState("");
   const handleDialogClose = (event, reason) => {
@@ -65,43 +97,43 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
       checklist: transformed,
     };
     console.log("transformed data", data);
+    set_repair_checklist(data);
   };
 
   const handleCheckboxChange = (index) => {
     const updatedList = [...issueList];
     updatedList[index].status = !updatedList[index].status;
     setIssueList(updatedList);
-    console.log("issueList", issueList);
-    console.log("updatedList", updatedList);
   };
 
-  const customeTextFeild = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    // padding: "15px 20px",
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && event.target.value.trim() !== "") {
+      const newName = event.target.value.trim();
 
-    // "& label.Mui-focused": {
-    //   color: "#A0AAB4",
-    // },
+      // Check if the name already exists in the issueList
+      const isDuplicate = issueList.some(
+        (item) => item.name.toLowerCase() === newName.toLowerCase()
+      );
 
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-    "& .MuiOutlinedInput-input": {
-      // padding: "15px 24px 15px 0px",
-    },
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px",
-      "& fieldset": {
-        borderColor: "",
-      },
+      if (isDuplicate) {
+        enqueueSnackbar("This checklist item already exists.", {
+          variant: "error",
+          autoHideDuration: 3000,
+        });
+        event.target.value = "";
+        return;
+      }
 
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
+      // Add new item if it doesn't exist
+      const newItem = { name: newName, status: false };
+      setIssueList((prevList) => {
+        const updatedList = [...prevList, newItem];
+        console.log("Updated issueList:", updatedList);
+        return updatedList;
+      });
+
+      event.target.value = ""; // Clear the input field after adding the item
+    }
   };
 
   return (
@@ -176,6 +208,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                   aria-labelledby="demo-row-radio-buttons-group-label"
                   name="row-radio-buttons-group"
                   onChange={(e) => set_has_power(e.target.value)}
+                  value={has_power}
                 >
                   <FormControlLabel
                     value={true}
@@ -190,7 +223,8 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                 </RadioGroup>
               </FormControl>
             </Grid>
-            {allIssueList.map((item, index) => (
+
+            {issueList.map((item, index) => (
               <Grid
                 key={index}
                 size={6}
@@ -224,27 +258,67 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
               </Grid>
             ))}
           </Grid>
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Add New Checklist
-          </Typography>
-          <TextField
-            required
-            size="small"
-            fullWidth
-            id="name"
-            placeholder="Full Name"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
-            // value={name}
-            // onChange={(e) => {
-            //   setName(e.target.value);
-            // }}
-          />
+          <Grid size={12}>
+            <Typography
+              variant="medium"
+              color="text.main"
+              gutterBottom
+              sx={{ fontWeight: 500, mt: 3 }}
+            >
+              Add New Checklist
+            </Typography>
+            <TextField
+              size="small"
+              fullWidth
+              id="name"
+              placeholder="Write Checklist Name and Press Enter"
+              variant="outlined"
+              sx={{ ...customeTextFeild, mb: 3 }}
+              onKeyDown={handleKeyPress}
+            />
+          </Grid>
+          <Box sx={{ display: "flex", gap: 3 }}>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Battery Health
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                id="battery_health"
+                placeholder="Enter Battery Health"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 3 }}
+                value={battery_health}
+                onChange={(e) => set_battery_health(e.target.value)}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Additional Notes
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                id="note"
+                placeholder="Additional Notes"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 3 }}
+                value={note}
+                onChange={(e) => set_note(e.target.value)}
+              />
+            </Grid>
+          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -266,7 +340,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
           <Button
             variant="contained"
             // disabled={loading}
-            type="submit"
+            // type="submit"
             sx={{
               px: 2,
               py: 1.25,
@@ -280,6 +354,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
             disableElevation
             onClick={() => {
               handleSave();
+              handleDialogClose()
             }}
           >
             <PulseLoader
