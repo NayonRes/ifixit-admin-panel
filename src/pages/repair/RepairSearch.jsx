@@ -34,6 +34,7 @@ const RepairSearch = () => {
 
   const [issue, setIssue] = useState("");
   const [allIssue, setAllIssue] = useState([]);
+  const [repair_checklist, set_repair_checklist] = useState({});
 
   return (
     <div>
@@ -155,7 +156,16 @@ const RepairSearch = () => {
               setParentList={setParentList}
             />
           )}
-          {steps == 1 && <IssueList issue={issue} setIssue={setIssue} allIssue={allIssue} setAllIssue={setAllIssue} />}
+          {steps == 1 && (
+            <IssueList
+              issue={issue}
+              setIssue={setIssue}
+              allIssue={allIssue}
+              setAllIssue={setAllIssue}
+              repair_checklist={repair_checklist}
+              set_repair_checklist={set_repair_checklist}
+            />
+          )}
           {steps == 2 && (
             <TechnicianList
               technician={technician}

@@ -97,7 +97,6 @@ const SearchForm = ({
   technician,
   technicianName,
   allIssue,
-  
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -347,51 +346,21 @@ const SearchForm = ({
           //   setDevice(e.target.value);
           // }}
         />
-        {/* <FormControl
-          fullWidth
-          size="small"
-          sx={{
-            ...customeSelectFeild,
-            "& label.Mui-focused": {
-              color: "rgba(0,0,0,0)",
-            },
-
-            "& .MuiOutlinedInput-input img": {
-              position: "relative",
-              top: "2px",
-            },
-            mb: 3,
-          }}
-        >
-          {deviceList?.length < 1 && (
-            <InputLabel
-              id="demo-simple-select-label"
-              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb:3 }}>
+          {allIssue.map((item, index) => (
+            <Box
+              key={index}
+              sx={{
+                p: 1,
+                border: "1px solid #818FF8",
+                borderRadius: 1,
+                background: "#E0E8FF",
+              }}
             >
-              Select Device
-            </InputLabel>
-          )}
-          <Select
-            required
-            labelId="demo-simple-select-label"
-            id="device"
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  maxHeight: 250, // Set the max height here
-                },
-              },
-            }}
-            value={device}
-            onChange={(e) => setDevice(e.target.value)}
-          >
-            {deviceList?.map((item) => (
-              <MenuItem key={item} value={item.device_id}>
-                {item.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl> */}
+              {item.name} | ৳ {item.price}
+            </Box>
+          ))}
+        </Box>
         <Typography
           variant="medium"
           color="text.main"

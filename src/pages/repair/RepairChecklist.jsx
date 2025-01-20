@@ -5,7 +5,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   IconButton,
+  Radio,
+  RadioGroup,
   TextField,
   Typography,
 } from "@mui/material";
@@ -17,31 +22,49 @@ import PulseLoader from "react-spinners/PulseLoader";
 const allIssueList = [
   { name: "Power ON", status: false },
   { name: "Bluetooth", status: false },
-  { name: "Proximity Sensor", status: true },
-  { name: "True Tone", status: true },
+  { name: "Proximity Sensor", status: false },
+  { name: "True Tone", status: false },
   { name: "Flash Light", status: false },
-  { name: "Touch", status: true },
-  { name: "Network", status: true },
+  { name: "Touch", status: false },
+  { name: "Network", status: false },
   { name: "Ear Speaker", status: false },
-  { name: "Loud Speaker", status: true },
-  { name: "Face ID", status: true },
+  { name: "Loud Speaker", status: false },
+  { name: "Face ID", status: false },
   { name: "Front Camera", status: false },
   { name: "MIC", status: false },
-  { name: "Button", status: true },
-  { name: "Wifi", status: true },
-  { name: "Back Camera", status: true },
-  { name: "USB", status: true },
-  { name: "Taptic", status: true },
+  { name: "Button", status: false },
+  { name: "Wifi", status: false },
+  { name: "Back Camera", status: false },
+  { name: "USB", status: false },
+  { name: "Taptic", status: false },
 ];
 
-const RepairChecklist = () => {
+const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [issueList, setIssueList] = useState(allIssueList);
+
+  const [has_power, set_has_power] = useState();
+  const [battery_health, set_battery_health] = useState("");
+  const [note, set_note] = useState("");
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setOpen(!open);
     }
+  };
+
+  const handleSave = () => {
+    const transformed = issueList
+      .filter((item) => item.status)
+      .map((item) => item.name);
+
+    let data = {
+      has_power,
+      battery_health,
+      note,
+      checklist: transformed,
+    };
+    console.log("transformed data", data);
   };
 
   const handleCheckboxChange = (index) => {
@@ -140,6 +163,33 @@ const RepairChecklist = () => {
           }}
         >
           <Grid container spacing={2}>
+            <Grid
+              size={12}
+              sx={{ display: "flex", gap: 3, alignItems: "center" }}
+            >
+              <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                Has Power
+              </Typography>
+              <FormControl>
+                <RadioGroup
+                  row
+                  aria-labelledby="demo-row-radio-buttons-group-label"
+                  name="row-radio-buttons-group"
+                  onChange={(e) => set_has_power(e.target.value)}
+                >
+                  <FormControlLabel
+                    value={true}
+                    control={<Radio />}
+                    label="Yes"
+                  />
+                  <FormControlLabel
+                    value={false}
+                    control={<Radio />}
+                    label="No"
+                  />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
             {allIssueList.map((item, index) => (
               <Grid
                 key={index}
@@ -180,7 +230,7 @@ const RepairChecklist = () => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Set Password
+            Add New Checklist
           </Typography>
           <TextField
             required
@@ -228,6 +278,9 @@ const RepairChecklist = () => {
             // style={{ minWidth: "180px", minHeight: "35px" }}
             autoFocus
             disableElevation
+            onClick={() => {
+              handleSave();
+            }}
           >
             <PulseLoader
               color={"#4B46E5"}

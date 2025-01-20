@@ -3,7 +3,7 @@ import { Box, Button, Checkbox, Chip, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
-import RepairChecklist from './RepairChecklist'
+import RepairChecklist from "./RepairChecklist";
 
 const style = {
   nav: {
@@ -72,7 +72,14 @@ const issueArr = [
   { id: 3, name: "Audio Issue", price: 600, pice: 5 },
 ];
 
-const IssueList = ({ issue, setIssue, allIssue, setAllIssue }) => {
+const IssueList = ({
+  issue,
+  setIssue,
+  allIssue,
+  setAllIssue,
+  repair_checklist,
+  set_repair_checklist,
+}) => {
   const handleCheckboxChange = (issue, isChecked) => {
     if (isChecked) {
       setAllIssue((prev) => [...prev, issue]); // Add issue to the array
@@ -83,7 +90,7 @@ const IssueList = ({ issue, setIssue, allIssue, setAllIssue }) => {
   };
   return (
     <div>
-      <RepairChecklist />
+      <RepairChecklist set_repair_checklist={set_repair_checklist} repair_checklist={repair_checklist} />
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
@@ -136,10 +143,10 @@ const IssueList = ({ issue, setIssue, allIssue, setAllIssue }) => {
         {issueArr.map((item, index) => (
           <Grid size={3}>
             <Box
-              // sx={issue === "Display Assemble" ? style.cardActive : style.card}
-              sx={style.cardActive}
+              sx={issue === item.name ? style.cardActive : style.card}
+              // sx={style.cardActive}
               role="button"
-              // onClick={() => setIssue("Display Assemble")}
+              onClick={() => setIssue(item.name)}
             >
               <Box
                 key={index}
@@ -156,14 +163,12 @@ const IssueList = ({ issue, setIssue, allIssue, setAllIssue }) => {
               </Box>
 
               {/* {issue === "Display Assemble" && ( */}
-                <Box>
-                  <Checkbox
-                    // checked={issue === "Display Assemble"}
-                    onChange={(e) =>
-                      handleCheckboxChange(item, e.target.checked)
-                    }
-                  />
-                </Box>
+              <Box>
+                <Checkbox
+                  // checked={issue === "Display Assemble"}
+                  onChange={(e) => handleCheckboxChange(item, e.target.checked)}
+                />
+              </Box>
               {/* )} */}
             </Box>
           </Grid>
