@@ -115,13 +115,14 @@ let statusList = [
   { name: "Brac", color: "#FFE6D5", icon: brac },
   { name: "SSL", color: "#E0E8FF", icon: ssl },
   { name: "Bkash", color: "#EBE9FE", icon: bkash },
-  { name: "Due", color: "#FDEAD7", icon: due },
 ];
 const PaymentList = ({
   paymentStatus,
   setPaymentStatus,
   payment_info,
   set_payment_info,
+  due_amount,
+  set_due_amount,
 }) => {
   const [amounts, setAmounts] = useState([]);
 
@@ -227,6 +228,49 @@ const PaymentList = ({
               </Box>
             </Grid>
           ))}
+
+        <Grid size={12} sx={{ p: 1, background: "#F9FAFB" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              height: "100%",
+              gap: 3,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                flex: 1,
+              }}
+            >
+              <Box>
+                <img src={due} style={{ maxHeight: "30px" }} alt="" />
+              </Box>
+              <Box>Due</Box>
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <TextField
+                required
+                type="number"
+                size="small"
+                fullWidth
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 0 }}
+                value={due_amount}
+                onChange={(e) => {
+                  set_due_amount(e.target.value);
+                }}
+              />
+            </Box>
+          </Box>
+        </Grid>
+
         <Grid
           size={12}
           sx={{

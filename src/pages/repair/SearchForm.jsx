@@ -97,6 +97,7 @@ const SearchForm = ({
   technician,
   technicianName,
   allIssue,
+  set_customer_id
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -106,6 +107,8 @@ const SearchForm = ({
     let allData = await getDataWithToken(url);
     console.log("allData?.data", allData?.data.data?.[0]);
     setContactData(allData?.data.data?.[0]);
+    set_customer_id(allData?.data.data?.[0]?._id);
+
   };
 
   const getParent = async () => {
@@ -219,10 +222,10 @@ const SearchForm = ({
           placeholder="Enter Full Name"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
+          value={contactData?.name}
+          // onChange={(e) => {
+          //   setName(e.target.value);
+          // }}
         />
         <Typography
           variant="medium"
@@ -318,7 +321,7 @@ const SearchForm = ({
               <MenuItem
                 key={index}
                 value={item.name}
-                onClick={() => setBrandId(item.device_id)}
+                onClick={() => setBrandId(item._id)}
               >
                 {item.name}
               </MenuItem>
@@ -346,7 +349,7 @@ const SearchForm = ({
           //   setDevice(e.target.value);
           // }}
         />
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb:3 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 3 }}>
           {allIssue.map((item, index) => (
             <Box
               key={index}

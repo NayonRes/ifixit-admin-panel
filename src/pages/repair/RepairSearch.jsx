@@ -1,6 +1,6 @@
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import SearchForm from "./SearchForm";
 import AddContact from "./AddContact";
 import EditContact from "./EditContact";
@@ -10,9 +10,15 @@ import IssueList from "./IssueList";
 import TechnicianList from "./TechnicianList";
 import RepairStatusList from "./RepairStatusList";
 import PaymentList from "./PaymentList";
+import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "../../context/AuthContext";
+import { handlePostData } from "../../services/PostDataService";
+import { useSnackbar } from "notistack";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
+  const { ifixit_admin_panel } = useContext(AuthContext);
+  const { enqueueSnackbar } = useSnackbar();
 
   const [contactData, setContactData] = useState({});
 
@@ -38,29 +44,27 @@ const RepairSearch = () => {
 
   const [due_amount, set_due_amount] = useState("");
   const [discount_amount, set_discount_amount] = useState("");
+  const [customer_id, set_customer_id] = useState("");
 
   const [payment_info, set_payment_info] = useState([]);
 
-  const handleSubmit = () => {
-    // <Box>
-    //     customer_id, branch_id
-    //     <br />
-    //     pass_code : {passCode}
-    //     <br />
-    //     brand_id: {brand_id} <br />
-    //     deliveryStatus: {deliveryStatus} <br />
-    //     due_amount: {due_amount} <br />
-    //     discount_amount: {discount_amount} <br />
-    //     payment_status: {paymentStatus} <br />
-    //     repair_by: {technician} <br />
-    //     repair_status: {repairStatus} <br />
-    //     {/* issues: {allIssue} <br /> */}
-    //     {/* repair_checklist: {repair_checklist} <br /> */}
-    //     payment_info: {payment_info}
-    //     remarks: - <br />
-    //     status : - <br />
-    //     created_by: -
-    //   </Box>
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
+
+  const handleSubmit = async () => {
+    let token = ifixit_admin_panel.token;
+    const decodedToken = jwtDecode(token);
+    // console.log('fdfdf',decodedToken?.user?.branch_id)
     let allIssueModified = allIssue.map((item) => {
       let d = {
         name: item.name,
@@ -70,25 +74,42 @@ const RepairSearch = () => {
     });
     console.log("allIssueModified", allIssueModified);
     const data = {
-      customer_id: "-",
-      branch_id: "-",
+      customer_id: customer_id,
+      branch_id: decodedToken?.user?.branch_id,
       pass_code: passCode,
       brand_id: brand_id,
       deliveryStatus: deliveryStatus,
       due_amount: due_amount,
       discount_amount: discount_amount,
-      payment_status: paymentStatus,
       repair_by: technician,
       repair_status: repairStatus,
       issues: allIssueModified,
       repair_checklist: repair_checklist,
       payment_info: payment_info,
-      remarks: "-",
-      status: "-",
-      created_by: "-",
+      serial: serial,
+
+      // manual data
+      payment_status: "success",
+      remarks: "auto",
+      status: true,
+      created_by: "admin",
     };
 
     console.log("final data", data);
+
+    let response = await handlePostData("/api/v1/repair/create", data, false);
+
+    console.log("response", response);
+
+    if (response.status >= 200 && response.status < 300) {
+      handleSnakbarOpen("Added successfully", "success");
+      // clearFilter();
+
+      // clearForm();
+      // handleDialogClose();
+    } else {
+      handleSnakbarOpen(response?.data?.message, "error");
+    }
   };
 
   return (
@@ -161,6 +182,7 @@ const RepairSearch = () => {
             technician={technician}
             technicianName={technicianName}
             allIssue={allIssue}
+            set_customer_id={set_customer_id}
           />
         </Grid>
         {/*  TODO: don't remove */}
@@ -233,6 +255,8 @@ const RepairSearch = () => {
             <RepairStatusList
               repairStatus={repairStatus}
               setRepairStatus={setRepairStatus}
+              deliveryStatus={deliveryStatus}
+              setDeliveryStatus={setDeliveryStatus}
             />
           )}
           {steps == 4 && (
@@ -241,6 +265,8 @@ const RepairSearch = () => {
               setPaymentStatus={setPaymentStatus}
               payment_info={payment_info}
               set_payment_info={set_payment_info}
+              due_amount={due_amount}
+              set_due_amount={set_due_amount}
             />
           )}
           <Box
@@ -266,25 +292,7 @@ const RepairSearch = () => {
           </Box>
         </Grid>
       </Grid>
-      <Box>
-        customer_id, branch_id
-        <br />
-        pass_code : {passCode}
-        <br />
-        brand_id: {brand_id} <br />
-        deliveryStatus: {deliveryStatus} <br />
-        due_amount: {due_amount} <br />
-        discount_amount: {discount_amount} <br />
-        payment_status: {paymentStatus} <br />
-        repair_by: {technician} <br />
-        repair_status: {repairStatus} <br />
-        {/* issues: {allIssue} <br /> */}
-        {/* repair_checklist: {repair_checklist} <br /> */}
-        {/* payment_info: {payment_info} */}
-        remarks: - <br />
-        status : - <br />
-        created_by: -
-      </Box>
+      <Box></Box>
     </div>
   );
 };

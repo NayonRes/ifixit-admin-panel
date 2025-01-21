@@ -7,7 +7,8 @@ import TableRow from "@mui/material/TableRow";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import UpdateUser from "./UpdateUser";
-import { IconButton, TablePagination } from "@mui/material";
+import { Chip, IconButton, TablePagination, Typography } from "@mui/material";
+import moment from "moment";
 
 const RepairList = ({
   loading,
@@ -38,16 +39,16 @@ const RepairList = ({
           <TableHead>
             <TableRow>
               <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
-              Invoice ID
+                Invoice ID
               </TableCell>
 
               <TableCell style={{ whiteSpace: "nowrap" }}>
-              Date / Branch
+                Date / Branch
               </TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>Name / Number</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>
-              Bill
+                Name / Number
               </TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>Bill</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Issues</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
@@ -91,55 +92,28 @@ const RepairList = ({
                         )} */}
                     </TableCell>
                     <TableCell>{row?.name}</TableCell>
-                    <TableCell>{row?.designation}</TableCell>
-                    <TableCell>{row?.email}</TableCell>
+                    <TableCell>
+                      {" "}
+                      {moment(row?.created_at).format("DD/MM/YYYY")}
+                      <br />
+                      <Typography sx={{ color: "#4B46E5" }}>
+                        {row?.branch_data[0]?.name}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{row?.customer_data[0]?.name}</TableCell>
                     <TableCell>
                       {row?.mobile ? row?.mobile : "-------"}
                     </TableCell>
-                    <TableCell sx={{ whiteSpace: "nowrap" }}>
-                      {row?.branch_data[0]?.name
-                        ? row?.branch_data[0]?.name
-                        : "-------"}
+                    <TableCell
+                      sx={{ whiteSpace: "nowrap",  }}
+                    >
+                      {row?.issues?.map((item, index) => (
+                        <Chip label={item.name} variant="outlined" sx={{ mr: 1 }} />
+                      ))}
                     </TableCell>
 
                     <TableCell>
-                      {row?.status ? (
-                        <>
-                          <TaskAltOutlinedIcon
-                            style={{
-                              color: "#10ac84",
-                              height: "16px",
-                              position: "relative",
-                              top: "4px",
-                            }}
-                          />{" "}
-                          <span
-                            style={{
-                              color: "#10ac84",
-                            }}
-                          >
-                            Active &nbsp;
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <HighlightOffOutlinedIcon
-                            style={{
-                              color: "#ee5253",
-                              height: "16px",
-                              position: "relative",
-                              top: "4px",
-                            }}
-                          />
-                          <span
-                            style={{
-                              color: "#ee5253",
-                            }}
-                          >
-                            Inactive
-                          </span>
-                        </>
-                      )}
+                      <Chip label={row.repair_status} variant="outlined" color="info" />
                     </TableCell>
 
                     {/* <TableCell align="center" style={{ minWidth: "130px" }}>
