@@ -97,7 +97,7 @@ const SearchForm = ({
   technician,
   technicianName,
   allIssue,
-  set_customer_id
+  set_customer_id,
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -108,7 +108,6 @@ const SearchForm = ({
     console.log("allData?.data", allData?.data.data?.[0]);
     setContactData(allData?.data.data?.[0]);
     set_customer_id(allData?.data.data?.[0]?._id);
-
   };
 
   const getParent = async () => {

@@ -1,11 +1,11 @@
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import SearchForm from "./SearchForm";
 import AddContact from "./AddContact";
 import EditContact from "./EditContact";
 import ModelList from "./ModelList";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import IssueList from "./IssueList";
 import TechnicianList from "./TechnicianList";
 import RepairStatusList from "./RepairStatusList";
@@ -17,6 +17,8 @@ import { useSnackbar } from "notistack";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  console.log("location", location.state);
   const { ifixit_admin_panel } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -112,6 +114,37 @@ const RepairSearch = () => {
     }
   };
 
+  const initState = (data) => {
+    if (data) {
+      console.log("data", data);
+      setName(data?.customer_data[0]?.name);
+      setContactData({name: data?.customer_data[0]?.name});
+      setSerial(data?.serial);
+      setPassCode(data?.pass_code);
+      // setBrand(data?.brand);
+      // setBrandId(data?.brandId);
+      // setDevice(data?.device);
+      // setRepairBy(data?.repairBy);
+      // setRepairStatus(data?.repairStatus);
+      // setDeliveryStatus(data?.deliveryStatus);
+      // setPaymentStatus(data?.paymentStatus);
+      // setTechnician(data?.technician);
+      // setTechnicianName(data?.technicianName);
+      // setSteps(data?.steps);
+      // setIssue(data?.issue);
+      // setAllIssue(data?.allIssue);
+      // set_repair_checklist(data?.repair_checklist);
+      // set_due_amount(data?.due_amount);
+      // set_discount_amount(data?.discount_amount);
+      // set_customer_id(data?.customer_id);
+      // set_payment_info(data?.payment_info);
+    }
+  };
+
+  useEffect(() => {
+    initState(location.state.row);
+  }, []);
+
   return (
     <div>
       <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
@@ -122,7 +155,7 @@ const RepairSearch = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair List
+            Repair List {name}
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
