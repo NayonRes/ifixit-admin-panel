@@ -38,9 +38,10 @@ const RepairList = ({
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
-                Invoice ID
-              </TableCell>
+              <TableCell
+                style={{ whiteSpace: "nowrap" }}
+                colSpan={2}
+              ></TableCell>
 
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Date / Branch
@@ -104,16 +105,22 @@ const RepairList = ({
                     <TableCell>
                       {row?.mobile ? row?.mobile : "-------"}
                     </TableCell>
-                    <TableCell
-                      sx={{ whiteSpace: "nowrap",  }}
-                    >
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
                       {row?.issues?.map((item, index) => (
-                        <Chip label={item.name} variant="outlined" sx={{ mr: 1 }} />
+                        <Chip
+                          label={item.name}
+                          variant="outlined"
+                          sx={{ mr: 1 }}
+                        />
                       ))}
                     </TableCell>
 
                     <TableCell>
-                      <Chip label={row.repair_status} variant="outlined" color="info" />
+                      <Chip
+                        label={row.repair_status}
+                        variant="outlined"
+                        color="info"
+                      />
                     </TableCell>
 
                     {/* <TableCell align="center" style={{ minWidth: "130px" }}>
