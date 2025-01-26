@@ -126,14 +126,14 @@ const RepairSearch = () => {
       setSerial(data?.serial);
       setPassCode(data?.pass_code);
       setAllIssueUpdate(data?.issues);
+      setTechnician(data?.repair_by);
+      setRepairStatus(data?.repair_status);
+      setDeliveryStatus(data?.deliveryStatus);
       // setBrand(data?.brand);
       // setBrandId(data?.brandId);
       // setDevice(data?.device);
       // setRepairBy(data?.repairBy);
-      // setRepairStatus(data?.repairStatus);
-      // setDeliveryStatus(data?.deliveryStatus);
       // setPaymentStatus(data?.paymentStatus);
-      // setTechnician(data?.technician);
       // setTechnicianName(data?.technicianName);
       // setSteps(data?.steps);
       // setIssue(data?.issue);

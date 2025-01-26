@@ -282,7 +282,7 @@ const RepairStatusList = ({
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3, mt: 4 }}>
-            Repair Status
+            Delivery Status
           </Typography>
         </Grid>
       </Grid>
