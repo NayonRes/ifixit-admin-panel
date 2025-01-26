@@ -54,13 +54,14 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddDevice from "./AddDevice";
-import UpdateDevice from "./UpdateDevice";
+// import AddSpareParts from "./AddSpareParts";
+// import UpdateSpareParts from "./UpdateSpareParts";
+import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const DeviceList = () => {
+const ServiceList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -73,9 +74,12 @@ const DeviceList = () => {
   const [deleteData, setDeleteData] = useState({});
   const [orderID, setOrderID] = useState("");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
-  const [designation, setDesignation] = useState("");
+  const [email, setEmail] = useState("");
+  const [type, setType] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [rating, setRating] = useState("");
+  const [membershipId, setMembershipId] = useState("");
   const [minPrice, setMinPrice] = useState(null);
   const [maxPrice, setMaxPrice] = useState(null);
   const [status, setStatus] = useState("");
@@ -91,6 +95,14 @@ const DeviceList = () => {
   const [images, setImages] = useState([]);
   const [detailDialog, setDetailDialog] = useState(false);
   const [details, setDetails] = useState([]);
+  const [brandId, setBrandId] = useState([]);
+  const [categoryId, setCategoryId] = useState([]);
+  const [deviceId, setDeviceId] = useState([]);
+  const [modelId, setModelId] = useState([]);
+  const [brandList, setBrandList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
+  const [modelList, setModelList] = useState([]);
 
   const handleDetailClose = () => {
     setDetails({});
@@ -164,7 +176,7 @@ const DeviceList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(5).keys()].map((e, i) => (
+          {[...Array(11).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -174,40 +186,28 @@ const DeviceList = () => {
     }
     return content;
   };
-  const handleDelete = async () => {
-    try {
-      setLoading2(true);
-      let response = await axios({
-        url: `/api/v1/user/delete/${deleteData.row._id}`,
-        method: "delete",
-      });
-      if (response.status >= 200 && response.status < 300) {
-        handleSnakbarOpen("Deleted successfully", "success");
-        getData();
-      }
-      setDeleteDialog(false);
-      setLoading2(false);
-    } catch (error) {
-      console.log("error", error);
-      setLoading2(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
-      setDeleteDialog(false);
-    }
-  };
 
   const handleChangePage = (event, newPage) => {
     console.log("newPage", newPage);
     getData(newPage);
     setPage(newPage);
   };
-
+  const handleDeviceSelect = (e) => {
+    setDeviceId(e.target.value);
+    setModelId("");
+    getModelList(e.target.value);
+  };
   const clearFilter = (event) => {
     setName("");
-
+    setNumber("");
+    setBrandId("");
+    setCategoryId("");
+    setDeviceId("");
+    setModelId("");
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/device?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/sparePart?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -233,11 +233,27 @@ const DeviceList = () => {
       url = newUrl;
     } else {
       let newStatus = status;
+      let newCategoryId = categoryId;
+      let newBrandId = brandId;
+      let newModelId = modelId;
+      let newDeviceId = deviceId;
 
       let newStartingTime = "";
       let newEndingTime = "";
       if (status === "None") {
         newStatus = "";
+      }
+      if (categoryId === "None") {
+        newCategoryId = "";
+      }
+      if (brandId === "None") {
+        newBrandId = "";
+      }
+      if (modelId === "None") {
+        newModelId = "";
+      }
+      if (deviceId === "None") {
+        newDeviceId = "";
       }
 
       if (startingTime !== null) {
@@ -247,7 +263,7 @@ const DeviceList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/device?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/sparePart?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -278,26 +294,125 @@ const DeviceList = () => {
 
     return 0;
   };
+
+  const getBrandList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/brand/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBrandList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
+  const getCategoryList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/category/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setCategoryList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getDeviceList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getModelList = async (id) => {
+    setLoading2(true);
+
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setModelList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
   useEffect(() => {
     getData();
-    // getCategoryList();
+
+    getCategoryList();
+    getDeviceList();
+    getBrandList();
   }, []);
 
   return (
     <>
       <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
-        <Grid size={9}>
+        <Grid size={6}>
           <Typography
             variant="h6"
             gutterBottom
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Device List
+            Service List
           </Typography>
         </Grid>
-        <Grid size={3} style={{ textAlign: "right" }}>
-          <AddDevice clearFilter={clearFilter} />
+        <Grid size={6} style={{ textAlign: "right" }}>
+          <Button
+            variant="contained"
+            disableElevation
+            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            component={Link}
+            to="/add-service"
+            // onClick={() => {
+            //   setAddDialog(true);
+            //   getCategoryList();
+            //   getBrandList();
+            //   getDeviceList();
+            // }}
+            startIcon={
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                  stroke="white"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            }
+          >
+            Add Service
+          </Button>
+          {/* <AddSpareParts clearFilter={clearFilter} /> */}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -341,7 +456,7 @@ const DeviceList = () => {
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
         >
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
+          {/* <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -350,8 +465,8 @@ const DeviceList = () => {
             >
               Details
             </Typography>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
+          </Grid> */}
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
                 container
@@ -359,20 +474,135 @@ const DeviceList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="Name"
-                    fullWidth
+                    required
                     size="small"
+                    fullWidth
+                    id="name"
+                    placeholder="Full Name"
                     variant="outlined"
-                    label="Name"
+                    sx={{ ...customeTextFeild }}
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                    }}
                   />
                 </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Device
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Device"
+                      value={deviceId}
+                      onChange={handleDeviceSelect}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {deviceList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Model
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Model"
+                      value={modelId}
+                      onChange={(e) => setModelId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {modelList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Category
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Category"
+                      value={categoryId}
+                      onChange={(e) => setCategoryId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {categoryList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Brand
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Brand"
+                      value={brandId}
+                      onChange={(e) => setBrandId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {brandList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -396,9 +626,9 @@ const DeviceList = () => {
                       <MenuItem value={false}>Inactive</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>
@@ -449,11 +679,30 @@ const DeviceList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
-                    Name
-                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
 
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Category
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Warranty
+                  </TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Price / <br />
+                    Not on sale
+                  </TableCell> */}
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Serial No
+                  </TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Description
+                  </TableCell> */}
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
@@ -469,59 +718,59 @@ const DeviceList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell sx={{ width: "30px", pr: 0 }}>
-                        {/* {row?.image?.url?.length > 0 ? (
-                                                <> */}
+                      {/* <TableCell sx={{ width: 50 }}>
                         <img
                           src={
-                            row?.icon?.url?.length > 0
-                              ? row?.icon?.url
+                            row?.images?.length > 0
+                              ? row?.images[0]?.url
                               : "/noImage.png"
                           }
                           alt=""
-                          style={{
-                            display: "block",
-                            margin: "5px 0px",
-                            borderRadius: "6px",
-                            width: "20px",
-                            height: "40px",
-                            // border: "1px solid #d1d1d1",
-                          }}
+                          width={40}
                         />
-
-                        {/* </>
-                                              ) : (
-                                                "No Image"
-                                              )} */}
+                      </TableCell> */}
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.name}
                       </TableCell>
-                      <TableCell sx={{ width: "30px", pr: 0 }}>
-                        {/* {row?.image?.url?.length > 0 ? (
-                                                <> */}
-                        <img
-                          src={
-                            row?.image?.url?.length > 0
-                              ? row?.image?.url
-                              : "/noImage.png"
-                          }
-                          alt=""
-                          style={{
-                            display: "block",
-                            margin: "5px 0px",
-                            borderRadius: "6px",
-                            width: "20px",
-                            height: "40px",
-                            // border: "1px solid #d1d1d1",
-                          }}
-                        />
 
-                        {/* </>
-                                              ) : (
-                                                "No Image"
-                                              )} */}
+                      <TableCell>
+                        {row?.brand_data[0]?.name
+                          ? row?.brand_data[0]?.name
+                          : "---------"}
                       </TableCell>
-                      <TableCell>{row?.name}</TableCell>
-                      {/* <TableCell>{row?.parent_name}</TableCell> */}
 
+                      <TableCell>
+                        {row?.category_data[0]?.name
+                          ? row?.category_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.device_data[0]?.name
+                          ? row?.device_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.model_data[0]?.name
+                          ? row?.model_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.price ? row?.price : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.warranty ? row?.warranty : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
+                      </TableCell>
+
+                      {/* <TableCell sx={{ minWidth: "150px" }}>
+                        {row?.description ? row?.description : "---------"}
+                      </TableCell> */}
+                      <TableCell sx={{ minWidth: "150px" }}>
+                        {row?.remarks ? row?.remarks : "---------"}
+                      </TableCell>
                       <TableCell>
                         {row?.status ? (
                           <>
@@ -566,35 +815,17 @@ const DeviceList = () => {
                         <Invoice data={row} />
                       </TableCell> */}
                       <TableCell align="right">
-                        <UpdateDevice clearFilter={clearFilter} row={row} />
-
-                        {/* <IconButton
-                          variant="contained"
-                          disableElevation
-                          onClick={() => handleDeleteDialog(i, row)}
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="info"
+                          startIcon={<ListAltOutlinedIcon />}
+                          component={Link}
+                          to={`/spare-parts/${row?._id}`}
                         >
-                    
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            id="Outline"
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                          >
-                            <path
-                              d="M21,4H17.9A5.009,5.009,0,0,0,13,0H11A5.009,5.009,0,0,0,6.1,4H3A1,1,0,0,0,3,6H4V19a5.006,5.006,0,0,0,5,5h6a5.006,5.006,0,0,0,5-5V6h1a1,1,0,0,0,0-2ZM11,2h2a3.006,3.006,0,0,1,2.829,2H8.171A3.006,3.006,0,0,1,11,2Zm7,17a3,3,0,0,1-3,3H9a3,3,0,0,1-3-3V6H18Z"
-                              fill="#F91351"
-                            />
-                            <path
-                              d="M10,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,10,18Z"
-                              fill="#F91351"
-                            />
-                            <path
-                              d="M14,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,14,18Z"
-                              fill="#F91351"
-                            />
-                          </svg>
-                        </IconButton> */}
+                          Details
+                        </Button>
+                        {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -684,42 +915,8 @@ const DeviceList = () => {
         </DialogActions>
         {/* </div> */}
       </Dialog>
-      <Dialog
-        open={deleteDialog}
-        onClose={handleDeleteDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <div style={{ padding: "10px", minWidth: "300px" }}>
-          <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              You want to delete <b>{deleteData?.row?.name} </b>
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDeleteDialogClose}>cancel</Button>
-            <Button
-              variant="contained"
-              disabled={loading2}
-              onClick={handleDelete}
-              style={{ minWidth: "100px", minHeight: "35px" }}
-              autoFocus
-              disableElevation
-            >
-              <PulseLoader
-                color={"#4B46E5"}
-                loading={loading2}
-                size={10}
-                speedMultiplier={0.5}
-              />{" "}
-              {loading2 === false && "Confirm"}
-            </Button>
-          </DialogActions>
-        </div>
-      </Dialog>
     </>
   );
 };
 
-export default DeviceList;
+export default ServiceList;

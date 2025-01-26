@@ -6,7 +6,6 @@ import React, {
   useCallback,
 } from "react";
 import Grid from "@mui/material/Grid2";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -16,25 +15,10 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useDropzone } from "react-dropzone";
+import { useNavigate } from "react-router-dom"; 
 import { getDataWithToken } from "../../services/GetDataService";
 
-import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import EmailIcon from "@mui/icons-material/Email";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -43,42 +27,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
+import ImageUpload from "../../utils/ImageUpload";
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-const form = {
-  padding: "50px",
-  background: "#fff",
-  borderRadius: "10px",
-  width: "400px",
-  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-};
 const UpdateUser = ({ clearFilter, row }) => {
   const navigate = useNavigate();
   const uploadImage = "/image/userpic.png";
@@ -236,47 +186,6 @@ const UpdateUser = ({ clearFilter, row }) => {
     }
 
     // }
-  };
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
-    onDrop,
-    onFileDialogCancel,
-    ref: dropzoneRef,
-    accept: { "image/*": [] },
-    maxFiles: 1,
-  });
-  const files = acceptedFiles.map((file) => (
-    <>
-      {file.path} - {file.size} bytes
-    </>
-  ));
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject]
-  );
-  const imageProcess = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      let imageFile = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (x) => {
-        setImageFile(imageFile);
-        setPreview(x.target.result);
-      };
-      reader.readAsDataURL(imageFile);
-    } else {
-      setImageFile(null);
-    }
   };
 
   const customeTextFeild = {
@@ -668,58 +577,8 @@ const UpdateUser = ({ clearFilter, row }) => {
               ))}
             </Select>
           </FormControl>
-          <Box {...getRootProps({ style })}>
-            <input {...getInputProps()} />
-
-            <Grid container justifyContent="center">
-              <Box
-                sx={{
-                  mb: 1.5,
-                  p: 1.125,
-                  paddingBottom: "3px",
-                  borderRadius: "8px",
-                  border: "1px solid #EAECF0",
-                  boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                >
-                  <path
-                    d="M6.66666 13.3333L9.99999 10M9.99999 10L13.3333 13.3333M9.99999 10V17.5M16.6667 13.9524C17.6846 13.1117 18.3333 11.8399 18.3333 10.4167C18.3333 7.88536 16.2813 5.83333 13.75 5.83333C13.5679 5.83333 13.3975 5.73833 13.3051 5.58145C12.2184 3.73736 10.212 2.5 7.91666 2.5C4.46488 2.5 1.66666 5.29822 1.66666 8.75C1.66666 10.4718 2.36286 12.0309 3.48911 13.1613"
-                    stroke="#344054"
-                    stroke-width="1.66667"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </Box>
-            </Grid>
-            <Box sx={{ pl: 1.5, textAlign: "center" }}>
-              <Typography
-                variant="base"
-                color="text.fade"
-                sx={{ fontWeight: 400, mb: 0.5 }}
-              >
-                <span style={{ color: "#4238CA", fontWeight: 500 }}>
-                  {" "}
-                  Click to upload{" "}
-                </span>
-                or drag and drop
-              </Typography>
-              <Typography variant="medium" color="text.fade">
-                PNG, JPG (max. 400x400px)
-              </Typography>
-              {file?.path?.length > 0 && (
-                <Typography variant="medium" color="text.light" sx={{ mt: 1 }}>
-                  <b>Uploaded:</b> {file?.path} - {file?.size} bytes
-                </Typography>
-              )}
-            </Box>
+          <Box>
+            <ImageUpload file={file} setFile={setFile} />
           </Box>
         </DialogContent>
 

@@ -34,6 +34,8 @@ import UpdateStockTransfer from "../stock-transfer/UpdateStockTransfer";
 import DetailsStockTransfer from "../stock-transfer/DetailsStockTransfer";
 import AddSpareParts from "../spare-parts/AddSpareParts";
 import AddPurchase from "../purchase/AddPurchase";
+import ServiceList from "../service/ServiceList";
+import AddService from "../service/AddService";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -157,11 +159,29 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
+
         <Route
           path="add-spare-parts"
           element={
             <PrivateRoute>
               <AddSpareParts />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="service-list"
+          element={
+            <PrivateRoute>
+              <ServiceList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="add-service"
+          element={
+            <PrivateRoute>
+              <AddService />
             </PrivateRoute>
           }
         />

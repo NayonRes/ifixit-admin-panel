@@ -164,7 +164,7 @@ const ModelList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(3).keys()].map((e, i) => (
+          {[...Array(4).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -449,7 +449,9 @@ const ModelList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
+                    Name
+                  </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
@@ -466,6 +468,29 @@ const ModelList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
+                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                        <img
+                          src={
+                            row?.image?.url?.length > 0
+                              ? row?.image?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "6px",
+                            width: "20px",
+                            height: "40px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+
+                        {/* </>
+                                                                    ) : (
+                                                                      "No Image"
+                                                                    )} */}
+                      </TableCell>
                       <TableCell>{row?.name}</TableCell>
 
                       <TableCell>
