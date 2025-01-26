@@ -24,6 +24,8 @@ const RepairSearch = () => {
 
   const [contactData, setContactData] = useState({});
 
+  const [id, setId] = useState("");
+
   const [searchPrams, setSearchPrams] = useState("");
   const [name, setName] = useState("");
   const [serial, setSerial] = useState("");
@@ -42,6 +44,7 @@ const RepairSearch = () => {
 
   const [issue, setIssue] = useState("");
   const [allIssue, setAllIssue] = useState([]);
+  const [allIssueUpdate, setAllIssueUpdate] = useState([]);
   const [repair_checklist, set_repair_checklist] = useState({});
 
   const [due_amount, set_due_amount] = useState("");
@@ -117,10 +120,12 @@ const RepairSearch = () => {
   const initState = (data) => {
     if (data) {
       console.log("data", data);
+      setId(location?.state?.row?._id);
       setName(data?.customer_data[0]?.name);
-      setContactData({name: data?.customer_data[0]?.name});
+      setContactData({ name: data?.customer_data[0]?.name });
       setSerial(data?.serial);
       setPassCode(data?.pass_code);
+      setAllIssueUpdate(data?.issues);
       // setBrand(data?.brand);
       // setBrandId(data?.brandId);
       // setDevice(data?.device);
@@ -132,7 +137,6 @@ const RepairSearch = () => {
       // setTechnicianName(data?.technicianName);
       // setSteps(data?.steps);
       // setIssue(data?.issue);
-      // setAllIssue(data?.allIssue);
       // set_repair_checklist(data?.repair_checklist);
       // set_due_amount(data?.due_amount);
       // set_discount_amount(data?.discount_amount);
@@ -142,7 +146,7 @@ const RepairSearch = () => {
   };
 
   useEffect(() => {
-    initState(location.state.row);
+    initState(location?.state?.row);
   }, []);
 
   return (
@@ -247,7 +251,7 @@ const RepairSearch = () => {
         >
           {!brand && contactData?._id ? (
             <EditContact contactData={contactData} />
-          ) : !brand && !contactData?._id ? (
+          ) : !brand && !contactData?._id && !id ? (
             <AddContact searchPrams={searchPrams} contactData={contactData} />
           ) : (
             ""
@@ -258,6 +262,7 @@ const RepairSearch = () => {
           )}
           {steps == 0 && (
             <ModelList
+              id={id}
               device={device}
               setDevice={setDevice}
               brand={brand}
@@ -274,6 +279,7 @@ const RepairSearch = () => {
               setAllIssue={setAllIssue}
               repair_checklist={repair_checklist}
               set_repair_checklist={set_repair_checklist}
+              allIssueUpdate={allIssueUpdate}
             />
           )}
           {steps == 2 && (

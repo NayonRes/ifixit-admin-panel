@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Box, Button, Checkbox, Chip, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
@@ -79,6 +79,7 @@ const IssueList = ({
   setAllIssue,
   repair_checklist,
   set_repair_checklist,
+  allIssueUpdate,
 }) => {
   const handleCheckboxChange = (issue, isChecked) => {
     if (isChecked) {
@@ -87,6 +88,16 @@ const IssueList = ({
       setAllIssue((prev) => prev.filter((item) => item.id !== issue.id)); // Remove issue from the array
     }
   };
+
+  const [checkedIssue, setCheckedIssue] = useState([]);
+  useLayoutEffect(() => {
+    console.log(
+      "ll",
+      allIssueUpdate.map((i) => i.name)
+    );
+    setCheckedIssue(allIssueUpdate.map((i) => i.name));
+  }, []);
+
   return (
     <div>
       <RepairChecklist
@@ -96,7 +107,7 @@ const IssueList = ({
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-            Select Issue
+            Select Issue {checkedIssue.toString()}
           </Typography>
         </Grid>
         <Grid size={12}>
@@ -168,6 +179,8 @@ const IssueList = ({
               <Box>
                 <Checkbox
                   // checked={issue === "Display Assemble"}
+                  // defaultChecked={() => checkedIssue.includes(item.name)}
+                  checked={checkedIssue.some((issue) => issue === item.name)}
                   onChange={(e) => handleCheckboxChange(item, e.target.checked)}
                 />
               </Box>

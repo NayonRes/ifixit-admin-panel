@@ -4,7 +4,6 @@ import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
 
-
 const style = {
   nav: {
     display: "flex",
@@ -77,6 +76,7 @@ const style = {
 };
 
 const ModelList = ({
+  id,
   device,
   setDevice,
   brand,
@@ -141,7 +141,6 @@ const ModelList = ({
 
   return (
     <div>
-      
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
