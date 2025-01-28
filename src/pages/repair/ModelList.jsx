@@ -13,6 +13,16 @@ const style = {
     borderBottom: `1px solid ${ColorPalette.light.primary.light}`,
     width: "100%",
   },
+  nav2: {
+    display: "flex",
+    alignItems: "center",
+    gap: 3,
+    pb: 2,
+    pt: 2,
+    borderBottom: `1px solid ${ColorPalette.light.primary.light}`,
+
+    width: "100%",
+  },
   link: {
     cursor: "pointer",
     display: "flex",
@@ -54,7 +64,7 @@ const style = {
   cardActive: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     gap: 2,
     border: `1px solid ${ColorPalette.light.primary.main}`,
     backgroundColor: ColorPalette.light.text.bg,
@@ -66,6 +76,7 @@ const style = {
 };
 
 const ModelList = ({
+  id,
   device,
   setDevice,
   brand,
@@ -73,10 +84,15 @@ const ModelList = ({
   parentList,
   setParentList,
 }) => {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState([
+    // { name: "Primary", items: [] },
+    // { name: "Secondary", items: [] },
+  ]);
   const [childList, setChildList] = useState([]);
+  const [subChildList, setSubChildList] = useState([]);
   const [parent, setParent] = useState("");
   const [child, setChild] = useState("");
+  const [device_id, set_device_id] = useState("");
   // const getParent = async () => {
   //   // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
   //   let url = `/api/v1/device/parent-child-list`;
@@ -84,28 +100,29 @@ const ModelList = ({
   //   console.log("primary list", allData?.data.data);
   //   setParentList(allData?.data.data);
   // };
-  const getTechnician = async () => {
-    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let url = `/api/v1/user/dropdownlist?designation=Technician`;
-    let allData = await getDataWithToken(url);
-    console.log("technician list", allData?.data.data);
-  };
 
-  const handleChangeParent = async (name) => {
-    console.log("name", name);
+  const handleChangeParent = async (name, device_id) => {
+    console.log("name", name, device_id);
+    set_device_id(device_id);
     let items = parentList.filter((item) => item.parent_name == name);
     console.log("parent", items[0]?.items);
-    setItems(items[0]?.items);
+    setSubChildList(items[0]?.items);
     setParent(name);
+    // TODO: WORKING
+    if (!items[0]?.items) {
+      handleChangeChild(name, device_id);
+    }
     // let items = parentList.filter((item) => item.parent_name == name);
     // console.log(items);
   };
 
-  const handleChangeChild = (name) => {
+  const handleChangeChild = async (name, device_id) => {
     setChild(name);
-    let url = `/api/v1/device/get-by-parent?parent_name=${name}`;
-    let allData = getDataWithToken(url);
+    set_device_id(device_id);
+    let url = `/api/v1/model/get-by-device?device_id=${device_id}`;
+    let allData = await getDataWithToken(url);
     console.log("after child list", allData?.data?.data);
+    setItems(allData?.data?.data);
   };
 
   const getTopItems = () => {
@@ -117,7 +134,6 @@ const ModelList = ({
 
   useEffect(() => {
     getTopItems();
-    getTechnician();
   }, []);
   useEffect(() => {
     getTopItems();
@@ -125,7 +141,6 @@ const ModelList = ({
 
   return (
     <div>
-      {/* <RepairChecklist /> */}
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
@@ -140,12 +155,26 @@ const ModelList = ({
                   role="button"
                   sx={parent == data?.name ? style.linkActive : style.link}
                   key={index}
-                  onMouseEnter={() => handleChangeParent(data?.name)}
+                  onClick={() => handleChangeParent(data?.name, data?._id)}
                 >
                   {data?.name}
                 </Box>
               ))}
           </Box>
+          {subChildList?.length > 0 && (
+            <Box sx={style.nav2}>
+              {subChildList?.map((data, index) => (
+                <Button
+                  variant={child == data?.name ? "contained" : "outlined"}
+                  key={index}
+                  onClick={() => handleChangeChild(data?.name, data?._id)}
+                >
+                  {data?.name}
+                </Button>
+              ))}
+            </Box>
+          )}
+
           {/* <Box sx={style.nav} style={{ marginTop: 20 }}>
             {childList?.length > 0 &&
               childList?.map((data, index) => (
@@ -171,15 +200,15 @@ const ModelList = ({
                 role="button"
                 onClick={() => setDevice(item.name)}
               >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <img
                     src={item?.image?.url ? item?.image?.url : "/noImage.png"}
                     alt=""
                     style={{ maxWidth: 30 }}
                   />
+                  <Typography variant="body1">{item.name}</Typography>
                 </Box>
 
-                <Typography variant="body1">{item.name}</Typography>
                 {device == item.name && (
                   <Box>
                     <Checkbox checked={device == item.name} />
@@ -188,6 +217,22 @@ const ModelList = ({
               </Box>
             </Grid>
           ))}
+
+        {/* {items && items.length == 0 && (
+          <Grid size={12}>
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: 600,
+                mb: 3,
+                mt: 3,
+                textAlign: "center",
+              }}
+            >
+              No Data Found
+            </Typography>
+          </Grid>
+        )} */}
       </Grid>
     </div>
   );

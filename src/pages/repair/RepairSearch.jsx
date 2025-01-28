@@ -1,17 +1,30 @@
-import { Button, IconButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import SearchForm from "./SearchForm";
 import AddContact from "./AddContact";
 import EditContact from "./EditContact";
 import ModelList from "./ModelList";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import IssueList from "./IssueList";
+import TechnicianList from "./TechnicianList";
+import RepairStatusList from "./RepairStatusList";
+import PaymentList from "./PaymentList";
+import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "../../context/AuthContext";
+import { handlePostData } from "../../services/PostDataService";
+import { useSnackbar } from "notistack";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  console.log("location", location.state);
+  const { ifixit_admin_panel } = useContext(AuthContext);
+  const { enqueueSnackbar } = useSnackbar();
 
   const [contactData, setContactData] = useState({});
+
+  const [id, setId] = useState("");
 
   const [searchPrams, setSearchPrams] = useState("");
   const [name, setName] = useState("");
@@ -23,9 +36,118 @@ const RepairSearch = () => {
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
+  const [steps, setSteps] = useState(0);
+  const [technician, setTechnician] = useState("");
+  const [technicianName, setTechnicianName] = useState("");
 
   const [issue, setIssue] = useState("");
+  const [allIssue, setAllIssue] = useState([]);
+  const [allIssueUpdate, setAllIssueUpdate] = useState([]);
+  const [repair_checklist, set_repair_checklist] = useState({});
+
+  const [due_amount, set_due_amount] = useState("");
+  const [discount_amount, set_discount_amount] = useState("");
+  const [customer_id, set_customer_id] = useState("");
+
+  const [payment_info, set_payment_info] = useState([]);
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
+
+  const handleSubmit = async () => {
+    let token = ifixit_admin_panel.token;
+    const decodedToken = jwtDecode(token);
+    // console.log('fdfdf',decodedToken?.user?.branch_id)
+    let allIssueModified = allIssue.map((item) => {
+      let d = {
+        name: item.name,
+        price: item.price,
+      };
+      return d;
+    });
+    console.log("allIssueModified", allIssueModified);
+    const data = {
+      customer_id: customer_id,
+      branch_id: decodedToken?.user?.branch_id,
+      pass_code: passCode,
+      brand_id: brand_id,
+      deliveryStatus: deliveryStatus,
+      due_amount: due_amount,
+      discount_amount: discount_amount,
+      repair_by: technician,
+      repair_status: repairStatus,
+      issues: allIssueModified,
+      repair_checklist: repair_checklist,
+      payment_info: payment_info,
+      serial: serial,
+
+      // manual data
+      payment_status: "success",
+      remarks: "auto",
+      status: true,
+      created_by: "admin",
+    };
+
+    console.log("final data", data);
+
+    let response = await handlePostData("/api/v1/repair/create", data, false);
+
+    console.log("response", response);
+
+    if (response.status >= 200 && response.status < 300) {
+      handleSnakbarOpen("Added successfully", "success");
+      // clearFilter();
+
+      // clearForm();
+      // handleDialogClose();
+    } else {
+      handleSnakbarOpen(response?.data?.message, "error");
+    }
+  };
+
+  const initState = (data) => {
+    if (data) {
+      console.log("data", data);
+      setId(location?.state?.row?._id);
+      setName(data?.customer_data[0]?.name);
+      setContactData({ name: data?.customer_data[0]?.name });
+      setSerial(data?.serial);
+      setPassCode(data?.pass_code);
+      setAllIssueUpdate(data?.issues);
+      setTechnician(data?.repair_by);
+      setRepairStatus(data?.repair_status);
+      setDeliveryStatus(data?.deliveryStatus);
+      // setBrand(data?.brand);
+      // setBrandId(data?.brandId);
+      // setDevice(data?.device);
+      // setRepairBy(data?.repairBy);
+      // setPaymentStatus(data?.paymentStatus);
+      // setTechnicianName(data?.technicianName);
+      // setSteps(data?.steps);
+      // setIssue(data?.issue);
+      // set_repair_checklist(data?.repair_checklist);
+      // set_due_amount(data?.due_amount);
+      // set_discount_amount(data?.discount_amount);
+      // set_customer_id(data?.customer_id);
+      // set_payment_info(data?.payment_info);
+    }
+  };
+
+  useEffect(() => {
+    initState(location?.state?.row);
+  }, []);
 
   return (
     <div>
@@ -37,7 +159,7 @@ const RepairSearch = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair List
+            Repair List {name}
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
@@ -93,7 +215,11 @@ const RepairSearch = () => {
             deliveryStatus={deliveryStatus}
             setDeliveryStatus={setDeliveryStatus}
             parentList={parentList}
-            setParentList={setParentList} 
+            setParentList={setParentList}
+            technician={technician}
+            technicianName={technicianName}
+            allIssue={allIssue}
+            set_customer_id={set_customer_id}
           />
         </Grid>
         {/*  TODO: don't remove */}
@@ -113,10 +239,19 @@ const RepairSearch = () => {
           {device && <IssueList issue={issue} setIssue={setIssue} /> }
         </Grid> */}
         {/*  TODO: don't remove */}
-        <Grid size={9} sx={{ p: 3 }}>
+        <Grid
+          size={9}
+          sx={{
+            p: 3,
+            borderBottom: "1px solid #EAECF1",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
           {!brand && contactData?._id ? (
             <EditContact contactData={contactData} />
-          ) : !brand && !contactData?._id ? (
+          ) : !brand && !contactData?._id && !id ? (
             <AddContact searchPrams={searchPrams} contactData={contactData} />
           ) : (
             ""
@@ -125,9 +260,78 @@ const RepairSearch = () => {
           {device === "Primary" && !device && (
             <ModelList device={device} setDevice={setDevice} />
           )}
-          {brand && <ModelList device={device} setDevice={setDevice}  brand={brand} brand_id={brand_id} parentList={parentList} setParentList={setParentList} /> }
+          {steps == 0 && (
+            <ModelList
+              id={id}
+              device={device}
+              setDevice={setDevice}
+              brand={brand}
+              brand_id={brand_id}
+              parentList={parentList}
+              setParentList={setParentList}
+            />
+          )}
+          {steps == 1 && (
+            <IssueList
+              issue={issue}
+              setIssue={setIssue}
+              allIssue={allIssue}
+              setAllIssue={setAllIssue}
+              repair_checklist={repair_checklist}
+              set_repair_checklist={set_repair_checklist}
+              allIssueUpdate={allIssueUpdate}
+            />
+          )}
+          {steps == 2 && (
+            <TechnicianList
+              technician={technician}
+              setTechnician={setTechnician}
+              technicianName={technicianName}
+              setTechnicianName={setTechnicianName}
+            />
+          )}
+          {steps == 3 && (
+            <RepairStatusList
+              repairStatus={repairStatus}
+              setRepairStatus={setRepairStatus}
+              deliveryStatus={deliveryStatus}
+              setDeliveryStatus={setDeliveryStatus}
+            />
+          )}
+          {steps == 4 && (
+            <PaymentList
+              paymentStatus={paymentStatus}
+              setPaymentStatus={setPaymentStatus}
+              payment_info={payment_info}
+              set_payment_info={set_payment_info}
+              due_amount={due_amount}
+              set_due_amount={set_due_amount}
+            />
+          )}
+          <Box
+            sx={{
+              borderTop: "1px solid #EAECF1",
+              pt: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 2,
+            }}
+          >
+            <Button variant="outlined" onClick={() => setSteps(steps - 1)}>
+              Back
+            </Button>
+            <Button variant="contained" onClick={() => setSteps(steps + 1)}>
+              Next
+            </Button>
+            {steps == 4 && (
+              <Button variant="contained" onClick={handleSubmit}>
+                Submit
+              </Button>
+            )}
+          </Box>
         </Grid>
       </Grid>
+      <Box></Box>
     </div>
   );
 };

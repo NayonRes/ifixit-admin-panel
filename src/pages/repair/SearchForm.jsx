@@ -94,6 +94,10 @@ const SearchForm = ({
   setDeliveryStatus,
   parentList,
   setParentList,
+  technician,
+  technicianName,
+  allIssue,
+  set_customer_id,
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -103,6 +107,7 @@ const SearchForm = ({
     let allData = await getDataWithToken(url);
     console.log("allData?.data", allData?.data.data?.[0]);
     setContactData(allData?.data.data?.[0]);
+    set_customer_id(allData?.data.data?.[0]?._id);
   };
 
   const getParent = async () => {
@@ -216,10 +221,10 @@ const SearchForm = ({
           placeholder="Enter Full Name"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
+          value={contactData?.name}
+          // onChange={(e) => {
+          //   setName(e.target.value);
+          // }}
         />
         <Typography
           variant="medium"
@@ -315,7 +320,7 @@ const SearchForm = ({
               <MenuItem
                 key={index}
                 value={item.name}
-                onClick={() => setBrandId(item.device_id)}
+                onClick={() => setBrandId(item._id)}
               >
                 {item.name}
               </MenuItem>
@@ -343,51 +348,21 @@ const SearchForm = ({
           //   setDevice(e.target.value);
           // }}
         />
-        {/* <FormControl
-          fullWidth
-          size="small"
-          sx={{
-            ...customeSelectFeild,
-            "& label.Mui-focused": {
-              color: "rgba(0,0,0,0)",
-            },
-
-            "& .MuiOutlinedInput-input img": {
-              position: "relative",
-              top: "2px",
-            },
-            mb: 3,
-          }}
-        >
-          {deviceList?.length < 1 && (
-            <InputLabel
-              id="demo-simple-select-label"
-              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 3 }}>
+          {allIssue.map((item, index) => (
+            <Box
+              key={index}
+              sx={{
+                p: 1,
+                border: "1px solid #818FF8",
+                borderRadius: 1,
+                background: "#E0E8FF",
+              }}
             >
-              Select Device
-            </InputLabel>
-          )}
-          <Select
-            required
-            labelId="demo-simple-select-label"
-            id="device"
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  maxHeight: 250, // Set the max height here
-                },
-              },
-            }}
-            value={device}
-            onChange={(e) => setDevice(e.target.value)}
-          >
-            {deviceList?.map((item) => (
-              <MenuItem key={item} value={item.device_id}>
-                {item.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl> */}
+              {item.name} | ৳ {item.price}
+            </Box>
+          ))}
+        </Box>
         <Typography
           variant="medium"
           color="text.main"
@@ -404,10 +379,10 @@ const SearchForm = ({
           placeholder="Enter Repair By"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
-          value={repairBy}
-          onChange={(e) => {
-            setRepairBy(e.target.value);
-          }}
+          value={technicianName}
+          // onChange={(e) => {
+          //   setRepairBy(e.target.value);
+          // }}
         />
         <Typography
           variant="medium"
