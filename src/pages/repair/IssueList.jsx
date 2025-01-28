@@ -176,11 +176,12 @@ const IssueList = ({
               </Box>
 
               {/* {issue === "Display Assemble" && ( */}
+              {/* {allIssue.some((issue) => issue.name === item.name) ? "has" : "no"} */}
               <Box>
                 <Checkbox
                   // checked={issue === "Display Assemble"}
                   // defaultChecked={() => checkedIssue.includes(item.name)}
-                  checked={checkedIssue.some((issue) => issue === item.name)}
+                  checked={allIssue.some((issue) => issue.name === item.name)}
                   onChange={(e) => handleCheckboxChange(item, e.target.checked)}
                 />
               </Box>

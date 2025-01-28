@@ -159,7 +159,8 @@ const RepairSearch = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair List {name}
+            Repair List
+            {/* {name} */}
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
@@ -219,6 +220,7 @@ const RepairSearch = () => {
             technician={technician}
             technicianName={technicianName}
             allIssue={allIssue}
+            setAllIssue={setAllIssue}
             set_customer_id={set_customer_id}
           />
         </Grid>
@@ -306,6 +308,7 @@ const RepairSearch = () => {
               set_payment_info={set_payment_info}
               due_amount={due_amount}
               set_due_amount={set_due_amount}
+              allIssue={allIssue}
             />
           )}
           <Box

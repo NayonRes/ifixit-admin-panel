@@ -127,9 +127,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={fullName}
-          onChange={(e) => {
-            setFullName(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setFullName(e.target.value);
+          // }}
         />
       </Grid>
       <Grid size={6}>
@@ -150,9 +150,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={mobile}
-          onChange={(e) => {
-            setMobile(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setMobile(e.target.value);
+          // }}
         />
       </Grid>
       <Grid size={6}>
@@ -201,7 +201,7 @@ const ContactForm = ({ contactData }) => {
               },
             }}
             value={customerType}
-            onChange={(e) => setCustomerType(e.target.value)}
+            // onChange={(e) => setCustomerType(e.target.value)}
           >
             {customerTypeList?.map((item) => (
               <MenuItem key={item} value={item}>
@@ -230,9 +230,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setEmail(e.target.value);
+          // }}
         />
       </Grid>
       <Grid size={6}>
@@ -253,9 +253,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={remark}
-          onChange={(e) => {
-            setRemark(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setRemark(e.target.value);
+          // }}
         />
       </Grid>
 
@@ -305,42 +305,55 @@ const ContactForm = ({ contactData }) => {
               top: 12,
             }}
           ></span>
-          <Select
-            required
-            labelId="demo-simple-select-label"
-            id="rating"
-            sx={{
-              paddingLeft: 2,
-            }}
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  maxHeight: 250, // Set the max height here
+          {contactData ? (
+            <TextField
+              required
+              size="small"
+              fullWidth
+              id="rating"
+              placeholder="Enter Remark"
+              variant="outlined"
+              sx={{ ...customeTextFeild, mb: 3 }}
+              value={rating}
+            />
+          ) : (
+            <Select
+              required
+              labelId="demo-simple-select-label"
+              id="rating"
+              sx={{
+                paddingLeft: 2,
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
                 },
-              },
-            }}
-            value={`${rating}`}
-            onChange={(e) => setRating(e.target.value)}
-          >
-            {ratingList?.map((item) => (
-              <MenuItem
-                key={item?._id}
-                value={item?._id}
-                onClick={() => setColor(item?.color)}
-              >
-                <span
-                  style={{
-                    background: item?.color,
-                    height: 16,
-                    width: 16,
-                    borderRadius: "50%",
-                    marginRight: 10,
-                  }}
-                ></span>{" "}
-                {item?.name}
-              </MenuItem>
-            ))}
-          </Select>
+              }}
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+            >
+              {ratingList?.map((item) => (
+                <MenuItem
+                  key={item?._id}
+                  value={item?._id}
+                  onClick={() => setColor(item?.color)}
+                >
+                  <span
+                    style={{
+                      background: item?.color,
+                      height: 16,
+                      width: 16,
+                      borderRadius: "50%",
+                      marginRight: 10,
+                    }}
+                  ></span>{" "}
+                  {item?.name}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
         </FormControl>
       </Grid>
       <Grid size={6}>
@@ -362,9 +375,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={membershipId}
-          onChange={(e) => {
-            setMembershipId(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setMembershipId(e.target.value);
+          // }}
         />
       </Grid>
     </>
