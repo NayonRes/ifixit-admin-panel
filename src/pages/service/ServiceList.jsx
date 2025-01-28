@@ -176,7 +176,7 @@ const ServiceList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(11).keys()].map((e, i) => (
+          {[...Array(7).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -207,7 +207,7 @@ const ServiceList = () => {
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/sparePart?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/service?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -263,7 +263,7 @@ const ServiceList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePart?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/service?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -359,8 +359,7 @@ const ServiceList = () => {
   };
 
   useEffect(() => {
-    getData();
-
+    getData(); 
     getCategoryList();
     getDeviceList();
     getBrandList();
@@ -474,7 +473,7 @@ const ServiceList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
                     required
                     size="small"
@@ -488,7 +487,7 @@ const ServiceList = () => {
                       setName(e.target.value);
                     }}
                   />
-                </Grid>
+                </Grid> */}
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -679,30 +678,21 @@ const ServiceList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
 
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Category
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Warranty
+                    Branch Name
                   </TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Price / <br />
-                    Not on sale
-                  </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Serial No
+                    Available Service no
                   </TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Description
-                  </TableCell> */}
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
+
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
@@ -729,9 +719,6 @@ const ServiceList = () => {
                           width={40}
                         />
                       </TableCell> */}
-                      <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.name}
-                      </TableCell>
 
                       <TableCell>
                         {row?.brand_data[0]?.name
@@ -739,11 +726,11 @@ const ServiceList = () => {
                           : "---------"}
                       </TableCell>
 
-                      <TableCell>
+                      {/* <TableCell>
                         {row?.category_data[0]?.name
                           ? row?.category_data[0]?.name
                           : "---------"}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         {row?.device_data[0]?.name
                           ? row?.device_data[0]?.name
@@ -754,23 +741,22 @@ const ServiceList = () => {
                           ? row?.model_data[0]?.name
                           : "---------"}
                       </TableCell>
-                      <TableCell>
-                        {row?.price ? row?.price : "---------"}
+
+                      <TableCell
+                        sx={{ minWidth: "130px", whiteSpace: "norap" }}
+                      >
+                        {row?.branch_data?.length > 0 &&
+                          row?.branch_data?.map((item, i) => (
+                            <span>
+                              {item?.name}{" "}
+                              {row?.branch_data?.length !== i + 1 && ", "}
+                            </span>
+                          ))}
+                        {/* {row?.name} */}
                       </TableCell>
 
-                      <TableCell>
-                        {row?.warranty ? row?.warranty : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
-                      </TableCell>
+                      <TableCell>{row?.repair_info?.length}</TableCell>
 
-                      {/* <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.description ? row?.description : "---------"}
-                      </TableCell> */}
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.remarks ? row?.remarks : "---------"}
-                      </TableCell>
                       <TableCell>
                         {row?.status ? (
                           <>
@@ -821,7 +807,7 @@ const ServiceList = () => {
                           color="info"
                           startIcon={<ListAltOutlinedIcon />}
                           component={Link}
-                          to={`/spare-parts/${row?._id}`}
+                          to={`/service/details/${row?._id}`}
                         >
                           Details
                         </Button>

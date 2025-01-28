@@ -133,7 +133,6 @@ const AddService = ({ clearFilter }) => {
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [variationList, setVariationList] = useState([]);
   const [repairServiceList, setRepairServiceList] = useState([serviceObject]);
   const [stepList, setStepList] = useState([stepObject]);
 
@@ -179,63 +178,7 @@ const AddService = ({ clearFilter }) => {
     setPrice("");
     setDetails("");
     setFile(null);
-    setVariationList([]);
     setRemarks("");
-  };
-
-  const handleCreateSpareParts = async (variationList, spare_parts_id) => {
-    try {
-      // Create an array of promises
-      // const promises = variationList.map((variation) =>
-      //   handlePostData("/api/v1/sparePartVariation/create", variation, true)
-      // );
-
-      const promises = variationList.map((variation) => {
-        // Prepare FormData
-
-        // name: "",
-        // price: 0,
-        // file: null,
-        const formData = new FormData();
-        formData.append("spare_parts_id", spare_parts_id);
-        formData.append("name", variation?.name?.trim());
-        formData.append("price", parseFloat(variation?.price).toFixed(2));
-        {
-          variation?.file !== null &&
-            variation?.file !== undefined &&
-            formData.append("image", variation?.file);
-        }
-
-        // Call handlePostData for this FormData
-        return handlePostData(
-          "/api/v1/sparePartVariation/create",
-          formData,
-          true
-        );
-      });
-
-      // Wait for all promises to resolve
-      const responses = await Promise.all(promises);
-
-      // Handle all responses
-
-      const allVariationAddedSuccessfully = responses.every(
-        (item) => item.data.status >= 200 && item.data.status < 300
-      );
-
-      if (allVariationAddedSuccessfully) {
-        handleSnakbarOpen("Added successfully", "success");
-        clearFilter();
-
-        clearForm();
-        handleDialogClose();
-      } else {
-        handleSnakbarOpen("Something went wrong", "error");
-      }
-      console.log("All spare parts created successfully:", responses);
-    } catch (error) {
-      console.error("Error creating spare parts:", error);
-    }
   };
 
   function fileToBase64(file) {
@@ -253,23 +196,6 @@ const AddService = ({ clearFilter }) => {
     e.preventDefault();
 
     setLoading(true);
-
-    // let newRepairServiceList = [];
-    // let newStepList = [];
-    // repairServiceList?.map(async (item) => {
-    //   newRepairServiceList?.push({
-    //     ...item,
-    //     repair_image: await fileToBase64(item?.repair_image),
-    //   });
-    // });
-    // stepList?.map(async (item) => {
-    //   newStepList?.push({
-    //     ...item,
-    //     step_image: await fileToBase64(item?.repair_image),
-    //   });
-    // });
-    // console.log("newRepairServiceList", newRepairServiceList);
-    // console.log("newStepList", newStepList);
 
     const newRepairServiceList = await Promise.all(
       repairServiceList?.map(async (item) => ({
@@ -304,7 +230,6 @@ const AddService = ({ clearFilter }) => {
     console.log("response", response?.data?.data?._id);
 
     if (response.status >= 200 && response.status < 300) {
-      await handleCreateSpareParts(variationList, response?.data?.data?._id);
       setLoading(false);
       navigate("/service-list");
       // handleSnakbarOpen("Added successfully", "success");
