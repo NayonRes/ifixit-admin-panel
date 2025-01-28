@@ -17,7 +17,7 @@ import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
@@ -307,7 +307,6 @@ const AddSpareParts = ({ clearFilter }) => {
     if (response.status >= 200 && response.status < 300) {
       await handleCreateSpareParts(variationList, response?.data?.data?._id);
       setLoading(false);
-      navigate("/spare-parts-list")
       // handleSnakbarOpen("Added successfully", "success");
       // clearFilter();
 
@@ -448,37 +447,99 @@ const AddSpareParts = ({ clearFilter }) => {
     getModelList(e.target.value);
   };
   useEffect(() => {
-    getCategoryList();
-    getBrandList();
-    getDeviceList();
+    // getDropdownList();
   }, []);
   return (
     <>
-      <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
-        <Grid size={6}>
-          <Typography
-            variant="h6"
-            gutterBottom
-            component="div"
-            sx={{ color: "#0F1624", fontWeight: 600 }}
-          >
-            Add Spare Parts
-          </Typography>
-        </Grid>
-        <Grid size={6} style={{ textAlign: "right" }}></Grid>
-      </Grid>
-
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #EAECF1",
-          borderRadius: "12px",
-          overflow: "hidden",
-          padding: "16px",
-          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+      <Button
+        variant="contained"
+        disableElevation
+        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+        onClick={() => {
+          setAddDialog(true);
+          getCategoryList();
+          getBrandList();
+          getDeviceList();
+          // getDropdownList();
         }}
+        startIcon={
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        }
       >
-        <form onSubmit={onSubmit}>
+        Add Spare Parts
+      </Button>
+
+      <Dialog
+        open={addDialog}
+        onClose={handleDialogClose}
+        sx={{
+          "& .MuiPaper-root": {
+            borderRadius: "16px", // Customize the border-radius here
+          },
+        }}
+        PaperProps={{
+          component: "form",
+          onSubmit: onSubmit,
+        }}
+        maxWidth="xl"
+      >
+        <DialogTitle
+          id="alert-dialog-title"
+          sx={{
+            fontSize: "20px",
+            fontFamily: '"Inter", sans-serif',
+            fontWeight: 600,
+            color: "#0F1624",
+            position: "relative",
+            px: 2,
+            borderBottom: "1px solid #EAECF1",
+          }}
+        >
+          Add Spare Parts
+          <IconButton
+            sx={{ position: "absolute", right: 0, top: 0 }}
+            onClick={() => setAddDialog(false)}
+          >
+            <svg
+              width="46"
+              height="44"
+              viewBox="0 0 46 44"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M29 16L17 28M17 16L29 28"
+                stroke="#656E81"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </IconButton>
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            maxWidth: "800px",
+            minWidth: "800px",
+            px: 2,
+            borderBottom: "1px solid #EAECF1",
+            my: 1,
+          }}
+        >
           <Grid container spacing={2}>
             <Grid size={6}>
               <Typography
@@ -779,7 +840,7 @@ const AddSpareParts = ({ clearFilter }) => {
               />
             </Grid> */}
 
-            <Grid size={12}>
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -788,7 +849,7 @@ const AddSpareParts = ({ clearFilter }) => {
               >
                 Description
               </Typography>
-              {/* <TextField
+              <TextField
                 multiline
                 rows={2}
                 size="small"
@@ -801,13 +862,13 @@ const AddSpareParts = ({ clearFilter }) => {
                 onChange={(e) => {
                   setDetails(e.target.value);
                 }}
-              /> */}
-              <TextEditor
-                convertedContent={details}
-                setConvertedContent={setDetails}
               />
+              {/* <TextEditor
+                convertedContent={convertedContent}
+                setConvertedContent={setConvertedContent}
+              /> */}
             </Grid>
-            <Grid size={12}>
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -897,7 +958,7 @@ const AddSpareParts = ({ clearFilter }) => {
                           Value
                         </TableCell>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Sell Price
+                         Sell Price
                         </TableCell>
 
                         <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -1067,56 +1128,112 @@ const AddSpareParts = ({ clearFilter }) => {
                 </TableContainer>
               </div>
             </Grid>
-           
-          </Grid>
-          <Box
-            sx={{ p: 2, marginTop: "1px solid #EAECF0", textAlign: "right" }}
-          >
-            <Button
-              variant="outlined"
-              onClick={handleDialogClose}
-              sx={{
-                mr: 2,
-                px: 2,
-                py: 1.25,
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "#344054",
-                border: "1px solid #D0D5DD",
-                boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-              }}
-              component={Link}
-              to="/spare-parts-list"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              disabled={loading}
-              type="submit"
-              sx={{
-                px: 2,
-                py: 1.25,
-                fontSize: "14px",
-                fontWeight: 600,
-                minWidth: "127px",
-                minHeight: "44px",
-              }}
-              // style={{ minWidth: "180px", minHeight: "35px" }}
+            {/* <Grid size={12}>
+          
 
-              disableElevation
-            >
-              <PulseLoader
-                color={"#4B46E5"}
-                loading={loading}
-                size={10}
-                speedMultiplier={0.5}
-              />{" "}
-              {loading === false && "Save changes"}
-            </Button>
-          </Box>
-        </form>
-      </div>
+              <Box {...getRootProps({ style })}>
+                <input {...getInputProps()} />
+
+                <Grid container justifyContent="center">
+                  <Box
+                    sx={{
+                      mb: 1.5,
+                      p: 1.125,
+                      paddingBottom: "3px",
+                      borderRadius: "8px",
+                      border: "1px solid #EAECF0",
+                      boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                    >
+                      <path
+                        d="M6.66666 13.3333L9.99999 10M9.99999 10L13.3333 13.3333M9.99999 10V17.5M16.6667 13.9524C17.6846 13.1117 18.3333 11.8399 18.3333 10.4167C18.3333 7.88536 16.2813 5.83333 13.75 5.83333C13.5679 5.83333 13.3975 5.73833 13.3051 5.58145C12.2184 3.73736 10.212 2.5 7.91666 2.5C4.46488 2.5 1.66666 5.29822 1.66666 8.75C1.66666 10.4718 2.36286 12.0309 3.48911 13.1613"
+                        stroke="#344054"
+                        stroke-width="1.66667"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </Box>
+                </Grid>
+                <Box sx={{ pl: 1.5, textAlign: "center" }}>
+                  <Typography
+                    variant="base"
+                    color="text.fade"
+                    sx={{ fontWeight: 400, mb: 0.5 }}
+                  >
+                    <span style={{ color: "#4238CA", fontWeight: 500 }}>
+                      {" "}
+                      Click to upload{" "}
+                    </span>
+                    or drag and drop
+                  </Typography>
+                  <Typography variant="medium" color="text.fade">
+                    PNG, JPG (max. 400x400px)
+                  </Typography>
+                  {file?.path?.length > 0 && (
+                    <Typography
+                      variant="medium"
+                      color="text.light"
+                      sx={{ mt: 1 }}
+                    >
+                      <b>Uploaded:</b> {file?.path} - {file?.size} bytes
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Grid> */}
+          </Grid>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 2 }}>
+          <Button
+            variant="outlined"
+            onClick={handleDialogClose}
+            sx={{
+              px: 2,
+              py: 1.25,
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#344054",
+              border: "1px solid #D0D5DD",
+              boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+            }}
+          >
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            disabled={loading}
+            type="submit"
+            sx={{
+              px: 2,
+              py: 1.25,
+              fontSize: "14px",
+              fontWeight: 600,
+              minWidth: "127px",
+              minHeight: "44px",
+            }}
+            // style={{ minWidth: "180px", minHeight: "35px" }}
+            autoFocus
+            disableElevation
+          >
+            <PulseLoader
+              color={"#4B46E5"}
+              loading={loading}
+              size={10}
+              speedMultiplier={0.5}
+            />{" "}
+            {loading === false && "Save changes"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

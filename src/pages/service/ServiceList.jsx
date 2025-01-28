@@ -53,20 +53,15 @@ import Badge from "@mui/material/Badge";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
-import {
-  designationList,
-  paymentStatusList,
-  purchaseStatusList,
-  roleList,
-} from "../../data";
-import AddPurchase from "./AddPurchase";
+import { designationList, roleList } from "../../data";
+// import AddSpareParts from "./AddSpareParts";
+// import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
-import Chip from "@mui/material/Chip";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const PurchaseList = () => {
+const ServiceList = () => {
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -81,7 +76,12 @@ const PurchaseList = () => {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
   const [email, setEmail] = useState("");
-
+  const [type, setType] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [rating, setRating] = useState("");
+  const [membershipId, setMembershipId] = useState("");
+  const [minPrice, setMinPrice] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(null);
   const [status, setStatus] = useState("");
   const [category, SetCategory] = useState("");
 
@@ -103,13 +103,6 @@ const PurchaseList = () => {
   const [categoryList, setCategoryList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
   const [modelList, setModelList] = useState([]);
-
-  const [supplierList, setSupplierList] = useState([]);
-  const [supplier, setSupplier] = useState("");
-  const [branchList, setBranchList] = useState([]);
-  const [branch, setBranch] = useState("");
-  const [purchaseStatus, setPurchaseStatus] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
 
   const handleDetailClose = () => {
     setDetails({});
@@ -183,7 +176,7 @@ const PurchaseList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(13).keys()].map((e, i) => (
+          {[...Array(11).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -199,17 +192,22 @@ const PurchaseList = () => {
     getData(newPage);
     setPage(newPage);
   };
-
+  const handleDeviceSelect = (e) => {
+    setDeviceId(e.target.value);
+    setModelId("");
+    getModelList(e.target.value);
+  };
   const clearFilter = (event) => {
-    setSupplier("");
-    setBranch("");
-    setPurchaseStatus("");
-    setPaymentStatus("");
-
+    setName("");
+    setNumber("");
+    setBrandId("");
+    setCategoryId("");
+    setDeviceId("");
+    setModelId("");
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/purchase?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/sparePart?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -235,12 +233,6 @@ const PurchaseList = () => {
       url = newUrl;
     } else {
       let newStatus = status;
-
-      let newSupplier = supplier;
-      let newBranch = branch;
-      let newPurchaseStatus = purchaseStatus;
-      let newPaymentStatus = paymentStatus;
-
       let newCategoryId = categoryId;
       let newBrandId = brandId;
       let newModelId = modelId;
@@ -251,17 +243,17 @@ const PurchaseList = () => {
       if (status === "None") {
         newStatus = "";
       }
-      if (supplier === "None") {
-        newSupplier = "";
+      if (categoryId === "None") {
+        newCategoryId = "";
       }
-      if (branch === "None") {
-        newBranch = "";
+      if (brandId === "None") {
+        newBrandId = "";
       }
-      if (purchaseStatus === "None") {
-        newPurchaseStatus = "";
+      if (modelId === "None") {
+        newModelId = "";
       }
-      if (paymentStatus === "None") {
-        newPaymentStatus = "";
+      if (deviceId === "None") {
+        newDeviceId = "";
       }
 
       if (startingTime !== null) {
@@ -271,7 +263,7 @@ const PurchaseList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/purchase?supplier_id=${newSupplier.trim()}&branch_id=${newBranch}&purchase_status=${newPurchaseStatus}&payment_status=${newPaymentStatus}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/sparePart?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -289,14 +281,28 @@ const PurchaseList = () => {
     setLoading(false);
   };
 
-  const getBranchList = async () => {
+  const sortByParentName = (a, b) => {
+    const nameA = a.parent_name.toUpperCase();
+    const nameB = b.parent_name.toUpperCase();
+
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+
+    return 0;
+  };
+
+  const getBrandList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/branch/dropdownlist`;
+    let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      setBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -305,14 +311,14 @@ const PurchaseList = () => {
     setLoading2(false);
   };
 
-  const getSupplierList = async () => {
+  const getCategoryList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/supplier/dropdownlist`;
+    let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
-      setSupplierList(allData?.data?.data);
+      setCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -320,10 +326,44 @@ const PurchaseList = () => {
     }
     setLoading2(false);
   };
+  const getDeviceList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getModelList = async (id) => {
+    setLoading2(true);
+
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setModelList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
   useEffect(() => {
     getData();
-    getSupplierList();
-    getBranchList();
+
+    getCategoryList();
+    getDeviceList();
+    getBrandList();
   }, []);
 
   return (
@@ -336,17 +376,22 @@ const PurchaseList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Purchase List
+            Service List
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          {/* <AddPurchase clearFilter={clearFilter} /> */}
           <Button
             variant="contained"
             disableElevation
             sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
             component={Link}
-            to="/add-purchase"
+            to="/add-service"
+            // onClick={() => {
+            //   setAddDialog(true);
+            //   getCategoryList();
+            //   getBrandList();
+            //   getDeviceList();
+            // }}
             startIcon={
               <svg
                 width="20"
@@ -365,8 +410,34 @@ const PurchaseList = () => {
               </svg>
             }
           >
-            Add Purchase
+            Add Service
           </Button>
+          {/* <AddSpareParts clearFilter={clearFilter} /> */}
+
+          {/* <IconButton
+            onClick={() => setOpen(!open)}
+            // size="large"
+            aria-label="show 5 new notifications"
+            color="inherit"
+          >
+            <Badge badgeContent={5} color="error">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12.3807 14.2348C13.9595 14.0475 15.4819 13.6763 16.9259 13.1432C15.7286 11.8142 14.9998 10.0547 14.9998 8.125V7.54099C14.9999 7.52734 15 7.51368 15 7.5C15 4.73858 12.7614 2.5 10 2.5C7.23858 2.5 5 4.73858 5 7.5L4.99984 8.125C4.99984 10.0547 4.27106 11.8142 3.07373 13.1432C4.51784 13.6763 6.04036 14.0475 7.61928 14.2348M12.3807 14.2348C11.6 14.3274 10.8055 14.375 9.99984 14.375C9.19431 14.375 8.3999 14.3274 7.61928 14.2348M12.3807 14.2348C12.4582 14.4759 12.5 14.7331 12.5 15C12.5 16.3807 11.3807 17.5 10 17.5C8.61929 17.5 7.5 16.3807 7.5 15C7.5 14.7331 7.54183 14.476 7.61928 14.2348"
+                  stroke="#656E81"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </Badge>
+          </IconButton> */}
         </Grid>
       </Grid>
       <div
@@ -395,7 +466,6 @@ const PurchaseList = () => {
               Details
             </Typography>
           </Grid> */}
-
           <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
@@ -404,7 +474,7 @@ const PurchaseList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
                     required
                     size="small"
@@ -418,138 +488,8 @@ const PurchaseList = () => {
                       setName(e.target.value);
                     }}
                   />
-                </Grid> */}
-
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Supplier
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Supplier"
-                      value={supplier}
-                      onChange={(e) => setSupplier(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {supplierList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Branch
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Branch"
-                      value={branch}
-                      onChange={(e) => setBranch(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {branchList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    sx={{
-                      ...customeTextFeild,
-                    }}
-                  >
-                    <InputLabel id="demo-simple-select-label">
-                      Purchase Status
-                    </InputLabel>
-
-                    <Select
-                      label="Purchase Status"
-                      labelId="demo-simple-select-label"
-                      id="purchaseStatus"
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 250, // Set the max height here
-                          },
-                        },
-                      }}
-                      value={purchaseStatus}
-                      onChange={(e) => setPurchaseStatus(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {purchaseStatusList?.map((item) => (
-                        <MenuItem key={item?._id} value={item}>
-                          {item}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    sx={{
-                      ...customeTextFeild,
-                    }}
-                  >
-                    <InputLabel id="demo-simple-select-label">
-                      Payment Status
-                    </InputLabel>
-
-                    <Select
-                      required
-                      label="Payment Status"
-                      labelId="demo-simple-select-label"
-                      id="paymentStatus"
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 250, // Set the max height here
-                          },
-                        },
-                      }}
-                      value={paymentStatus}
-                      onChange={(e) => setPaymentStatus(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {paymentStatusList?.map((item) => (
-                        <MenuItem key={item?._id} value={item}>
-                          {item}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -576,8 +516,8 @@ const PurchaseList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid> */}
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -604,7 +544,63 @@ const PurchaseList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid> */}
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Category
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Category"
+                      value={categoryId}
+                      onChange={(e) => setCategoryId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {categoryList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Brand
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Brand"
+                      value={brandId}
+                      onChange={(e) => setBrandId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {brandList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
 
                 {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
@@ -683,37 +679,29 @@ const PurchaseList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Supplier
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Purchase Status
+                    Category
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Payment status
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Payment Method
-                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Paid Amount
+                    Warranty
                   </TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Price / <br />
+                    Not on sale
+                  </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Items Grand total
+                    Serial No
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Shipping Charge
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Purchase by
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Purchase Date
-                  </TableCell>
-
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Description
+                  </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
@@ -741,154 +729,45 @@ const PurchaseList = () => {
                           width={40}
                         />
                       </TableCell> */}
-
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.supplier_data[0]?.name
-                          ? row?.supplier_data[0]?.name
-                          : "---------"}
-                        <br />
-                        <Typography
-                          color="text.light"
-                          variant="medium"
-                          sx={{ fontWeight: 500 }}
-                        >
-                          {row?.supplier_data[0]?.mobile
-                            ? row?.supplier_data[0]?.mobile
-                            : "---------"}
-                        </Typography>
+                        {row?.name}
                       </TableCell>
-                      <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.branch_data[0]?.name
-                          ? row?.branch_data[0]?.name
+
+                      <TableCell>
+                        {row?.brand_data[0]?.name
+                          ? row?.brand_data[0]?.name
                           : "---------"}
                       </TableCell>
 
                       <TableCell>
-                        {row?.purchase_status ? (
-                          <Chip
-                            sx={{
-                              color:
-                                row?.purchase_status === "Transit"
-                                  ? "#7527DA"
-                                  : row?.purchase_status === "Hold"
-                                  ? "#C81E1E"
-                                  : row?.purchase_status === "Received"
-                                  ? "#046C4E"
-                                  : "#222",
-                              background:
-                                row?.purchase_status === "Transit"
-                                  ? "#F5F3FF"
-                                  : row?.purchase_status === "Hold"
-                                  ? "#FDF2F2"
-                                  : row?.purchase_status === "Received"
-                                  ? "#F3FAF7"
-                                  : "#222",
-                            }}
-                            label={row?.purchase_status}
-                          />
-                        ) : (
-                          "---------"
-                        )}
+                        {row?.category_data[0]?.name
+                          ? row?.category_data[0]?.name
+                          : "---------"}
                       </TableCell>
-                      <TableCell sx={{ whiteSpace: "nowrap" }}>
-                        {row?.paid_amount === 0 ? (
-                          <Chip
-                            sx={{
-                              color: "#C81E1E",
-                              background: "#FDF2F2",
-                            }}
-                            label="Not Paid"
-                          />
-                        ) : row.purchase_products_data
-                            .reduce((total, item) => {
-                              const itemTotal =
-                                parseFloat(item?.quantity || 0) *
-                                parseFloat(item?.unit_price || 0);
-                              return total + itemTotal;
-                            }, 0)
-                            .toFixed(2) > row?.paid_amount ? (
-                          <Chip
-                            sx={{
-                              color: "#7527DA",
-                              background: "#F5F3FF",
-                            }}
-                            label="Partially Paid"
-                          />
-                        ) : (
-                          <Chip
-                            sx={{
-                              color: "#046C4E",
-                              background: "#F3FAF7",
-                            }}
-                            label="Paid"
-                          />
-                        )}
+                      <TableCell>
+                        {row?.device_data[0]?.name
+                          ? row?.device_data[0]?.name
+                          : "---------"}
                       </TableCell>
-                      {/* <TableCell>
-                        {row?.payment_status ? (
-                          <Chip
-                            sx={{
-                              color:
-                                row?.payment_status === "Transit"
-                                  ? "#7527DA"
-                                  : row?.payment_status === "Hold"
-                                  ? "#C81E1E"
-                                  : row?.payment_status === "Paid"
-                                  ? "#046C4E"
-                                  : "#222",
-                              background:
-                                row?.payment_status === "Transit"
-                                  ? "#F5F3FF"
-                                  : row?.payment_status === "Hold"
-                                  ? "#FDF2F2"
-                                  : row?.payment_status === "Paid"
-                                  ? "#F3FAF7"
-                                  : "#222",
-                            }}
-                            label={row?.payment_status}
-                          />
-                        ) : (
-                          "---------"
-                        )}
+                      <TableCell>
+                        {row?.model_data[0]?.name
+                          ? row?.model_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.price ? row?.price : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.warranty ? row?.warranty : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
+                      </TableCell>
+
+                      {/* <TableCell sx={{ minWidth: "150px" }}>
+                        {row?.description ? row?.description : "---------"}
                       </TableCell> */}
-
-                      <TableCell>
-                        {row?.payment_method
-                          ? row?.payment_method
-                          : "---------"}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.paid_amount ? row?.paid_amount.toFixed(2) : 0}
-                      </TableCell>
-                      <TableCell>
-                        {row?.purchase_products_data?.length > 0
-                          ? row.purchase_products_data
-                              .reduce((total, item) => {
-                                const itemTotal =
-                                  parseFloat(item?.quantity || 0) *
-                                  parseFloat(item?.unit_price || 0);
-                                return total + itemTotal;
-                              }, 0)
-                              .toFixed(2)
-                          : "---------"}
-                      </TableCell>
-
-                      <TableCell>
-                        {row?.shipping_charge
-                          ? row?.shipping_charge.toFixed(2)
-                          : "---------"}
-                      </TableCell>
-
-                      <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.user_data[0]?.name
-                          ? row?.user_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell sx={{ minWidth: "130px" }}>
-                        {moment(row?.purchase_date).format("DD MMM, YYYY")}
-                      </TableCell>
-
                       <TableCell sx={{ minWidth: "150px" }}>
                         {row?.remarks ? row?.remarks : "---------"}
                       </TableCell>
@@ -942,10 +821,11 @@ const PurchaseList = () => {
                           color="info"
                           startIcon={<ListAltOutlinedIcon />}
                           component={Link}
-                          to={`/purchase/${row?._id}`}
+                          to={`/spare-parts/${row?._id}`}
                         >
                           Details
                         </Button>
+                        {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -1039,4 +919,4 @@ const PurchaseList = () => {
   );
 };
 
-export default PurchaseList;
+export default ServiceList;

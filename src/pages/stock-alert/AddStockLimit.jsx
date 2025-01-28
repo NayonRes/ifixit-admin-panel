@@ -804,6 +804,7 @@ const AddStockLimit = ({ clearFilter }) => {
                   sx={{ ...customeTextFeild }}
                   value={item?.limit}
                   onChange={(e) => handleLimitChange(i, e.target.value)}
+                  onWheel={(e) => e.target.blur()}
                 />
               </Grid>
             ))}
