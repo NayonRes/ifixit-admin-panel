@@ -72,6 +72,32 @@ const customeSelectFeild = {
   },
 };
 
+const styles = {
+  issue_list: { display: "flex", flexDirection: "column", gap: 1, mb: 3 },
+  issue_list_item: {
+    p: 1,
+    border: "1px solid #818FF8",
+    borderRadius: 1,
+    background: "#E0E8FF",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: 45,
+    ".issue_list_btn": {
+      display: "none",
+    },
+    "&:hover": {
+      cursor: "pointer",
+      "& .issue_list_btn": {
+        display: "block",
+      },
+    },
+  },
+  // issue_list_btn: {
+  //   display: "none",
+  // },
+};
+
 const SearchForm = ({
   contactData,
   setContactData,
@@ -358,25 +384,20 @@ const SearchForm = ({
           //   setDevice(e.target.value);
           // }}
         />
+        {/* working */}
         {allIssue.length > 0 && (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 3 }}>
+          <Box sx={styles.issue_list}>
             {allIssue.map((item, index) => (
-              <Box
-                key={index}
-                sx={{
-                  p: 1,
-                  border: "1px solid #818FF8",
-                  borderRadius: 1,
-                  background: "#E0E8FF",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
+              <Box key={index} sx={styles.issue_list_item}>
                 {item.name} | ৳ {item.price}
-                <IconButton onClick={() => removeItem(item.id)}>
+                <Box
+                  role="button"
+                  onClick={() => removeItem(item.id)}
+                  className="issue_list_btn"
+                  sx={{ mt: "4px" }}
+                >
                   <CloseIcon />{" "}
-                </IconButton>
+                </Box>
               </Box>
             ))}
           </Box>
