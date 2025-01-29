@@ -1355,6 +1355,7 @@ const PurchaseDetails = () => {
                                         e.target.value
                                       )
                                     }
+                                    onWheel={(e) => e.target.blur()}
                                   />
                                 ) : (
                                   item.quantity
@@ -1384,6 +1385,7 @@ const PurchaseDetails = () => {
                                         e.target.value
                                       )
                                     }
+                                    onWheel={(e) => e.target.blur()}
                                   />
                                 ) : (
                                   item.unit_price

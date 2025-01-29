@@ -712,6 +712,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                 onChange={(e) => {
                   setShippingCharge(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
             </Grid>
             <Grid size={8}>

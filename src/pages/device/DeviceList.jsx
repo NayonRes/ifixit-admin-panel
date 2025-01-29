@@ -164,7 +164,7 @@ const DeviceList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(3).keys()].map((e, i) => (
+          {[...Array(5).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -264,7 +264,6 @@ const DeviceList = () => {
     }
     setLoading(false);
   };
- 
 
   const sortByParentName = (a, b) => {
     const nameA = a.parent_name.toUpperCase();
@@ -450,7 +449,10 @@ const DeviceList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
+                    Name
+                  </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
@@ -467,6 +469,31 @@ const DeviceList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
+                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                        {/* {row?.image?.url?.length > 0 ? (
+                                                <> */}
+                        <img
+                          src={
+                            row?.icon?.url?.length > 0
+                              ? row?.icon?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "6px",
+                            width: "20px",
+                            height: "40px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+
+                        {/* </>
+                                              ) : (
+                                                "No Image"
+                                              )} */}
+                      </TableCell>
                       <TableCell sx={{ width: "30px", pr: 0 }}>
                         {/* {row?.image?.url?.length > 0 ? (
                                                 <> */}
@@ -493,7 +520,7 @@ const DeviceList = () => {
                                               )} */}
                       </TableCell>
                       <TableCell>{row?.name}</TableCell>
-                      <TableCell>{row?.parent_name}</TableCell>
+                      {/* <TableCell>{row?.parent_name}</TableCell> */}
 
                       <TableCell>
                         {row?.status ? (
