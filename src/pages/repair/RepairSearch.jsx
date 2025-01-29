@@ -91,6 +91,7 @@ const RepairSearch = () => {
       repair_by: technician,
       repair_status: repairStatus,
       issues: allIssueModified,
+      spare_parts: allSpareParts,
       repair_checklist: repair_checklist,
       payment_info: payment_info,
       serial: serial,
@@ -128,6 +129,7 @@ const RepairSearch = () => {
       setSerial(data?.serial);
       setPassCode(data?.pass_code);
       setAllIssueUpdate(data?.issues);
+      setAllIssue(data?.issues);
       setTechnician(data?.repair_by);
       setRepairStatus(data?.repair_status);
       setDeliveryStatus(data?.deliveryStatus);
