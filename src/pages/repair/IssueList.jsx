@@ -183,8 +183,6 @@ const IssueList = ({
                     <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
                       {item.price}TK
                     </Typography>
-
-                    <Chip label={`${item.pice}PCs`} />
                   </Box>
                 </Box>
 

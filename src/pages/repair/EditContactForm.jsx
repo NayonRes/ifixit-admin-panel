@@ -5,6 +5,8 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
 import Modal from "@mui/material/Modal";
 import CloseIcon from "@mui/icons-material/Close";
+import CircleIcon from "@mui/icons-material/Circle";
+
 import {
   FormControl,
   IconButton,
@@ -110,6 +112,19 @@ export default function EditContactForm({ contactData }) {
     "Walk In",
     "Corporate",
   ]);
+
+  const handleRatingWithColor = (rating_id) => {
+    const selectedRating = ratingList.find((r) => r._id === rating_id);
+
+    return (
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <CircleIcon
+          style={{ color: selectedRating.color, height: "20px", width: "20px" }}
+        />
+        {selectedRating.name}
+      </Box>
+    );
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -364,63 +379,18 @@ export default function EditContactForm({ contactData }) {
                     position: "relative",
                     top: "2px",
                   },
-                  mb: 1,
+                  mb: 3,
                 }}
               >
-                {ratingList?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Rating
-                  </InputLabel>
-                )}
-                <span
-                  style={{
-                    background: color,
-                    height: 16,
-                    width: 16,
-                    borderRadius: "50%",
-                    marginRight: 10,
-                    position: "absolute",
-                    left: 12,
-                    top: 12,
-                  }}
-                ></span>
-
                 <Select
-                  required
                   labelId="demo-simple-select-label"
-                  id="rating"
-                  sx={{
-                    paddingLeft: 2,
-                  }}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
+                  id="demo-simple-select"
                   value={rating}
                   onChange={(e) => setRating(e.target.value)}
                 >
                   {ratingList?.map((item) => (
-                    <MenuItem
-                      key={item?._id}
-                      value={item?._id}
-                      onClick={() => setColor(item?.color)}
-                    >
-                      <span
-                        style={{
-                          background: item?.color,
-                          height: 16,
-                          width: 16,
-                          borderRadius: "50%",
-                          marginRight: 10,
-                        }}
-                      ></span>{" "}
-                      {item?.name}
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {handleRatingWithColor(item?._id)}
                     </MenuItem>
                   ))}
                 </Select>

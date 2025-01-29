@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { designationList, roleList } from "../../data";
+import CircleIcon from "@mui/icons-material/Circle";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -90,6 +91,19 @@ const ContactForm = ({ contactData }) => {
     "Walk In",
     "Corporate",
   ]);
+
+  const handleRatingWithColor = (rating_id) => {
+    const selectedRating = ratingList.find((r) => r._id === rating_id);
+
+    return (
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <CircleIcon
+          style={{ color: selectedRating.color, height: "20px", width: "20px" }}
+        />
+        {selectedRating.name}
+      </Box>
+    );
+  };
 
   const getInitData = async () => {
     if (contactData) {
@@ -285,6 +299,38 @@ const ContactForm = ({ contactData }) => {
             mb: 3,
           }}
         >
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={rating}
+            onChange={(e) => setRating(e.target.value)}
+          >
+            {ratingList?.map((item) => (
+              <MenuItem key={item?._id} value={item?._id}>
+                {handleRatingWithColor(item?._id)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* <br />
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+            mb: 3,
+          }}
+        >
           {ratingList?.length < 1 && (
             <InputLabel
               id="demo-simple-select-label"
@@ -354,7 +400,7 @@ const ContactForm = ({ contactData }) => {
               ))}
             </Select>
           )}
-        </FormControl>
+        </FormControl> */}
       </Grid>
       <Grid size={6}>
         <Typography

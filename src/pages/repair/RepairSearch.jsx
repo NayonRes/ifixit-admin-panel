@@ -330,9 +330,46 @@ const RepairSearch = () => {
             <Button variant="outlined" onClick={() => setSteps(steps - 1)}>
               Back
             </Button>
-            <Button variant="contained" onClick={() => setSteps(steps + 1)}>
+            {steps == 0 && (
+              <Button
+                variant="contained"
+                onClick={() => setSteps(steps + 1)}
+                disabled={device.length < 1}
+              >
+                Next
+              </Button>
+            )}
+            {steps == 1 && (
+              <Button
+                variant="contained"
+                onClick={() => setSteps(steps + 1)}
+                disabled={allIssue.length < 1 && allSpareParts.length < 1}
+              >
+                Next
+              </Button>
+            )}
+
+            {steps == 2 && (
+              <Button
+                variant="contained"
+                onClick={() => setSteps(steps + 1)}
+                disabled={technician.length < 1}
+              >
+                Next
+              </Button>
+            )}
+            {steps == 3 && (
+              <Button
+                variant="contained"
+                onClick={() => setSteps(steps + 1)}
+                disabled={repairStatus.length < 1 || deliveryStatus.length < 1}
+              >
+                Next
+              </Button>
+            )}
+            {/* <Button variant="contained" onClick={() => setSteps(steps + 1)}>
               Next
-            </Button>
+            </Button> */}
             {steps == 4 && (
               <Button variant="contained" onClick={handleSubmit}>
                 Submit
