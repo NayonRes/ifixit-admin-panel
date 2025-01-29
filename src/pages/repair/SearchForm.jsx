@@ -127,6 +127,8 @@ const SearchForm = ({
   technicianName,
   allIssue,
   setAllIssue,
+  allSpareParts,
+  setAllSpareParts,
   set_customer_id,
 }) => {
   const [brandList, setBrandList] = useState([]);
@@ -185,6 +187,10 @@ const SearchForm = ({
 
   const removeItem = (id) => {
     setAllIssue(allIssue.filter((item) => item.id !== id));
+  };
+
+  const removeSpareParts = (id) => {
+    setAllSpareParts(allSpareParts.filter((item) => item._id !== id));
   };
 
   useEffect(() => {
@@ -393,6 +399,23 @@ const SearchForm = ({
                 <Box
                   role="button"
                   onClick={() => removeItem(item.id)}
+                  className="issue_list_btn"
+                  sx={{ mt: "4px" }}
+                >
+                  <CloseIcon />{" "}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
+        {allSpareParts.length > 0 && (
+          <Box sx={styles.issue_list}>
+            {allSpareParts.map((item, index) => (
+              <Box key={index} sx={styles.issue_list_item}>
+                {item.name} | ৳ {item.price}
+                <Box
+                  role="button"
+                  onClick={() => removeSpareParts(item._id)}
                   className="issue_list_btn"
                   sx={{ mt: "4px" }}
                 >

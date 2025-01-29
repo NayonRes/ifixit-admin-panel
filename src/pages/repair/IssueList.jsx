@@ -4,6 +4,7 @@ import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
 import RepairChecklist from "./RepairChecklist";
+import SparePars from "./SparePars";
 
 const style = {
   nav: {
@@ -77,6 +78,8 @@ const IssueList = ({
   setIssue,
   allIssue,
   setAllIssue,
+  allSpareParts,
+  setAllSpareParts,
   repair_checklist,
   set_repair_checklist,
   allIssueUpdate,
@@ -117,7 +120,7 @@ const IssueList = ({
               All
             </Box> */}
             <Box
-              sx={style.linkActive}
+              sx={serviceType === "issue" ? style.linkActive : style.link}
               role="button"
               onClick={() => setServiceType("issue")}
             >
@@ -138,9 +141,9 @@ const IssueList = ({
               Issue
             </Box>
             <Box
-              sx={style.link}
+              sx={serviceType === "spare-parts" ? style.linkActive : style.link}
               role="button"
-              onClick={() => setServiceType("display")}
+              onClick={() => setServiceType("spare-parts")}
             >
               <svg
                 width="24"
@@ -156,7 +159,7 @@ const IssueList = ({
                   fill="#667085"
                 />
               </svg>
-              Display {serviceType}
+              Spare Parts
             </Box>
           </Box>
         </Grid>
@@ -199,12 +202,12 @@ const IssueList = ({
           ))}
         </Grid>
       )}
-      {serviceType === "display" && (
+      {serviceType === "spare-parts" && (
         <Box>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae,
-          quibusdam ex itaque perferendis consequatur consectetur eligendi, sit
-          distinctio cupiditate sequi ad aut facere saepe veritatis error
-          molestiae expedita tempore atque!
+          <SparePars
+            allSpareParts={allSpareParts}
+            setAllSpareParts={setAllSpareParts}
+          />
         </Box>
       )}
     </div>

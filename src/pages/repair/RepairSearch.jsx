@@ -14,6 +14,7 @@ import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
 import { handlePostData } from "../../services/PostDataService";
 import { useSnackbar } from "notistack";
+import { all } from "axios";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ const RepairSearch = () => {
 
   const [issue, setIssue] = useState("");
   const [allIssue, setAllIssue] = useState([]);
+  const [allSpareParts, setAllSpareParts] = useState([]);
   const [allIssueUpdate, setAllIssueUpdate] = useState([]);
   const [repair_checklist, set_repair_checklist] = useState({});
 
@@ -221,6 +223,8 @@ const RepairSearch = () => {
             technicianName={technicianName}
             allIssue={allIssue}
             setAllIssue={setAllIssue}
+            allSpareParts={allSpareParts}
+            setAllSpareParts={setAllSpareParts}
             set_customer_id={set_customer_id}
           />
         </Grid>
@@ -279,6 +283,8 @@ const RepairSearch = () => {
               setIssue={setIssue}
               allIssue={allIssue}
               setAllIssue={setAllIssue}
+              allSpareParts={allSpareParts}
+              setAllSpareParts={setAllSpareParts}
               repair_checklist={repair_checklist}
               set_repair_checklist={set_repair_checklist}
               allIssueUpdate={allIssueUpdate}
@@ -309,6 +315,7 @@ const RepairSearch = () => {
               due_amount={due_amount}
               set_due_amount={set_due_amount}
               allIssue={allIssue}
+              allSpareParts={allSpareParts}
             />
           )}
           <Box
