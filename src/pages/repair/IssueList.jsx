@@ -81,6 +81,7 @@ const IssueList = ({
   set_repair_checklist,
   allIssueUpdate,
 }) => {
+  const [serviceType, setServiceType] = useState("issue");
   const handleCheckboxChange = (issue, isChecked) => {
     if (isChecked) {
       setAllIssue((prev) => [...prev, issue]); // Add issue to the array
@@ -112,10 +113,14 @@ const IssueList = ({
         </Grid>
         <Grid size={12}>
           <Box sx={style.nav}>
-            <Box role="button" sx={style.link}>
+            {/* <Box role="button" sx={style.link}>
               All
-            </Box>
-            <Box sx={style.linkActive}>
+            </Box> */}
+            <Box
+              sx={style.linkActive}
+              role="button"
+              onClick={() => setServiceType("issue")}
+            >
               <svg
                 width="24"
                 height="22"
@@ -132,7 +137,11 @@ const IssueList = ({
               </svg>
               Issue
             </Box>
-            <Box sx={style.link}>
+            <Box
+              sx={style.link}
+              role="button"
+              onClick={() => setServiceType("display")}
+            >
               <svg
                 width="24"
                 height="6"
@@ -147,120 +156,57 @@ const IssueList = ({
                   fill="#667085"
                 />
               </svg>
-              Display
+              Display {serviceType}
             </Box>
           </Box>
         </Grid>
       </Grid>
-      <Grid container spacing={2} sx={{ mt: 3 }}>
-        {issueArr.map((item, index) => (
-          <Grid size={3}>
-            <Box
-              sx={issue === item.name ? style.cardActive : style.card}
-              // sx={style.cardActive}
-              role="button"
-              onClick={() => setIssue(item.name)}
-            >
+      {serviceType === "issue" && (
+        <Grid container spacing={2} sx={{ mt: 3 }}>
+          {issueArr.map((item, index) => (
+            <Grid size={3}>
               <Box
-                key={index}
-                sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                sx={issue === item.name ? style.cardActive : style.card}
+                // sx={style.cardActive}
+                role="button"
+                onClick={() => setIssue(item.name)}
               >
-                <Typography variant="body1">{item.name}</Typography>
-                <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                  <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
-                    {item.price}TK
-                  </Typography>
+                <Box
+                  key={index}
+                  sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                >
+                  <Typography variant="body1">{item.name}</Typography>
+                  <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                    <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
+                      {item.price}TK
+                    </Typography>
 
-                  <Chip label={`${item.pice}PCs`} />
+                    <Chip label={`${item.pice}PCs`} />
+                  </Box>
                 </Box>
-              </Box>
 
-              {/* {issue === "Display Assemble" && ( */}
-              {/* {allIssue.some((issue) => issue.name === item.name) ? "has" : "no"} */}
-              <Box>
-                <Checkbox
-                  // checked={issue === "Display Assemble"}
-                  // defaultChecked={() => checkedIssue.includes(item.name)}
-                  checked={allIssue.some((issue) => issue.name === item.name)}
-                  onChange={(e) => handleCheckboxChange(item, e.target.checked)}
-                />
+                <Box>
+                  <Checkbox
+                    checked={allIssue.some((issue) => issue.name === item.name)}
+                    onChange={(e) =>
+                      handleCheckboxChange(item, e.target.checked)
+                    }
+                  />
+                </Box>
+                {/* )} */}
               </Box>
-              {/* )} */}
-            </Box>
-          </Grid>
-        ))}
-        {/* <Grid size={3}>
-          <Box
-            sx={issue === "Display Assemble" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setIssue("Display Assemble")}
-          >
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Typography variant="body1">Display Assemble</Typography>
-              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
-                  300TK
-                </Typography>
-
-                <Chip label="9 PCs" />
-              </Box>
-            </Box>
-
-            {issue === "Display Assemble" && (
-              <Box>
-                <Checkbox checked={issue === "Display Assemble"} />
-              </Box>
-            )}
-          </Box>
+            </Grid>
+          ))}
         </Grid>
-        <Grid size={3}>
-          <Box
-            sx={issue === "Camera Issues" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setIssue("Camera Issues")}
-          >
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Typography variant="body1">Camera Issues</Typography>
-              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
-                  1000TK
-                </Typography>
-
-                <Chip label="9 PCs" />
-              </Box>
-            </Box>
-            {issue === "Camera Issues" && (
-              <Box>
-                <Checkbox checked={issue === "Camera Issues"} />
-              </Box>
-            )}
-          </Box>
-        </Grid> */}
-
-        {/* <Grid size={3}>
-          <Box
-            sx={issue === "Battery Assemble" ? style.cardActive : style.card}
-            role="button"
-            onClick={() => setIssue("Battery Assemble")}
-          >
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <Typography variant="body1">Battery Assemble</Typography>
-              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                <Typography variant="body2" sx={{ color: "#3E3BC3" }}>
-                  300TK
-                </Typography>
-
-                <Chip label="9 PCs" />
-              </Box>
-            </Box>
-            {issue === "Battery Assemble" && (
-              <Box>
-                <Checkbox checked={issue === "Battery Assemble"} />
-              </Box>
-            )}
-          </Box>
-        </Grid> */}
-      </Grid>
+      )}
+      {serviceType === "display" && (
+        <Box>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae,
+          quibusdam ex itaque perferendis consequatur consectetur eligendi, sit
+          distinctio cupiditate sequi ad aut facere saepe veritatis error
+          molestiae expedita tempore atque!
+        </Box>
+      )}
     </div>
   );
 };
