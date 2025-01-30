@@ -37,6 +37,7 @@ import AddSpareParts from "../spare-parts/AddSpareParts";
 import AddPurchase from "../purchase/AddPurchase";
 import ServiceList from "../service/ServiceList";
 import AddService from "../service/AddService";
+import ServiceDetails from "../service/ServiceDetails";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -175,6 +176,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <ServiceList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="service/details/:id"
+          element={
+            <PrivateRoute>
+              <ServiceDetails />
             </PrivateRoute>
           }
         />
