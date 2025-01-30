@@ -68,6 +68,19 @@ const RepairSearch = () => {
     });
   };
 
+  const checkSum = () => {
+    // let issuePrice =
+    //   allIssue.reduce((sum, item) => sum + item.price, 0) +
+    //   allSpareParts.reduce((sum, item) => sum + item.price, 0);
+    // let paymentPrice = payment_info.reduce((sum, item) => sum + item.amount, 0);
+    // console.log("payemnt info", issuePrice, paymentPrice);
+    // if (issuePrice === paymentPrice) {
+    //   console.log("equal");
+    // } else {
+    //   console.log("not equal");
+    // }
+  };
+
   const handleSubmit = async () => {
     if (!serial) {
       return handleSnakbarOpen("Serial is Required", "error");
@@ -391,6 +404,7 @@ const RepairSearch = () => {
               <Button
                 variant="contained"
                 onClick={handleSubmit}
+                // onClick={checkSum}
                 sx={buttonStyle}
               >
                 Submit

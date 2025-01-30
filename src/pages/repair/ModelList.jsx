@@ -140,42 +140,44 @@ const ModelList = ({
   }, [brand]);
 
   return (
-    <div>
-      <Grid container columnSpacing={3} sx={{}}>
-        <Grid size={12}>
-          <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-            Select Model
-          </Typography>
-        </Grid>
-        <Grid size={12}>
-          <Box sx={style.nav}>
-            {childList?.length > 0 &&
-              childList?.map((data, index) => (
-                <Box
-                  role="button"
-                  sx={parent == data?.name ? style.linkActive : style.link}
-                  key={index}
-                  onClick={() => handleChangeParent(data?.name, data?._id)}
-                >
-                  {data?.name}
+    <div className="">
+      {childList?.length > 0 && (
+        <div>
+          <Grid container columnSpacing={3} sx={{}}>
+            <Grid size={12}>
+              <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
+                Select Model
+              </Typography>
+            </Grid>
+            <Grid size={12}>
+              <Box sx={style.nav}>
+                {childList?.length > 0 &&
+                  childList?.map((data, index) => (
+                    <Box
+                      role="button"
+                      sx={parent == data?.name ? style.linkActive : style.link}
+                      key={index}
+                      onClick={() => handleChangeParent(data?.name, data?._id)}
+                    >
+                      {data?.name}
+                    </Box>
+                  ))}
+              </Box>
+              {subChildList?.length > 0 && (
+                <Box sx={style.nav2}>
+                  {subChildList?.map((data, index) => (
+                    <Button
+                      variant={child == data?.name ? "contained" : "outlined"}
+                      key={index}
+                      onClick={() => handleChangeChild(data?.name, data?._id)}
+                    >
+                      {data?.name}
+                    </Button>
+                  ))}
                 </Box>
-              ))}
-          </Box>
-          {subChildList?.length > 0 && (
-            <Box sx={style.nav2}>
-              {subChildList?.map((data, index) => (
-                <Button
-                  variant={child == data?.name ? "contained" : "outlined"}
-                  key={index}
-                  onClick={() => handleChangeChild(data?.name, data?._id)}
-                >
-                  {data?.name}
-                </Button>
-              ))}
-            </Box>
-          )}
+              )}
 
-          {/* <Box sx={style.nav} style={{ marginTop: 20 }}>
+              {/* <Box sx={style.nav} style={{ marginTop: 20 }}>
             {childList?.length > 0 &&
               childList?.map((data, index) => (
                 <Box
@@ -188,37 +190,39 @@ const ModelList = ({
                 </Box>
               ))}
           </Box> */}
-        </Grid>
-      </Grid>
-      <Grid container spacing={2} sx={{ mt: 3 }}>
-        {items &&
-          items.length > 0 &&
-          items.map((item, index) => (
-            <Grid size={3} key={index}>
-              <Box
-                sx={device == item.name ? style.cardActive : style.card}
-                role="button"
-                onClick={() => setDevice(item.name)}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <img
-                    src={item?.image?.url ? item?.image?.url : "/noImage.png"}
-                    alt=""
-                    style={{ maxWidth: 30 }}
-                  />
-                  <Typography variant="body1">{item.name}</Typography>
-                </Box>
-
-                {device == item.name && (
-                  <Box>
-                    <Checkbox checked={device == item.name} />
-                  </Box>
-                )}
-              </Box>
             </Grid>
-          ))}
+          </Grid>
+          <Grid container spacing={2} sx={{ mt: 3 }}>
+            {items &&
+              items.length > 0 &&
+              items.map((item, index) => (
+                <Grid size={3} key={index}>
+                  <Box
+                    sx={device == item.name ? style.cardActive : style.card}
+                    role="button"
+                    onClick={() => setDevice(item.name)}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <img
+                        src={
+                          item?.image?.url ? item?.image?.url : "/noImage.png"
+                        }
+                        alt=""
+                        style={{ maxWidth: 30 }}
+                      />
+                      <Typography variant="body1">{item.name}</Typography>
+                    </Box>
 
-        {/* {items && items.length == 0 && (
+                    {device == item.name && (
+                      <Box>
+                        <Checkbox checked={device == item.name} />
+                      </Box>
+                    )}
+                  </Box>
+                </Grid>
+              ))}
+
+            {/* {items && items.length == 0 && (
           <Grid size={12}>
             <Typography
               variant="body1"
@@ -233,7 +237,9 @@ const ModelList = ({
             </Typography>
           </Grid>
         )} */}
-      </Grid>
+          </Grid>
+        </div>
+      )}
     </div>
   );
 };
