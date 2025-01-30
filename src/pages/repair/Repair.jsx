@@ -277,7 +277,14 @@ const Repair = () => {
           <Button
             variant="contained"
             disableElevation
-            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            sx={{
+              px: 2,
+              py: 1.25,
+              fontSize: "14px",
+              fontWeight: 600,
+              minWidth: "127px",
+              minHeight: "44px",
+            }}
             onClick={() => navigate("/repair-search")}
             startIcon={
               <svg

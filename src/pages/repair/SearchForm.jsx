@@ -343,6 +343,7 @@ const SearchForm = ({
             </InputLabel>
           )}
           <Select
+            disabled={!serial ||!passCode}
             required
             labelId="demo-simple-select-label"
             id="customer_type"
