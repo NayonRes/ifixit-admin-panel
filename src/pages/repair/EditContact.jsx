@@ -21,7 +21,7 @@ const EditContact = ({ contactData }) => {
           <UpdateCustomer row={contactData} />
         </Grid>
         <ContactForm contactData={contactData} />
-        <RepairHistory />
+        <RepairHistory contactData={contactData} />
       </Grid>
     </div>
   );

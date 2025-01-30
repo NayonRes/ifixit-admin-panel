@@ -131,6 +131,7 @@ const SearchForm = ({
   allSpareParts,
   setAllSpareParts,
   set_customer_id,
+  setScreenType,
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -387,6 +388,7 @@ const SearchForm = ({
             onClick={handleBranchClick}
             onChange={(e) => {
               setBrand(e.target.value);
+              setScreenType("steper");
             }}
           >
             {brandList?.map((item, index) => (

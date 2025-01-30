@@ -55,6 +55,8 @@ const RepairSearch = () => {
 
   const [payment_info, set_payment_info] = useState([]);
 
+  const [screenType, setScreenType] = useState("add_contact");
+
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -248,6 +250,7 @@ const RepairSearch = () => {
             allSpareParts={allSpareParts}
             setAllSpareParts={setAllSpareParts}
             set_customer_id={set_customer_id}
+            setScreenType={setScreenType}
           />
         </Grid>
         {/*  TODO: don't remove */}
@@ -280,7 +283,7 @@ const RepairSearch = () => {
           {!brand && contactData?._id ? (
             <EditContact contactData={contactData} />
           ) : !brand && !contactData?._id && !id ? (
-            <AddContact searchPrams={searchPrams} contactData={contactData} />
+            <AddContact searchPrams={searchPrams} contactData={contactData} setContactData={setContactData} />
           ) : (
             ""
           )}
@@ -340,77 +343,100 @@ const RepairSearch = () => {
               allSpareParts={allSpareParts}
             />
           )}
-          <Box
-            sx={{
-              borderTop: "1px solid #EAECF1",
-              pt: 2,
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 2,
-            }}
-          >
-            <Button
-              variant="outlined"
-              onClick={() => setSteps(steps - 1)}
-              sx={buttonStyle}
+          {/* {screenType == "add_contact" && (
+            <Box
+              sx={{
+                borderTop: "1px solid #EAECF1",
+                pt: 2,
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+              }}
             >
-              Back
-            </Button>
-            {steps == 0 && (
               <Button
                 variant="contained"
                 onClick={() => setSteps(steps + 1)}
-                disabled={device.length < 1}
                 sx={buttonStyle}
               >
-                Next
+                Add Contact
               </Button>
-            )}
-            {steps == 1 && (
+            </Box>
+          )} */}
+          {screenType == "steper" && (
+            <Box
+              sx={{
+                borderTop: "1px solid #EAECF1",
+                pt: 2,
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+              }}
+            >
               <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={allIssue.length < 1 && allSpareParts.length < 1}
+                variant="outlined"
+                onClick={() => setSteps(steps - 1)}
                 sx={buttonStyle}
               >
-                Next
+                Back
               </Button>
-            )}
+              {steps == 0 && (
+                <Button
+                  variant="contained"
+                  onClick={() => setSteps(steps + 1)}
+                  disabled={device.length < 1}
+                  sx={buttonStyle}
+                >
+                  Next
+                </Button>
+              )}
+              {steps == 1 && (
+                <Button
+                  variant="contained"
+                  onClick={() => setSteps(steps + 1)}
+                  disabled={allIssue.length < 1 && allSpareParts.length < 1}
+                  sx={buttonStyle}
+                >
+                  Next
+                </Button>
+              )}
 
-            {steps == 2 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={technician.length < 1}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {steps == 3 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={repairStatus.length < 1 || deliveryStatus.length < 1}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {/* <Button variant="contained" onClick={() => setSteps(steps + 1)}>
+              {steps == 2 && (
+                <Button
+                  variant="contained"
+                  onClick={() => setSteps(steps + 1)}
+                  disabled={technician.length < 1}
+                  sx={buttonStyle}
+                >
+                  Next
+                </Button>
+              )}
+              {steps == 3 && (
+                <Button
+                  variant="contained"
+                  onClick={() => setSteps(steps + 1)}
+                  disabled={
+                    repairStatus.length < 1 || deliveryStatus.length < 1
+                  }
+                  sx={buttonStyle}
+                >
+                  Next
+                </Button>
+              )}
+              {/* <Button variant="contained" onClick={() => setSteps(steps + 1)}>
               Next
             </Button> */}
-            {steps == 4 && (
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                // onClick={checkSum}
-                sx={buttonStyle}
-              >
-                Submit
-              </Button>
-            )}
-          </Box>
+              {steps == 4 && (
+                <Button
+                  variant="contained"
+                  onClick={handleSubmit}
+                  // onClick={checkSum}
+                  sx={buttonStyle}
+                >
+                  Submit
+                </Button>
+              )}
+            </Box>
+          )}
         </Grid>
       </Grid>
       <Box></Box>
