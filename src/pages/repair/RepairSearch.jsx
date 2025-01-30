@@ -68,7 +68,26 @@ const RepairSearch = () => {
     });
   };
 
+  const checkSum = () => {
+    // let issuePrice =
+    //   allIssue.reduce((sum, item) => sum + item.price, 0) +
+    //   allSpareParts.reduce((sum, item) => sum + item.price, 0);
+    // let paymentPrice = payment_info.reduce((sum, item) => sum + item.amount, 0);
+    // console.log("payemnt info", issuePrice, paymentPrice);
+    // if (issuePrice === paymentPrice) {
+    //   console.log("equal");
+    // } else {
+    //   console.log("not equal");
+    // }
+  };
+
   const handleSubmit = async () => {
+    if (!serial) {
+      return handleSnakbarOpen("Serial is Required", "error");
+    }
+    if (!passCode) {
+      return handleSnakbarOpen("Pass Code is Required", "error");
+    }
     let token = ifixit_admin_panel.token;
     const decodedToken = jwtDecode(token);
     // console.log('fdfdf',decodedToken?.user?.branch_id)
@@ -171,7 +190,8 @@ const RepairSearch = () => {
           <Button
             variant="contained"
             disableElevation
-            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            sx={buttonStyle}
             onClick={() => navigate("/repair")}
             startIcon={
               <svg
@@ -329,7 +349,11 @@ const RepairSearch = () => {
               gap: 2,
             }}
           >
-            <Button variant="outlined" onClick={() => setSteps(steps - 1)}>
+            <Button
+              variant="outlined"
+              onClick={() => setSteps(steps - 1)}
+              sx={buttonStyle}
+            >
               Back
             </Button>
             {steps == 0 && (
@@ -337,6 +361,7 @@ const RepairSearch = () => {
                 variant="contained"
                 onClick={() => setSteps(steps + 1)}
                 disabled={device.length < 1}
+                sx={buttonStyle}
               >
                 Next
               </Button>
@@ -346,6 +371,7 @@ const RepairSearch = () => {
                 variant="contained"
                 onClick={() => setSteps(steps + 1)}
                 disabled={allIssue.length < 1 && allSpareParts.length < 1}
+                sx={buttonStyle}
               >
                 Next
               </Button>
@@ -356,6 +382,7 @@ const RepairSearch = () => {
                 variant="contained"
                 onClick={() => setSteps(steps + 1)}
                 disabled={technician.length < 1}
+                sx={buttonStyle}
               >
                 Next
               </Button>
@@ -365,6 +392,7 @@ const RepairSearch = () => {
                 variant="contained"
                 onClick={() => setSteps(steps + 1)}
                 disabled={repairStatus.length < 1 || deliveryStatus.length < 1}
+                sx={buttonStyle}
               >
                 Next
               </Button>
@@ -373,7 +401,12 @@ const RepairSearch = () => {
               Next
             </Button> */}
             {steps == 4 && (
-              <Button variant="contained" onClick={handleSubmit}>
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                // onClick={checkSum}
+                sx={buttonStyle}
+              >
                 Submit
               </Button>
             )}
@@ -386,3 +419,12 @@ const RepairSearch = () => {
 };
 
 export default RepairSearch;
+
+const buttonStyle = {
+  px: 2,
+  py: 1.25,
+  fontSize: "14px",
+  fontWeight: 600,
+  minWidth: "127px",
+  minHeight: "44px",
+};

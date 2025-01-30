@@ -99,7 +99,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
 
     let data = {
       has_power,
-      battery_health,
+      battery_health: battery_health || 0 ,
       note,
       checklist: transformed,
     };
@@ -201,6 +201,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
           Pre Repair Checklist
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
+            disabled={issueList.filter((item) => item.status).length < 1}
             onClick={() => setOpen(false)}
           >
             <svg
@@ -389,6 +390,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
           <Button
             variant="outlined"
             onClick={handleDialogClose}
+            disabled={issueList.filter((item) => item.status).length < 1}
             sx={{
               px: 2,
               py: 1.25,
@@ -402,6 +404,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
             Close
           </Button>
           <Button
+            disabled={issueList.filter((item) => item.status).length < 1}
             variant="contained"
             // disabled={loading}
             // type="submit"

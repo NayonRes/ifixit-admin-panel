@@ -13,6 +13,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { getDataWithToken } from "../../services/GetDataService";
 import IssueList from "./IssueList";
+import { useSnackbar } from "notistack";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -134,7 +135,22 @@ const SearchForm = ({
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
 
+  const { enqueueSnackbar } = useSnackbar();
+
   // console.log('all is', allIssue)
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
 
   const getUser = async (searchValue) => {
     let url = `/api/v1/customer?name=${name}&mobile=${searchValue}`;
@@ -191,6 +207,19 @@ const SearchForm = ({
 
   const removeSpareParts = (id) => {
     setAllSpareParts(allSpareParts.filter((item) => item._id !== id));
+  };
+
+  const handleBranchClick = () => {
+    if (!serial) {
+      document.getElementById("serial").focus();
+      handleSnakbarOpen("Enter Serial Please", "error");
+      return;
+    }
+    if (!passCode) {
+      document.getElementById("passcode").focus();
+      handleSnakbarOpen("Enter Pass Code Please", "error");
+      return;
+    }
   };
 
   useEffect(() => {
@@ -343,6 +372,7 @@ const SearchForm = ({
             </InputLabel>
           )}
           <Select
+            disabled={!serial || !passCode}
             required
             labelId="demo-simple-select-label"
             id="customer_type"
@@ -354,6 +384,7 @@ const SearchForm = ({
               },
             }}
             value={brand}
+            onClick={handleBranchClick}
             onChange={(e) => {
               setBrand(e.target.value);
             }}
