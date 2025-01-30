@@ -10,12 +10,16 @@ import {
   FormControlLabel,
   FormLabel,
   IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import AddIcon from "@mui/icons-material/Add";
 import { useSnackbar } from "notistack";
 
 import PulseLoader from "react-spinners/PulseLoader";
@@ -79,6 +83,9 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
   const [has_power, set_has_power] = useState(false);
   const [battery_health, set_battery_health] = useState("");
   const [note, set_note] = useState("");
+
+  const [newCheckList, setNewCheckList] = useState("");
+
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setOpen(!open);
@@ -134,6 +141,34 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
 
       event.target.value = ""; // Clear the input field after adding the item
     }
+  };
+
+  const handleAdd = () => {
+    const newName = newCheckList.trim();
+
+    // Check if the name already exists in the issueList
+    const isDuplicate = issueList.some(
+      (item) => item.name.toLowerCase() === newName.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      enqueueSnackbar("This checklist item already exists.", {
+        variant: "error",
+        autoHideDuration: 3000,
+      });
+      setNewCheckList("");
+      return;
+    }
+
+    // Add new item if it doesn't exist
+    const newItem = { name: newName, status: false };
+    setIssueList((prevList) => {
+      const updatedList = [...prevList, newItem];
+      console.log("Updated issueList:", updatedList);
+      return updatedList;
+    });
+
+    setNewCheckList("");
   };
 
   return (
@@ -267,7 +302,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
             >
               Add New Checklist
             </Typography>
-            <TextField
+            {/* <TextField
               size="small"
               fullWidth
               id="name"
@@ -275,7 +310,36 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
               variant="outlined"
               sx={{ ...customeTextFeild, mb: 3 }}
               onKeyDown={handleKeyPress}
-            />
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton onClick={handleAdd} edge="end">
+                    <AddIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
+            /> */}
+            <FormControl fullWidth variant="outlined">
+              <OutlinedInput
+                sx={{ ...customeTextFeild, mb: 3 }}
+                placeholder="Enter additional checklist name "
+                size="small"
+                id="outlined-adornment-password"
+                value={newCheckList}
+                onChange={(e) => setNewCheckList(e.target.value)}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleAdd}
+                      // onMouseDown={handleAdd}
+                      // onMouseUp={handleAdd}
+                      edge="end"
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
           </Grid>
           <Box sx={{ display: "flex", gap: 3 }}>
             <Grid size={6}>
@@ -354,7 +418,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
             disableElevation
             onClick={() => {
               handleSave();
-              handleDialogClose()
+              handleDialogClose();
             }}
           >
             <PulseLoader

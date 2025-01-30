@@ -14,6 +14,7 @@ import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
 import { handlePostData } from "../../services/PostDataService";
 import { useSnackbar } from "notistack";
+import { all } from "axios";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ const RepairSearch = () => {
 
   const [issue, setIssue] = useState("");
   const [allIssue, setAllIssue] = useState([]);
+  const [allSpareParts, setAllSpareParts] = useState([]);
   const [allIssueUpdate, setAllIssueUpdate] = useState([]);
   const [repair_checklist, set_repair_checklist] = useState({});
 
@@ -89,6 +91,7 @@ const RepairSearch = () => {
       repair_by: technician,
       repair_status: repairStatus,
       issues: allIssueModified,
+      spare_parts: allSpareParts,
       repair_checklist: repair_checklist,
       payment_info: payment_info,
       serial: serial,
@@ -126,6 +129,7 @@ const RepairSearch = () => {
       setSerial(data?.serial);
       setPassCode(data?.pass_code);
       setAllIssueUpdate(data?.issues);
+      setAllIssue(data?.issues);
       setTechnician(data?.repair_by);
       setRepairStatus(data?.repair_status);
       setDeliveryStatus(data?.deliveryStatus);
@@ -159,7 +163,8 @@ const RepairSearch = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair List {name}
+            Repair List
+            {/* {name} */}
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
@@ -219,6 +224,9 @@ const RepairSearch = () => {
             technician={technician}
             technicianName={technicianName}
             allIssue={allIssue}
+            setAllIssue={setAllIssue}
+            allSpareParts={allSpareParts}
+            setAllSpareParts={setAllSpareParts}
             set_customer_id={set_customer_id}
           />
         </Grid>
@@ -277,6 +285,8 @@ const RepairSearch = () => {
               setIssue={setIssue}
               allIssue={allIssue}
               setAllIssue={setAllIssue}
+              allSpareParts={allSpareParts}
+              setAllSpareParts={setAllSpareParts}
               repair_checklist={repair_checklist}
               set_repair_checklist={set_repair_checklist}
               allIssueUpdate={allIssueUpdate}
@@ -306,6 +316,8 @@ const RepairSearch = () => {
               set_payment_info={set_payment_info}
               due_amount={due_amount}
               set_due_amount={set_due_amount}
+              allIssue={allIssue}
+              allSpareParts={allSpareParts}
             />
           )}
           <Box
@@ -320,9 +332,46 @@ const RepairSearch = () => {
             <Button variant="outlined" onClick={() => setSteps(steps - 1)}>
               Back
             </Button>
-            <Button variant="contained" onClick={() => setSteps(steps + 1)}>
+            {steps == 0 && (
+              <Button
+                variant="contained"
+                onClick={() => setSteps(steps + 1)}
+                disabled={device.length < 1}
+              >
+                Next
+              </Button>
+            )}
+            {steps == 1 && (
+              <Button
+                variant="contained"
+                onClick={() => setSteps(steps + 1)}
+                disabled={allIssue.length < 1 && allSpareParts.length < 1}
+              >
+                Next
+              </Button>
+            )}
+
+            {steps == 2 && (
+              <Button
+                variant="contained"
+                onClick={() => setSteps(steps + 1)}
+                disabled={technician.length < 1}
+              >
+                Next
+              </Button>
+            )}
+            {steps == 3 && (
+              <Button
+                variant="contained"
+                onClick={() => setSteps(steps + 1)}
+                disabled={repairStatus.length < 1 || deliveryStatus.length < 1}
+              >
+                Next
+              </Button>
+            )}
+            {/* <Button variant="contained" onClick={() => setSteps(steps + 1)}>
               Next
-            </Button>
+            </Button> */}
             {steps == 4 && (
               <Button variant="contained" onClick={handleSubmit}>
                 Submit

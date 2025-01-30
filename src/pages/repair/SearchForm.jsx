@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   FormControl,
+  IconButton,
   InputAdornment,
   InputLabel,
   MenuItem,
@@ -9,7 +10,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { getDataWithToken } from "../../services/GetDataService";
+import IssueList from "./IssueList";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -69,6 +72,32 @@ const customeSelectFeild = {
   },
 };
 
+const styles = {
+  issue_list: { display: "flex", flexDirection: "column", gap: 1, mb: 3 },
+  issue_list_item: {
+    p: 1,
+    border: "1px solid #818FF8",
+    borderRadius: 1,
+    background: "#E0E8FF",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: 45,
+    ".issue_list_btn": {
+      display: "none",
+    },
+    "&:hover": {
+      cursor: "pointer",
+      "& .issue_list_btn": {
+        display: "block",
+      },
+    },
+  },
+  // issue_list_btn: {
+  //   display: "none",
+  // },
+};
+
 const SearchForm = ({
   contactData,
   setContactData,
@@ -97,10 +126,15 @@ const SearchForm = ({
   technician,
   technicianName,
   allIssue,
+  setAllIssue,
+  allSpareParts,
+  setAllSpareParts,
   set_customer_id,
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
+
+  // console.log('all is', allIssue)
 
   const getUser = async (searchValue) => {
     let url = `/api/v1/customer?name=${name}&mobile=${searchValue}`;
@@ -151,6 +185,14 @@ const SearchForm = ({
     }
   };
 
+  const removeItem = (id) => {
+    setAllIssue(allIssue.filter((item) => item.id !== id));
+  };
+
+  const removeSpareParts = (id) => {
+    setAllSpareParts(allSpareParts.filter((item) => item._id !== id));
+  };
+
   useEffect(() => {
     // getBrand();
     getParent();
@@ -168,7 +210,7 @@ const SearchForm = ({
           my: 1,
         }}
       >
-        {searchPrams}
+        {/* {JSON.stringify(allIssue)} */}
         <TextField
           type="number"
           required
@@ -348,21 +390,42 @@ const SearchForm = ({
           //   setDevice(e.target.value);
           // }}
         />
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 3 }}>
-          {allIssue.map((item, index) => (
-            <Box
-              key={index}
-              sx={{
-                p: 1,
-                border: "1px solid #818FF8",
-                borderRadius: 1,
-                background: "#E0E8FF",
-              }}
-            >
-              {item.name} | ৳ {item.price}
-            </Box>
-          ))}
-        </Box>
+        {/* working */}
+        {allIssue.length > 0 && (
+          <Box sx={styles.issue_list}>
+            {allIssue.map((item, index) => (
+              <Box key={index} sx={styles.issue_list_item}>
+                {item.name} | ৳ {item.price}
+                <Box
+                  role="button"
+                  onClick={() => removeItem(item.id)}
+                  className="issue_list_btn"
+                  sx={{ mt: "4px" }}
+                >
+                  <CloseIcon />{" "}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
+        {allSpareParts.length > 0 && (
+          <Box sx={styles.issue_list}>
+            {allSpareParts.map((item, index) => (
+              <Box key={index} sx={styles.issue_list_item}>
+                {item.name} | ৳ {item.price}
+                <Box
+                  role="button"
+                  onClick={() => removeSpareParts(item._id)}
+                  className="issue_list_btn"
+                  sx={{ mt: "4px" }}
+                >
+                  <CloseIcon />{" "}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
+
         <Typography
           variant="medium"
           color="text.main"

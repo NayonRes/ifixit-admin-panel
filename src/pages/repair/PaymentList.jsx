@@ -123,6 +123,8 @@ const PaymentList = ({
   set_payment_info,
   due_amount,
   set_due_amount,
+  allIssue,
+  allSpareParts,
 }) => {
   const [amounts, setAmounts] = useState([]);
 
@@ -310,6 +312,10 @@ const PaymentList = ({
                 fullWidth
                 variant="outlined"
                 sx={{ mb: 0, background: "#fff", borderRadius: 1 }}
+                value={
+                  allIssue.reduce((sum, item) => sum + item.price, 0) +
+                  allSpareParts.reduce((sum, item) => sum + item.price, 0)
+                }
                 // value={membershipId}
                 // onChange={(e) => {
                 //   setMembershipId(e.target.value);

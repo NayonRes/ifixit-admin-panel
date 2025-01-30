@@ -3,8 +3,6 @@ import { Box, Button, Checkbox, Chip, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
-import Paper from "@mui/material/Paper";
 import RepairChecklist from "./RepairChecklist";
 import SparePars from "./SparePars";
 
@@ -69,28 +67,10 @@ const style = {
   },
 };
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#F9FAFB",
-  padding: "16px 12px",
-  borderRadius: "8px !important",
-  border: "1px solid #EAECF0",
-  cursor: "pointer",
-}));
-
 const issueArr = [
-  {
-    _id: "679a7feaba034bd3619d56aa",
-    name: "Display Assemble",
-    price: 300,
-    pice: 5,
-  },
-  {
-    _id: "679930b211d0139b651d203e",
-    name: "Battery Assemble",
-    price: 1000,
-    pice: 30,
-  },
-  { _id: "679a7feaba034bd3619d56ab", name: "Audio Issue", price: 600, pice: 5 },
+  { id: 1, name: "Display Assemble", price: 300, pice: 5 },
+  { id: 2, name: "Battery Assemble", price: 1000, pice: 30 },
+  { id: 3, name: "Audio Issue", price: 600, pice: 5 },
 ];
 
 const IssueList = ({
@@ -105,10 +85,6 @@ const IssueList = ({
   allIssueUpdate,
 }) => {
   const [serviceType, setServiceType] = useState("issue");
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [checkedIssue, setCheckedIssue] = useState([]);
-
   const handleCheckboxChange = (issue, isChecked) => {
     if (isChecked) {
       setAllIssue((prev) => [...prev, issue]); // Add issue to the array
@@ -117,42 +93,13 @@ const IssueList = ({
     }
   };
 
-  const handleSelectedProduct = (item) => {
-    // console.log("item", item);
-    if (selectedProducts.some((res) => res._id === item._id)) {
-      setSelectedProducts(
-        selectedProducts.filter((res) => res._id !== item._id)
-      );
-      setAllIssue(selectedProducts.filter((res) => res._id !== item._id));
-    } else {
-      setSelectedProducts([
-        ...selectedProducts,
-        {
-          ...item,
-
-          id: item._id,
-          name: item.name,
-          price: item.price,
-        },
-      ]);
-      setAllIssue([
-        ...selectedProducts,
-        {
-          ...item,
-
-          id: item._id,
-          name: item.name,
-          price: item.price,
-        },
-      ]);
-    }
-
-    console.log("all selectedProducts", selectedProducts);
-  };
-
+  const [checkedIssue, setCheckedIssue] = useState([]);
   useLayoutEffect(() => {
-    setSelectedProducts(allIssue);
-    console.log("listed issue", allIssue);
+    console.log(
+      "ll",
+      allIssueUpdate.map((i) => i.name)
+    );
+    setCheckedIssue(allIssueUpdate.map((i) => i.name));
   }, []);
 
   return (
@@ -164,7 +111,7 @@ const IssueList = ({
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
           <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-            Select Issue
+            Select Issue {checkedIssue.toString()}
           </Typography>
         </Grid>
         <Grid size={12}>
@@ -219,104 +166,11 @@ const IssueList = ({
       </Grid>
       {serviceType === "issue" && (
         <Grid container spacing={2} sx={{ mt: 3 }}>
-          {!searchLoading &&
-            issueArr.length > 0 &&
-            issueArr.map((item, itemIndex) => (
-              <Grid key={itemIndex} item size={3}>
-                <Item
-                  sx={{
-                    border:
-                      selectedProducts.some((pro) => pro?._id === item?._id) &&
-                      "1px solid #818FF8",
-                  }}
-                  onClick={() => handleSelectedProduct(item)}
-                >
-                  {" "}
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Grid container alignItems="center">
-                      <Grid size="auto" sx={{ width: "100%" }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            gap: 2,
-                          }}
-                        >
-                          {/* <Typography
-                            variant="medium"
-                            sx={{
-                              fontWeight: 500,
-                              color: "#344054",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              marginRight: 1, // Optional for spacing
-                            }}
-                          >
-                            {item?.name}
-                          </Typography> */}
-                          <Box
-                            key={itemIndex}
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 1,
-                              flex: 1,
-                            }}
-                          >
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: 500,
-                                color: "#344054",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {item.name}
-                            </Typography>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                gap: 2,
-                                alignItems: "center",
-                              }}
-                            >
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "#3E3BC3" }}
-                              >
-                                {item.price}TK
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <Checkbox
-                            sx={{
-                              display: selectedProducts.some(
-                                (pro) => pro?._id === item?._id
-                              )
-                                ? "block"
-                                : "none",
-                            }}
-                            size="small"
-                            checked={true}
-                            inputProps={{
-                              "aria-label": "controlled",
-                            }}
-                          />
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </Item>
-              </Grid>
-            ))}
-          {/* {issueArr.map((item, index) => (
+          {issueArr.map((item, index) => (
             <Grid size={3}>
               <Box
                 sx={issue === item.name ? style.cardActive : style.card}
+                // sx={style.cardActive}
                 role="button"
                 onClick={() => setIssue(item.name)}
               >
@@ -340,9 +194,10 @@ const IssueList = ({
                     }
                   />
                 </Box>
+                {/* )} */}
               </Box>
             </Grid>
-          ))} */}
+          ))}
         </Grid>
       )}
       {serviceType === "spare-parts" && (

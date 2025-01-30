@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { designationList, roleList } from "../../data";
+import CircleIcon from "@mui/icons-material/Circle";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -91,6 +92,19 @@ const ContactForm = ({ contactData }) => {
     "Corporate",
   ]);
 
+  const handleRatingWithColor = (rating_id) => {
+    const selectedRating = ratingList.find((r) => r._id === rating_id);
+
+    return (
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <CircleIcon
+          style={{ color: selectedRating.color, height: "20px", width: "20px" }}
+        />
+        {selectedRating.name}
+      </Box>
+    );
+  };
+
   const getInitData = async () => {
     if (contactData) {
       setFullName(contactData?.name);
@@ -127,9 +141,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={fullName}
-          onChange={(e) => {
-            setFullName(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setFullName(e.target.value);
+          // }}
         />
       </Grid>
       <Grid size={6}>
@@ -150,9 +164,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={mobile}
-          onChange={(e) => {
-            setMobile(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setMobile(e.target.value);
+          // }}
         />
       </Grid>
       <Grid size={6}>
@@ -201,7 +215,7 @@ const ContactForm = ({ contactData }) => {
               },
             }}
             value={customerType}
-            onChange={(e) => setCustomerType(e.target.value)}
+            // onChange={(e) => setCustomerType(e.target.value)}
           >
             {customerTypeList?.map((item) => (
               <MenuItem key={item} value={item}>
@@ -230,9 +244,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setEmail(e.target.value);
+          // }}
         />
       </Grid>
       <Grid size={6}>
@@ -253,9 +267,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={remark}
-          onChange={(e) => {
-            setRemark(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setRemark(e.target.value);
+          // }}
         />
       </Grid>
 
@@ -268,6 +282,38 @@ const ContactForm = ({ contactData }) => {
         >
           Rating
         </Typography>
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+            mb: 3,
+          }}
+        >
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={rating}
+            onChange={(e) => setRating(e.target.value)}
+          >
+            {ratingList?.map((item) => (
+              <MenuItem key={item?._id} value={item?._id}>
+                {handleRatingWithColor(item?._id)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* <br />
 
         <FormControl
           fullWidth
@@ -305,43 +351,56 @@ const ContactForm = ({ contactData }) => {
               top: 12,
             }}
           ></span>
-          <Select
-            required
-            labelId="demo-simple-select-label"
-            id="rating"
-            sx={{
-              paddingLeft: 2,
-            }}
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  maxHeight: 250, // Set the max height here
+          {contactData ? (
+            <TextField
+              required
+              size="small"
+              fullWidth
+              id="rating"
+              placeholder="Enter Remark"
+              variant="outlined"
+              sx={{ ...customeTextFeild, mb: 3 }}
+              value={rating}
+            />
+          ) : (
+            <Select
+              required
+              labelId="demo-simple-select-label"
+              id="rating"
+              sx={{
+                paddingLeft: 2,
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
                 },
-              },
-            }}
-            value={`${rating}`}
-            onChange={(e) => setRating(e.target.value)}
-          >
-            {ratingList?.map((item) => (
-              <MenuItem
-                key={item?._id}
-                value={item?._id}
-                onClick={() => setColor(item?.color)}
-              >
-                <span
-                  style={{
-                    background: item?.color,
-                    height: 16,
-                    width: 16,
-                    borderRadius: "50%",
-                    marginRight: 10,
-                  }}
-                ></span>{" "}
-                {item?.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+              }}
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+            >
+              {ratingList?.map((item) => (
+                <MenuItem
+                  key={item?._id}
+                  value={item?._id}
+                  onClick={() => setColor(item?.color)}
+                >
+                  <span
+                    style={{
+                      background: item?.color,
+                      height: 16,
+                      width: 16,
+                      borderRadius: "50%",
+                      marginRight: 10,
+                    }}
+                  ></span>{" "}
+                  {item?.name}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        </FormControl> */}
       </Grid>
       <Grid size={6}>
         <Typography
@@ -362,9 +421,9 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={membershipId}
-          onChange={(e) => {
-            setMembershipId(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setMembershipId(e.target.value);
+          // }}
         />
       </Grid>
     </>
