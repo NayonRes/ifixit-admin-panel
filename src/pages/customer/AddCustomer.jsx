@@ -44,9 +44,11 @@ import {
   customerTypeList,
   designationList,
   ratingList,
+  ratingList2,
   roleList,
 } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import CircleIcon from "@mui/icons-material/Circle";
 
 const baseStyle = {
   flex: 1,
@@ -168,7 +170,6 @@ const AddCustomer = ({ clearFilter }) => {
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
- 
     // }
   };
 
@@ -204,7 +205,6 @@ const AddCustomer = ({ clearFilter }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -374,13 +374,22 @@ const AddCustomer = ({ clearFilter }) => {
                 required
                 size="small"
                 fullWidth
+                type="number" 
                 id="number"
                 placeholder="Mobile Number"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={number}
+                // onChange={(e) => {
+                //   setNumber(e.target.value);
+                // }}
                 onChange={(e) => {
-                  setNumber(e.target.value);
+                  if (
+                    e.target.value.length <= 11 &&
+                    /^\d*$/.test(e.target.value)
+                  ) {
+                    setNumber(e.target.value);
+                  }
                 }}
               />
             </Grid>
@@ -509,9 +518,27 @@ const AddCustomer = ({ clearFilter }) => {
                   value={rating}
                   onChange={(e) => setRating(e.target.value)}
                 >
-                  {ratingList?.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
+                  {ratingList2?.map((item) => (
+                    <MenuItem key={item} value={item.name}>
+                      {/* <CircleIcon
+                     style={{ color: "red", height: "20px", width: "20px" }}
+                   />{" "}
+                   {item.name} */}
+
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <CircleIcon
+                          style={{
+                            color: ratingList2?.find(
+                              (res) => res?.name === item.name
+                            )?.color,
+                            height: "20px",
+                            width: "20px",
+                          }}
+                        />
+                        {item.name}
+                      </Box>
                     </MenuItem>
                   ))}
                 </Select>

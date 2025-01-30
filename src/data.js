@@ -12,6 +12,13 @@ export const customerTypeList = [
   "Friends & Family",
 ];
 export const ratingList = ["Excellent", "Good", "Neutral", "Bad", "Very Bad"];
+export const ratingList2 = [
+  { _id: 1, name: "Excellent", color: "#6439FF" },
+  { _id: 2, name: "Good", color: "#00B781" },
+  { _id: 3, name: "Neutral", color: "#79D7BE" },
+  { _id: 4, name: "Bad", color: "#F0BB78" },
+  { _id: 5, name: "Very Bad", color: "#EB5B00" },
+];
 export const purchaseStatusList = ["Transit", "Hold", "Received"];
 export const paymentStatusList = ["Transit", "Hold", "Paid"];
 export const paymentMethodList = ["Cash", "UCB Bank", "BRAC Bank", "City Bank"];
