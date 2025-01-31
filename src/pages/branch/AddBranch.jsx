@@ -88,6 +88,10 @@ const AddBranch = ({ clearFilter }) => {
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [offDay, setOffDay] = useState("");
+  const [phoneNo, setPhoneNo] = useState();
+  const [address, setAddress] = useState();
+
   const [message, setMessage] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
@@ -182,7 +186,6 @@ const AddBranch = ({ clearFilter }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",

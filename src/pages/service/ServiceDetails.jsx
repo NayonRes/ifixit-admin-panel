@@ -326,9 +326,9 @@ const ServiceDetails = ({ clearFilter }) => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>*/}
 
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                  {/* <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -465,9 +465,9 @@ const ServiceDetails = ({ clearFilter }) => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>*/}
 
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                  {/* <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>

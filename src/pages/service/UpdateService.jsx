@@ -206,14 +206,20 @@ const UpdateService = ({ clearFilter }) => {
     const newRepairServiceList = await Promise.all(
       repairServiceList?.map(async (item) => ({
         ...item,
-        repair_image: await fileToBase64(item?.repair_image),
+        repair_image:
+          item?.repair_image instanceof File
+            ? await fileToBase64(item?.repair_image)
+            : item?.repair_image,
       }))
     );
 
     const newStepList = await Promise.all(
       stepList?.map(async (item) => ({
         ...item,
-        step_image: await fileToBase64(item?.step_image),
+        step_image:
+          item?.step_image instanceof File
+            ? await fileToBase64(item?.step_image)
+            : item?.step_image,
       }))
     );
     console.log("newRepairServiceList", newRepairServiceList);
@@ -926,7 +932,7 @@ const UpdateService = ({ clearFilter }) => {
                                   >
                                     <input
                                       className="file_input2"
-                                      required
+                                      // required
                                       id="fileInput"
                                       type="file"
                                       accept="image/png, image/jpg, image/jpeg"
@@ -1173,7 +1179,7 @@ const UpdateService = ({ clearFilter }) => {
                                     }}
                                   >
                                     <input
-                                      required
+                                      // required
                                       id="fileInput"
                                       type="file"
                                       accept="image/png, image/jpg, image/jpeg"
