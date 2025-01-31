@@ -85,6 +85,17 @@ const RepairSearch = () => {
   };
 
   const handleSubmit = async () => {
+    let repairP = allIssue.reduce((sum, item) => sum + item.repair_cost, 0);
+    let parsP = allSpareParts.reduce((sum, item) => sum + item.price, 0);
+    let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
+    let dueP = parseInt(due_amount);
+
+    if (repairP + parsP !== dueP + paymentP) {
+      return handleSnakbarOpen("Total Amount and input are not same!", "error");
+    }
+
+    // return console.log('ok')
+
     if (!serial) {
       return handleSnakbarOpen("Serial is Required", "error");
     }
@@ -117,6 +128,8 @@ const RepairSearch = () => {
       repair_checklist: repair_checklist,
       payment_info: payment_info,
       serial: serial,
+
+      model_id: deviceId,
 
       // manual data
       payment_status: "success",
