@@ -214,6 +214,7 @@ const PaymentList = ({
                   <TextField
                     required
                     type="number"
+                    onWheel={(e) => e.target.blur()}
                     size="small"
                     fullWidth
                     variant="outlined"
@@ -260,6 +261,7 @@ const PaymentList = ({
               <TextField
                 required
                 type="number"
+                onWheel={(e) => e.target.blur()}
                 size="small"
                 fullWidth
                 variant="outlined"
@@ -308,6 +310,7 @@ const PaymentList = ({
               <TextField
                 required
                 type="number"
+                onWheel={(e) => e.target.blur()}
                 size="small"
                 fullWidth
                 variant="outlined"
