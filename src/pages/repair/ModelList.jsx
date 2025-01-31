@@ -83,6 +83,8 @@ const ModelList = ({
   brand_id,
   parentList,
   setParentList,
+  deviceId,
+  setDeviceId,
 }) => {
   const [items, setItems] = useState([
     // { name: "Primary", items: [] },
@@ -146,7 +148,7 @@ const ModelList = ({
           <Grid container columnSpacing={3} sx={{}}>
             <Grid size={12}>
               <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-                Select Model
+                Select Model 
               </Typography>
             </Grid>
             <Grid size={12}>
@@ -200,7 +202,10 @@ const ModelList = ({
                   <Box
                     sx={device == item.name ? style.cardActive : style.card}
                     role="button"
-                    onClick={() => setDevice(item.name)}
+                    onClick={() => {
+                      setDevice(item.name);
+                      setDeviceId(item?._id);
+                    }}
                   >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                       <img

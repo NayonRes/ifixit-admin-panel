@@ -34,6 +34,7 @@ const RepairSearch = () => {
   const [brand, setBrand] = useState("");
   const [brand_id, setBrandId] = useState("");
   const [device, setDevice] = useState("");
+  const [deviceId, setDeviceId] = useState("");
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
@@ -283,7 +284,11 @@ const RepairSearch = () => {
           {!brand && contactData?._id ? (
             <EditContact contactData={contactData} />
           ) : !brand && !contactData?._id && !id ? (
-            <AddContact searchPrams={searchPrams} contactData={contactData} setContactData={setContactData} />
+            <AddContact
+              searchPrams={searchPrams}
+              contactData={contactData}
+              setContactData={setContactData}
+            />
           ) : (
             ""
           )}
@@ -300,6 +305,8 @@ const RepairSearch = () => {
               brand_id={brand_id}
               parentList={parentList}
               setParentList={setParentList}
+              deviceId={deviceId}
+              setDeviceId={setDeviceId}
             />
           )}
           {steps == 1 && (
@@ -313,6 +320,8 @@ const RepairSearch = () => {
               repair_checklist={repair_checklist}
               set_repair_checklist={set_repair_checklist}
               allIssueUpdate={allIssueUpdate}
+              brand_id={brand_id}
+              deviceId={deviceId}
             />
           )}
           {steps == 2 && (

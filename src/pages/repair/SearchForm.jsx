@@ -283,7 +283,7 @@ const SearchForm = ({
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Full Name
+          Full Name 
         </Typography>
         <TextField
           required
@@ -294,6 +294,7 @@ const SearchForm = ({
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={contactData?.name}
+          disabled
           // onChange={(e) => {
           //   setName(e.target.value);
           // }}
@@ -428,7 +429,7 @@ const SearchForm = ({
           <Box sx={styles.issue_list}>
             {allIssue.map((item, index) => (
               <Box key={index} sx={styles.issue_list_item}>
-                {item.name} | ৳ {item.price}
+                {item.name} | ৳ {item.repair_cost}
                 <Box
                   role="button"
                   onClick={() => removeItem(item.id)}

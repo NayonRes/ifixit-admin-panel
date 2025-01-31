@@ -63,12 +63,7 @@ const Item = styled(Paper)(({ theme }) => ({
   cursor: "pointer",
 }));
 
-const SparePars = ({
-  allSpareParts,
-  setAllSpareParts,
-  getBranchId,
-  partsDeviceId,
-}) => {
+const SparePars = ({ allSpareParts, setAllSpareParts }) => {
   const navigate = useNavigate();
   const [addDialog, setAddDialog] = useState(false);
   const [supplier, setSupplier] = useState("");
@@ -340,138 +335,131 @@ const SparePars = ({
     },
   };
 
-  // const getBrandList = async () => {
-  //   setLoading2(true);
+  const getBrandList = async () => {
+    setLoading2(true);
 
-  //   let url = `/api/v1/brand/dropdownlist`;
-  //   let allData = await getDataWithToken(url);
+    let url = `/api/v1/brand/dropdownlist`;
+    let allData = await getDataWithToken(url);
 
-  //   if (allData.status >= 200 && allData.status < 300) {
-  //     setBrandList(allData?.data?.data);
+    if (allData.status >= 200 && allData.status < 300) {
+      setBrandList(allData?.data?.data);
 
-  //     if (allData.data.data.length < 1) {
-  //       setMessage("No data found");
-  //     }
-  //   }
-  //   setLoading2(false);
-  // };
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
 
-  // const getBranchList = async () => {
-  //   setLoading2(true);
+  const getBranchList = async () => {
+    setLoading2(true);
 
-  //   let url = `/api/v1/branch/dropdownlist`;
-  //   let allData = await getDataWithToken(url);
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
 
-  //   if (allData.status >= 200 && allData.status < 300) {
-  //     setBranchList(allData?.data?.data);
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
 
-  //     if (allData.data.data.length < 1) {
-  //       setMessage("No data found");
-  //     }
-  //   }
-  //   setLoading2(false);
-  // };
-  // const getUserList = async () => {
-  //   setLoading2(true);
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getUserList = async () => {
+    setLoading2(true);
 
-  //   let url = `/api/v1/user/dropdownlist`;
-  //   let allData = await getDataWithToken(url);
+    let url = `/api/v1/user/dropdownlist`;
+    let allData = await getDataWithToken(url);
 
-  //   if (allData.status >= 200 && allData.status < 300) {
-  //     setUserList(allData?.data?.data);
+    if (allData.status >= 200 && allData.status < 300) {
+      setUserList(allData?.data?.data);
 
-  //     if (allData.data.data.length < 1) {
-  //       setMessage("No data found");
-  //     }
-  //   }
-  //   setLoading2(false);
-  // };
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
 
-  // const getCategoryList = async () => {
-  //   setLoading2(true);
+  const getCategoryList = async () => {
+    setLoading2(true);
 
-  //   let url = `/api/v1/category/dropdownlist`;
-  //   let allData = await getDataWithToken(url);
+    let url = `/api/v1/category/dropdownlist`;
+    let allData = await getDataWithToken(url);
 
-  //   if (allData.status >= 200 && allData.status < 300) {
-  //     setCategoryList(allData?.data?.data);
+    if (allData.status >= 200 && allData.status < 300) {
+      setCategoryList(allData?.data?.data);
 
-  //     if (allData.data.data.length < 1) {
-  //       setMessage("No data found");
-  //     }
-  //   }
-  //   setLoading2(false);
-  // };
-  // const getDeviceList = async () => {
-  //   setLoading2(true);
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getDeviceList = async () => {
+    setLoading2(true);
 
-  //   let url = `/api/v1/device/dropdownlist`;
-  //   let allData = await getDataWithToken(url);
-  //   console.log("allData?.data?.data", allData?.data?.data);
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
 
-  //   if (allData.status >= 200 && allData.status < 300) {
-  //     setDeviceList(allData?.data?.data);
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
 
-  //     if (allData.data.data.length < 1) {
-  //       setMessage("No data found");
-  //     }
-  //   }
-  //   setLoading2(false);
-  // };
-  // const getModelList = async (id) => {
-  //   setLoading2(true);
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+  const getModelList = async (id) => {
+    setLoading2(true);
 
-  //   // let url = `/api/v1/model/device-model?deviceId=${id}`;
-  //   let url = `/api/v1/model/dropdownlist`;
-  //   let allData = await getDataWithToken(url);
+    // let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let url = `/api/v1/model/dropdownlist`;
+    let allData = await getDataWithToken(url);
 
-  //   if (allData.status >= 200 && allData.status < 300) {
-  //     setModelList(allData?.data?.data);
+    if (allData.status >= 200 && allData.status < 300) {
+      setModelList(allData?.data?.data);
 
-  //     if (allData.data.data.length < 1) {
-  //       setMessage("No data found");
-  //     }
-  //   }
-  //   setLoading2(false);
-  // };
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
 
-  const getProducts = async () => {
+  const getProducts = async (searchText, bId, dId, mId, catId) => {
     setSearchLoading(true);
-    // let url;
-    // let newSearchProductText = searchProductText;
-    // let newBrandId = brandId;
-    // let newDeviceId = deviceId;
-    // let newModelId = modelId;
-    // let newCategoryId = categoryId;
-    // if (searchText) {
-    //   newSearchProductText = searchText;
-    // }
-    // if (bId) {
-    //   newBrandId = bId;
-    // }
-    // if (dId) {
-    //   newDeviceId = dId;
-    // }
-    // if (mId) {
-    //   newModelId = mId;
-    // }
-    // if (catId) {
-    //   newCategoryId = catId;
-    // }
+    let url;
+    let newSearchProductText = searchProductText;
+    let newBrandId = brandId;
+    let newDeviceId = deviceId;
+    let newModelId = modelId;
+    let newCategoryId = categoryId;
+    if (searchText) {
+      newSearchProductText = searchText;
+    }
+    if (bId) {
+      newBrandId = bId;
+    }
+    if (dId) {
+      newDeviceId = dId;
+    }
+    if (mId) {
+      newModelId = mId;
+    }
+    if (catId) {
+      newCategoryId = catId;
+    }
 
-    let branch_id = getBranchId();
-
-    // let url = `/api/v1/sparePart?brand_id=${brand_id}&model_id=${deviceId}&device_id=${partsDeviceId}&branch_id=${branch_id}`;
-
-    let url = `/api/v1/sparePart?model_id=${partsDeviceId}&branch_id=${branch_id}`;
-
-    // url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
     let allData = await getDataWithToken(url);
     // console.log("(allData?.data?.data products", allData?.data?.data);
 
     if (allData.status >= 200 && allData.status < 300) {
-      console.log("lll", allData?.data?.data);
       setProductList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
@@ -515,13 +503,13 @@ const SparePars = ({
     console.log("all selectedProducts", selectedProducts);
   };
   useEffect(() => {
-    // getCategoryList();
-    // getBranchList();
-    // getBrandList();
+    getCategoryList();
+    getBranchList();
+    getBrandList();
     // getUserList();
     // getBrandList();
-    // getDeviceList();
-    // getModelList();
+    getDeviceList();
+    getModelList();
     // getDropdownList();
   }, []);
 
@@ -531,13 +519,9 @@ const SparePars = ({
     }
   }, [allSpareParts]);
 
-  useEffect(() => {
-    getProducts();
-  }, []);
-
   return (
     <Grid container spacing={3}>
-      {/* <Grid size={12}>
+      <Grid size={12}>
         <Typography
           variant="base"
           gutterBottom
@@ -836,12 +820,12 @@ const SparePars = ({
             getProducts(e.target.value);
           }}
         />
-      </Grid> */}
+      </Grid>
       <Grid size={12}>
-        {/* <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
+        <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
           All Product
-        </Typography> */}
-        <Box sx={{ flexGrow: 1, mt: 3}}>
+        </Typography>
+        <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
             {!searchLoading &&
               productList.length > 0 &&
