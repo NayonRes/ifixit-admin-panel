@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { designationList, roleList } from "../../data";
+import { ratingList2, customerTypeList } from "../../data";
 import CircleIcon from "@mui/icons-material/Circle";
 import { handlePostData } from "../../services/PostDataService";
 import { useSnackbar } from "notistack";
@@ -104,10 +104,10 @@ const ContactForm = ({ contactData, setContactData }) => {
     { _id: 4, name: "Bad", color: "#F0BB78" },
     { _id: 5, name: "Very Bad", color: "#EB5B00" },
   ]);
-  const [customerTypeList, setCustomerTypeList] = useState([
-    "Walk In",
-    "Corporate",
-  ]);
+  // const [customerTypeList, setCustomerTypeList] = useState([
+  //   "Walk In",
+  //   "Corporate",
+  // ]);
 
   const handleRatingWithColor = (rating_id) => {
     const selectedRating = ratingList.find((r) => r._id === rating_id);
@@ -268,6 +268,63 @@ const ContactForm = ({ contactData, setContactData }) => {
               position: "relative",
               top: "2px",
             },
+          }}
+        >
+          {customerType?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Customer Type
+            </InputLabel>
+          )}
+          <Select
+            inputProps={{
+              sx: {
+                color: "red", // Change text color
+                WebkitTextFillColor: "#333",
+                "&.Mui-disabled": {
+                  color: "#333",
+                  WebkitTextFillColor: "#333",
+                  background: "#eee",
+                },
+              },
+            }}
+            required
+            labelId="demo-simple-select-label"
+            id="customer_type"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={customerType}
+            disabled={contactData?._id}
+            onChange={(e) => setCustomerType(e.target.value)}
+          >
+            {customerTypeList?.map((item) => (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
             mb: 3,
           }}
         >
@@ -311,7 +368,7 @@ const ContactForm = ({ contactData, setContactData }) => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
       </Grid>
       <Grid size={6}>
         <Typography
@@ -386,10 +443,20 @@ const ContactForm = ({ contactData, setContactData }) => {
               position: "relative",
               top: "2px",
             },
-            mb: 3,
           }}
         >
+          {rating?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Customer Rating
+            </InputLabel>
+          )}
           <Select
+            required
+            labelId="demo-simple-select-label"
+            id="type"
             inputProps={{
               sx: {
                 color: "red", // Change text color
@@ -402,21 +469,36 @@ const ContactForm = ({ contactData, setContactData }) => {
               },
             }}
             className="custom-disabled-select"
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
             disabled={contactData?._id}
             value={rating}
             onChange={(e) => setRating(e.target.value)}
           >
-            {ratingList?.map((item) => (
-              <MenuItem key={item?._id} value={item?._id}>
-                {handleRatingWithColor(item?._id)}
+            {ratingList2?.map((item) => (
+              <MenuItem key={item} value={item.name}>
+                {/* <CircleIcon
+                        style={{ color: "red", height: "20px", width: "20px" }}
+                      />{" "}
+                      {item.name} */}
+
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <CircleIcon
+                    style={{
+                      color: ratingList2?.find((res) => res?.name === item.name)
+                        ?.color,
+                      height: "20px",
+                      width: "20px",
+                    }}
+                  />
+                  {item.name}
+                </Box>
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
         {/* <br />
+
+        
 
         <FormControl
           fullWidth
