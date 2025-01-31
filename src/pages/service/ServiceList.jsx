@@ -359,7 +359,7 @@ const ServiceList = () => {
   };
 
   useEffect(() => {
-    getData(); 
+    getData();
     getCategoryList();
     getDeviceList();
     getBrandList();
@@ -811,7 +811,17 @@ const ServiceList = () => {
                         >
                           Details
                         </Button>
-                        {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
+                        &nbsp;&nbsp;
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="text"
+                          startIcon={<ListAltOutlinedIcon />}
+                          component={Link}
+                          to={`/service/update/${row?._id}`}
+                        >
+                          Edit
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

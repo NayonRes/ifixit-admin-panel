@@ -12,6 +12,8 @@ const TextEditor = ({
   data,
   onChange,
 }) => {
+  console.log("data*****************ggggg**************", data);
+
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
   );

@@ -260,7 +260,7 @@ const AddPurchase = ({ clearFilter }) => {
     formData.append("payment_status", paymentStatus);
     formData.append("branch_id", branch);
     formData.append("payment_method", paymentMethod);
-    formData.append("paid_amount", paidAmount);
+    formData.append("paid_amount", paidAmount ? paidAmount : 0);
     formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
 
     formData.append("remarks", remarks);
