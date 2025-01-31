@@ -295,7 +295,10 @@ const RepairSearch = () => {
           }}
         >
           {!brand && contactData?._id ? (
-            <EditContact contactData={contactData} />
+            <EditContact
+              contactData={contactData}
+              setContactData={setContactData}
+            />
           ) : !brand && !contactData?._id && !id ? (
             <AddContact
               searchPrams={searchPrams}

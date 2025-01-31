@@ -195,6 +195,10 @@ const SearchForm = ({
   const handleSearch = (e) => {
     let searchValue = e.target.value;
     if (searchValue.length <= 11) {
+      setContactData({});
+      set_customer_id("");
+    }
+    if (searchValue.length <= 11) {
       setSearchPrams(searchValue);
     }
     if (searchValue.length === 11) {
@@ -283,7 +287,7 @@ const SearchForm = ({
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Full Name 
+          Full Name
         </Typography>
         <TextField
           required

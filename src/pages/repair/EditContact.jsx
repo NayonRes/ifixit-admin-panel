@@ -6,7 +6,7 @@ import RepairHistory from "./RepairHistory";
 import EditContactForm from "./EditContactForm";
 import UpdateCustomer from "../customer/UpdateCustomer";
 
-const EditContact = ({ contactData }) => {
+const EditContact = ({ contactData, setContactData }) => {
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
@@ -18,7 +18,7 @@ const EditContact = ({ contactData }) => {
             Edit Contact
           </Typography>
           {/* <EditContactForm contactData={contactData} /> */}
-          <UpdateCustomer row={contactData} />
+          <UpdateCustomer row={contactData} setContactData={setContactData} />
         </Grid>
         <ContactForm contactData={contactData} />
         <RepairHistory contactData={contactData} />

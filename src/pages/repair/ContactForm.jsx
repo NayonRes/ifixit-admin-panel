@@ -193,7 +193,7 @@ const ContactForm = ({ contactData, setContactData }) => {
   useEffect(() => {
     getInitData();
     // console.log('ddd', contactData?._id)
-  }, []);
+  }, [contactData]);
 
   return (
     <>

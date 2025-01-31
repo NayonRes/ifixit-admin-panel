@@ -86,7 +86,7 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const UpdateCustomer = ({ clearFilter, row }) => {
+const UpdateCustomer = ({ clearFilter, row, setContactData }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [updateDialog, setUpdateDialog] = useState(false);
@@ -164,6 +164,9 @@ const UpdateCustomer = ({ clearFilter, row }) => {
 
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
+      if (location.pathname?.includes("/repair-search")) {
+        setContactData(response?.data?.data);
+      }
       if (!location.pathname?.includes("/repair-search")) {
         clearFilter();
       }
