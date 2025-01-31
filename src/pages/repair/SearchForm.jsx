@@ -131,6 +131,7 @@ const SearchForm = ({
   allSpareParts,
   setAllSpareParts,
   set_customer_id,
+  setScreenType,
 }) => {
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -193,6 +194,10 @@ const SearchForm = ({
 
   const handleSearch = (e) => {
     let searchValue = e.target.value;
+    if (searchValue.length <= 11) {
+      setContactData({});
+      set_customer_id("");
+    }
     if (searchValue.length <= 11) {
       setSearchPrams(searchValue);
     }
@@ -291,8 +296,17 @@ const SearchForm = ({
           id="name"
           placeholder="Enter Full Name"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+            },
+          }}
           value={contactData?.name}
+          disabled
           // onChange={(e) => {
           //   setName(e.target.value);
           // }}
@@ -363,7 +377,7 @@ const SearchForm = ({
             mb: 3,
           }}
         >
-          {brandList?.length < 1 && (
+          {brand?.length < 1 && (
             <InputLabel
               id="demo-simple-select-label"
               sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -387,6 +401,7 @@ const SearchForm = ({
             onClick={handleBranchClick}
             onChange={(e) => {
               setBrand(e.target.value);
+              setScreenType("steper");
             }}
           >
             {brandList?.map((item, index) => (
@@ -426,7 +441,7 @@ const SearchForm = ({
           <Box sx={styles.issue_list}>
             {allIssue.map((item, index) => (
               <Box key={index} sx={styles.issue_list_item}>
-                {item.name} | ৳ {item.price}
+                {item.name} | ৳ {item.repair_cost}
                 <Box
                   role="button"
                   onClick={() => removeItem(item.id)}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
+  Button,
   FormControl,
   InputLabel,
   MenuItem,
@@ -9,8 +10,16 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { designationList, roleList } from "../../data";
+import { ratingList2, customerTypeList } from "../../data";
 import CircleIcon from "@mui/icons-material/Circle";
+import { handlePostData } from "../../services/PostDataService";
+import { useSnackbar } from "notistack";
+
+const disabledStyles = {
+  disabledInput: {
+    color: "black",
+  },
+};
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -38,6 +47,11 @@ const customeTextFeild = {
     "&.Mui-focused fieldset": {
       borderColor: "#969696",
     },
+  },
+  "& .MuiInputBase-input.Mui-disabled": {
+    color: "#333", // Change text color
+    WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+    background: "#eee",
   },
 };
 
@@ -70,7 +84,10 @@ const customeSelectFeild = {
   },
 };
 
-const ContactForm = ({ contactData }) => {
+const ContactForm = ({ contactData, setContactData }) => {
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [customerType, setCustomerType] = useState("");
@@ -87,10 +104,10 @@ const ContactForm = ({ contactData }) => {
     { _id: 4, name: "Bad", color: "#F0BB78" },
     { _id: 5, name: "Very Bad", color: "#EB5B00" },
   ]);
-  const [customerTypeList, setCustomerTypeList] = useState([
-    "Walk In",
-    "Corporate",
-  ]);
+  // const [customerTypeList, setCustomerTypeList] = useState([
+  //   "Walk In",
+  //   "Corporate",
+  // ]);
 
   const handleRatingWithColor = (rating_id) => {
     const selectedRating = ratingList.find((r) => r._id === rating_id);
@@ -103,6 +120,62 @@ const ContactForm = ({ contactData }) => {
         {selectedRating.name}
       </Box>
     );
+  };
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
+
+  const clearForm = () => {
+    setFullName("");
+    setMobile("");
+    setEmail("");
+    setCustomerType("");
+    setRating("");
+    setMembershipId("");
+    setRemark("");
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    let data = {
+      name: fullName.trim(),
+      mobile: mobile.trim(),
+      email: email.trim(),
+      customer_type: customerType.trim(),
+      rating: rating,
+      membership_id: membershipId.trim(),
+      remarks: remark.trim(),
+    };
+
+    let response = await handlePostData("/api/v1/customer/create", data, false);
+
+    console.log("response", response);
+
+    if (response.status >= 200 && response.status < 300) {
+      setLoading(false);
+      handleSnakbarOpen("Added successfully", "success");
+      setContactData(response?.data?.data);
+
+      clearForm();
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(response?.data?.message, "error");
+    }
+
+    // }
   };
 
   const getInitData = async () => {
@@ -119,7 +192,8 @@ const ContactForm = ({ contactData }) => {
 
   useEffect(() => {
     getInitData();
-  }, []);
+    // console.log('ddd', contactData?._id)
+  }, [contactData]);
 
   return (
     <>
@@ -139,11 +213,12 @@ const ContactForm = ({ contactData }) => {
           id="full_name"
           placeholder="Full Name"
           variant="outlined"
+          disabled={contactData?._id}
           sx={{ ...customeTextFeild, mb: 3 }}
           value={fullName}
-          // onChange={(e) => {
-          //   setFullName(e.target.value);
-          // }}
+          onChange={(e) => {
+            setFullName(e.target.value);
+          }}
         />
       </Grid>
       <Grid size={6}>
@@ -162,11 +237,12 @@ const ContactForm = ({ contactData }) => {
           id="mobile"
           placeholder="Enter Number"
           variant="outlined"
+          disabled={contactData?._id}
           sx={{ ...customeTextFeild, mb: 3 }}
           value={mobile}
-          // onChange={(e) => {
-          //   setMobile(e.target.value);
-          // }}
+          onChange={(e) => {
+            setMobile(e.target.value);
+          }}
         />
       </Grid>
       <Grid size={6}>
@@ -192,6 +268,63 @@ const ContactForm = ({ contactData }) => {
               position: "relative",
               top: "2px",
             },
+          }}
+        >
+          {customerType?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Customer Type
+            </InputLabel>
+          )}
+          <Select
+            inputProps={{
+              sx: {
+                color: "red", // Change text color
+                WebkitTextFillColor: "#333",
+                "&.Mui-disabled": {
+                  color: "#333",
+                  WebkitTextFillColor: "#333",
+                  background: "#eee",
+                },
+              },
+            }}
+            required
+            labelId="demo-simple-select-label"
+            id="customer_type"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={customerType}
+            disabled={contactData?._id}
+            onChange={(e) => setCustomerType(e.target.value)}
+          >
+            {customerTypeList?.map((item) => (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
             mb: 3,
           }}
         >
@@ -204,6 +337,17 @@ const ContactForm = ({ contactData }) => {
             </InputLabel>
           )}
           <Select
+            inputProps={{
+              sx: {
+                color: "red", // Change text color
+                WebkitTextFillColor: "#333",
+                "&.Mui-disabled": {
+                  color: "#333",
+                  WebkitTextFillColor: "#333",
+                  background: "#eee",
+                },
+              },
+            }}
             required
             labelId="demo-simple-select-label"
             id="customer_type"
@@ -215,7 +359,8 @@ const ContactForm = ({ contactData }) => {
               },
             }}
             value={customerType}
-            // onChange={(e) => setCustomerType(e.target.value)}
+            disabled={contactData?._id}
+            onChange={(e) => setCustomerType(e.target.value)}
           >
             {customerTypeList?.map((item) => (
               <MenuItem key={item} value={item}>
@@ -223,7 +368,7 @@ const ContactForm = ({ contactData }) => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
       </Grid>
       <Grid size={6}>
         <Typography
@@ -244,9 +389,10 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={email}
-          // onChange={(e) => {
-          //   setEmail(e.target.value);
-          // }}
+          disabled={contactData?._id}
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
         />
       </Grid>
       <Grid size={6}>
@@ -267,9 +413,10 @@ const ContactForm = ({ contactData }) => {
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={remark}
-          // onChange={(e) => {
-          //   setRemark(e.target.value);
-          // }}
+          disabled={contactData?._id}
+          onChange={(e) => {
+            setRemark(e.target.value);
+          }}
         />
       </Grid>
 
@@ -296,24 +443,62 @@ const ContactForm = ({ contactData }) => {
               position: "relative",
               top: "2px",
             },
-            mb: 3,
           }}
         >
+          {rating?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Customer Rating
+            </InputLabel>
+          )}
           <Select
+            required
             labelId="demo-simple-select-label"
-            id="demo-simple-select"
+            id="type"
+            inputProps={{
+              sx: {
+                color: "red", // Change text color
+                WebkitTextFillColor: "#333",
+                "&.Mui-disabled": {
+                  color: "#333",
+                  WebkitTextFillColor: "#333",
+                  background: "#eee",
+                },
+              },
+            }}
+            className="custom-disabled-select"
+            disabled={contactData?._id}
             value={rating}
             onChange={(e) => setRating(e.target.value)}
           >
-            {ratingList?.map((item) => (
-              <MenuItem key={item?._id} value={item?._id}>
-                {handleRatingWithColor(item?._id)}
+            {ratingList2?.map((item) => (
+              <MenuItem key={item} value={item.name}>
+                {/* <CircleIcon
+                        style={{ color: "red", height: "20px", width: "20px" }}
+                      />{" "}
+                      {item.name} */}
+
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <CircleIcon
+                    style={{
+                      color: ratingList2?.find((res) => res?.name === item.name)
+                        ?.color,
+                      height: "20px",
+                      width: "20px",
+                    }}
+                  />
+                  {item.name}
+                </Box>
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
         {/* <br />
+
+        
 
         <FormControl
           fullWidth
@@ -420,14 +605,41 @@ const ContactForm = ({ contactData }) => {
           placeholder="Enter Membership ID"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
+          disabled={contactData?._id}
           value={membershipId}
-          // onChange={(e) => {
-          //   setMembershipId(e.target.value);
-          // }}
+          onChange={(e) => {
+            setMembershipId(e.target.value);
+          }}
         />
       </Grid>
+      {!contactData?._id && (
+        <Grid size={12}>
+          <Box
+            sx={{
+              borderTop: "1px solid #EAECF1",
+              pt: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 2,
+            }}
+          >
+            <Button variant="contained" sx={buttonStyle} onClick={onSubmit}>
+              Add Contact
+            </Button>
+          </Box>
+        </Grid>
+      )}
     </>
   );
 };
 
 export default ContactForm;
+
+const buttonStyle = {
+  px: 2,
+  py: 1.25,
+  fontSize: "14px",
+  fontWeight: 600,
+  minWidth: "127px",
+  minHeight: "44px",
+};

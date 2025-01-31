@@ -99,7 +99,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
 
     let data = {
       has_power,
-      battery_health: battery_health || 0 ,
+      battery_health: battery_health || 0,
       note,
       checklist: transformed,
     };
@@ -271,7 +271,9 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                   backgroundColor: "#F8F9FA",
                   p: 1,
                   borderRadius: 2,
+                  cursor: "pointer",
                 }}
+                onClick={() => handleCheckboxChange(index)}
               >
                 <Typography
                   variant="body1"
@@ -281,7 +283,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                   {item.name}
                 </Typography>
                 <Box
-                  onClick={() => handleCheckboxChange(index)}
+                  // onClick={() => handleCheckboxChange(index)}
                   sx={{ display: "flex", alignItems: "center " }}
                 >
                   {item.status ? (
@@ -342,7 +344,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
               />
             </FormControl>
           </Grid>
-          <Box sx={{ display: "flex", gap: 3 }}>
+          <Grid container spacing={3}>
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -383,7 +385,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                 onChange={(e) => set_note(e.target.value)}
               />
             </Grid>
-          </Box>
+          </Grid>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

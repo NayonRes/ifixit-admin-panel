@@ -313,7 +313,7 @@ const PaymentList = ({
                 variant="outlined"
                 sx={{ mb: 0, background: "#fff", borderRadius: 1 }}
                 value={
-                  allIssue.reduce((sum, item) => sum + item.price, 0) +
+                  allIssue.reduce((sum, item) => sum + item.repair_cost, 0) +
                   allSpareParts.reduce((sum, item) => sum + item.price, 0)
                 }
                 // value={membershipId}

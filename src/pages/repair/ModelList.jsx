@@ -50,6 +50,7 @@ const style = {
     },
   },
   card: {
+    cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -62,6 +63,7 @@ const style = {
     p: 2,
   },
   cardActive: {
+    cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -83,6 +85,8 @@ const ModelList = ({
   brand_id,
   parentList,
   setParentList,
+  deviceId,
+  setDeviceId,
 }) => {
   const [items, setItems] = useState([
     // { name: "Primary", items: [] },
@@ -200,7 +204,10 @@ const ModelList = ({
                   <Box
                     sx={device == item.name ? style.cardActive : style.card}
                     role="button"
-                    onClick={() => setDevice(item.name)}
+                    onClick={() => {
+                      setDevice(item.name);
+                      setDeviceId(item?._id);
+                    }}
                   >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                       <img

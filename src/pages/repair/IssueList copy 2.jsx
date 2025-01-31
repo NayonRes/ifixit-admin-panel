@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Box, Button, Checkbox, Chip, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
@@ -7,9 +7,6 @@ import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import RepairChecklist from "./RepairChecklist";
 import SparePars from "./SparePars";
-import { getDataWithToken } from "../../services/GetDataService";
-import { AuthContext } from "../../context/AuthContext";
-import { jwtDecode } from "jwt-decode";
 
 const style = {
   nav: {
@@ -80,21 +77,21 @@ const Item = styled(Paper)(({ theme }) => ({
   cursor: "pointer",
 }));
 
-// const issueArr = [
-//   {
-//     _id: "679a7feaba034bd3619d56aa",
-//     name: "Display Assemble",
-//     price: 300,
-//     pice: 5,
-//   },
-//   {
-//     _id: "679930b211d0139b651d203e",
-//     name: "Battery Assemble",
-//     price: 1000,
-//     pice: 30,
-//   },
-//   { _id: "679a7feaba034bd3619d56ab", name: "Audio Issue", price: 600, pice: 5 },
-// ];
+const issueArr = [
+  {
+    _id: "679a7feaba034bd3619d56aa",
+    name: "Display Assemble",
+    price: 300,
+    pice: 5,
+  },
+  {
+    _id: "679930b211d0139b651d203e",
+    name: "Battery Assemble",
+    price: 1000,
+    pice: 30,
+  },
+  { _id: "679a7feaba034bd3619d56ab", name: "Audio Issue", price: 600, pice: 5 },
+];
 
 const IssueList = ({
   issue,
@@ -106,19 +103,11 @@ const IssueList = ({
   repair_checklist,
   set_repair_checklist,
   allIssueUpdate,
-  brand_id,
-  deviceId,
 }) => {
-  const { ifixit_admin_panel } = useContext(AuthContext);
-
   const [serviceType, setServiceType] = useState("issue");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [checkedIssue, setCheckedIssue] = useState([]);
-
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [issueArr, setIssueArr] = useState([]);
 
   const handleCheckboxChange = (issue, isChecked) => {
     if (isChecked) {
@@ -129,7 +118,7 @@ const IssueList = ({
   };
 
   const handleSelectedProduct = (item) => {
-    console.log("item:::", item);
+    // console.log("item", item);
     if (selectedProducts.some((res) => res._id === item._id)) {
       setSelectedProducts(
         selectedProducts.filter((res) => res._id !== item._id)
@@ -143,7 +132,7 @@ const IssueList = ({
 
           id: item._id,
           name: item.name,
-          repair_cost: item.repair_cost,
+          price: item.price,
         },
       ]);
       setAllIssue([
@@ -153,7 +142,7 @@ const IssueList = ({
 
           id: item._id,
           name: item.name,
-          repair_cost: item.repair_cost,
+          price: item.price,
         },
       ]);
     }
@@ -161,42 +150,9 @@ const IssueList = ({
     console.log("all selectedProducts", selectedProducts);
   };
 
-  const getBranchId = () => {
-    let token = ifixit_admin_panel.token;
-    let decodedToken = jwtDecode(token);
-    let branch_id = decodedToken?.user?.branch_id;
-    return branch_id;
-  };
-
-  const getProducts = async () => {
-    setLoading(true);
-
-    let branch_id = getBranchId();
-    //localhost:8088/api/v1/service?branch_id=id&brand_id=&device_id=&model_id=6787aac7c296a2f8e87871ec
-
-    let url = `/api/v1/service?model_id=${deviceId}&branch_id=${branch_id}`;
-
-    let allData = await getDataWithToken(url);
-    console.log(
-      "(allData?.data?.data products issue list",
-      allData?.data?.data
-    );
-    let allRepairs = allData?.data?.data?.flatMap((item) => item.repair_info);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setIssueArr(allRepairs);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    }
-    setLoading(false);
-  };
-
   useLayoutEffect(() => {
     setSelectedProducts(allIssue);
     console.log("listed issue", allIssue);
-    getProducts();
   }, []);
 
   return (
@@ -287,6 +243,19 @@ const IssueList = ({
                             gap: 2,
                           }}
                         >
+                          {/* <Typography
+                            variant="medium"
+                            sx={{
+                              fontWeight: 500,
+                              color: "#344054",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              marginRight: 1, // Optional for spacing
+                            }}
+                          >
+                            {item?.name}
+                          </Typography> */}
                           <Box
                             key={itemIndex}
                             sx={{
@@ -319,7 +288,7 @@ const IssueList = ({
                                 variant="body2"
                                 sx={{ color: "#3E3BC3" }}
                               >
-                                {item.repair_cost}TK
+                                {item.price}TK
                               </Typography>
                             </Box>
                           </Box>
@@ -381,8 +350,6 @@ const IssueList = ({
           <SparePars
             allSpareParts={allSpareParts}
             setAllSpareParts={setAllSpareParts}
-            getBranchId={getBranchId}
-            partsDeviceId={deviceId}
           />
         </Box>
       )}
