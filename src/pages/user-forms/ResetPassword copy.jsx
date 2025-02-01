@@ -146,7 +146,7 @@ const ResetPassword = () => {
           onSubmit={onSubmit}
         >
           <img
-            src="/logo.svg"
+            src="/logo.png"
             alt=""
             style={{ display: "block", margin: "auto", maxWidth: "155px" }}
           />

@@ -63,7 +63,7 @@ const style = {
     alignItems: "center",
     justifyContent: "space-between",
     gap: 2,
-    border: `1px solid ${ColorPalette.light.primary.main}`,
+    // border: `1px solid ${ColorPalette.light.primary.main}`,
     backgroundColor: ColorPalette.light.text.bg,
     borderRadius: "8px",
     height: "100%",
@@ -140,7 +140,6 @@ const IssueList = ({
         ...selectedProducts,
         {
           ...item,
-
           id: item._id,
           name: item.name,
           repair_cost: item.repair_cost,

@@ -43,7 +43,7 @@ const Repair = () => {
   const [loading2, setLoading2] = useState(false);
   const [deleteData, setDeleteData] = useState({});
   const [orderID, setOrderID] = useState("");
-  const [name, setName] = useState("");
+  const [repairNo, setRepairNo] = useState("");
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
   const [designation, setDesignation] = useState("");
@@ -61,6 +61,10 @@ const Repair = () => {
   const [details, setDetails] = useState([]);
   const [cancelProductData, setCancelProductData] = useState({});
   const [cancelProductDialog, setCancelProductDialog] = useState(false);
+  const [branchList, setBranchList] = useState([]);
+  const [modelList, setModelList] = useState();
+  const [modelId, setModelId] = useState("");
+  const [branch, setBranch] = useState("");
   const handleDetailClickOpen = (obj) => {
     console.log("obj", obj);
     setDetails(obj);
@@ -138,7 +142,7 @@ const Repair = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(8).keys()].map((e, i) => (
+          {[...Array(9).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -178,18 +182,15 @@ const Repair = () => {
   const clearFilter = (event) => {
     console.log("clearFilter");
     setOrderID("");
-    setName("");
-    setDesignation("");
+    setRepairNo("");
+    setModelId("");
+    setBranch("");
     setStatus("");
-    setEmail("");
-    setNumber("");
     SetCategory("");
-    setMinPrice("");
-    setMaxPrice("");
     setStartingTime(null);
     setEndingTime(null);
     setPage(0);
-    const newUrl = `/api/v1/user?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/repair?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -214,11 +215,15 @@ const Repair = () => {
     if (newUrl) {
       url = newUrl;
     } else {
+      let newBranch = branch;
       let newStatus = status;
       let newMinPrice = minPrice;
       let newMaxPrice = maxPrice;
       let newStartingTime = "";
       let newEndingTime = "";
+      if (branch === "None") {
+        newBranch = "";
+      }
       if (status === "None") {
         newStatus = "";
       }
@@ -235,9 +240,7 @@ const Repair = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/repair?name=${name.trim()}&email=${email.trim()}&mobile=${encodeURIComponent(
-        number.trim()
-      )}&designation=${designation}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/repair?repair_id=${repairNo.trim()}&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -255,8 +258,42 @@ const Repair = () => {
     setLoading(false);
   };
 
+  const getBranchList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
+
+  const getModelList = async (id) => {
+    setLoading2(true);
+
+    // let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let url = `/api/v1/model/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setModelList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    }
+    setLoading2(false);
+  };
   useEffect(() => {
     getData();
+    getBranchList();
+    getModelList();
     // getCategoryList();
   }, []);
 
@@ -342,44 +379,20 @@ const Repair = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={2}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
                     sx={{ ...customeTextFeild }}
                     id="Name"
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    label="Job / Invoice No"
+                    value={repairNo}
+                    onChange={(e) => setRepairNo(e.target.value)}
                   />
                 </Grid>
 
-                <Grid size={2}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="number"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="Phone Number"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                  />
-                </Grid>
-                <Grid size={2}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="email"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </Grid>
-                <Grid size={2}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -388,26 +401,62 @@ const Repair = () => {
                     sx={{ ...customeTextFeild }}
                   >
                     <InputLabel id="demo-status-outlined-label">
-                      Designation
+                      Model
                     </InputLabel>
                     <Select
                       fullWidth
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
-                      label="Designation"
-                      value={designation}
-                      onChange={(e) => setDesignation(e.target.value)}
+                      label="Model"
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 200, // Controls dropdown height
+                          },
+                        },
+                      }}
+                      value={modelId}
+                      onChange={(e) => setModelId(e.target.value)}
                     >
                       <MenuItem value="None">None</MenuItem>
-                      {designationList?.map((item) => (
-                        <MenuItem key={item} value={item}>
-                          {item}
+                      {modelList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid> */}
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Branch
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Branch"
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {branchList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
                         </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={2}>
+
+                {/* <Grid size={2}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -431,7 +480,7 @@ const Repair = () => {
                       <MenuItem value={false}>Inactive</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
                 <Grid size={2}>
                   <Box sx={{ flexGrow: 1 }}>

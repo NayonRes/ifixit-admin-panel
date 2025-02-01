@@ -1231,7 +1231,11 @@ const PurchaseDetails = () => {
                             >
                               <TableCell sx={{ minWidth: "130px" }}>
                                 {" "}
-                                {item?.spare_part_variation_details[0]?.name}
+                                {item?.spare_part_details[0]?.name}
+                                <br />
+                                <span style={{ color: "#424949" }}>
+                                  {item?.spare_part_variation_details[0]?.name}
+                                </span>
                               </TableCell>
                               <TableCell sx={{ minWidth: "130px" }}>
                                 {updateData._id === item._id ? (

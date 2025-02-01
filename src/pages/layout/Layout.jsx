@@ -467,7 +467,7 @@ export default function Layout() {
                 >
                   <Grid size="auto" sx={{ position: "relative" }}>
                     <img
-                      src="/logo.svg"
+                      src="/logo.png"
                       alt="logo"
                       style={{
                         position: "absolute",

@@ -480,7 +480,7 @@ const SparePars = ({
     }
     setSearchLoading(false);
   };
-  const handleSelectedProduct = (item) => {
+  const handleSelectedProduct = (item, row) => {
     // console.log("item", item);
     if (selectedProducts.some((res) => res._id === item._id)) {
       setSelectedProducts(
@@ -492,6 +492,7 @@ const SparePars = ({
         ...selectedProducts,
         {
           ...item,
+          spare_parts_full_name: `${row?.name} - ${item?.name}`,
           spare_parts_id: item.spare_parts_id,
           spare_parts_variation_id: item._id,
           purchase_product_status: "",
@@ -503,6 +504,7 @@ const SparePars = ({
         ...selectedProducts,
         {
           ...item,
+          spare_parts_full_name: `${row?.name} - ${item?.name}`,
           spare_parts_id: item.spare_parts_id,
           spare_parts_variation_id: item._id,
           purchase_product_status: "",
@@ -861,7 +863,7 @@ const SparePars = ({
                               (pro) => pro?._id === item?._id
                             ) && "1px solid #818FF8",
                         }}
-                        onClick={() => handleSelectedProduct(item)}
+                        onClick={() => handleSelectedProduct(item, row)}
                       >
                         {" "}
                         <Box sx={{ flexGrow: 1 }}>
@@ -901,7 +903,23 @@ const SparePars = ({
                                     marginRight: 1, // Optional for spacing
                                   }}
                                 >
-                                  {item?.name}
+                                  {row?.name}
+
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 2,
+                                      alignItems: "center",
+                                      mt: 0.5,
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ color: "#424949" }}
+                                    >
+                                      {item?.name}
+                                    </Typography>
+                                  </Box>
                                   <Box
                                     sx={{
                                       display: "flex",

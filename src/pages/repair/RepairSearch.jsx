@@ -57,6 +57,7 @@ const RepairSearch = () => {
   const [payment_info, set_payment_info] = useState([]);
 
   const [screenType, setScreenType] = useState("add_contact");
+  const [loading, setLoading] = useState(false);
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
@@ -88,7 +89,7 @@ const RepairSearch = () => {
     let repairP = allIssue.reduce((sum, item) => sum + item.repair_cost, 0);
     let parsP = allSpareParts.reduce((sum, item) => sum + item.price, 0);
     let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
-    let dueP = parseInt(due_amount);
+    let dueP = parseInt(due_amount || 0);
 
     if (repairP + parsP !== dueP + paymentP) {
       return handleSnakbarOpen("Total Amount and input are not same!", "error");
@@ -107,12 +108,25 @@ const RepairSearch = () => {
     // console.log('fdfdf',decodedToken?.user?.branch_id)
     let allIssueModified = allIssue.map((item) => {
       let d = {
+        service_id: item?._id,
         name: item.name,
         price: item.price,
       };
       return d;
     });
+    let allSparePartsModified = allSpareParts.map((item) => {
+      let d = {
+        spare_parts_id: item.spare_parts_id,
+        spare_parts_variation_id: item.spare_parts_variation_id,
+        name: item.spare_parts_full_name,
+        price: item.price,
+      };
+      return d;
+    });
     console.log("allIssueModified", allIssueModified);
+    console.log("allSpareParts", allSpareParts);
+    console.log("allSparePartsModified", allSparePartsModified);
+    setLoading(true);
     const data = {
       customer_id: customer_id,
       branch_id: decodedToken?.user?.branch_id,
@@ -124,7 +138,7 @@ const RepairSearch = () => {
       repair_by: technician,
       repair_status: repairStatus,
       issues: allIssueModified,
-      spare_parts: allSpareParts,
+      spare_parts: allSparePartsModified,
       repair_checklist: repair_checklist,
       payment_info: payment_info,
       serial: serial,
@@ -145,13 +159,16 @@ const RepairSearch = () => {
     console.log("response", response);
 
     if (response.status >= 200 && response.status < 300) {
+      setLoading(true);
       handleSnakbarOpen("Added successfully", "success");
-      navigate("/repair")
+      navigate("/repair");
+
       // clearFilter();
 
       // clearForm();
       // handleDialogClose();
     } else {
+      setLoading(true);
       handleSnakbarOpen(response?.data?.message, "error");
     }
   };
