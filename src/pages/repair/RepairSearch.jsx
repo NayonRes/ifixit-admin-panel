@@ -90,9 +90,9 @@ const RepairSearch = () => {
     let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
     let dueP = parseInt(due_amount);
 
-    // if (repairP + parsP !== dueP + paymentP) {
-    //   return handleSnakbarOpen("Total Amount and input are not same!", "error");
-    // }
+    if (repairP + parsP !== dueP + paymentP) {
+      return handleSnakbarOpen("Total Amount and input are not same!", "error");
+    }
 
     // return console.log('ok')
 
@@ -146,6 +146,7 @@ const RepairSearch = () => {
 
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
+      navigate("/repair")
       // clearFilter();
 
       // clearForm();
