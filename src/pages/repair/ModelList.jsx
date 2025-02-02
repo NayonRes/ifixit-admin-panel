@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
+import { AuthContext } from "../../context/AuthContext";
 import { useSnackbar } from "notistack";
 
 const style = {
@@ -89,6 +90,7 @@ const ModelList = ({
   deviceId,
   setDeviceId,
 }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
   const [items, setItems] = useState([
     // { name: "Primary", items: [] },
@@ -140,6 +142,12 @@ const ModelList = ({
     set_device_id(device_id);
     let url = `/api/v1/model/get-by-device?device_id=${device_id}`;
     let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("after child list", allData?.data?.data);
+    setItems(allData?.data?.data);
 
     if (allData.status >= 200 && allData.status < 300) {
       setItems(allData?.data?.data);

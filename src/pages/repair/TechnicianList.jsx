@@ -4,8 +4,9 @@ import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
-import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
+
 import { useSnackbar } from "notistack";
 
 const style = {
@@ -77,7 +78,8 @@ const TechnicianList = ({
   technicianName,
   setTechnicianName,
 }) => {
-  const { ifixit_admin_panel } = useContext(AuthContext);
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+
   const { enqueueSnackbar } = useSnackbar();
   const [TechnicianList, setTechnicianList] = useState([]);
 
@@ -105,6 +107,10 @@ const TechnicianList = ({
     // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
     let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
     let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     console.log("technician list", allData?.data.data);
 
     if (allData.status >= 200 && allData.status < 300) {

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Box, Button, Checkbox, TextField, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
+import { AuthContext } from "../../context/AuthContext";
 
 const style = {
   nav: {
@@ -126,6 +127,7 @@ const PaymentList = ({
   allIssue,
   allSpareParts,
 }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [amounts, setAmounts] = useState([]);
 
   const handleChange = (name, value) => {

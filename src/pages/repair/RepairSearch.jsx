@@ -20,7 +20,7 @@ const RepairSearch = () => {
   const navigate = useNavigate();
   const location = useLocation();
   console.log("location", location.state);
-  const { ifixit_admin_panel } = useContext(AuthContext);
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
 
   const [contactData, setContactData] = useState({});
@@ -157,6 +157,11 @@ const RepairSearch = () => {
     let response = await handlePostData("/api/v1/repair/create", data, false);
 
     console.log("response", response);
+
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
 
     if (response.status >= 200 && response.status < 300) {
       setLoading(true);
@@ -415,9 +420,23 @@ const RepairSearch = () => {
                 gap: 2,
               }}
             >
-              <Button
+              {/* <Button
                 variant="outlined"
                 onClick={() => setSteps(steps - 1)}
+                sx={buttonStyle}
+              >
+                Back
+              </Button> */}
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  if (steps > 0) {
+                    setSteps(steps - 1);
+                  } else {
+                    setBrand("");
+                    setScreenType("add_contact");
+                  }
+                }}
                 sx={buttonStyle}
               >
                 Back
