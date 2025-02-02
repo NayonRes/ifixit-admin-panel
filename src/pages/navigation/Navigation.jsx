@@ -47,7 +47,7 @@ import UpdateService from "../service/UpdateService";
 // import Country from "../country/Country";
 
 function PrivateRoute({ children }) {
-  const { ifixit_admin_panel } = useContext(AuthContext);
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   // console.log("ifixit_admin_panel?.data?.token", ifixit_admin_panel);
   return ifixit_admin_panel?.token ? children : <Navigate to="/" />;
 }

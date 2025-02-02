@@ -10,6 +10,7 @@ import SparePars from "./SparePars";
 import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import { useSnackbar } from "notistack";
 
 const style = {
   nav: {
@@ -110,7 +111,7 @@ const IssueList = ({
   deviceId,
 }) => {
   const { ifixit_admin_panel } = useContext(AuthContext);
-
+  const { enqueueSnackbar } = useSnackbar();
   const [serviceType, setServiceType] = useState("issue");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -119,6 +120,19 @@ const IssueList = ({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [issueArr, setIssueArr] = useState([]);
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
 
   const handleCheckboxChange = (issue, isChecked) => {
     if (isChecked) {
@@ -188,6 +202,9 @@ const IssueList = ({
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };

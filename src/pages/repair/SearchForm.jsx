@@ -157,8 +157,13 @@ const SearchForm = ({
     let url = `/api/v1/customer?name=${name}&mobile=${searchValue}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data", allData?.data.data?.[0]);
-    setContactData(allData?.data.data?.[0]);
-    set_customer_id(allData?.data.data?.[0]?._id);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setContactData(allData?.data.data?.[0]);
+      set_customer_id(allData?.data.data?.[0]?._id);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
   };
 
   const getParent = async () => {
@@ -167,23 +172,40 @@ const SearchForm = ({
     let allData = await getDataWithToken(url);
     console.log("primary list", allData?.data.data);
     let p = allData?.data?.data;
-    setParentList(p);
-    let items = p.filter((item) => item.parent_name == "Primary");
-    let newItems = items[0].items.filter((device) => device.name !== "Primary");
-    console.log("hello", newItems);
-    setBrandList(newItems);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setParentList(p);
+      let items = p.filter((item) => item.parent_name == "Primary");
+      let newItems = items[0].items.filter(
+        (device) => device.name !== "Primary"
+      );
+      console.log("hello", newItems);
+      setBrandList(newItems);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
   };
 
   const getBrand = async () => {
     let url = `/api/v1/brand`;
     let allData = await getDataWithToken(url);
-    setBrandList(allData?.data.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBrandList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
   };
 
   const getDevice = async () => {
     let url = `/api/v1/device`;
     let allData = await getDataWithToken(url);
-    setDeviceList(allData?.data.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
   };
 
   const handleKeyDown = (event) => {

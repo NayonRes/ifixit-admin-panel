@@ -6,6 +6,7 @@ import { BackHand } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
+import { useSnackbar } from "notistack";
 
 const style = {
   nav: {
@@ -77,7 +78,21 @@ const TechnicianList = ({
   setTechnicianName,
 }) => {
   const { ifixit_admin_panel } = useContext(AuthContext);
+  const { enqueueSnackbar } = useSnackbar();
   const [TechnicianList, setTechnicianList] = useState([]);
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
 
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
@@ -91,7 +106,12 @@ const TechnicianList = ({
     let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
     let allData = await getDataWithToken(url);
     console.log("technician list", allData?.data.data);
-    setTechnicianList(allData?.data.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setTechnicianList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
   };
 
   useEffect(() => {

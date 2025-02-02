@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -81,6 +83,7 @@ const form = {
 };
 const UpdateBranch = ({ clearFilter, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
@@ -186,7 +189,6 @@ const UpdateBranch = ({ clearFilter, row }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",

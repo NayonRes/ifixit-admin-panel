@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -81,6 +83,7 @@ const form = {
 };
 const UpdateBrand = ({ clearFilter, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");

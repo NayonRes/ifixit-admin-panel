@@ -152,26 +152,6 @@ const Repair = () => {
     }
     return content;
   };
-  const handleDelete = async () => {
-    try {
-      setLoading2(true);
-      let response = await axios({
-        url: `/api/v1/user/delete/${deleteData.row._id}`,
-        method: "delete",
-      });
-      if (response.status >= 200 && response.status < 300) {
-        handleSnakbarOpen("Deleted successfully", "success");
-        getData();
-      }
-      setDeleteDialog(false);
-      setLoading2(false);
-    } catch (error) {
-      console.log("error", error);
-      setLoading2(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
-      setDeleteDialog(false);
-    }
-  };
 
   const handleChangePage = (event, newPage) => {
     console.log("newPage", newPage);
@@ -254,6 +234,9 @@ const Repair = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
@@ -589,40 +572,6 @@ const Repair = () => {
           <Button onClick={handleImageClose}>Close</Button>
         </DialogActions>
         {/* </div> */}
-      </Dialog>
-      <Dialog
-        open={deleteDialog}
-        onClose={handleDeleteDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <div style={{ padding: "10px", minWidth: "300px" }}>
-          <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              You want to delete <b>{deleteData?.row?.name} </b>
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDeleteDialogClose}>cancel</Button>
-            <Button
-              variant="contained"
-              disabled={loading2}
-              onClick={handleDelete}
-              style={{ minWidth: "100px", minHeight: "35px" }}
-              autoFocus
-              disableElevation
-            >
-              <PulseLoader
-                color={"#4B46E5"}
-                loading={loading2}
-                size={10}
-                speedMultiplier={0.5}
-              />{" "}
-              {loading2 === false && "Confirm"}
-            </Button>
-          </DialogActions>
-        </div>
       </Dialog>
     </>
   );

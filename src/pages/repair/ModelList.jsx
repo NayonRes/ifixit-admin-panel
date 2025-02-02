@@ -3,6 +3,7 @@ import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
+import { useSnackbar } from "notistack";
 
 const style = {
   nav: {
@@ -88,6 +89,7 @@ const ModelList = ({
   deviceId,
   setDeviceId,
 }) => {
+  const { enqueueSnackbar } = useSnackbar();
   const [items, setItems] = useState([
     // { name: "Primary", items: [] },
     // { name: "Secondary", items: [] },
@@ -104,6 +106,19 @@ const ModelList = ({
   //   console.log("primary list", allData?.data.data);
   //   setParentList(allData?.data.data);
   // };
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
 
   const handleChangeParent = async (name, device_id) => {
     console.log("name", name, device_id);
@@ -125,8 +140,12 @@ const ModelList = ({
     set_device_id(device_id);
     let url = `/api/v1/model/get-by-device?device_id=${device_id}`;
     let allData = await getDataWithToken(url);
-    console.log("after child list", allData?.data?.data);
-    setItems(allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setItems(allData?.data?.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
   };
 
   const getTopItems = () => {
