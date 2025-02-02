@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -12,8 +12,10 @@ import { statusColor } from "../../data";
 import EditIcon from "@mui/icons-material/Edit";
 
 import { getDataWithToken } from "../../services/GetDataService";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function RepairStatusHistory({ contactData }) {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [loading, setLoading] = React.useState(false);
   const [message, setMessage] = useState("");
@@ -24,6 +26,11 @@ export default function RepairStatusHistory({ contactData }) {
     let url = `/api/v1/repair?customer_id=${contactData?._id}&limit=100&page=1`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data:", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
 
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);

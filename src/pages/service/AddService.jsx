@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -20,6 +21,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
+import { AuthContext } from "../../context/AuthContext";
 
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
@@ -103,6 +105,7 @@ function getStyles(name, branchName, theme) {
   };
 }
 const AddService = ({ clearFilter }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -229,6 +232,11 @@ const AddService = ({ clearFilter }) => {
 
     console.log("response", response?.data?.data?._id);
 
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
+
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
       navigate("/service-list");
@@ -309,6 +317,11 @@ const AddService = ({ clearFilter }) => {
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
 
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
@@ -323,6 +336,11 @@ const AddService = ({ clearFilter }) => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
 
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
@@ -355,6 +373,11 @@ const AddService = ({ clearFilter }) => {
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
 
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
 
@@ -371,6 +394,11 @@ const AddService = ({ clearFilter }) => {
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
 
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
     if (allData.status >= 200 && allData.status < 300) {
       setDeviceList(allData?.data?.data);
 
@@ -385,7 +413,10 @@ const AddService = ({ clearFilter }) => {
 
     let url = `/api/v1/model/device-model?deviceId=${id}`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
 

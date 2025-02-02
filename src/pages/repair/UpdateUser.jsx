@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -43,6 +44,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
+import { AuthContext } from "../../context/AuthContext";
 
 const baseStyle = {
   flex: 1,
@@ -80,6 +82,7 @@ const form = {
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
 const UpdateUser = ({ clearFilter, row }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const uploadImage = "/image/userpic.png";
 
@@ -220,6 +223,11 @@ const UpdateUser = ({ clearFilter, row }) => {
 
     console.log("response", response);
 
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
+
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
@@ -308,7 +316,6 @@ const UpdateUser = ({ clearFilter, row }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",

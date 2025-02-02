@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
 import Grid from "@mui/material/Grid2";
 import InputLabel from "@mui/material/InputLabel";
@@ -25,6 +26,7 @@ import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 
 import { handlePostData } from "../../services/PostDataService";
+import { AuthContext } from "../../context/AuthContext";
 
 const baseStyle = {
   flex: 1,
@@ -69,6 +71,7 @@ const SparePars = ({
   getBranchId,
   partsDeviceId,
 }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [addDialog, setAddDialog] = useState(false);
   const [supplier, setSupplier] = useState("");
@@ -235,7 +238,10 @@ const SparePars = ({
     );
 
     console.log("response", response?.data?.data?._id);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       // await handleCreateSpareParts(variationList, response?.data?.data?._id);
       setLoading(false);
@@ -469,6 +475,11 @@ const SparePars = ({
 
     let allData = await getDataWithToken(url);
     // console.log("(allData?.data?.data products", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
 
     if (allData.status >= 200 && allData.status < 300) {
       console.log("lll", allData?.data?.data);
@@ -841,7 +852,7 @@ const SparePars = ({
         {/* <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
           All Product
         </Typography> */}
-        <Box sx={{ flexGrow: 1, mt: 3}}>
+        <Box sx={{ flexGrow: 1, mt: 3 }}>
           <Grid container spacing={2}>
             {!searchLoading &&
               productList.length > 0 &&

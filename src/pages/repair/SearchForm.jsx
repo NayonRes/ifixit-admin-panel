@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   FormControl,
@@ -14,6 +14,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { getDataWithToken } from "../../services/GetDataService";
 import IssueList from "./IssueList";
 import { useSnackbar } from "notistack";
+import { AuthContext } from "../../context/AuthContext";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -133,6 +134,7 @@ const SearchForm = ({
   set_customer_id,
   setScreenType,
 }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
 
@@ -156,6 +158,10 @@ const SearchForm = ({
   const getUser = async (searchValue) => {
     let url = `/api/v1/customer?name=${name}&mobile=${searchValue}`;
     let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     console.log("allData?.data", allData?.data.data?.[0]);
     setContactData(allData?.data.data?.[0]);
     set_customer_id(allData?.data.data?.[0]?._id);
@@ -165,6 +171,10 @@ const SearchForm = ({
     // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
     let url = `/api/v1/device/parent-child-list`;
     let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     console.log("primary list", allData?.data.data);
     let p = allData?.data?.data;
     setParentList(p);

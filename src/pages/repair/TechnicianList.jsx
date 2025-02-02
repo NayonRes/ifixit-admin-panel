@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
+import { AuthContext } from "../../context/AuthContext";
 
 const style = {
   nav: {
@@ -72,12 +73,17 @@ const TechnicianList = ({
   technicianName,
   setTechnicianName,
 }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [TechnicianList, setTechnicianList] = useState([]);
 
   const getTechnician = async () => {
     // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
     let url = `/api/v1/user/dropdownlist?designation=Technician`;
     let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     console.log("technician list", allData?.data.data);
     setTechnicianList(allData?.data.data);
   };
@@ -143,7 +149,10 @@ const TechnicianList = ({
               <Box
                 sx={technician === item._id ? style.cardActive : style.card}
                 role="button"
-                onClick={() => {setTechnician(item._id); setTechnicianName(item.name)}}
+                onClick={() => {
+                  setTechnician(item._id);
+                  setTechnicianName(item.name);
+                }}
               >
                 <Box>
                   <img src="/userpic.png" alt="" />

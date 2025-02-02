@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Box, Button, Checkbox, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
-
+import { AuthContext } from "../../context/AuthContext";
 const style = {
   nav: {
     display: "flex",
@@ -86,6 +86,7 @@ const ModelList = ({
   deviceId,
   setDeviceId,
 }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [items, setItems] = useState([
     // { name: "Primary", items: [] },
     // { name: "Secondary", items: [] },
@@ -123,6 +124,10 @@ const ModelList = ({
     set_device_id(device_id);
     let url = `/api/v1/model/get-by-device?device_id=${device_id}`;
     let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     console.log("after child list", allData?.data?.data);
     setItems(allData?.data?.data);
   };
@@ -148,7 +153,7 @@ const ModelList = ({
           <Grid container columnSpacing={3} sx={{}}>
             <Grid size={12}>
               <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-                Select Model 
+                Select Model
               </Typography>
             </Grid>
             <Grid size={12}>

@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -50,6 +51,7 @@ import { handlePutData } from "../../services/PutDataService";
 import { handlePostData } from "../../services/PostDataService";
 import moment from "moment";
 import { transferStatusList } from "../../data";
+import { AuthContext } from "../../context/AuthContext";
 
 const baseStyle = {
   flex: 1,
@@ -88,6 +90,7 @@ const Item = styled(Paper)(({ theme }) => ({
   cursor: "pointer",
 }));
 const ServiceDetails = ({ clearFilter }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { id } = useParams();
   const navigate = useNavigate();
   const [branchList, setBranchList] = useState([]);
@@ -129,6 +132,11 @@ const ServiceDetails = ({ clearFilter }) => {
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
 
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
@@ -145,6 +153,11 @@ const ServiceDetails = ({ clearFilter }) => {
     let url = `/api/v1/service/${encodeURIComponent(id.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
 
     if (allData.status >= 200 && allData.status < 300) {
       setDetails(allData?.data?.data[0]);

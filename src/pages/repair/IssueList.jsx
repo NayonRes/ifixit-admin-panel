@@ -109,7 +109,7 @@ const IssueList = ({
   brand_id,
   deviceId,
 }) => {
-  const { ifixit_admin_panel } = useContext(AuthContext);
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
   const [serviceType, setServiceType] = useState("issue");
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -181,7 +181,17 @@ const IssueList = ({
       "(allData?.data?.data products issue list",
       allData?.data?.data
     );
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     let allRepairs = allData?.data?.data?.flatMap((item) => item.repair_info);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
 
     if (allData.status >= 200 && allData.status < 300) {
       setIssueArr(allRepairs);

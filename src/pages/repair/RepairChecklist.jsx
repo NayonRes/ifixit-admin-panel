@@ -99,7 +99,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
 
     let data = {
       has_power,
-      battery_health: battery_health || 0 ,
+      battery_health: battery_health || 0,
       note,
       checklist: transformed,
     };

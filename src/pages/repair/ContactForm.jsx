@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -14,6 +14,7 @@ import { ratingList2, customerTypeList } from "../../data";
 import CircleIcon from "@mui/icons-material/Circle";
 import { handlePostData } from "../../services/PostDataService";
 import { useSnackbar } from "notistack";
+import { AuthContext } from "../../context/AuthContext";
 
 const disabledStyles = {
   disabledInput: {
@@ -85,6 +86,7 @@ const customeSelectFeild = {
 };
 
 const ContactForm = ({ contactData, setContactData }) => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
 
   const [loading, setLoading] = useState(false);
@@ -163,6 +165,11 @@ const ContactForm = ({ contactData, setContactData }) => {
     let response = await handlePostData("/api/v1/customer/create", data, false);
 
     console.log("response", response);
+
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
 
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);

@@ -68,7 +68,6 @@ const style = {
   },
 };
 
-
 const RepairStatusList = ({
   repairStatus,
   setRepairStatus,

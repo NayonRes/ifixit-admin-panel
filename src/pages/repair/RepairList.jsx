@@ -160,7 +160,6 @@ const RepairList = ({
                         disableElevation
                         onClick={() => handleDeleteDialog(i, row)}
                       >
-                       
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           id="Outline"

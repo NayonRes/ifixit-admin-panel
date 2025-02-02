@@ -62,6 +62,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const ServiceList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -269,6 +270,11 @@ const ServiceList = () => {
     }
     let allData = await getDataWithToken(url);
 
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
@@ -301,6 +307,11 @@ const ServiceList = () => {
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
 
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
@@ -316,6 +327,11 @@ const ServiceList = () => {
 
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
 
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
@@ -333,6 +349,11 @@ const ServiceList = () => {
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
 
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
     if (allData.status >= 200 && allData.status < 300) {
       setDeviceList(allData?.data?.data);
 
@@ -348,6 +369,11 @@ const ServiceList = () => {
     let url = `/api/v1/model/device-model?deviceId=${id}`;
     let allData = await getDataWithToken(url);
 
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
 
@@ -359,7 +385,7 @@ const ServiceList = () => {
   };
 
   useEffect(() => {
-    getData(); 
+    getData();
     getCategoryList();
     getDeviceList();
     getBrandList();

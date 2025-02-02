@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getDataWithToken } from "../../services/GetDataService";
+import { AuthContext } from "../../context/AuthContext";
+
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
@@ -32,6 +34,7 @@ import { designationList, roleList } from "../../data";
 import RepairList from "./RepairList";
 
 const Repair = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
@@ -155,6 +158,10 @@ const Repair = () => {
         url: `/api/v1/user/delete/${deleteData.row._id}`,
         method: "delete",
       });
+      if (response?.status === 401) {
+        logout();
+        return;
+      }
       if (response.status >= 200 && response.status < 300) {
         handleSnakbarOpen("Deleted successfully", "success");
         getData();
@@ -243,12 +250,17 @@ const Repair = () => {
     }
     let allData = await getDataWithToken(url);
 
-    if (allData.status >= 200 && allData.status < 300) {
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData?.status >= 200 && allData?.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
       setTotalData(allData?.data?.totalData);
 
-      if (allData.data.data.length < 1) {
+      if (allData?.data?.data.length < 1) {
         setMessage("No data found");
       }
     }
