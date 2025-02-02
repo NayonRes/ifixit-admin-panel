@@ -254,7 +254,15 @@ const RepairSearch = () => {
         </Grid>
       </Grid>
       <Grid container sx={{ background: "#fff" }}>
-        <Grid size={3} sx={{ borderRight: "1px solid #EAECF1", p: 3 }}>
+        <Grid
+          size={3}
+          sx={{
+            borderRight: "1px solid #EAECF1",
+            p: 3,
+            height: "calc(100vh - 200px)",
+            overflow: "auto",
+          }}
+        >
           <SearchForm
             contactData={contactData}
             setContactData={setContactData}
