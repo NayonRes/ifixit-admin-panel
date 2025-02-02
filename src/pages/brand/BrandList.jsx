@@ -61,6 +61,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const BrandList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);

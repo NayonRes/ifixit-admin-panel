@@ -294,7 +294,7 @@ const UpdateCustomer = ({ clearFilter, row, setContactData }) => {
           onClick={() => {
             setUpdateDialog(true);
           }}
-          sx={{ border: "1px solid #D0D5DD", color: "#D0D5DD" }}
+          sx={{ border: "1px solid #666", color: "#666" }}
           startIcon={
             <svg
               xmlns="http://www.w3.org/2000/svg"

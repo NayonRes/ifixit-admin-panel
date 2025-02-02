@@ -43,6 +43,7 @@ const style = {
     },
   },
   card: {
+    cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -55,11 +56,12 @@ const style = {
     p: 2,
   },
   cardActive: {
+    cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
     gap: 2,
-    border: `3px solid ${ColorPalette.light.primary.main}`,
+    border: `2px solid #707b7c`,
     backgroundColor: ColorPalette.light.text.bg,
     borderRadius: "8px",
     height: "100%",

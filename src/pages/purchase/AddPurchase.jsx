@@ -260,7 +260,7 @@ const AddPurchase = ({ clearFilter }) => {
     formData.append("payment_status", paymentStatus);
     formData.append("branch_id", branch);
     formData.append("payment_method", paymentMethod);
-    formData.append("paid_amount", paidAmount);
+    formData.append("paid_amount", paidAmount ? paidAmount : 0);
     formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
 
     formData.append("remarks", remarks);
@@ -566,7 +566,7 @@ const AddPurchase = ({ clearFilter }) => {
     }
     setSearchLoading(false);
   };
-  const handleSelectedProduct = (item) => {
+  const handleSelectedProduct = (item, row) => {
     console.log("item", item);
 
     // spare_parts_id: element._id,
@@ -583,6 +583,7 @@ const AddPurchase = ({ clearFilter }) => {
         ...selectedProducts,
         {
           ...item,
+          spare_parts_name: row.name,
           spare_parts_id: item.spare_parts_id,
           spare_parts_variation_id: item._id,
           purchase_product_status: "",
@@ -1445,7 +1446,7 @@ const AddPurchase = ({ clearFilter }) => {
                                     (pro) => pro?._id === item?._id
                                   ) && "1px solid #818FF8",
                               }}
-                              onClick={() => handleSelectedProduct(item)}
+                              onClick={() => handleSelectedProduct(item, row)}
                             >
                               {" "}
                               <Box sx={{ flexGrow: 1 }}>
@@ -1485,7 +1486,12 @@ const AddPurchase = ({ clearFilter }) => {
                                           marginRight: 1, // Optional for spacing
                                         }}
                                       >
-                                        {item?.name}
+                                        {" "}
+                                        {row?.name}
+                                        <br />
+                                        <span style={{ color: "#424949" }}>
+                                          {item?.name}
+                                        </span>
                                       </Typography>
                                       <Checkbox
                                         sx={{
@@ -1676,9 +1682,13 @@ const AddPurchase = ({ clearFilter }) => {
                               "&:last-child td, &:last-child th": { border: 0 },
                             }}
                           >
-                            <TableCell sx={{ minWidth: "130px" }}>
+                            <TableCell sx={{ minWidth: "200px" }}>
                               {" "}
-                              {item.name}
+                              {item?.spare_parts_name}
+                              <br />
+                              <span style={{ color: "#424949" }}>
+                                {item.name}
+                              </span>
                             </TableCell>
                             <TableCell sx={{ minWidth: "180px" }}>
                               <FormControl

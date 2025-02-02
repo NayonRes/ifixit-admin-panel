@@ -235,11 +235,12 @@ const ContactForm = ({ contactData, setContactData }) => {
           gutterBottom
           sx={{ fontWeight: 500 }}
         >
-          Mobile
+          Mobile Number
         </Typography>
         <TextField
           required
           size="small"
+          type="number"
           fullWidth
           id="mobile"
           placeholder="Enter Number"
@@ -247,8 +248,14 @@ const ContactForm = ({ contactData, setContactData }) => {
           disabled={contactData?._id}
           sx={{ ...customeTextFeild, mb: 3 }}
           value={mobile}
+          // onChange={(e) => {
+          //   setMobile(e.target.value);
+          // }}
+
           onChange={(e) => {
-            setMobile(e.target.value);
+            if (e.target.value.length <= 11 && /^\d*$/.test(e.target.value)) {
+              setMobile(e.target.value);
+            }
           }}
         />
       </Grid>

@@ -38,6 +38,7 @@ import AddPurchase from "../purchase/AddPurchase";
 import ServiceList from "../service/ServiceList";
 import AddService from "../service/AddService";
 import ServiceDetails from "../service/ServiceDetails";
+import UpdateService from "../service/UpdateService";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -46,7 +47,7 @@ import ServiceDetails from "../service/ServiceDetails";
 // import Country from "../country/Country";
 
 function PrivateRoute({ children }) {
-  const { ifixit_admin_panel } = useContext(AuthContext);
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   // console.log("ifixit_admin_panel?.data?.token", ifixit_admin_panel);
   return ifixit_admin_panel?.token ? children : <Navigate to="/" />;
 }
@@ -176,6 +177,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <ServiceList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="service/update/:id"
+          element={
+            <PrivateRoute>
+              <UpdateService />
             </PrivateRoute>
           }
         />

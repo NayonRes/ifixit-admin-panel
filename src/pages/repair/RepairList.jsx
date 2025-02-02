@@ -10,6 +10,7 @@ import UpdateUser from "./UpdateUser";
 import { Chip, IconButton, TablePagination, Typography } from "@mui/material";
 import moment from "moment";
 import { Link } from "react-router-dom";
+import { statusList } from "../../data";
 
 const RepairList = ({
   loading,
@@ -24,6 +25,11 @@ const RepairList = ({
   handleChangePage,
   handleChangeRowsPerPage,
 }) => {
+  console.log(
+    "statusList",
+    statusList?.find((el) => el.name === "Rework")?.color
+  );
+
   return (
     <div>
       <div
@@ -39,10 +45,10 @@ const RepairList = ({
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell
+              {/* <TableCell
                 style={{ whiteSpace: "nowrap" }}
                 colSpan={2}
-              ></TableCell>
+              ></TableCell> */}
 
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Date / Branch
@@ -50,8 +56,17 @@ const RepairList = ({
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Name / Number
               </TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>Bill</TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>
+                Job / Invoice No
+              </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Issues</TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>
+                Spare Parts
+              </TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>
+                Total Amount
+              </TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>Due Amount</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
               <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
@@ -68,9 +83,8 @@ const RepairList = ({
                     key={row?.user_id}
                     // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    <TableCell sx={{ width: "30px", pr: 0 }}>
-                      {/* {row?.image?.url?.length > 0 ? (
-                          <> */}
+                    {/* <TableCell sx={{ width: "30px", pr: 0 }}>
+                 
                       <img
                         src={
                           row?.image?.url?.length > 0
@@ -88,39 +102,90 @@ const RepairList = ({
                         }}
                       />
 
-                      {/* </>
-                        ) : (
-                          "No Image"
-                        )} */}
-                    </TableCell>
-                    <TableCell>{row?.name}</TableCell>
+                  
+                    </TableCell> */}
                     <TableCell>
                       {" "}
                       {moment(row?.created_at).format("DD/MM/YYYY")}
                       <br />
-                      <Typography sx={{ color: "#4B46E5" }}>
+                      <span style={{ color: "#4B46E5" }}>
                         {row?.branch_data[0]?.name}
-                      </Typography>
+                      </span>
                     </TableCell>
-                    <TableCell>{row?.customer_data[0]?.name}</TableCell>
                     <TableCell>
-                      {row?.mobile ? row?.mobile : "-------"}
-                    </TableCell>
-                    <TableCell sx={{ whiteSpace: "nowrap" }}>
-                      {row?.issues?.map((item, index) => (
-                        <Chip
-                          label={item.name}
-                          variant="outlined"
-                          sx={{ mr: 1 }}
-                        />
-                      ))}
+                      {row?.customer_data[0]?.name}
+
+                      <br />
+                      <span style={{ color: "#424949" }}>
+                        {row?.customer_data[0]?.mobile}
+                      </span>
                     </TableCell>
 
+                    <TableCell>
+                      {row?.repair_id ? row?.repair_id : "-------"}
+                    </TableCell>
+
+                    <TableCell>
+                      {row?.issues?.length > 0 ? (
+                        <>
+                          {row?.issues?.map((item, index) => (
+                            <Chip
+                              size="small"
+                              label={item.name}
+                              variant="outlined"
+                              sx={{
+                                mr: 1,
+                                px: 1,
+                              }}
+                            />
+                          ))}
+                        </>
+                      ) : (
+                        "----------"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {row?.spare_parts?.length > 0 ? (
+                        <>
+                          {row?.spare_parts?.map((item, index) => (
+                            <Chip
+                              size="small"
+                              label={item.name}
+                              variant="outlined"
+                              sx={{
+                                mr: 1,
+                                px: 1,
+                              }}
+                            />
+                          ))}
+                        </>
+                      ) : (
+                        "----------"
+                      )}
+                    </TableCell>
+
+                    <TableCell>
+                      {row?.payment_info?.length > 0 &&
+                        row?.payment_info.reduce(
+                          (sum, item) => sum + item.amount,
+                          0
+                        )}
+                    </TableCell>
+                    <TableCell sx={{ color: "#D92D20" }}>
+                      {row?.due_amount ? row?.due_amount : "-------"}
+                    </TableCell>
                     <TableCell>
                       <Chip
                         label={row.repair_status}
                         variant="outlined"
-                        color="info"
+                        // color="info"
+                        sx={{
+                          border: "0px",
+                          backgroundColor:
+                            statusList.find(
+                              (el) => el.name === row.repair_status
+                            )?.color || "black",
+                        }}
                       />
                     </TableCell>
 
@@ -155,7 +220,7 @@ const RepairList = ({
                         </svg>
                       </IconButton>
 
-                      <IconButton
+                      {/* <IconButton
                         variant="contained"
                         disableElevation
                         onClick={() => handleDeleteDialog(i, row)}
@@ -180,7 +245,7 @@ const RepairList = ({
                             fill="#F91351"
                           />
                         </svg>
-                      </IconButton>
+                      </IconButton> */}
                     </TableCell>
                   </TableRow>
                 </>

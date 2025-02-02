@@ -5,6 +5,9 @@ import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
+
+import { useSnackbar } from "notistack";
 
 const style = {
   nav: {
@@ -42,6 +45,7 @@ const style = {
     },
   },
   card: {
+    cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -54,6 +58,7 @@ const style = {
     p: 2,
   },
   cardActive: {
+    cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -74,18 +79,45 @@ const TechnicianList = ({
   setTechnicianName,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+
+  const { enqueueSnackbar } = useSnackbar();
   const [TechnicianList, setTechnicianList] = useState([]);
 
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
+
+  const getBranchId = () => {
+    let token = ifixit_admin_panel.token;
+    let decodedToken = jwtDecode(token);
+    let branch_id = decodedToken?.user?.branch_id;
+    return branch_id;
+  };
   const getTechnician = async () => {
+    let branch_id = getBranchId();
     // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let url = `/api/v1/user/dropdownlist?designation=Technician`;
+    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
       return;
     }
     console.log("technician list", allData?.data.data);
-    setTechnicianList(allData?.data.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setTechnicianList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
   };
 
   useEffect(() => {

@@ -377,7 +377,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     setDetails(row?.description);
     setRemarks(row?.remarks);
     // setStatus(row?.status);
-  }, []);
+  }, [row]);
   return (
     <>
       {/* <Button
@@ -853,8 +853,6 @@ const UpdateSpareParts = ({ getData, row }) => {
               >
                 Add Note
               </Typography> */}
-
-            
             </Grid>
           </Grid>
         </DialogContent>

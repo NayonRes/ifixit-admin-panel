@@ -10,6 +10,7 @@ import SparePars from "./SparePars";
 import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import { useSnackbar } from "notistack";
 
 const style = {
   nav: {
@@ -63,7 +64,7 @@ const style = {
     alignItems: "center",
     justifyContent: "space-between",
     gap: 2,
-    border: `1px solid ${ColorPalette.light.primary.main}`,
+    // border: `1px solid ${ColorPalette.light.primary.main}`,
     backgroundColor: ColorPalette.light.text.bg,
     borderRadius: "8px",
     height: "100%",
@@ -111,6 +112,7 @@ const IssueList = ({
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
+  const { enqueueSnackbar } = useSnackbar();
   const [serviceType, setServiceType] = useState("issue");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -119,6 +121,19 @@ const IssueList = ({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [issueArr, setIssueArr] = useState([]);
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
 
   const handleCheckboxChange = (issue, isChecked) => {
     if (isChecked) {
@@ -140,7 +155,6 @@ const IssueList = ({
         ...selectedProducts,
         {
           ...item,
-
           id: item._id,
           name: item.name,
           repair_cost: item.repair_cost,
@@ -199,6 +213,9 @@ const IssueList = ({
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
