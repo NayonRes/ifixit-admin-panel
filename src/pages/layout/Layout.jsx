@@ -163,7 +163,7 @@ export default function Layout() {
   const theme = useTheme();
   let navigate = useNavigate();
   let pathname = useLocation().pathname;
-  const { ifixit_admin_panel, logout, login } = useContext(AuthContext);
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   console.log("pathname", pathname);
   const [signOutLoading, setSignOutLoading] = useState(false);
   const [open, setOpen] = useState(true);
@@ -204,7 +204,10 @@ export default function Layout() {
 
       let url = `/api/v1/auth/logout`;
       let res = await handlePostData(url);
-
+      if (res?.status === 401) {
+        logout();
+        return;
+      }
       if (res.status >= 200 && res.status < 300) {
         setSignOutLoading(false);
         // logout();

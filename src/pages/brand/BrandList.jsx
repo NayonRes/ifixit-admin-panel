@@ -253,7 +253,10 @@ const BrandList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);

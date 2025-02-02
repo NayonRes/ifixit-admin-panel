@@ -142,7 +142,10 @@ const UpdateBranch = ({ clearFilter, row }) => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
       clearFilter(); // this is for get the table list again
@@ -220,7 +223,10 @@ const UpdateBranch = ({ clearFilter, row }) => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 

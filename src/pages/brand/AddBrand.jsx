@@ -137,7 +137,10 @@ const AddBrand = ({ clearFilter }) => {
     let response = await handlePostData("/api/v1/brand/create", data, false);
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
       clearFilter(); // this is for get the table list again
@@ -215,7 +218,10 @@ const AddBrand = ({ clearFilter }) => {
 
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 

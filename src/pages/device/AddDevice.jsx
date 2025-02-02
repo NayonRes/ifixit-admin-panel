@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -39,6 +41,7 @@ const form = {
 };
 const AddDevice = ({ clearFilter }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
@@ -107,7 +110,10 @@ const AddDevice = ({ clearFilter }) => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
       clearFilter(); // this is for get the table list again
@@ -185,7 +191,10 @@ const AddDevice = ({ clearFilter }) => {
 
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 

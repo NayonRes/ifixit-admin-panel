@@ -67,6 +67,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const PurchaseList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -276,7 +277,10 @@ const PurchaseList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
@@ -294,7 +298,10 @@ const PurchaseList = () => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
@@ -310,7 +317,10 @@ const PurchaseList = () => {
 
     let url = `/api/v1/supplier/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setSupplierList(allData?.data?.data);
 

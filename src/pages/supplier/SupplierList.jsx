@@ -61,6 +61,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const SupplierList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -235,7 +236,10 @@ const SupplierList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);

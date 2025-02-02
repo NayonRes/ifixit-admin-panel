@@ -1,10 +1,12 @@
 import React, {
   useEffect,
-  useState, 
+  useState,
   useRef,
   useCallback,
+  useContext,
 } from "react";
-import Grid from "@mui/material/Grid2"; 
+import { AuthContext } from "../../context/AuthContext";
+import Grid from "@mui/material/Grid2";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -13,12 +15,12 @@ import Select from "@mui/material/Select";
 import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
-import PulseLoader from "react-spinners/PulseLoader"; 
-import { useNavigate } from "react-router-dom"; 
+import PulseLoader from "react-spinners/PulseLoader";
+import { useNavigate } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
- 
+
 import IconButton from "@mui/material/IconButton";
- 
+
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -30,6 +32,7 @@ import ImageUpload from "../../utils/ImageUpload";
 
 const AddUser = ({ getUser }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const uploadImage = "/image/userpic.png";
 
   const [addUserDialog, setAddUserDialog] = useState(false);
@@ -167,7 +170,10 @@ const AddUser = ({ getUser }) => {
     let response = await handlePostData("/api/v1/user/create", formdata, true);
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
@@ -248,7 +254,10 @@ const AddUser = ({ getUser }) => {
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data", allData?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 

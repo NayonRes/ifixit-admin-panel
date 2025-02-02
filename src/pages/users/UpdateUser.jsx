@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -15,7 +17,7 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
 
 import IconButton from "@mui/material/IconButton";
@@ -31,6 +33,7 @@ import ImageUpload from "../../utils/ImageUpload";
 
 const UpdateUser = ({ clearFilter, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const uploadImage = "/image/userpic.png";
 
   const [addUserDialog, setAddUserDialog] = useState(false);
@@ -172,7 +175,10 @@ const UpdateUser = ({ clearFilter, row }) => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
@@ -252,7 +258,10 @@ const UpdateUser = ({ clearFilter, row }) => {
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data", allData?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 

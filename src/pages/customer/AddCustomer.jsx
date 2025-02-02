@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -87,7 +89,7 @@ const form = {
 };
 const AddCustomer = ({ clearFilter }) => {
   const navigate = useNavigate();
-
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");

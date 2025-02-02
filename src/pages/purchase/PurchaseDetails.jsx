@@ -80,7 +80,7 @@ const Item = styled(Paper)(({ theme }) => ({
 const PurchaseDetails = () => {
   const { id } = useParams();
   console.log("id", id);
-
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState({});
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -161,7 +161,10 @@ const PurchaseDetails = () => {
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setProductList(allData?.data?.data);
 
@@ -210,7 +213,10 @@ const PurchaseDetails = () => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setUpdateVariationLoading(false);
       handleSnakbarOpen("Updated successfully", "success");
@@ -250,7 +256,10 @@ const PurchaseDetails = () => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setGenerateSKULoading(false);
       handleSnakbarOpen("Generate SKU successfully", "success");
@@ -407,7 +416,10 @@ const PurchaseDetails = () => {
     let url = `/api/v1/purchase/${encodeURIComponent(id.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
 
@@ -440,7 +452,10 @@ const PurchaseDetails = () => {
     )}&purchase_product_id=${encodeURIComponent(item._id)}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setSkuList(allData?.data?.data);
       setGenerateSkuData({});

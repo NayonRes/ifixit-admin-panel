@@ -65,7 +65,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const SparePartsDetails = () => {
   const { id } = useParams();
   console.log("id", id);
-
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState({});
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -119,7 +119,10 @@ const SparePartsDetails = () => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setUpdateVariationLoading(false);
       handleSnakbarOpen("Updated successfully", "success");
@@ -222,7 +225,10 @@ const SparePartsDetails = () => {
     let url = `/api/v1/sparePart/${encodeURIComponent(id.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
 

@@ -61,6 +61,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const VariantList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -181,6 +182,10 @@ const VariantList = () => {
         url: `/api/v1/user/delete/${deleteData.row._id}`,
         method: "delete",
       });
+      if (response?.status === 401) {
+        logout();
+        return;
+      }
       if (response.status >= 200 && response.status < 300) {
         handleSnakbarOpen("Deleted successfully", "success");
         getData();
@@ -252,7 +257,10 @@ const VariantList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);

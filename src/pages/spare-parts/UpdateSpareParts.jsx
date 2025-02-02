@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -88,6 +90,7 @@ const form = {
 };
 const UpdateSpareParts = ({ getData, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [convertedContent, setConvertedContent] = useState("");
@@ -225,6 +228,10 @@ const UpdateSpareParts = ({ getData, row }) => {
     );
 
     console.log("response", response);
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
 
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
@@ -302,7 +309,10 @@ const UpdateSpareParts = ({ getData, row }) => {
 
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
@@ -318,7 +328,10 @@ const UpdateSpareParts = ({ getData, row }) => {
 
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
 
@@ -334,7 +347,10 @@ const UpdateSpareParts = ({ getData, row }) => {
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setDeviceList(allData?.data?.data);
 
@@ -349,7 +365,10 @@ const UpdateSpareParts = ({ getData, row }) => {
 
     let url = `/api/v1/model/device-model?deviceId=${id}`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
 

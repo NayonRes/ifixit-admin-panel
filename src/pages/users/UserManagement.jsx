@@ -128,6 +128,7 @@ const IOSSwitch = styled((props) => (
 
 const UserManagement = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [mainUserList, setMainUserList] = useState([]);
   const [userList, setUserList] = useState([]);
   const [userData, setUserData] = useState();
@@ -256,7 +257,10 @@ const UserManagement = () => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setLoading3(false);
       handleSnakbarOpen("Updeated successfully", "success");
@@ -278,7 +282,10 @@ const UserManagement = () => {
       setLoading(true);
       let url = `/api/v1/permission`;
       let allData = await getDataWithToken(url);
-
+      if (allData?.status === 401) {
+        logout();
+        return;
+      }
       if (allData.status >= 200 && allData.status < 300) {
         transformPermissionData(allData?.data?.data);
 
@@ -375,7 +382,10 @@ const UserManagement = () => {
 
     let url = `/api/v1/user/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setMainUserList(allData?.data?.data);
       setUserList(allData?.data?.data);

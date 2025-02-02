@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -25,6 +26,7 @@ import ImageUpload from "../../utils/ImageUpload";
 
 const UpdateDevice = ({ clearFilter, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
@@ -98,7 +100,10 @@ const UpdateDevice = ({ clearFilter, row }) => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
       clearFilter(); // this is for get the table list again
@@ -176,7 +181,10 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
