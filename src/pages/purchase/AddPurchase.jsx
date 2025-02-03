@@ -14,7 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Chip, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
@@ -548,6 +548,28 @@ const AddPurchase = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
+  const getLastPurchaseItem = async (id) => {
+    setLoading2(true);
+
+    let url = `/api/v1/purchaseProduct/last-purchase?spare_parts_variation_id=${id}`;
+    let allData = await getDataWithToken(url);
+    console.log("last purchase item", allData?.data?.data[0]?.unit_price);
+    let last_purchase_price = allData?.data?.data[0]?.unit_price;
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      // setModelList(allData?.data?.data);
+      // return allData?.data?.data[0]?.unit_price;
+      // if (allData.data.data.length < 1) {
+      //   setMessage("No data found");
+      // }
+    }
+    setLoading2(false);
+    return last_purchase_price;
+  };
 
   const handleDeviceSelect = (e) => {
     setDeviceId(e.target.value);
@@ -596,7 +618,7 @@ const AddPurchase = ({ clearFilter }) => {
     }
     setSearchLoading(false);
   };
-  const handleSelectedProduct = (item, row) => {
+  const handleSelectedProduct = async (item, row) => {
     console.log("item", item);
 
     // spare_parts_id: element._id,
@@ -609,6 +631,7 @@ const AddPurchase = ({ clearFilter }) => {
         selectedProducts.filter((res) => res._id !== item._id)
       );
     } else {
+      const lastPurchasePrice = await getLastPurchaseItem(item._id);
       setSelectedProducts([
         ...selectedProducts,
         {
@@ -619,6 +642,7 @@ const AddPurchase = ({ clearFilter }) => {
           purchase_product_status: "",
           quantity: "",
           unit_price: "",
+          last_purchase_price: lastPurchasePrice,
         },
       ]);
     }
@@ -1690,6 +1714,9 @@ const AddPurchase = ({ clearFilter }) => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Price
                         </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Last Purchase Price
+                        </TableCell>
 
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Subtotal
@@ -1852,13 +1879,27 @@ const AddPurchase = ({ clearFilter }) => {
                                 onWheel={(e) => e.target.blur()}
                               />
                             </TableCell>
-
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              <Chip
+                                label={
+                                  item?.last_purchase_price
+                                    ? item?.last_purchase_price
+                                    : "N/A"
+                                }
+                                sx={{
+                                  background: "#FDE8E8",
+                                  color: "#E02424",
+                                  px: 2,
+                                }}
+                              />
+                            </TableCell>
                             <TableCell sx={{ minWidth: "130px" }}>
                               {item?.quantity && item?.unit_price
                                 ? parseInt(item?.quantity) *
                                   parseFloat(item?.unit_price).toFixed(2)
                                 : 0}
                             </TableCell>
+
                             <TableCell
                               sx={{ minWidth: "130px", textAlign: "right" }}
                             >
@@ -1944,7 +1985,7 @@ const AddPurchase = ({ clearFilter }) => {
                 minHeight: "44px",
               }}
               // style={{ minWidth: "180px", minHeight: "35px" }}
-              autoFocus
+
               disableElevation
             >
               <PulseLoader
