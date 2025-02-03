@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
-  useContext
+  useContext,
 } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
@@ -142,9 +142,9 @@ const AddBranch = ({ clearFilter }) => {
 
     console.log("response", response);
     if (response?.status === 401) {
-      logout()
-            return;
-          }
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
       clearFilter(); // this is for get the table list again
@@ -229,6 +229,9 @@ const AddBranch = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
