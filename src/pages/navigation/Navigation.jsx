@@ -26,6 +26,7 @@ import RepairSearch from "../repair/RepairSearch";
 import PurchaseList from "../purchase/PurchaseList";
 import PurchaseDetails from "../purchase/PurchaseDetails";
 import StockAlertList from "../stock-alert/StockAlertList";
+import BranchStockList from "../stock-alert/BranchStockList";
 import AddStockLimit from "../stock-alert/AddStockLimit";
 import AddPurchaseReturn from "../purchase-return/AddPurchaseReturn";
 import PurchaseReturnList from "../purchase-return/PurchaseReturnList";
@@ -209,6 +210,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <StockAlertList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="branch-stock"
+          element={
+            <PrivateRoute>
+              <BranchStockList />
             </PrivateRoute>
           }
         />

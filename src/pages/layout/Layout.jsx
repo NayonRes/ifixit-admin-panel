@@ -923,6 +923,19 @@ export default function Layout() {
                       <ListItemText primary="Stock Alert" />
                     </ListItemButton>
                   </ListItem>
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      component={Link}
+                      to="/branch-stock"
+                      sx={[
+                        { ...listButtonStyle },
+                        pathname === "/branch-stock" && { ...activeStyle },
+                      ]}
+                      style={{ marginBottom: "0px" }}
+                    >
+                      <ListItemText primary="Branch Stock" />
+                    </ListItemButton>
+                  </ListItem>
                 </List>
               </Collapse>
 
