@@ -325,19 +325,23 @@ const RepairSearch = () => {
             justifyContent: "space-between",
           }}
         >
-          {!brand && contactData?._id ? (
-            <EditContact
-              contactData={contactData}
-              setContactData={setContactData}
-            />
-          ) : !brand && !contactData?._id && !id ? (
-            <AddContact
-              searchPrams={searchPrams}
-              contactData={contactData}
-              setContactData={setContactData}
-            />
-          ) : (
-            ""
+          {steps == -1 && (
+            <Box>
+              {contactData?._id ? (
+                <EditContact
+                  contactData={contactData}
+                  setContactData={setContactData}
+                />
+              ) : !contactData?._id && !id ? (
+                <AddContact
+                  searchPrams={searchPrams}
+                  contactData={contactData}
+                  setContactData={setContactData}
+                />
+              ) : (
+                ""
+              )}
+            </Box>
           )}
 
           {device === "Primary" && !device && (
@@ -437,18 +441,29 @@ const RepairSearch = () => {
               </Button> */}
               <Button
                 variant="outlined"
+                disabled={steps == -1}
                 onClick={() => {
-                  if (steps > 0) {
+                  if (steps > -1) {
                     setSteps(steps - 1);
                   } else {
-                    setBrand("");
-                    setScreenType("add_contact");
+                    // setBrand("");
+                    // setScreenType("add_contact");
                   }
                 }}
                 sx={buttonStyle}
               >
                 Back
               </Button>
+              {steps == -1 && (
+                <Button
+                  variant="contained"
+                  onClick={() => setSteps(steps + 1)}
+                  disabled={device.length < 1}
+                  sx={buttonStyle}
+                >
+                  Next
+                </Button>
+              )}
               {steps == 0 && (
                 <Button
                   variant="contained"
