@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Box, Button, Checkbox, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Skeleton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
@@ -81,7 +81,10 @@ const TechnicianList = ({
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
   const { enqueueSnackbar } = useSnackbar();
-  const [TechnicianList, setTechnicianList] = useState([]);
+  const [technicianList, setTechnicianList] = useState([]);
+  const [branchList, setBranchList] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
@@ -103,9 +106,18 @@ const TechnicianList = ({
     return branch_id;
   };
   const getTechnician = async () => {
+    setLoading(true);
+
     let branch_id = getBranchId();
     // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
+    let newBranchId;
+    if (ifixit_admin_panel?.user?.is_main_branch) {
+      newBranchId = selectedBranch;
+    } else {
+      newBranchId = branch_id;
+    }
+
+    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${newBranchId}`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -118,11 +130,37 @@ const TechnicianList = ({
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
+    setLoading(false);
+  };
+
+  const getBranchData = async () => {
+    setLoading(true);
+
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("BranchData:", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        // setMessage("No data found");
+      }
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
-    getTechnician();
+    getBranchData();
   }, []);
+  useEffect(() => {
+    getTechnician();
+  }, [selectedBranch]);
 
   return (
     <div>
@@ -134,7 +172,21 @@ const TechnicianList = ({
         </Grid>
         <Grid size={12}>
           <Box sx={style.nav}>
-            <Box role="button" sx={style.link}>
+            {ifixit_admin_panel?.user?.is_main_branch &&
+              branchList.length > 0 &&
+              branchList.map((item, index) => (
+                <Box
+                  role="button"
+                  sx={
+                    selectedBranch === item._id ? style.linkActive : style.link
+                  }
+                  key={index}
+                  onClick={() => setSelectedBranch(item._id)}
+                >
+                  {item.name}
+                </Box>
+              ))}
+            {/* <Box role="button" sx={style.link}>
               All
             </Box>
             <Box sx={style.linkActive}>
@@ -170,13 +222,14 @@ const TechnicianList = ({
                 />
               </svg>
               Mascot Plaza
-            </Box>
+            </Box> */}
           </Box>
         </Grid>
       </Grid>
       <Grid container spacing={2} sx={{ mt: 3 }}>
-        {TechnicianList.length > 0 &&
-          TechnicianList.map((item, index) => (
+        {!loading &&
+          technicianList.length > 0 &&
+          technicianList.map((item, index) => (
             <Grid size={3} key={index}>
               <Box
                 sx={technician === item._id ? style.cardActive : style.card}
@@ -203,6 +256,23 @@ const TechnicianList = ({
               </Box>
             </Grid>
           ))}
+
+        {loading && (
+          <Grid size={12}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 3,
+              }}
+            >
+              <Skeleton height={200} sx={{ flex: 1 }} />
+              <Skeleton height={200} sx={{ flex: 1 }} />
+              <Skeleton height={200} sx={{ flex: 1 }} />
+              <Skeleton height={200} sx={{ flex: 1 }} />
+            </Box>
+          </Grid>
+        )}
       </Grid>
     </div>
   );

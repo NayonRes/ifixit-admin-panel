@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Box, Button, Checkbox, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Skeleton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
@@ -101,6 +101,7 @@ const ModelList = ({
   const [parent, setParent] = useState("");
   const [child, setChild] = useState("");
   const [device_id, set_device_id] = useState("");
+  const [loading, setLoading] = useState("");
   // const getParent = async () => {
   //   // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
   //   let url = `/api/v1/device/parent-child-list`;
@@ -138,6 +139,7 @@ const ModelList = ({
   };
 
   const handleChangeChild = async (name, device_id) => {
+    setLoading(true);
     setChild(name);
     set_device_id(device_id);
     let url = `/api/v1/model/get-by-device?device_id=${device_id}`;
@@ -154,6 +156,7 @@ const ModelList = ({
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
+    setLoading(false);
   };
 
   const getTopItems = () => {
@@ -224,7 +227,8 @@ const ModelList = ({
             </Grid>
           </Grid>
           <Grid container spacing={2} sx={{ mt: 3 }}>
-            {items &&
+            {!loading &&
+              items &&
               items.length > 0 &&
               items.map((item, index) => (
                 <Grid size={3} key={index}>
@@ -255,6 +259,23 @@ const ModelList = ({
                   </Box>
                 </Grid>
               ))}
+
+            {loading && (
+              <Grid size={12}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 3,
+                  }}
+                >
+                  <Skeleton height={100} sx={{ flex: 1 }} />
+                  <Skeleton height={100} sx={{ flex: 1 }} />
+                  <Skeleton height={100} sx={{ flex: 1 }} />
+                  <Skeleton height={100} sx={{ flex: 1 }} />
+                </Box>
+              </Grid>
+            )}
 
             {/* {items && items.length == 0 && (
           <Grid size={12}>
