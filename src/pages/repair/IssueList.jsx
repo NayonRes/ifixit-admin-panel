@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
-import { Box, Button, Checkbox, Chip, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
@@ -290,7 +297,7 @@ const IssueList = ({
       </Grid>
       {serviceType === "issue" && (
         <Grid container spacing={2} sx={{ mt: 3 }}>
-          {!searchLoading &&
+          {!loading &&
             issueArr.length > 0 &&
             issueArr.map((item, itemIndex) => (
               <Grid key={itemIndex} item size={3}>
@@ -371,6 +378,23 @@ const IssueList = ({
                 </Item>
               </Grid>
             ))}
+
+          {loading && (
+            <Grid size={12}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 3,
+                }}
+              >
+                <Skeleton height={200} sx={{ flex: 1 }} />
+                <Skeleton height={200} sx={{ flex: 1 }} />
+                <Skeleton height={200} sx={{ flex: 1 }} />
+                <Skeleton height={200} sx={{ flex: 1 }} />
+              </Box>
+            </Grid>
+          )}
           {/* {issueArr.map((item, index) => (
             <Grid size={3}>
               <Box

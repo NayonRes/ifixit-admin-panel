@@ -12,7 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Divider, Skeleton, TextField, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { Link, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
@@ -442,7 +442,7 @@ const SparePars = ({
   // };
 
   const getProducts = async () => {
-    setSearchLoading(true);
+    setLoading(true);
     // let url;
     // let newSearchProductText = searchProductText;
     // let newBrandId = brandId;
@@ -489,7 +489,7 @@ const SparePars = ({
         setMessage("No data found");
       }
     }
-    setSearchLoading(false);
+    setLoading(false);
   };
   const handleSelectedProduct = (item, row) => {
     // console.log("item", item);
@@ -856,7 +856,7 @@ const SparePars = ({
         </Typography> */}
         <Box sx={{ flexGrow: 1, mt: 3 }}>
           <Grid container spacing={2}>
-            {!searchLoading &&
+            {!loading &&
               productList.length > 0 &&
               productList.map(
                 (row, rowIndex) =>
@@ -969,6 +969,22 @@ const SparePars = ({
                     </Grid>
                   ))
               )}
+            {loading && (
+              <Grid size={12}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 3,
+                  }}
+                >
+                  <Skeleton height={200} sx={{ flex: 1 }} />
+                  <Skeleton height={200} sx={{ flex: 1 }} />
+                  <Skeleton height={200} sx={{ flex: 1 }} />
+                  <Skeleton height={200} sx={{ flex: 1 }} />
+                </Box>
+              </Grid>
+            )}
           </Grid>
         </Box>
       </Grid>

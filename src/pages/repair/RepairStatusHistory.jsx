@@ -43,8 +43,8 @@ export default function RepairStatusHistory({ contactData }) {
   };
 
   useEffect(() => {
-    getData();
-    console.log("contactData", contactData);
+    // getData();
+    // console.log("contactData", contactData);
   }, []);
 
   return (

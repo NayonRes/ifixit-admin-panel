@@ -22,7 +22,7 @@ export default function RepairHistory({ contactData }) {
 
     let url = `/api/v1/repair?customer_id=${contactData?._id}&limit=100&page=1`;
     let allData = await getDataWithToken(url);
-    console.log("allData?.data?.data:", allData?.data?.data);
+    console.log("allData?.data?.data::::::", allData?.data?.data);
 
     if (allData?.status === 401) {
       logout();
@@ -56,6 +56,7 @@ export default function RepairHistory({ contactData }) {
             </TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
+              <TableCell>Model</TableCell>
               <TableCell>Repair Status</TableCell>
             </TableRow>
           </TableHead>
@@ -67,6 +68,9 @@ export default function RepairHistory({ contactData }) {
                 >
                   <TableCell>
                     {moment(item?.created_at).format("DD/MM/YYYY")}
+                  </TableCell>
+                  <TableCell>
+                    {item?.model_data?.map((item, index) => item?.name)}
                   </TableCell>
                   <TableCell>{item?.repair_status}</TableCell>
                 </TableRow>
