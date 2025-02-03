@@ -227,9 +227,23 @@ const IssueList = ({
     setLoading(false);
   };
 
-  useLayoutEffect(() => {
-    setSelectedProducts(allIssue);
-    console.log("listed issue", allIssue);
+  const revampList = (all) => {
+    let list = all.map((i) => {
+      let l = {
+        _id: i.service_id,
+        name: i.name,
+        price: i.price,
+      };
+      return l;
+    });
+    setSelectedProducts(list);
+    console.log("old", allIssue);
+    console.log("new", list);
+  };
+
+  useEffect(() => {
+    revampList(allIssue);
+    console.log("listed issue", allIssueUpdate);
     getProducts();
   }, []);
 

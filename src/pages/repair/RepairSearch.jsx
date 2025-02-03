@@ -47,7 +47,7 @@ const RepairSearch = () => {
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
-  const [steps, setSteps] = useState(0);
+  const [steps, setSteps] = useState(-1);
   const [technician, setTechnician] = useState("");
   const [technicianName, setTechnicianName] = useState("");
 
@@ -195,6 +195,8 @@ const RepairSearch = () => {
       if (allData.status >= 200 && allData.status < 300) {
         // setCategoryList(allData?.data?.data);
         // return console.log("allData:::", allData?.data?.data);
+        setScreenType("steper");
+        setSteps(0);
         let data = allData?.data?.data;
         console.log("edit data", data);
         setId(data?._id);
@@ -207,19 +209,20 @@ const RepairSearch = () => {
         setTechnician(data?.repair_by);
         setRepairStatus(data?.repair_status);
         setDeliveryStatus(data?.deliveryStatus);
-        // setBrand(data?.brand);
-        // setBrandId(data?.brandId);
-        // setDevice(data?.device);
+        setBrand(data?.brand_data?.[0]?.name);
+        setBrandId(data?.brand_data?.[0]?._id);
+        setDevice(data?.model_data?.[0]?.name);
+        setDeviceId(data?.model_data?.[0]?._id);
+        set_payment_info(data?.payment_info);
+        set_due_amount(data?.due_amount);
+        set_repair_checklist(data?.repair_checklist);
         // setRepairBy(data?.repairBy);
         // setPaymentStatus(data?.paymentStatus);
         // setTechnicianName(data?.technicianName);
         // setSteps(data?.steps);
         // setIssue(data?.issue);
-        // set_repair_checklist(data?.repair_checklist);
-        // set_due_amount(data?.due_amount);
         // set_discount_amount(data?.discount_amount);
         // set_customer_id(data?.customer_id);
-        // set_payment_info(data?.payment_info);
 
         if (allData.data.data.length < 1) {
           // setMessage("No data found");
@@ -481,7 +484,7 @@ const RepairSearch = () => {
                 <Button
                   variant="contained"
                   onClick={() => setSteps(steps + 1)}
-                  disabled={device.length < 1}
+                  // disabled={device.length < 1}
                   sx={buttonStyle}
                 >
                   Next
@@ -523,7 +526,7 @@ const RepairSearch = () => {
                   variant="contained"
                   onClick={() => setSteps(steps + 1)}
                   disabled={
-                    repairStatus.length < 1 || deliveryStatus.length < 1
+                    repairStatus?.length < 1 || deliveryStatus?.length < 1
                   }
                   sx={buttonStyle}
                 >
