@@ -199,7 +199,7 @@ const RepairList = ({
                         // color="success"
                         disableElevation
                         component={Link}
-                        to={`/repair-search`}
+                        to={`/repair-search?repairId=${row?._id}`}
                         state={{ row }}
                       >
                         <svg

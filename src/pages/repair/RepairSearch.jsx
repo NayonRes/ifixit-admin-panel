@@ -5,7 +5,12 @@ import SearchForm from "./SearchForm";
 import AddContact from "./AddContact";
 import EditContact from "./EditContact";
 import ModelList from "./ModelList";
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import IssueList from "./IssueList";
 import TechnicianList from "./TechnicianList";
 import RepairStatusList from "./RepairStatusList";
@@ -15,10 +20,12 @@ import { AuthContext } from "../../context/AuthContext";
 import { handlePostData } from "../../services/PostDataService";
 import { useSnackbar } from "notistack";
 import { all } from "axios";
+import { getDataWithToken } from "../../services/GetDataService";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   console.log("location", location.state);
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
@@ -178,37 +185,53 @@ const RepairSearch = () => {
     }
   };
 
-  const initState = (data) => {
-    if (data) {
-      console.log("data", data);
-      setId(location?.state?.row?._id);
-      setName(data?.customer_data[0]?.name);
-      setContactData({ name: data?.customer_data[0]?.name });
-      setSerial(data?.serial);
-      setPassCode(data?.pass_code);
-      setAllIssueUpdate(data?.issues);
-      setAllIssue(data?.issues);
-      setTechnician(data?.repair_by);
-      setRepairStatus(data?.repair_status);
-      setDeliveryStatus(data?.deliveryStatus);
-      // setBrand(data?.brand);
-      // setBrandId(data?.brandId);
-      // setDevice(data?.device);
-      // setRepairBy(data?.repairBy);
-      // setPaymentStatus(data?.paymentStatus);
-      // setTechnicianName(data?.technicianName);
-      // setSteps(data?.steps);
-      // setIssue(data?.issue);
-      // set_repair_checklist(data?.repair_checklist);
-      // set_due_amount(data?.due_amount);
-      // set_discount_amount(data?.discount_amount);
-      // set_customer_id(data?.customer_id);
-      // set_payment_info(data?.payment_info);
+  const initState = async (repairId) => {
+    if (repairId) {
+      // setLoading2(true);
+
+      let url = `/api/v1/repair/${repairId}`;
+      let allData = await getDataWithToken(url);
+
+      if (allData.status >= 200 && allData.status < 300) {
+        // setCategoryList(allData?.data?.data);
+        // return console.log("allData:::", allData?.data?.data);
+        let data = allData?.data?.data;
+        console.log("edit data", data);
+        setId(data?._id);
+        setName(data?.customer_data[0]?.name);
+        setContactData({ name: data?.customer_data[0]?.name });
+        setSerial(data?.serial);
+        setPassCode(data?.pass_code);
+        setAllIssueUpdate(data?.issues);
+        setAllIssue(data?.issues);
+        setTechnician(data?.repair_by);
+        setRepairStatus(data?.repair_status);
+        setDeliveryStatus(data?.deliveryStatus);
+        // setBrand(data?.brand);
+        // setBrandId(data?.brandId);
+        // setDevice(data?.device);
+        // setRepairBy(data?.repairBy);
+        // setPaymentStatus(data?.paymentStatus);
+        // setTechnicianName(data?.technicianName);
+        // setSteps(data?.steps);
+        // setIssue(data?.issue);
+        // set_repair_checklist(data?.repair_checklist);
+        // set_due_amount(data?.due_amount);
+        // set_discount_amount(data?.discount_amount);
+        // set_customer_id(data?.customer_id);
+        // set_payment_info(data?.payment_info);
+
+        if (allData.data.data.length < 1) {
+          // setMessage("No data found");
+        }
+      }
+      // setLoading2(false);
     }
   };
 
   useEffect(() => {
-    initState(location?.state?.row);
+    let repairId = searchParams.get("repairId");
+    initState(repairId);
   }, []);
 
   return (
