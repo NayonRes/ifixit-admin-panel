@@ -196,6 +196,21 @@ const RepairSearch = () => {
     }
   };
 
+  const revampSparePars = (all) => {
+    let list = all.map((i) => {
+      let l = {
+        _id: i.spare_parts_id,
+        name: i.name,
+        price: i.price,
+        spare_parts_variation_id: i.spare_parts_variation_id,
+      };
+      return l;
+    });
+    setAllSpareParts(list);
+    console.log("old", all);
+    console.log("new", list);
+  };
+
   const initState = async (repairId) => {
     if (repairId) {
       // setLoading2(true);
@@ -221,6 +236,8 @@ const RepairSearch = () => {
         setPassCode(data?.pass_code);
         setAllIssueUpdate(data?.issues);
         setAllIssue(data?.issues);
+        setAllSpareParts(data?.spare_parts);
+
         setTechnician(data?.repair_by);
         setRepairStatus(data?.repair_status);
         setDeliveryStatus(data?.delivery_status);
