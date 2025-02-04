@@ -432,6 +432,9 @@ const DetailsStockTransfer = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -476,6 +479,9 @@ const DetailsStockTransfer = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading3(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading3(false);
   };

@@ -432,6 +432,9 @@ const AddPurchase = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -451,6 +454,9 @@ const AddPurchase = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    }else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };

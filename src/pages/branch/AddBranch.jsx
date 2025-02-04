@@ -146,16 +146,17 @@ const AddBranch = ({ clearFilter }) => {
       return;
     }
     if (response.status >= 200 && response.status < 300) {
+      setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
       clearFilter(); // this is for get the table list again
 
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
-    setLoading(false);
     // }
   };
 

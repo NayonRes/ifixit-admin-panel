@@ -171,6 +171,9 @@ const PurchaseDetails = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setSearchLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setSearchLoading(false);
   };
@@ -426,6 +429,9 @@ const PurchaseDetails = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
@@ -463,6 +469,7 @@ const PurchaseDetails = () => {
         setMessage("No data found");
       }
     } else {
+      setSkuLoading(false);
       setGenerateSkuData({});
       setGenerateSKULoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");

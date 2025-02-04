@@ -344,6 +344,9 @@ const AddStockLimit = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -369,6 +372,9 @@ const AddStockLimit = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -388,6 +394,9 @@ const AddStockLimit = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -423,6 +432,9 @@ const AddStockLimit = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setSearchLoading(false);
   };

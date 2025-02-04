@@ -247,6 +247,9 @@ const CustomerList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    }else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };

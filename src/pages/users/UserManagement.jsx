@@ -278,27 +278,24 @@ const UserManagement = () => {
     // }
   };
   const getPermissionData = async (pageNO, limit, newUrl) => {
-    try {
-      setLoading(true);
-      let url = `/api/v1/permission`;
-      let allData = await getDataWithToken(url);
-      if (allData?.status === 401) {
-        logout();
-        return;
-      }
-      if (allData.status >= 200 && allData.status < 300) {
-        transformPermissionData(allData?.data?.data);
-
-        if (allData.data.data.length < 1) {
-          setMessage("No data found");
-        }
-      }
-      setLoading(false);
-    } catch (error) {
-      console.log("error", error);
-      setLoading(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
+    setLoading(true);
+    let url = `/api/v1/permission`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
     }
+    if (allData.status >= 200 && allData.status < 300) {
+      transformPermissionData(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading(false);
   };
 
   const transformPermissionData = (permissions) => {
@@ -393,6 +390,9 @@ const UserManagement = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
