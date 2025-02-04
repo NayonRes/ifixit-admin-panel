@@ -21,6 +21,7 @@ import { handlePostData } from "../../services/PostDataService";
 import { useSnackbar } from "notistack";
 import { all } from "axios";
 import { getDataWithToken } from "../../services/GetDataService";
+import { handlePutData } from "../../services/PutDataService";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
@@ -117,7 +118,7 @@ const RepairSearch = () => {
       let d = {
         service_id: item?._id,
         name: item.name,
-        price: item.price,
+        repair_cost: item.repair_cost,
       };
       return d;
     });
@@ -139,7 +140,7 @@ const RepairSearch = () => {
       branch_id: decodedToken?.user?.branch_id,
       pass_code: passCode,
       brand_id: brand_id,
-      deliveryStatus: deliveryStatus,
+      delivery_status: deliveryStatus,
       due_amount: due_amount,
       discount_amount: discount_amount,
       repair_by: technician,
@@ -161,7 +162,17 @@ const RepairSearch = () => {
 
     console.log("final data", data);
 
-    let response = await handlePostData("/api/v1/repair/create", data, false);
+    let response;
+    let repairId = searchParams.get("repairId");
+    if (repairId) {
+      response = await handlePutData(
+        `/api/v1/repair/update/${repairId}`,
+        data,
+        false
+      );
+    } else {
+      response = await handlePostData("/api/v1/repair/create", data, false);
+    }
 
     console.log("response", response);
 
@@ -201,14 +212,18 @@ const RepairSearch = () => {
         console.log("edit data", data);
         setId(data?._id);
         setName(data?.customer_data[0]?.name);
-        setContactData({ name: data?.customer_data[0]?.name });
+        setContactData({
+          name: data?.customer_data[0]?.name,
+          _id: data?.customer_data[0]?._id,
+        });
+        set_customer_id(data?.customer_data[0]?._id);
         setSerial(data?.serial);
         setPassCode(data?.pass_code);
         setAllIssueUpdate(data?.issues);
         setAllIssue(data?.issues);
         setTechnician(data?.repair_by);
         setRepairStatus(data?.repair_status);
-        setDeliveryStatus(data?.deliveryStatus);
+        setDeliveryStatus(data?.delivery_status);
         setBrand(data?.brand_data?.[0]?.name);
         setBrandId(data?.brand_data?.[0]?._id);
         setDevice(data?.model_data?.[0]?.name);
@@ -222,7 +237,6 @@ const RepairSearch = () => {
         // setSteps(data?.steps);
         // setIssue(data?.issue);
         // set_discount_amount(data?.discount_amount);
-        // set_customer_id(data?.customer_id);
 
         if (allData.data.data.length < 1) {
           // setMessage("No data found");
@@ -370,9 +384,9 @@ const RepairSearch = () => {
             </Box>
           )}
 
-          {device === "Primary" && !device && (
+          {/* {device === "Primary" && !device && (
             <ModelList device={device} setDevice={setDevice} />
-          )}
+          )} */}
           {steps == 0 && (
             <ModelList
               id={id}
@@ -385,6 +399,7 @@ const RepairSearch = () => {
               deviceId={deviceId}
               setDeviceId={setDeviceId}
             />
+            // <div>Model list</div>
           )}
           {steps == 1 && (
             <IssueList
@@ -537,14 +552,16 @@ const RepairSearch = () => {
               Next
             </Button> */}
               {steps == 4 && (
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                  // onClick={checkSum}
-                  sx={buttonStyle}
-                >
-                  Submit
-                </Button>
+                <>
+                  <Button
+                    variant="contained"
+                    onClick={handleSubmit}
+                    // onClick={checkSum}
+                    sx={buttonStyle}
+                  >
+                    {searchParams.get("repairId") ? "Update" : "Submit"}
+                  </Button>
+                </>
               )}
             </Box>
           )}
