@@ -5,7 +5,12 @@ import SearchForm from "./SearchForm";
 import AddContact from "./AddContact";
 import EditContact from "./EditContact";
 import ModelList from "./ModelList";
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import IssueList from "./IssueList";
 import TechnicianList from "./TechnicianList";
 import RepairStatusList from "./RepairStatusList";
@@ -15,10 +20,12 @@ import { AuthContext } from "../../context/AuthContext";
 import { handlePostData } from "../../services/PostDataService";
 import { useSnackbar } from "notistack";
 import { all } from "axios";
+import { getDataWithToken } from "../../services/GetDataService";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   console.log("location", location.state);
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
@@ -40,7 +47,7 @@ const RepairSearch = () => {
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
-  const [steps, setSteps] = useState(0);
+  const [steps, setSteps] = useState(-1);
   const [technician, setTechnician] = useState("");
   const [technicianName, setTechnicianName] = useState("");
 
@@ -178,37 +185,56 @@ const RepairSearch = () => {
     }
   };
 
-  const initState = (data) => {
-    if (data) {
-      console.log("data", data);
-      setId(location?.state?.row?._id);
-      setName(data?.customer_data[0]?.name);
-      setContactData({ name: data?.customer_data[0]?.name });
-      setSerial(data?.serial);
-      setPassCode(data?.pass_code);
-      setAllIssueUpdate(data?.issues);
-      setAllIssue(data?.issues);
-      setTechnician(data?.repair_by);
-      setRepairStatus(data?.repair_status);
-      setDeliveryStatus(data?.deliveryStatus);
-      // setBrand(data?.brand);
-      // setBrandId(data?.brandId);
-      // setDevice(data?.device);
-      // setRepairBy(data?.repairBy);
-      // setPaymentStatus(data?.paymentStatus);
-      // setTechnicianName(data?.technicianName);
-      // setSteps(data?.steps);
-      // setIssue(data?.issue);
-      // set_repair_checklist(data?.repair_checklist);
-      // set_due_amount(data?.due_amount);
-      // set_discount_amount(data?.discount_amount);
-      // set_customer_id(data?.customer_id);
-      // set_payment_info(data?.payment_info);
+  const initState = async (repairId) => {
+    if (repairId) {
+      // setLoading2(true);
+
+      let url = `/api/v1/repair/${repairId}`;
+      let allData = await getDataWithToken(url);
+
+      if (allData.status >= 200 && allData.status < 300) {
+        // setCategoryList(allData?.data?.data);
+        // return console.log("allData:::", allData?.data?.data);
+        setScreenType("steper");
+        setSteps(0);
+        let data = allData?.data?.data;
+        console.log("edit data", data);
+        setId(data?._id);
+        setName(data?.customer_data[0]?.name);
+        setContactData({ name: data?.customer_data[0]?.name });
+        setSerial(data?.serial);
+        setPassCode(data?.pass_code);
+        setAllIssueUpdate(data?.issues);
+        setAllIssue(data?.issues);
+        setTechnician(data?.repair_by);
+        setRepairStatus(data?.repair_status);
+        setDeliveryStatus(data?.deliveryStatus);
+        setBrand(data?.brand_data?.[0]?.name);
+        setBrandId(data?.brand_data?.[0]?._id);
+        setDevice(data?.model_data?.[0]?.name);
+        setDeviceId(data?.model_data?.[0]?._id);
+        set_payment_info(data?.payment_info);
+        set_due_amount(data?.due_amount);
+        set_repair_checklist(data?.repair_checklist);
+        // setRepairBy(data?.repairBy);
+        // setPaymentStatus(data?.paymentStatus);
+        // setTechnicianName(data?.technicianName);
+        // setSteps(data?.steps);
+        // setIssue(data?.issue);
+        // set_discount_amount(data?.discount_amount);
+        // set_customer_id(data?.customer_id);
+
+        if (allData.data.data.length < 1) {
+          // setMessage("No data found");
+        }
+      }
+      // setLoading2(false);
     }
   };
 
   useEffect(() => {
-    initState(location?.state?.row);
+    let repairId = searchParams.get("repairId");
+    initState(repairId);
   }, []);
 
   return (
@@ -325,19 +351,23 @@ const RepairSearch = () => {
             justifyContent: "space-between",
           }}
         >
-          {!brand && contactData?._id ? (
-            <EditContact
-              contactData={contactData}
-              setContactData={setContactData}
-            />
-          ) : !brand && !contactData?._id && !id ? (
-            <AddContact
-              searchPrams={searchPrams}
-              contactData={contactData}
-              setContactData={setContactData}
-            />
-          ) : (
-            ""
+          {steps == -1 && (
+            <Box>
+              {contactData?._id ? (
+                <EditContact
+                  contactData={contactData}
+                  setContactData={setContactData}
+                />
+              ) : !contactData?._id && !id ? (
+                <AddContact
+                  searchPrams={searchPrams}
+                  contactData={contactData}
+                  setContactData={setContactData}
+                />
+              ) : (
+                ""
+              )}
+            </Box>
           )}
 
           {device === "Primary" && !device && (
@@ -437,18 +467,29 @@ const RepairSearch = () => {
               </Button> */}
               <Button
                 variant="outlined"
+                disabled={steps == -1}
                 onClick={() => {
-                  if (steps > 0) {
+                  if (steps > -1) {
                     setSteps(steps - 1);
                   } else {
-                    setBrand("");
-                    setScreenType("add_contact");
+                    // setBrand("");
+                    // setScreenType("add_contact");
                   }
                 }}
                 sx={buttonStyle}
               >
                 Back
               </Button>
+              {steps == -1 && (
+                <Button
+                  variant="contained"
+                  onClick={() => setSteps(steps + 1)}
+                  // disabled={device.length < 1}
+                  sx={buttonStyle}
+                >
+                  Next
+                </Button>
+              )}
               {steps == 0 && (
                 <Button
                   variant="contained"
@@ -485,7 +526,7 @@ const RepairSearch = () => {
                   variant="contained"
                   onClick={() => setSteps(steps + 1)}
                   disabled={
-                    repairStatus.length < 1 || deliveryStatus.length < 1
+                    repairStatus?.length < 1 || deliveryStatus?.length < 1
                   }
                   sx={buttonStyle}
                 >

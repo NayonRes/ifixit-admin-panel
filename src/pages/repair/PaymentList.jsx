@@ -151,6 +151,12 @@ const PaymentList = ({
     set_payment_info(updatedAmounts);
   };
 
+  useEffect(() => {
+    if (payment_info && payment_info.length > 0) {
+      setAmounts(payment_info);
+    }
+  }, []);
+
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
@@ -223,6 +229,10 @@ const PaymentList = ({
                     sx={{ ...customeTextFeild, mb: 0 }}
                     onChange={(e) =>
                       handleChange(item.name, parseFloat(e.target.value) || 0)
+                    }
+                    value={
+                      amounts.find((entry) => entry.name === item.name)
+                        ?.amount || ""
                     }
                     // value={membershipId}
                     // onChange={(e) => {

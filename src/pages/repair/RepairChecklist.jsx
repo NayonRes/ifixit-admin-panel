@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -170,6 +170,25 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
 
     setNewCheckList("");
   };
+
+  useEffect(() => {
+    if (repair_checklist?.checklist?.length > 0) {
+      const updatedIssueList = allIssueList.map((item) => ({
+        ...item,
+        status: repair_checklist?.checklist.includes(item.name), // Set status to true if name is in preValue
+      }));
+      setIssueList(updatedIssueList);
+    }
+    if (repair_checklist?.has_power) {
+      set_has_power(repair_checklist?.has_power);
+    }
+    if (repair_checklist?.battery_health) {
+      set_battery_health(repair_checklist?.battery_health);
+    }
+    if (repair_checklist?.note) {
+      set_note(repair_checklist?.note);
+    }
+  }, []);
 
   return (
     <div>
