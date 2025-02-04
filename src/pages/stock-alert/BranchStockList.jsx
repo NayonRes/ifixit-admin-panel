@@ -179,7 +179,7 @@ const BranchStockList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(4).keys()].map((e, i) => (
+          {[...Array(7).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -573,7 +573,7 @@ const BranchStockList = () => {
                     </Select>
                   </FormControl>
                 </Grid> */}
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -600,9 +600,9 @@ const BranchStockList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>
@@ -634,7 +634,7 @@ const BranchStockList = () => {
                       </Grid>
                     </Grid>
                   </Box>
-                </Grid>
+                </Grid> */}
               </Grid>
             </Box>
           </Grid>
@@ -656,16 +656,16 @@ const BranchStockList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Product Name
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Alert Limit
-                  </TableCell>
+                  {branchList?.map((item) => (
+                    <TableCell style={{ whiteSpace: "nowrap" }}>
+                      {" "}
+                      {item?.name}
+                      {/* <br />
+                      {item?._id} */}
+                    </TableCell>
+                  ))}
 
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Available
-                  </TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -709,13 +709,31 @@ const BranchStockList = () => {
                         {row?.sparepart_data
                           ? row?.sparepart_data[0]?.name
                           : "---------"}{" "}
-                        &nbsp;{" "}
-                        {row?.spare_parts_variation_data
-                          ? row?.spare_parts_variation_data[0]?.name
-                          : "---------"}
+                        &nbsp; {row?.name ? row?.name : "---------"}
                       </TableCell>
-
-                      <TableCell>
+                      {row?.stock_data?.length > 0 &&
+                        row?.stock_data?.map((el, i) => (
+                          <TableCell
+                            style={{ whiteSpace: "nowrap" }}
+                            key={i}
+                            sx={{
+                              color:
+                                el?.stock[0]?.total_stock <
+                                el?.stock[0]?.stock_limit
+                                  ? "#D92D20"
+                                  : el?.stock[0]?.total_stock ===
+                                    el?.stock[0]?.stock_limit
+                                  ? "#DC6803"
+                                  : "#35b522",
+                            }}
+                          >
+                            {el?.stock?.length > 0
+                              ? el?.stock[0]?.total_stock
+                              : 0}{" "}
+                            PCs
+                          </TableCell>
+                        ))}
+                      {/* <TableCell>
                         {row?.branch_data
                           ? row?.branch_data[0]?.name
                           : "---------"}
@@ -732,7 +750,7 @@ const BranchStockList = () => {
                         }}
                       >
                         {row?.total_stock} PCs
-                      </TableCell>
+                      </TableCell> */}
 
                       {/* <TableCell>
                         {row?.category_data[0]?.name

@@ -801,7 +801,7 @@ const StockTransferList = () => {
                           component={Link}
                           to={`/stock-transfer/${row?._id}`}
                         >
-                          Details
+                          Update
                         </Button>
                         {/* <IconButton
                           disabled={row?.transfer_status === "Received"}
