@@ -143,6 +143,7 @@ const ModelList = ({
       setItems(allData?.data?.data);
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
+      setLoading(false);
     }
     setLoading(false);
   };

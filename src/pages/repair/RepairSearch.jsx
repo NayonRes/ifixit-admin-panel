@@ -254,6 +254,8 @@ const RepairSearch = () => {
         if (allData.data.data.length < 1) {
           // setMessage("No data found");
         }
+      } else {
+        handleSnakbarOpen(allData?.data?.message, "error");
       }
       // setLoading2(false);
     }

@@ -10,12 +10,26 @@ import { Box, Typography } from "@mui/material";
 import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import moment from "moment";
+import { enqueueSnackbar } from "notistack";
 
 export default function RepairHistory({ contactData }) {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [loading, setLoading] = React.useState(false);
   const [message, setMessage] = useState("");
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
 
   const getData = async () => {
     setLoading(true);
@@ -35,6 +49,9 @@ export default function RepairHistory({ contactData }) {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
