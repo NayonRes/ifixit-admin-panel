@@ -141,11 +141,15 @@ const Repair = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 8;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_repair")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(9).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -308,7 +312,7 @@ const Repair = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <Button
+          {/* <Button
             variant="contained"
             disableElevation
             sx={{
@@ -338,8 +342,37 @@ const Repair = () => {
               </svg>
             }
           >
-            Repair
-          </Button>
+            Add Job
+          </Button> */}
+
+          {ifixit_admin_panel?.user?.permission?.includes("add_repair") && (
+            <Button
+              variant="contained"
+              disableElevation
+              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+              component={Link}
+              to="/repair-search"
+              startIcon={
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                    stroke="white"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+            >
+              Add Job
+            </Button>
+          )}
         </Grid>
       </Grid>
       <div

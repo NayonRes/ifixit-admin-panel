@@ -170,10 +170,19 @@ const ServiceList = () => {
     setDeleteData({ index: i, row: row });
     setDeleteDialog(true);
   };
-
+  const checkMultiplePermission = (permissionNames) => {
+    return permissionNames.some((item) =>
+      ifixit_admin_panel?.user?.permission.includes(item)
+    );
+  };
   const pageLoading = () => {
     let content = [];
 
+    let loadingNumber = 6;
+
+    if (checkMultiplePermission(["update_service", "view_service_details"])) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
@@ -420,38 +429,40 @@ const ServiceList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <Button
-            variant="contained"
-            disableElevation
-            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-            component={Link}
-            to="/add-service"
-            // onClick={() => {
-            //   setAddDialog(true);
-            //   getCategoryList();
-            //   getBrandList();
-            //   getDeviceList();
-            // }}
-            startIcon={
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-                  stroke="white"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            }
-          >
-            Add Service
-          </Button>
+          {ifixit_admin_panel?.user?.permission?.includes("service_list") && (
+            <Button
+              variant="contained"
+              disableElevation
+              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+              component={Link}
+              to="/add-service"
+              // onClick={() => {
+              //   setAddDialog(true);
+              //   getCategoryList();
+              //   getBrandList();
+              //   getDeviceList();
+              // }}
+              startIcon={
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                    stroke="white"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+            >
+              Add Service
+            </Button>
+          )}
           {/* <AddSpareParts clearFilter={clearFilter} /> */}
 
           {/* <IconButton
@@ -735,10 +746,14 @@ const ServiceList = () => {
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {checkMultiplePermission([
+                    "update_service",
+                    "view_service_details",
+                  ]) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -841,35 +856,52 @@ const ServiceList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="info"
-                          startIcon={<ListAltOutlinedIcon />}
-                          component={Link}
-                          to={`/service/details/${row?._id}`}
-                        >
-                          Details
-                        </Button>
-                        &nbsp;&nbsp;
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="text"
-                          startIcon={<ListAltOutlinedIcon />}
-                          component={Link}
-                          to={`/service/update/${row?._id}`}
-                        >
-                          Edit
-                        </Button>
-                      </TableCell>
+
+                      {checkMultiplePermission([
+                        "update_service",
+                        "view_service_details",
+                      ]) && (
+                        <TableCell align="right">
+                          {ifixit_admin_panel?.user?.permission?.includes(
+                            "view_service_details"
+                          ) && (
+                            <>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="info"
+                                startIcon={<ListAltOutlinedIcon />}
+                                component={Link}
+                                to={`/service/details/${row?._id}`}
+                              >
+                                Details
+                              </Button>
+                              &nbsp;&nbsp;
+                            </>
+                          )}
+
+                          {ifixit_admin_panel?.user?.permission?.includes(
+                            "update_service"
+                          ) && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="text"
+                              startIcon={<ListAltOutlinedIcon />}
+                              component={Link}
+                              to={`/service/update/${row?._id}`}
+                            >
+                              Update
+                            </Button>
+                          )}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={7} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getDataWithToken } from "../../services/GetDataService";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -34,6 +34,7 @@ import dayjs from "dayjs";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddModel from "./AddModel";
 import UpdateModel from "./UpdateModel";
+import { AuthContext } from "../../context/AuthContext";
 
 const ModelList = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -226,7 +227,7 @@ const ModelList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }

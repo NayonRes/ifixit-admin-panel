@@ -164,11 +164,15 @@ const CustomerList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 7;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_user")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(8).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -247,7 +251,7 @@ const CustomerList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -286,7 +290,9 @@ const CustomerList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <AddCustomer clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_customer") && (
+            <AddCustomer clearFilter={clearFilter} />
+          )}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -476,10 +482,13 @@ const CustomerList = () => {
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell> */}
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_customer"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -550,15 +559,19 @@ const CustomerList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <UpdateCustomer clearFilter={clearFilter} row={row} />
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_customer"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateCustomer clearFilter={clearFilter} row={row} />
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList?.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={8} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

@@ -135,6 +135,7 @@ const UserManagement = () => {
   const [name, setName] = useState("");
   const [permissionList, setPermissionList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
   const [loading3, setLoading3] = useState(false);
   const [message, setMessage] = useState("");
   const [loading2, setLoading2] = useState(false);
@@ -573,7 +574,11 @@ const UserManagement = () => {
                 </Typography>
               </Grid>
               <Grid size={6} sx={{ textAlign: "right" }}>
+                {ifixit_admin_panel?.user?.permission?.includes("add_user") && 
+                
                 <AddUser getUser={getUser} />
+                }
+                     {ifixit_admin_panel?.user?.permission?.includes("update_user") && 
                 <Button
                   variant="contained"
                   color="info"
@@ -584,6 +589,7 @@ const UserManagement = () => {
                     px: 2,
                     borderRadius: "6px",
                     minWidth: "150px",
+                    height: "43px",
                     ml: 1,
                   }}
                   onClick={onSubmit}
@@ -608,12 +614,12 @@ const UserManagement = () => {
                 >
                   <PulseLoader
                     color={"#4B46E5"}
-                    loading={loading}
+                    loading={loading3}
                     size={10}
                     speedMultiplier={0.5}
                   />{" "}
-                  {loading === false && "Update User"}
-                </Button>
+                  {loading3 === false && "Update User"}
+                </Button>}
               </Grid>
             </Grid>
 

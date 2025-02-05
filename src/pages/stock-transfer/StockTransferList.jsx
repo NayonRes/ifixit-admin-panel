@@ -172,14 +172,27 @@ const StockTransferList = () => {
     setDeleteData({ index: i, row: row });
     setDeleteDialog(true);
   };
-
+  const checkMultiplePermission = (permissionNames) => {
+    return permissionNames.some((item) =>
+      ifixit_admin_panel?.user?.permission.includes(item)
+    );
+  };
   const pageLoading = () => {
     let content = [];
 
+    let loadingNumber = 7;
+    if (
+      checkMultiplePermission([
+        "update_stock_transfer",
+        "view_stock_transfer_details",
+      ])
+    ) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(8).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -687,9 +700,15 @@ const StockTransferList = () => {
                   </TableCell>
                   <TableCell style={{ minWidth: "150px" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+
+                  {checkMultiplePermission([
+                    "update_stock_transfer",
+                    "view_stock_transfer_details",
+                  ]) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
@@ -774,54 +793,67 @@ const StockTransferList = () => {
                           "---------"
                         )}
                       </TableCell>
-
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="info"
-                          startIcon={<ListAltOutlinedIcon />}
-                          component={Link}
-                          to={`/stock-transfer/details/${row?._id}`}
-                        >
-                          Details
-                        </Button>
-                        &nbsp;
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="text"
-                          disabled={row?.transfer_status === "Received"}
-                          sx={{
-                            "& svg": {
-                              opacity:
-                                row?.transfer_status === "Received" && 0.5,
-                            },
-                          }}
-                          startIcon={
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              id="Outline"
-                              viewBox="0 0 24 24"
-                              width="16"
-                              height="16"
+                      {checkMultiplePermission([
+                        "update_stock_transfer",
+                        "view_stock_transfer_details",
+                      ]) && (
+                        <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                          {ifixit_admin_panel?.user?.permission?.includes(
+                            "view_stock_transfer_details"
+                          ) && (
+                            <>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="info"
+                                startIcon={<ListAltOutlinedIcon />}
+                                component={Link}
+                                to={`/stock-transfer/details/${row?._id}`}
+                              >
+                                Details
+                              </Button>
+                              &nbsp; &nbsp;
+                            </>
+                          )}
+                          {ifixit_admin_panel?.user?.permission?.includes(
+                            "update_stock_transfer"
+                          ) && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="text"
+                              disabled={row?.transfer_status === "Received"}
+                              sx={{
+                                "& svg": {
+                                  opacity:
+                                    row?.transfer_status === "Received" && 0.5,
+                                },
+                              }}
+                              startIcon={
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  id="Outline"
+                                  viewBox="0 0 24 24"
+                                  width="16"
+                                  height="16"
+                                >
+                                  <path
+                                    d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                                    fill="#787878"
+                                  />
+                                  <path
+                                    d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                                    fill="#787878"
+                                  />
+                                </svg>
+                              }
+                              component={Link}
+                              to={`/stock-transfer/${row?._id}`}
                             >
-                              <path
-                                d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-                                fill="#787878"
-                              />
-                              <path
-                                d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-                                fill="#787878"
-                              />
-                            </svg>
-                          }
-                          component={Link}
-                          to={`/stock-transfer/${row?._id}`}
-                        >
-                          Update
-                        </Button>
-                        {/* <IconButton
+                              Update
+                            </Button>
+                          )}
+                          {/* <IconButton
                           disabled={row?.transfer_status === "Received"}
                           sx={{
                             opacity: row?.transfer_status === "Received" && 0.5,
@@ -850,7 +882,8 @@ const StockTransferList = () => {
                             />
                           </svg>
                         </IconButton> */}
-                      </TableCell>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 

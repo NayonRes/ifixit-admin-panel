@@ -163,11 +163,15 @@ const SupplierList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 5;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_supplier")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 6; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(6).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -287,7 +291,9 @@ const SupplierList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <AddSupplier clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_supplier") && (
+            <AddSupplier clearFilter={clearFilter} />
+          )}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -489,10 +495,13 @@ const SupplierList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
 
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell> */}
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_supplier"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -558,15 +567,19 @@ const SupplierList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <UpdateSupplier clearFilter={clearFilter} row={row} />
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_supplier"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateSupplier clearFilter={clearFilter} row={row} />
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
