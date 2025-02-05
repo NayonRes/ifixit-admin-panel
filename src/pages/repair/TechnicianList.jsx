@@ -136,6 +136,9 @@ const TechnicianList = ({
   const getBranchData = async () => {
     setLoading(true);
 
+    let branch_id = getBranchId();
+    setSelectedBranch(branch_id);
+
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("BranchData:", allData?.data?.data);
