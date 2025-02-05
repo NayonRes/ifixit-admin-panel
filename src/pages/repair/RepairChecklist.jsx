@@ -107,7 +107,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
     }
 
     // Add new item if it doesn't exist
-    const newItem = { name: newName, status: false };
+    const newItem = { name: newName, status: true };
     setIssueList((prevList) => {
       const updatedList = [...prevList, newItem];
       console.log("Updated issueList:", updatedList);
@@ -137,7 +137,15 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
   // }, []);
 
   useEffect(() => {
-    if (!repair_checklist?.checklist) return;
+    console.log("all-----------", allIssueCheckList);
+    if (!repair_checklist?.checklist) {
+      const updatedCheckList = allIssueCheckList.map((item) => ({
+        ...item,
+        status: false,
+      }));
+      setIssueList(updatedCheckList);
+      return;
+    }
 
     // Extract existing issue names
     const existingNames = new Set(allIssueCheckList.map((item) => item.name));
