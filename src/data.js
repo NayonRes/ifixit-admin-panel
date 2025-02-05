@@ -218,3 +218,22 @@ export const deliveryStatusList = [
   { name: "Not Delivered", color: "#FFE6D5", icon: notDelevered },
   { name: "Delivered", color: "#DCFAE6", icon: complete },
 ];
+export const allIssueCheckList = [
+  { name: "Power ON", status: false },
+  { name: "Bluetooth", status: false },
+  { name: "Proximity Sensor", status: false },
+  { name: "True Tone", status: false },
+  { name: "Flash Light", status: false },
+  { name: "Touch", status: false },
+  { name: "Network", status: false },
+  { name: "Ear Speaker", status: false },
+  { name: "Loud Speaker", status: false },
+  { name: "Face ID", status: false },
+  { name: "Front Camera", status: false },
+  { name: "MIC", status: false },
+  { name: "Button", status: false },
+  { name: "Wifi", status: false },
+  { name: "Back Camera", status: false },
+  { name: "USB", status: false },
+  { name: "Taptic", status: false },
+];

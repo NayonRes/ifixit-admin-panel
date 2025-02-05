@@ -567,10 +567,13 @@ const PurchaseDetails = () => {
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_purchase"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -882,10 +885,16 @@ const PurchaseDetails = () => {
                           </>
                         )}
                       </TableCell>
-
-                      <TableCell align="right">
-                        <UpdatePurchase getData={getData} row={tableDataList} />
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_purchase"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdatePurchase
+                            getData={getData}
+                            row={tableDataList}
+                          />
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
@@ -1230,13 +1239,16 @@ const PurchaseDetails = () => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           SKU Actions
                         </TableCell>
-
-                        <TableCell
-                          align="right"
-                          style={{ whiteSpace: "nowrap" }}
-                        >
-                          Actions
-                        </TableCell>
+                        {ifixit_admin_panel?.user?.permission?.includes(
+                          "update_purchase"
+                        ) && (
+                          <TableCell
+                            align="right"
+                            style={{ whiteSpace: "nowrap" }}
+                          >
+                            Actions
+                          </TableCell>
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -1508,84 +1520,88 @@ const PurchaseDetails = () => {
                                   "---------"
                                 )}
                               </TableCell>
-                              <TableCell
-                                sx={{
-                                  whiteSpace: "nowrap",
-                                  textAlign: "right",
-                                }}
-                              >
-                                {updateData._id === item._id ? (
-                                  <>
-                                    <Button
-                                      size="small"
-                                      variant="outlined"
-                                      color="text"
-                                      disabled={updateVariationLoading}
-                                      sx={{ mr: 1 }}
-                                      onClick={() => {
-                                        setUpdateData({});
-                                      }}
-                                    >
-                                      {" "}
-                                      Cancel
-                                    </Button>
-                                    <Button
-                                      size="small"
+                              {ifixit_admin_panel?.user?.permission?.includes(
+                                "update_purchase"
+                              ) && (
+                                <TableCell
+                                  sx={{
+                                    whiteSpace: "nowrap",
+                                    textAlign: "right",
+                                  }}
+                                >
+                                  {updateData._id === item._id ? (
+                                    <>
+                                      <Button
+                                        size="small"
+                                        variant="outlined"
+                                        color="text"
+                                        disabled={updateVariationLoading}
+                                        sx={{ mr: 1 }}
+                                        onClick={() => {
+                                          setUpdateData({});
+                                        }}
+                                      >
+                                        {" "}
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="small"
+                                        variant="contained"
+                                        disabled={updateVariationLoading}
+                                        sx={{
+                                          minHeight: "33px",
+                                          minWidth: "80px",
+                                        }}
+                                        onClick={onProductSubmit}
+                                      >
+                                        <PulseLoader
+                                          color={"#4B46E5"}
+                                          loading={updateVariationLoading}
+                                          size={10}
+                                          speedMultiplier={0.5}
+                                        />{" "}
+                                        {updateVariationLoading === false &&
+                                          "Update"}
+                                      </Button>
+                                    </>
+                                  ) : (
+                                    <IconButton
                                       variant="contained"
-                                      disabled={updateVariationLoading}
-                                      sx={{
-                                        minHeight: "33px",
-                                        minWidth: "80px",
-                                      }}
-                                      onClick={onProductSubmit}
-                                    >
-                                      <PulseLoader
-                                        color={"#4B46E5"}
-                                        loading={updateVariationLoading}
-                                        size={10}
-                                        speedMultiplier={0.5}
-                                      />{" "}
-                                      {updateVariationLoading === false &&
-                                        "Update"}
-                                    </Button>
-                                  </>
-                                ) : (
-                                  <IconButton
-                                    variant="contained"
-                                    // color="success"
-                                    disableElevation
-                                    disabled={
-                                      item.purchase_product_status ===
-                                      "Received"
-                                    }
-                                    onClick={() => setUpdateData(item)}
-                                    sx={{
-                                      opacity:
+                                      // color="success"
+                                      disableElevation
+                                      disabled={
                                         item.purchase_product_status ===
-                                          "Received" && 0.5,
-                                    }}
-                                  >
-                                    {/* <EditOutlinedIcon /> */}
-
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      id="Outline"
-                                      viewBox="0 0 24 24"
-                                      width="18"
-                                      height="18"
+                                        "Received"
+                                      }
+                                      onClick={() => setUpdateData(item)}
+                                      sx={{
+                                        opacity:
+                                          item.purchase_product_status ===
+                                            "Received" && 0.5,
+                                      }}
                                     >
-                                      <path
-                                        d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-                                        fill="#787878"
-                                      />
-                                      <path
-                                        d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-                                        fill="#787878"
-                                      />
-                                    </svg>
-                                  </IconButton>
-                                )}
-                              </TableCell>
+                                      {/* <EditOutlinedIcon /> */}
+
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        id="Outline"
+                                        viewBox="0 0 24 24"
+                                        width="18"
+                                        height="18"
+                                      >
+                                        <path
+                                          d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                                          fill="#787878"
+                                        />
+                                        <path
+                                          d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                                          fill="#787878"
+                                        />
+                                      </svg>
+                                    </IconButton>
+                                  )}
+                                </TableCell>
+                              )}
                             </TableRow>
                           )
                         )

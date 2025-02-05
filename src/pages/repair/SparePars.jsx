@@ -370,11 +370,11 @@ const SparePars = ({
     } else {
       setLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
-    }
+    } 
     setLoading(false);
   };
 
-  const handleSelectedProduct = (item) => {
+  const handleSelectedProduct = (item, row) => {
     console.log("item:::", item);
     if (
       selectedProducts.some((res) => res.spare_parts_id === item.spare_parts_id)
@@ -390,6 +390,15 @@ const SparePars = ({
         )
       );
     } else {
+      // {
+      //   ...item,
+      //   spare_parts_full_name: `${row?.name} - ${item?.name}`,
+      //   spare_parts_id: item.spare_parts_id,
+      //   spare_parts_variation_id: item._id,
+      //   purchase_product_status: "",
+      //   quantity: "",
+      //   unit_price: "",
+      // },
       setSelectedProducts([
         ...selectedProducts,
         {
@@ -397,6 +406,9 @@ const SparePars = ({
           id: item.spare_parts_id,
           name: item.name,
           price: item.price,
+          spare_parts_full_name: `${row?.name} - ${item?.name}`,
+          spare_parts_id: item.spare_parts_id,
+          spare_parts_variation_id: item._id,
         },
       ]);
       setAllSpareParts([
@@ -407,6 +419,9 @@ const SparePars = ({
           id: item.spare_parts_id,
           name: item.name,
           price: item.price,
+          spare_parts_full_name: `${row?.name} - ${item?.name}`,
+          spare_parts_id: item.spare_parts_id,
+          spare_parts_variation_id: item._id,
         },
       ]);
     }
@@ -496,7 +511,7 @@ const SparePars = ({
                                 pro?.spare_parts_id === item?.spare_parts_id
                             ) && "1px solid #818FF8",
                         }}
-                        onClick={() => handleSelectedProduct(item)}
+                        onClick={() => handleSelectedProduct(item, row)}
                       >
                         {" "}
                         <Box sx={{ flexGrow: 1 }}>

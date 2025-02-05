@@ -850,85 +850,93 @@ export default function Layout() {
                   </Collapse>
                 </>
               )}
-              {/* 111 */}
-              <ListItem disablePadding sx={{ display: "block" }}>
-                <ListItemButton
-                  // component={Link}
-                  // to="/carts"
-                  sx={[
-                    { ...listButtonStyle },
-                    // pathname === "/carts" && { ...activeStyle },
-                  ]}
-                  onClick={() => handleOpemMenu("Product")}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: 1.5,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+              {checkMultiplePermission([
+                "purchase_list",
+                "purchase_return_list",
+              ]) && (
+                <>
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      // component={Link}
+                      // to="/carts"
+                      sx={[
+                        { ...listButtonStyle },
+                        // pathname === "/carts" && { ...activeStyle },
+                      ]}
+                      onClick={() => handleOpemMenu("Product")}
                     >
-                      <g clip-path="url(#clip0_3_14882)">
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: 1.5,
+                          justifyContent: "center",
+                        }}
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g clip-path="url(#clip0_3_14882)">
+                            <path
+                              d="M1.66699 11.25L5.83366 13.75V18.3333M1.66699 11.25L5.83366 8.74996L10.0003 11.25M1.66699 11.25V15.8333L5.83366 18.3333M10.0003 11.25V15.8333M10.0003 11.25L14.167 13.75M10.0003 11.25L14.167 8.74996M10.0003 11.25V6.66663M10.0003 15.8333L5.83366 18.3333M10.0003 15.8333L14.167 18.3333M5.83366 13.7875L10.0003 11.2625M14.167 13.75V18.3333M14.167 13.75L18.3337 11.25M14.167 8.74996L18.3337 11.25M14.167 8.74996V4.16663M18.3337 11.25V15.8333L14.167 18.3333M10.0003 6.66663L5.83366 4.16663L10.0003 1.66663L14.167 4.16663M10.0003 6.66663L14.167 4.16663M5.83366 4.19162V8.73746"
+                              stroke="#656E81"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </g>
+                          <defs>
+                            <clipPath id="clip0_3_14882">
+                              <rect width="20" height="20" fill="white" />
+                            </clipPath>
+                          </defs>
+                        </svg>
+                      </ListItemIcon>
+                      <ListItemText primary="Product" />
+
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        style={{
+                          rotate: openMenu === "Product" ? "180deg" : "0deg",
+                        }}
+                      >
                         <path
-                          d="M1.66699 11.25L5.83366 13.75V18.3333M1.66699 11.25L5.83366 8.74996L10.0003 11.25M1.66699 11.25V15.8333L5.83366 18.3333M10.0003 11.25V15.8333M10.0003 11.25L14.167 13.75M10.0003 11.25L14.167 8.74996M10.0003 11.25V6.66663M10.0003 15.8333L5.83366 18.3333M10.0003 15.8333L14.167 18.3333M5.83366 13.7875L10.0003 11.2625M14.167 13.75V18.3333M14.167 13.75L18.3337 11.25M14.167 8.74996L18.3337 11.25M14.167 8.74996V4.16663M18.3337 11.25V15.8333L14.167 18.3333M10.0003 6.66663L5.83366 4.16663L10.0003 1.66663L14.167 4.16663M10.0003 6.66663L14.167 4.16663M5.83366 4.19162V8.73746"
+                          d="M4 6L8 10L12 6"
                           stroke="#656E81"
                           stroke-width="1.5"
                           stroke-linecap="round"
                           stroke-linejoin="round"
                         />
-                      </g>
-                      <defs>
-                        <clipPath id="clip0_3_14882">
-                          <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                      </defs>
-                    </svg>
-                  </ListItemIcon>
-                  <ListItemText primary="Product" />
-
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    style={{
-                      rotate: openMenu === "Product" ? "180deg" : "0deg",
-                    }}
-                  >
-                    <path
-                      d="M4 6L8 10L12 6"
-                      stroke="#656E81"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </ListItemButton>
-              </ListItem>
-
-              <Collapse in={openMenu === "Product"}>
-                <List sx={{ pl: 4, pt: 0 }}>
-                  <ListItem disablePadding sx={{ display: "block" }}>
-                    <ListItemButton
-                      component={Link}
-                      to="/spare-parts-list"
-                      sx={[
-                        { ...listButtonStyle },
-                        pathname === "/spare-parts-list" && { ...activeStyle },
-                      ]}
-                    >
-                      <ListItemText primary="Spare parts List" />
+                      </svg>
                     </ListItemButton>
                   </ListItem>
-                  {/* <ListItem disablePadding sx={{ display: "block" }}>
+
+                  <Collapse in={openMenu === "Product"}>
+                    <List sx={{ pl: 4, pt: 0 }}>
+                      {checkPermission("purchase_list") && (
+                        <ListItem disablePadding sx={{ display: "block" }}>
+                          <ListItemButton
+                            component={Link}
+                            to="/spare-parts-list"
+                            sx={[
+                              { ...listButtonStyle },
+                              pathname === "/spare-parts-list" && {
+                                ...activeStyle,
+                              },
+                            ]}
+                          >
+                            <ListItemText primary="Spare parts List" />
+                          </ListItemButton>
+                        </ListItem>
+                      )}
+                      {/* <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
                       to="/add-spare-parts"
@@ -940,35 +948,38 @@ export default function Layout() {
                       <ListItemText primary="Add Spare parts" />
                     </ListItemButton>
                   </ListItem> */}
-
-                  <ListItem disablePadding sx={{ display: "block" }}>
-                    <ListItemButton
-                      component={Link}
-                      to="/stock-alert"
-                      sx={[
-                        { ...listButtonStyle },
-                        pathname === "/stock-alert" && { ...activeStyle },
-                      ]}
-                      style={{ marginBottom: "0px" }}
-                    >
-                      <ListItemText primary="Stock Alert" />
-                    </ListItemButton>
-                  </ListItem>
-                  <ListItem disablePadding sx={{ display: "block" }}>
-                    <ListItemButton
-                      component={Link}
-                      to="/branch-stock"
-                      sx={[
-                        { ...listButtonStyle },
-                        pathname === "/branch-stock" && { ...activeStyle },
-                      ]}
-                      style={{ marginBottom: "0px" }}
-                    >
-                      <ListItemText primary="Branch Stock" />
-                    </ListItemButton>
-                  </ListItem>
-                </List>
-              </Collapse>
+                      {checkPermission("purchase_return_list") && (
+                        <ListItem disablePadding sx={{ display: "block" }}>
+                          <ListItemButton
+                            component={Link}
+                            to="/stock-alert"
+                            sx={[
+                              { ...listButtonStyle },
+                              pathname === "/stock-alert" && { ...activeStyle },
+                            ]}
+                            style={{ marginBottom: "0px" }}
+                          >
+                            <ListItemText primary="Stock Alert" />
+                          </ListItemButton>
+                        </ListItem>
+                      )}
+                      <ListItem disablePadding sx={{ display: "block" }}>
+                        <ListItemButton
+                          component={Link}
+                          to="/branch-stock"
+                          sx={[
+                            { ...listButtonStyle },
+                            pathname === "/branch-stock" && { ...activeStyle },
+                          ]}
+                          style={{ marginBottom: "0px" }}
+                        >
+                          <ListItemText primary="Branch Stock" />
+                        </ListItemButton>
+                      </ListItem>
+                    </List>
+                  </Collapse>
+                </>
+              )}
               {/* 222 */}
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton

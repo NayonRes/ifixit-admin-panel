@@ -180,7 +180,13 @@ const PurchaseList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 12;
 
+    if (
+      ifixit_admin_panel?.user?.permission?.includes("view_purchase_details")
+    ) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
@@ -735,10 +741,13 @@ const PurchaseList = () => {
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "view_purchase_details"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -954,24 +963,28 @@ const PurchaseList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="info"
-                          startIcon={<ListAltOutlinedIcon />}
-                          component={Link}
-                          to={`/purchase/${row?._id}`}
-                        >
-                          Details
-                        </Button>
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "view_purchase_details"
+                      ) && (
+                        <TableCell align="right">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="info"
+                            startIcon={<ListAltOutlinedIcon />}
+                            component={Link}
+                            to={`/purchase/${row?._id}`}
+                          >
+                            Details
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={13} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

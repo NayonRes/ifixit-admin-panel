@@ -116,7 +116,7 @@ const RepairSearch = () => {
     // console.log('fdfdf',decodedToken?.user?.branch_id)
     let allIssueModified = allIssue.map((item) => {
       let d = {
-        service_id: item?._id,
+        service_id: item?.service_id,
         name: item.name,
         repair_cost: item.repair_cost,
       };
@@ -124,10 +124,12 @@ const RepairSearch = () => {
     });
     let allSparePartsModified = allSpareParts.map((item) => {
       let d = {
+        id: item.spare_parts_id,
+        name: item.name,
+        price: item.price,
+        spare_parts_full_name: item.name,
         spare_parts_id: item.spare_parts_id,
         spare_parts_variation_id: item.spare_parts_variation_id,
-        name: item.spare_parts_full_name,
-        price: item.price,
       };
       return d;
     });
@@ -152,12 +154,6 @@ const RepairSearch = () => {
       serial: serial,
 
       model_id: deviceId,
-
-      // manual data
-      payment_status: "success",
-      remarks: "auto",
-      status: true,
-      created_by: "admin",
     };
 
     console.log("final data", data);
@@ -258,6 +254,8 @@ const RepairSearch = () => {
         if (allData.data.data.length < 1) {
           // setMessage("No data found");
         }
+      } else {
+        handleSnakbarOpen(allData?.data?.message, "error");
       }
       // setLoading2(false);
     }
@@ -404,7 +402,7 @@ const RepairSearch = () => {
           {/* {device === "Primary" && !device && (
             <ModelList device={device} setDevice={setDevice} />
           )} */}
-          {steps == 0 && (
+          {steps == 0 && parentList.length > 0 && (
             <ModelList
               id={id}
               device={device}
