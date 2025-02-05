@@ -21,7 +21,6 @@ import {
 import Grid from "@mui/material/Grid2";
 import AddIcon from "@mui/icons-material/Add";
 import { useSnackbar } from "notistack";
-import { allIssueCheckList } from "../../data";
 
 import PulseLoader from "react-spinners/PulseLoader";
 
@@ -49,12 +48,32 @@ const customeTextFeild = {
   },
 };
 
+const allIssueList = [
+  { name: "Power ON", status: false },
+  { name: "Bluetooth", status: false },
+  { name: "Proximity Sensor", status: false },
+  { name: "True Tone", status: false },
+  { name: "Flash Light", status: false },
+  { name: "Touch", status: false },
+  { name: "Network", status: false },
+  { name: "Ear Speaker", status: false },
+  { name: "Loud Speaker", status: false },
+  { name: "Face ID", status: false },
+  { name: "Front Camera", status: false },
+  { name: "MIC", status: false },
+  { name: "Button", status: false },
+  { name: "Wifi", status: false },
+  { name: "Back Camera", status: false },
+  { name: "USB", status: false },
+  { name: "Taptic", status: false },
+];
+
 const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [issueList, setIssueList] = useState(allIssueCheckList);
+  const [issueList, setIssueList] = useState(allIssueList);
 
   const [has_power, set_has_power] = useState(false);
   const [battery_health, set_battery_health] = useState("");
@@ -117,56 +136,22 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
     setNewCheckList("");
   };
 
-  // useEffect(() => {
-  //   if (repair_checklist?.checklist?.length > 0) {
-  //     const updatedIssueList = allIssueCheckList.map((item) => ({
-  //       ...item,
-  //       status: repair_checklist?.checklist.includes(item.name), // Set status to true if name is in preValue
-  //     }));
-  //     setIssueList(updatedIssueList);
-  //   }
-  //   if (repair_checklist?.has_power) {
-  //     set_has_power(repair_checklist?.has_power);
-  //   }
-  //   if (repair_checklist?.battery_health) {
-  //     set_battery_health(repair_checklist?.battery_health);
-  //   }
-  //   if (repair_checklist?.note) {
-  //     set_note(repair_checklist?.note);
-  //   }
-  // }, []);
-
   useEffect(() => {
-    if (!repair_checklist?.checklist) return;
-
-    // Extract existing issue names
-    const existingNames = new Set(allIssueCheckList.map((item) => item.name));
-
-    // Create updated list with existing items
-    const updatedIssueList = allIssueCheckList.map((item) => ({
-      ...item,
-      status: repair_checklist.checklist.includes(item.name),
-    }));
-
-    // Find new checklist items that are not in allIssueCheckList
-    const newItems = repair_checklist.checklist
-      .filter((name) => !existingNames.has(name))
-      .map((name) => ({ name, status: true }));
-
-    // Merge updated list with new items
-    const finalIssueList = [...updatedIssueList, ...newItems];
-
-    setIssueList(finalIssueList);
-
-    // Set additional properties if available
-    if (repair_checklist.has_power !== undefined) {
-      set_has_power(repair_checklist.has_power);
+    if (repair_checklist?.checklist?.length > 0) {
+      const updatedIssueList = allIssueList.map((item) => ({
+        ...item,
+        status: repair_checklist?.checklist.includes(item.name), // Set status to true if name is in preValue
+      }));
+      setIssueList(updatedIssueList);
     }
-    if (repair_checklist.battery_health !== undefined) {
-      set_battery_health(repair_checklist.battery_health);
+    if (repair_checklist?.has_power) {
+      set_has_power(repair_checklist?.has_power);
     }
-    if (repair_checklist.note !== undefined) {
-      set_note(repair_checklist.note);
+    if (repair_checklist?.battery_health) {
+      set_battery_health(repair_checklist?.battery_health);
+    }
+    if (repair_checklist?.note) {
+      set_note(repair_checklist?.note);
     }
   }, []);
 
