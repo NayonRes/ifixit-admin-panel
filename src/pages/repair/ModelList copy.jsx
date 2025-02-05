@@ -150,7 +150,7 @@ const ModelList = ({
   const getTopItems = () => {
     console.log("c list", brand, parentList);
     let items = parentList.filter((item) => item.parent_name == brand);
-    console.log("cc list ----- ", items[0]?.items);
+    // console.log("cc", items[0]?.items);
     setChildList(items[0]?.items);
   };
 

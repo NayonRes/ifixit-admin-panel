@@ -209,13 +209,26 @@ const IssueList = ({
     }
     let allRepairs = allData?.data?.data?.flatMap((item) => item.repair_info);
 
+    const repairServices = allRepairs.map((service) => ({
+      _id: service._id,
+      service_id: service._id,
+      name: service.name,
+      repair_image: service.repair_image,
+      details: service.details,
+      repair_cost: service.repair_cost,
+      guaranty: service.guaranty,
+      warranty: service.warranty,
+    }));
+
+    // console.log("dddfdf", repairServices);
+
     if (allData?.status === 401) {
       logout();
       return;
     }
 
     if (allData.status >= 200 && allData.status < 300) {
-      setIssueArr(allRepairs);
+      setIssueArr(repairServices);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -231,19 +244,21 @@ const IssueList = ({
     let list = all.map((i) => {
       let l = {
         _id: i.service_id,
+        service_id: i.service_id,
         name: i.name,
         repair_cost: i.repair_cost,
       };
+      // console.log('revamp', l)
       return l;
     });
     setSelectedProducts(list);
-    console.log("old", allIssue);
-    console.log("new", list);
+    // console.log("old", allIssue);
+    // console.log("new", list);
   };
 
   useEffect(() => {
     revampList(allIssue);
-    console.log("listed issue", allIssueUpdate);
+    // console.log("listed issue", allIssueUpdate);
     getProducts();
   }, []);
 
