@@ -129,6 +129,9 @@ const TechnicianList = ({
     if (allData.status >= 200 && allData.status < 300) {
       setTechnicianList(allData?.data.data);
 
+      let name = allData?.data.data.filter((i) => i._id === technician);
+      setTechnicianName(name[0]?.name);
+
       if (allData.data.data.length < 1) {
         setMessage("No Data found");
       } else {

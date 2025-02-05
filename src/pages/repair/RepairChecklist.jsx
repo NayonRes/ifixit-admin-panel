@@ -170,6 +170,13 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
     }
   }, []);
 
+  // useEffect(() => {
+  //   setLoading(true);
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //   }, 2000);
+  // }, []);
+
   return (
     <div>
       <Dialog
@@ -259,41 +266,42 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
               </FormControl>
             </Grid>
 
-            {issueList.map((item, index) => (
-              <Grid
-                key={index}
-                size={6}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  backgroundColor: "#F8F9FA",
-                  p: 1,
-                  borderRadius: 2,
-                  cursor: "pointer",
-                }}
-                onClick={() => handleCheckboxChange(index)}
-              >
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ fontWeight: 500 }}
+            {!loading &&
+              issueList.map((item, index) => (
+                <Grid
+                  key={index}
+                  size={6}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    backgroundColor: "#F8F9FA",
+                    p: 1,
+                    borderRadius: 2,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleCheckboxChange(index)}
                 >
-                  {item.name}
-                </Typography>
-                <Box
-                  // onClick={() => handleCheckboxChange(index)}
-                  sx={{ display: "flex", alignItems: "center " }}
-                >
-                  {item.status ? (
-                    <img src="/check.png" alt="" style={{ width: "25px" }} />
-                  ) : (
-                    <img src="/cross.png" alt="" style={{ width: "25px" }} />
-                  )}
-                </Box>
-                {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}
-              </Grid>
-            ))}
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    {item.name}
+                  </Typography>
+                  <Box
+                    // onClick={() => handleCheckboxChange(index)}
+                    sx={{ display: "flex", alignItems: "center " }}
+                  >
+                    {item.status ? (
+                      <img src="/check.png" alt="" style={{ width: "25px" }} />
+                    ) : (
+                      <img src="/cross.png" alt="" style={{ width: "25px" }} />
+                    )}
+                  </Box>
+                  {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}
+                </Grid>
+              ))}
           </Grid>
           <Grid size={12}>
             <Typography
