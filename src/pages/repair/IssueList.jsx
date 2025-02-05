@@ -232,7 +232,7 @@ const IssueList = ({
       let l = {
         _id: i.service_id,
         name: i.name,
-        price: i.price,
+        repair_cost: i.repair_cost,
       };
       return l;
     });

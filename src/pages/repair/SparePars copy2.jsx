@@ -93,7 +93,12 @@ const SparePars = ({
 
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
-
+  const [deviceId, setDeviceId] = useState([]);
+  const [modelId, setModelId] = useState([]);
+  const [brandList, setBrandList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
+  const [modelList, setModelList] = useState([]);
   const [price, setPrice] = useState("");
   const [file, setFile] = useState(null);
   const [remarks, setRemarks] = useState("");
@@ -341,8 +346,124 @@ const SparePars = ({
     },
   };
 
+  // const getBrandList = async () => {
+  //   setLoading2(true);
+
+  //   let url = `/api/v1/brand/dropdownlist`;
+  //   let allData = await getDataWithToken(url);
+
+  //   if (allData.status >= 200 && allData.status < 300) {
+  //     setBrandList(allData?.data?.data);
+
+  //     if (allData.data.data.length < 1) {
+  //       setMessage("No data found");
+  //     }
+  //   }
+  //   setLoading2(false);
+  // };
+
+  // const getBranchList = async () => {
+  //   setLoading2(true);
+
+  //   let url = `/api/v1/branch/dropdownlist`;
+  //   let allData = await getDataWithToken(url);
+
+  //   if (allData.status >= 200 && allData.status < 300) {
+  //     setBranchList(allData?.data?.data);
+
+  //     if (allData.data.data.length < 1) {
+  //       setMessage("No data found");
+  //     }
+  //   }
+  //   setLoading2(false);
+  // };
+  // const getUserList = async () => {
+  //   setLoading2(true);
+
+  //   let url = `/api/v1/user/dropdownlist`;
+  //   let allData = await getDataWithToken(url);
+
+  //   if (allData.status >= 200 && allData.status < 300) {
+  //     setUserList(allData?.data?.data);
+
+  //     if (allData.data.data.length < 1) {
+  //       setMessage("No data found");
+  //     }
+  //   }
+  //   setLoading2(false);
+  // };
+
+  // const getCategoryList = async () => {
+  //   setLoading2(true);
+
+  //   let url = `/api/v1/category/dropdownlist`;
+  //   let allData = await getDataWithToken(url);
+
+  //   if (allData.status >= 200 && allData.status < 300) {
+  //     setCategoryList(allData?.data?.data);
+
+  //     if (allData.data.data.length < 1) {
+  //       setMessage("No data found");
+  //     }
+  //   }
+  //   setLoading2(false);
+  // };
+  // const getDeviceList = async () => {
+  //   setLoading2(true);
+
+  //   let url = `/api/v1/device/dropdownlist`;
+  //   let allData = await getDataWithToken(url);
+  //   console.log("allData?.data?.data", allData?.data?.data);
+
+  //   if (allData.status >= 200 && allData.status < 300) {
+  //     setDeviceList(allData?.data?.data);
+
+  //     if (allData.data.data.length < 1) {
+  //       setMessage("No data found");
+  //     }
+  //   }
+  //   setLoading2(false);
+  // };
+  // const getModelList = async (id) => {
+  //   setLoading2(true);
+
+  //   // let url = `/api/v1/model/device-model?deviceId=${id}`;
+  //   let url = `/api/v1/model/dropdownlist`;
+  //   let allData = await getDataWithToken(url);
+
+  //   if (allData.status >= 200 && allData.status < 300) {
+  //     setModelList(allData?.data?.data);
+
+  //     if (allData.data.data.length < 1) {
+  //       setMessage("No data found");
+  //     }
+  //   }
+  //   setLoading2(false);
+  // };
+
   const getProducts = async () => {
     setLoading(true);
+    // let url;
+    // let newSearchProductText = searchProductText;
+    // let newBrandId = brandId;
+    // let newDeviceId = deviceId;
+    // let newModelId = modelId;
+    // let newCategoryId = categoryId;
+    // if (searchText) {
+    //   newSearchProductText = searchText;
+    // }
+    // if (bId) {
+    //   newBrandId = bId;
+    // }
+    // if (dId) {
+    //   newDeviceId = dId;
+    // }
+    // if (mId) {
+    //   newModelId = mId;
+    // }
+    // if (catId) {
+    //   newCategoryId = catId;
+    // }
 
     let branch_id = getBranchId();
 
@@ -367,89 +488,45 @@ const SparePars = ({
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    } else {
-      setLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
-
-  const handleSelectedProduct = (item) => {
-    console.log("item:::", item);
-    if (
-      selectedProducts.some((res) => res.spare_parts_id === item.spare_parts_id)
-    ) {
+  const handleSelectedProduct = (item, row) => {
+    // console.log("item", item);
+    if (selectedProducts.some((res) => res._id === item._id)) {
       setSelectedProducts(
-        selectedProducts.filter(
-          (res) => res.spare_parts_id !== item.spare_parts_id
-        )
+        selectedProducts.filter((res) => res._id !== item._id)
       );
-      setAllSpareParts(
-        selectedProducts.filter(
-          (res) => res.spare_parts_id !== item.spare_parts_id
-        )
-      );
+      setAllSpareParts(selectedProducts.filter((res) => res._id !== item._id));
     } else {
       setSelectedProducts([
         ...selectedProducts,
         {
           ...item,
-          id: item.spare_parts_id,
-          name: item.name,
-          price: item.price,
+          spare_parts_full_name: `${row?.name} - ${item?.name}`,
+          spare_parts_id: item.spare_parts_id,
+          spare_parts_variation_id: item._id,
+          purchase_product_status: "",
+          quantity: "",
+          unit_price: "",
         },
       ]);
       setAllSpareParts([
         ...selectedProducts,
         {
           ...item,
-
-          id: item.spare_parts_id,
-          name: item.name,
-          price: item.price,
+          spare_parts_full_name: `${row?.name} - ${item?.name}`,
+          spare_parts_id: item.spare_parts_id,
+          spare_parts_variation_id: item._id,
+          purchase_product_status: "",
+          quantity: "",
+          unit_price: "",
         },
       ]);
     }
 
     console.log("all selectedProducts", selectedProducts);
   };
-
-  // const handleSelectedProduct = (item, row) => {
-  //   // console.log("item", item);
-  //   if (selectedProducts.some((res) => res._id === item._id)) {
-  //     setSelectedProducts(
-  //       selectedProducts.filter((res) => res._id !== item._id)
-  //     );
-  //     setAllSpareParts(selectedProducts.filter((res) => res._id !== item._id));
-  //   } else {
-  //     setSelectedProducts([
-  //       ...selectedProducts,
-  //       {
-  //         ...item,
-  //         spare_parts_full_name: `${row?.name} - ${item?.name}`,
-  //         spare_parts_id: item.spare_parts_id,
-  //         spare_parts_variation_id: item._id,
-  //         purchase_product_status: "",
-  //         quantity: "",
-  //         unit_price: "",
-  //       },
-  //     ]);
-  //     setAllSpareParts([
-  //       ...selectedProducts,
-  //       {
-  //         ...item,
-  //         spare_parts_full_name: `${row?.name} - ${item?.name}`,
-  //         spare_parts_id: item.spare_parts_id,
-  //         spare_parts_variation_id: item._id,
-  //         purchase_product_status: "",
-  //         quantity: "",
-  //         unit_price: "",
-  //       },
-  //     ]);
-  //   }
-
-  //   console.log("all selectedProducts", selectedProducts);
-  // };
   useEffect(() => {
     // getCategoryList();
     // getBranchList();
@@ -462,7 +539,9 @@ const SparePars = ({
   }, []);
 
   useEffect(() => {
-    setSelectedProducts(allSpareParts);
+    if (allSpareParts.length > 0) {
+      setSelectedProducts(allSpareParts);
+    }
   }, [allSpareParts]);
 
   useEffect(() => {
@@ -471,6 +550,306 @@ const SparePars = ({
 
   return (
     <Grid container spacing={3}>
+      {/* <Grid size={12}>
+        <Typography
+          variant="base"
+          gutterBottom
+          sx={{ fontWeight: 500, mt: 3 }}
+          onClick={() => console.log(selectedProducts)}
+        >
+          Search Product
+        </Typography>
+      </Grid>
+      <Grid size={2}>
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Brand
+        </Typography>
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+          }}
+        >
+          {brandId?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Brand
+            </InputLabel>
+          )}
+          <Select
+            labelId="demo-simple-select-label"
+            id="brandId"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={brandId}
+            // onChange={(e) => setBrandId(e.target.value)}
+
+            onChange={(e) => {
+              setBrandId(e.target.value);
+              getProducts(null, e.target.value);
+            }}
+          >
+            {brandList
+              ?.filter((obj) => obj.name !== "Primary")
+              ?.map((item) => (
+                <MenuItem key={item?._id} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid size={2}>
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Device
+        </Typography>
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+          }}
+        >
+          {deviceId?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Brand
+            </InputLabel>
+          )}
+          <Select
+            labelId="demo-simple-select-label"
+            id="deviceId"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={deviceId}
+            // onChange={(e) => setBrandId(e.target.value)}
+
+            onChange={(e) => {
+              setDeviceId(e.target.value);
+              getProducts(null, null, e.target.value);
+            }}
+          >
+            {deviceList
+              ?.filter((obj) => obj.name !== "Primary")
+              ?.map((item) => (
+                <MenuItem key={item?._id} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid size={2}>
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Model
+        </Typography>
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+          }}
+        >
+          {modelId?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Model
+            </InputLabel>
+          )}
+          <Select
+            labelId="demo-simple-select-label"
+            id="modelId"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={modelId}
+            // onChange={(e) => setCategoryId(e.target.value)}
+
+            onChange={(e) => {
+              setModelId(e.target.value);
+              getProducts(null, null, null, e.target.value);
+            }}
+          >
+            {modelList
+              ?.filter((obj) => obj.name !== "Primary")
+              ?.map((item) => (
+                <MenuItem key={item?._id} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid size={2}>
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Category
+        </Typography>
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+          }}
+        >
+          {categoryId?.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Select Category
+            </InputLabel>
+          )}
+          <Select
+            labelId="demo-simple-select-label"
+            id="categoryId"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={categoryId}
+            // onChange={(e) => setCategoryId(e.target.value)}
+
+            onChange={(e) => {
+              setCategoryId(e.target.value);
+              getProducts(null, null, null, null, e.target.value);
+            }}
+          >
+            {categoryList
+              ?.filter((obj) => obj.name !== "Primary")
+              ?.map((item) => (
+                <MenuItem key={item?._id} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid size={12}>
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Search Product *
+        </Typography>
+        <TextField
+          size="small"
+          fullWidth
+          id="searchProductText"
+          placeholder="Search Product"
+          variant="outlined"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                      stroke="#85888E"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </InputAdornment>
+              ),
+            },
+          }}
+          sx={{ ...customeTextFeild }}
+          value={searchProductText}
+          onChange={(e) => {
+            setsearchProductText(e.target.value);
+            getProducts(e.target.value);
+          }}
+        />
+      </Grid> */}
       <Grid size={12}>
         {/* <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
           All Product
@@ -492,11 +871,10 @@ const SparePars = ({
                         sx={{
                           border:
                             selectedProducts.some(
-                              (pro) =>
-                                pro?.spare_parts_id === item?.spare_parts_id
+                              (pro) => pro?._id === item?._id
                             ) && "1px solid #818FF8",
                         }}
-                        onClick={() => handleSelectedProduct(item)}
+                        onClick={() => handleSelectedProduct(item, row)}
                       >
                         {" "}
                         <Box sx={{ flexGrow: 1 }}>
@@ -572,9 +950,7 @@ const SparePars = ({
                                 <Checkbox
                                   sx={{
                                     display: selectedProducts.some(
-                                      (pro) =>
-                                        pro?.spare_parts_id ===
-                                        item?.spare_parts_id
+                                      (pro) => pro?._id === item?._id
                                     )
                                       ? "block"
                                       : "none",
