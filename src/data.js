@@ -205,14 +205,34 @@ export const statusColor = {
 };
 
 export const statusList = [
-  { name: "Rework", color: statusColor.Rework, icon: rework },
-  { name: "Failed", color: statusColor.Failed, icon: failed },
-  { name: "Complete", color: statusColor.Complete, icon: complete },
-  { name: "Testing", color: statusColor.Testing, icon: testing },
-  { name: "On progress", color: statusColor.Progress, icon: onProgress },
-  { name: "Diagnostic", color: statusColor.Diagnostic, icon: diagnostic },
-  { name: "Hold", color: statusColor.Hold, icon: hold },
-  { name: "Cancelled", color: statusColor.Cancelled, icon: cancelled },
+  { name: "Rework", color: statusColor.Rework, bg: "#FBA518", icon: rework },
+  { name: "Failed", color: statusColor.Failed, bg: "#E52020", icon: failed },
+  {
+    name: "Complete",
+    color: statusColor.Complete,
+    bg: "#77B254",
+    icon: complete,
+  },
+  { name: "Testing", color: statusColor.Testing, bg: "#D99D81", icon: testing },
+  {
+    name: "On progress",
+    color: statusColor.Progress,
+    bg: "#789DBC",
+    icon: onProgress,
+  },
+  {
+    name: "Diagnostic",
+    color: statusColor.Diagnostic,
+    bg: "#B771E5",
+    icon: diagnostic,
+  },
+  { name: "Hold", color: statusColor.Hold, bg: "#EFB036", icon: hold },
+  {
+    name: "Cancelled",
+    color: statusColor.Cancelled,
+    bg: "#9AA6B2",
+    icon: cancelled,
+  },
 ];
 export const deliveryStatusList = [
   { name: "Not Delivered", color: "#FFE6D5", icon: notDelevered },

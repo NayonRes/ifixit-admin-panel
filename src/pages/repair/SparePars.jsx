@@ -370,7 +370,7 @@ const SparePars = ({
     } else {
       setLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
-    } 
+    }
     setLoading(false);
   };
 
@@ -404,7 +404,7 @@ const SparePars = ({
         {
           ...item,
           id: item.spare_parts_id,
-          name: item.name,
+          name: `${row?.name} - ${item?.name}`,
           price: item.price,
           spare_parts_full_name: `${row?.name} - ${item?.name}`,
           spare_parts_id: item.spare_parts_id,
@@ -417,7 +417,7 @@ const SparePars = ({
           ...item,
 
           id: item.spare_parts_id,
-          name: item.name,
+          name: `${row?.name} - ${item?.name}`,
           price: item.price,
           spare_parts_full_name: `${row?.name} - ${item?.name}`,
           spare_parts_id: item.spare_parts_id,

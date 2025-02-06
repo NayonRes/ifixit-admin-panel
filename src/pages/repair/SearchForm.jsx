@@ -15,6 +15,7 @@ import { getDataWithToken } from "../../services/GetDataService";
 import IssueList from "./IssueList";
 import { useSnackbar } from "notistack";
 import { AuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -127,6 +128,7 @@ const SearchForm = ({
   setParentList,
   technician,
   technicianName,
+  setTechnicianName,
   allIssue,
   setAllIssue,
   allSpareParts,
@@ -139,6 +141,7 @@ const SearchForm = ({
   const [deviceList, setDeviceList] = useState([]);
 
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
   // console.log('all is', allIssue)
 
@@ -156,7 +159,9 @@ const SearchForm = ({
   };
 
   const getUser = async (searchValue) => {
-    let url = `/api/v1/customer?name=${name}&mobile=${searchValue}`;
+    let url = `/api/v1/customer?name=${name}&mobile=${
+      searchValue || contactData?.mobile
+    }`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -226,14 +231,27 @@ const SearchForm = ({
 
   const handleSearch = (e) => {
     let searchValue = e.target.value;
+
     if (searchValue.length <= 11) {
-      setContactData({});
       set_customer_id("");
-    }
-    if (searchValue.length <= 11) {
+      setContactData(null);
+      setName("");
+      setSerial("");
+      setPassCode("");
+      setBrandId("");
+      setDevice("");
+      setAllIssue([]);
+      setAllSpareParts([]);
+      setTechnicianName("");
+      setRepairStatus("");
+      setDeliveryStatus("");
+      navigate("/repair-search");
       setSearchPrams(searchValue);
     }
     if (searchValue.length === 11) {
+      set_customer_id("");
+      setContactData(null);
+      setName("");
       getUser(searchValue);
     }
   };
@@ -264,6 +282,11 @@ const SearchForm = ({
     getParent();
     getDevice();
   }, []);
+  useEffect(() => {
+    if (contactData?.mobile) {
+      getUser();
+    }
+  }, []);
 
   return (
     <div>
@@ -288,7 +311,7 @@ const SearchForm = ({
           sx={{ ...customeTextFeild, mb: 3 }}
           value={searchPrams}
           onChange={handleSearch}
-          // onKeyDown={handleKeyDown}
+          onKeyDown={handleSearch}
           slotProps={{
             input: {
               startAdornment: (
@@ -433,7 +456,7 @@ const SearchForm = ({
             onClick={handleBranchClick}
             onChange={(e) => {
               setBrand(e.target.value);
-              setScreenType("steper");
+              // setScreenType("steper");
             }}
           >
             {brandList?.map((item, index) => (
@@ -542,9 +565,9 @@ const SearchForm = ({
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={repairStatus}
-          onChange={(e) => {
-            setRepairStatus(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setRepairStatus(e.target.value);
+          // }}
         />
         <Typography
           variant="medium"
@@ -563,9 +586,9 @@ const SearchForm = ({
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={deliveryStatus}
-          onChange={(e) => {
-            setDeliveryStatus(e.target.value);
-          }}
+          // onChange={(e) => {
+          //   setDeliveryStatus(e.target.value);
+          // }}
         />
       </div>
     </div>
