@@ -404,32 +404,36 @@ const BranchStockList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <Button
-            variant="contained"
-            disableElevation
-            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-            component={Link}
-            to="/add-stock-alert"
-            startIcon={
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-                  stroke="white"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            }
-          >
-            Add Stock Alert
-          </Button>
+          {ifixit_admin_panel?.user?.permission?.includes(
+            "add_stock_alret"
+          ) && (
+            <Button
+              variant="contained"
+              disableElevation
+              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+              component={Link}
+              to="/add-stock-alert"
+              startIcon={
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                    stroke="white"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+            >
+              Add Stock Alert
+            </Button>
+          )}
           {/* <AddStockLimit clearFilter={clearFilter} /> */}
 
           {/* <IconButton

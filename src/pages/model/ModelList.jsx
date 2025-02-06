@@ -119,11 +119,15 @@ const ModelList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 3;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_model")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(4).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -265,7 +269,9 @@ const ModelList = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <AddModel clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_model") && (
+            <AddModel clearFilter={clearFilter} />
+          )}
         </Grid>
       </Grid>
       <div
@@ -396,10 +402,13 @@ const ModelList = () => {
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_model"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -465,16 +474,19 @@ const ModelList = () => {
                           </>
                         )}
                       </TableCell>
-
-                      <TableCell align="right">
-                        <UpdateModel clearFilter={clearFilter} row={row} />
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_model"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateModel clearFilter={clearFilter} row={row} />
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={3} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

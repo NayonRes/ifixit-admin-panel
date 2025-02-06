@@ -161,11 +161,15 @@ const BrandList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 2;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_brand")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(3).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -265,7 +269,7 @@ const BrandList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -304,7 +308,9 @@ const BrandList = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <AddBrand clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_brand") && (
+            <AddBrand clearFilter={clearFilter} />
+          )}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -459,10 +465,13 @@ const BrandList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_brand"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -518,43 +527,48 @@ const BrandList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <UpdateBrand clearFilter={clearFilter} row={row} />
 
-                        {/* <IconButton
-                          variant="contained"
-                          disableElevation
-                          onClick={() => handleDeleteDialog(i, row)}
-                        >
-                    
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            id="Outline"
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                          >
-                            <path
-                              d="M21,4H17.9A5.009,5.009,0,0,0,13,0H11A5.009,5.009,0,0,0,6.1,4H3A1,1,0,0,0,3,6H4V19a5.006,5.006,0,0,0,5,5h6a5.006,5.006,0,0,0,5-5V6h1a1,1,0,0,0,0-2ZM11,2h2a3.006,3.006,0,0,1,2.829,2H8.171A3.006,3.006,0,0,1,11,2Zm7,17a3,3,0,0,1-3,3H9a3,3,0,0,1-3-3V6H18Z"
-                              fill="#F91351"
-                            />
-                            <path
-                              d="M10,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,10,18Z"
-                              fill="#F91351"
-                            />
-                            <path
-                              d="M14,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,14,18Z"
-                              fill="#F91351"
-                            />
-                          </svg>
-                        </IconButton> */}
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_brand"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateBrand clearFilter={clearFilter} row={row} />
+
+                          {/* <IconButton
+                      variant="contained"
+                      disableElevation
+                      onClick={() => handleDeleteDialog(i, row)}
+                    >
+                
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        id="Outline"
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                      >
+                        <path
+                          d="M21,4H17.9A5.009,5.009,0,0,0,13,0H11A5.009,5.009,0,0,0,6.1,4H3A1,1,0,0,0,3,6H4V19a5.006,5.006,0,0,0,5,5h6a5.006,5.006,0,0,0,5-5V6h1a1,1,0,0,0,0-2ZM11,2h2a3.006,3.006,0,0,1,2.829,2H8.171A3.006,3.006,0,0,1,11,2Zm7,17a3,3,0,0,1-3,3H9a3,3,0,0,1-3-3V6H18Z"
+                          fill="#F91351"
+                        />
+                        <path
+                          d="M10,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,10,18Z"
+                          fill="#F91351"
+                        />
+                        <path
+                          d="M14,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,14,18Z"
+                          fill="#F91351"
+                        />
+                      </svg>
+                    </IconButton> */}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={3} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

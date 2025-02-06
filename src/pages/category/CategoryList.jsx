@@ -161,11 +161,15 @@ const CategoryList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 2;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_category")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(3).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -269,7 +273,7 @@ const CategoryList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -308,7 +312,9 @@ const CategoryList = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <AddCategory clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_category") && (
+            <AddCategory clearFilter={clearFilter} />
+          )}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -463,10 +469,13 @@ const CategoryList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_category"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -522,10 +531,14 @@ const CategoryList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <UpdateCategory clearFilter={clearFilter} row={row} />
 
-                        {/* <IconButton
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_category"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateCategory clearFilter={clearFilter} row={row} />
+
+                          {/* <IconButton
                           variant="contained"
                           disableElevation
                           onClick={() => handleDeleteDialog(i, row)}
@@ -552,13 +565,14 @@ const CategoryList = () => {
                             />
                           </svg>
                         </IconButton> */}
-                      </TableCell>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={3} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

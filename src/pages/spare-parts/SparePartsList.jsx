@@ -173,7 +173,13 @@ const SparePartsList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 10;
 
+    if (
+      ifixit_admin_panel?.user?.permission?.includes("view_spare_parts_details")
+    ) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
@@ -412,38 +418,42 @@ const SparePartsList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <Button
-            variant="contained"
-            disableElevation
-            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-            component={Link}
-            to="/add-spare-parts"
-            // onClick={() => {
-            //   setAddDialog(true);
-            //   getCategoryList();
-            //   getBrandList();
-            //   getDeviceList();
-            // }}
-            startIcon={
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-                  stroke="white"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            }
-          >
-            Add Spare Parts
-          </Button>
+          {ifixit_admin_panel?.user?.permission?.includes(
+            "add_spare_parts"
+          ) && (
+            <Button
+              variant="contained"
+              disableElevation
+              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+              component={Link}
+              to="/add-spare-parts"
+              // onClick={() => {
+              //   setAddDialog(true);
+              //   getCategoryList();
+              //   getBrandList();
+              //   getDeviceList();
+              // }}
+              startIcon={
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                    stroke="white"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+            >
+              Add Spare Parts
+            </Button>
+          )}
           {/* <AddSpareParts clearFilter={clearFilter} /> */}
 
           {/* <IconButton
@@ -736,10 +746,13 @@ const SparePartsList = () => {
                   </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "view_spare_parts_details"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -846,25 +859,29 @@ const SparePartsList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="info"
-                          startIcon={<ListAltOutlinedIcon />}
-                          component={Link}
-                          to={`/spare-parts/${row?._id}`}
-                        >
-                          Details
-                        </Button>
-                        {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "view_spare_parts_details"
+                      ) && (
+                        <TableCell align="right">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="info"
+                            startIcon={<ListAltOutlinedIcon />}
+                            component={Link}
+                            to={`/spare-parts/${row?._id}`}
+                          >
+                            Details
+                          </Button>
+                          {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={10} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

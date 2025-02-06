@@ -161,11 +161,15 @@ const DeviceList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 4;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_device")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(5).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -269,7 +273,7 @@ const DeviceList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -308,7 +312,9 @@ const DeviceList = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <AddDevice clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_device") && (
+            <AddDevice clearFilter={clearFilter} />
+          )}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -466,10 +472,13 @@ const DeviceList = () => {
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_device"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -576,10 +585,13 @@ const DeviceList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <UpdateDevice clearFilter={clearFilter} row={row} />
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_device"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateDevice clearFilter={clearFilter} row={row} />
 
-                        {/* <IconButton
+                          {/* <IconButton
                           variant="contained"
                           disableElevation
                           onClick={() => handleDeleteDialog(i, row)}
@@ -606,13 +618,14 @@ const DeviceList = () => {
                             />
                           </svg>
                         </IconButton> */}
-                      </TableCell>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
