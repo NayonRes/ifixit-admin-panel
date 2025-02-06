@@ -179,6 +179,7 @@ const RepairSearch = () => {
 
     if (response.status >= 200 && response.status < 300) {
       setLoading(true);
+      // set_repair_checklist({});
       handleSnakbarOpen("Added successfully", "success");
       navigate("/repair");
 
@@ -244,9 +245,10 @@ const RepairSearch = () => {
         set_payment_info(data?.payment_info);
         set_due_amount(data?.due_amount);
         set_repair_checklist(data?.repair_checklist);
-        // setRepairBy(data?.repairBy);
+        setRepairBy(data?.repair_by);
+        setTechnician(data?.repair_by);
+        setTechnicianName(data?.repair_by_name);
         // setPaymentStatus(data?.paymentStatus);
-        // setTechnicianName(data?.technicianName);
         // setSteps(data?.steps);
         // setIssue(data?.issue);
         // set_discount_amount(data?.discount_amount);
@@ -314,7 +316,7 @@ const RepairSearch = () => {
           sx={{
             borderRight: "1px solid #EAECF1",
             p: 3,
-            height: "calc(100vh - 200px)",
+            height: "calc(100vh - 130px)",
             overflow: "auto",
           }}
         >

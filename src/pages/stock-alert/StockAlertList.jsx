@@ -404,7 +404,9 @@ const StockAlertList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          {ifixit_admin_panel?.user?.permission?.includes("add_stock_alret") && (
+          {ifixit_admin_panel?.user?.permission?.includes(
+            "add_stock_alret"
+          ) && (
             <Button
               variant="contained"
               disableElevation
