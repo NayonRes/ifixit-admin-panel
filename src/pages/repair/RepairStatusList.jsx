@@ -75,6 +75,7 @@ const RepairStatusList = ({
   setRepairStatus,
   deliveryStatus,
   setDeliveryStatus,
+  repair_status_history_data,
 }) => {
   return (
     <div>
@@ -137,7 +138,9 @@ const RepairStatusList = ({
           ))}
       </Grid>
       <Grid container spacing={2} sx={{ mt: 4 }}>
-        <RepairStatusHistory />
+        <RepairStatusHistory
+          repair_status_history_data={repair_status_history_data}
+        />
       </Grid>
     </div>
   );
