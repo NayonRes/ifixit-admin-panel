@@ -228,9 +228,14 @@ const RepairSearch = () => {
         setId(data?._id);
         setName(data?.customer_data[0]?.name);
         setContactData({
+          _id: data?.customer_data[0]?._id,
           name: data?.customer_data[0]?.name,
           mobile: data?.customer_data[0]?.mobile,
-          _id: data?.customer_data[0]?._id,
+          email: data?.customer_data[0]?.email,
+          customer_type: data?.customer_data[0]?.customer_type,
+          rating: data?.customer_data[0]?.rating,
+          membership_id: data?.customer_data[0]?.membership_id,
+          remarks: data?.customer_data[0]?.remarks,
         });
         set_customer_id(data?.customer_data[0]?._id);
         setSerial(data?.serial);
@@ -395,7 +400,7 @@ const RepairSearch = () => {
                   contactData={contactData}
                   setContactData={setContactData}
                 />
-              ) : !contactData?._id && !id ? (
+              ) : !contactData?._id ? (
                 <AddContact
                   searchPrams={searchPrams}
                   contactData={contactData}

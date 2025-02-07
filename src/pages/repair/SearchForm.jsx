@@ -15,7 +15,7 @@ import { getDataWithToken } from "../../services/GetDataService";
 import IssueList from "./IssueList";
 import { useSnackbar } from "notistack";
 import { AuthContext } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -137,11 +137,15 @@ const SearchForm = ({
   setScreenType,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const [searchParams] = useSearchParams();
+  let repairId = searchParams.get("repairId");
+
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
 
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // console.log('all is', allIssue)
 
@@ -159,9 +163,7 @@ const SearchForm = ({
   };
 
   const getUser = async (searchValue) => {
-    let url = `/api/v1/customer?name=${name}&mobile=${
-      searchValue || contactData?.mobile
-    }`;
+    let url = `/api/v1/customer?mobile=${searchValue || contactData?.mobile}`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -257,6 +259,50 @@ const SearchForm = ({
     }
   };
 
+  const handleSearch2 = (e) => {
+    let searchValue = e.target.value;
+    if (repairId) {
+      navigate("/repair-search");
+    }
+    if (searchValue.length < 11) {
+      console.log("under 11");
+      setContactData({ name: "" });
+      // set_customer_id("");
+      // setName("");
+      // setSerial("");
+      // setPassCode("");
+      // setBrandId("");
+      // setBrand("");
+      // setDevice("");
+      // setAllIssue([]);
+      // setAllSpareParts([]);
+      // setTechnicianName("");
+      // setRepairStatus("");
+      // setDeliveryStatus("");
+    }
+    if (searchValue.length === 11) {
+      console.log("equal 11");
+      setContactData({});
+      setSerial("");
+      setPassCode("");
+      setBrandId("");
+      setBrand("");
+      setDevice("");
+      setAllIssue([]);
+      setAllSpareParts([]);
+      setTechnicianName("");
+      setRepairStatus("");
+      setDeliveryStatus("");
+      setName("");
+
+      getUser(searchValue);
+    }
+    if (searchValue.length < 12) {
+      console.log("less 12");
+      setSearchPrams(searchValue);
+    }
+  };
+
   const removeItem = (id) => {
     setAllIssue(allIssue.filter((item) => item.id !== id));
   };
@@ -283,11 +329,11 @@ const SearchForm = ({
     getParent();
     getDevice();
   }, []);
-  useEffect(() => {
-    if (contactData?.mobile) {
-      getUser();
-    }
-  }, [contactData?.mobile]);
+  // useEffect(() => {
+  //   if (contactData?.mobile) {
+  //     getUser();
+  //   }
+  // }, []);
 
   return (
     <div>
@@ -311,8 +357,8 @@ const SearchForm = ({
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={searchPrams}
-          onChange={handleSearch}
-          onKeyDown={handleSearch}
+          onChange={handleSearch2}
+          // onKeyDown={handleSearch2}
           slotProps={{
             input: {
               startAdornment: (

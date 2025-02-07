@@ -6,6 +6,7 @@ import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
 import RepairStatusHistory from "./RepairStatusHistory";
+import { useSearchParams } from "react-router-dom";
 
 const style = {
   nav: {
@@ -77,6 +78,8 @@ const RepairStatusList = ({
   setDeliveryStatus,
   repair_status_history_data,
 }) => {
+  const [searchParams] = useSearchParams();
+  let repairId = searchParams.get("repairId");
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
@@ -137,7 +140,7 @@ const RepairStatusList = ({
             </Grid>
           ))}
       </Grid>
-      {repair_status_history_data.length > 0 && (
+      {repairId?.length > 0 && (
         <Grid container spacing={2} sx={{ mt: 4 }}>
           <RepairStatusHistory
             repair_status_history_data={repair_status_history_data}
