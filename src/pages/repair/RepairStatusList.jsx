@@ -137,11 +137,13 @@ const RepairStatusList = ({
             </Grid>
           ))}
       </Grid>
-      <Grid container spacing={2} sx={{ mt: 4 }}>
-        <RepairStatusHistory
-          repair_status_history_data={repair_status_history_data}
-        />
-      </Grid>
+      {repair_status_history_data.length > 0 && (
+        <Grid container spacing={2} sx={{ mt: 4 }}>
+          <RepairStatusHistory
+            repair_status_history_data={repair_status_history_data}
+          />
+        </Grid>
+      )}
     </div>
   );
 };

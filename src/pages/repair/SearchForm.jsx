@@ -232,9 +232,9 @@ const SearchForm = ({
   const handleSearch = (e) => {
     let searchValue = e.target.value;
 
-    if (searchValue.length <= 11) {
+    if (searchValue.length < 11) {
       set_customer_id("");
-      setContactData(null);
+      setContactData({ name: "" });
       setName("");
       setSerial("");
       setPassCode("");
@@ -249,6 +249,7 @@ const SearchForm = ({
       setSearchPrams(searchValue);
     }
     if (searchValue.length === 11) {
+      setSearchPrams(searchValue);
       set_customer_id("");
       setContactData(null);
       setName("");
@@ -286,7 +287,7 @@ const SearchForm = ({
     if (contactData?.mobile) {
       getUser();
     }
-  }, []);
+  }, [contactData?.mobile]);
 
   return (
     <div>
