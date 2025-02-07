@@ -964,7 +964,7 @@ export default function Layout() {
                           </ListItemButton>
                         </ListItem>
                       )}
-                      {checkPermission("stock_alert_list") && (
+                      {checkPermission("branch_stock_list") && (
                         <ListItem disablePadding sx={{ display: "block" }}>
                           <ListItemButton
                             component={Link}
@@ -978,6 +978,23 @@ export default function Layout() {
                             style={{ marginBottom: "0px" }}
                           >
                             <ListItemText primary="Branch Stock" />
+                          </ListItemButton>
+                        </ListItem>
+                      )}
+                      {checkPermission("all_branch_stock_list") && (
+                        <ListItem disablePadding sx={{ display: "block" }}>
+                          <ListItemButton
+                            component={Link}
+                            to="/all-branch-stock"
+                            sx={[
+                              { ...listButtonStyle },
+                              pathname === "/all-branch-stock" && {
+                                ...activeStyle,
+                              },
+                            ]}
+                            style={{ marginBottom: "0px" }}
+                          >
+                            <ListItemText primary="All Branch Stock" />
                           </ListItemButton>
                         </ListItem>
                       )}

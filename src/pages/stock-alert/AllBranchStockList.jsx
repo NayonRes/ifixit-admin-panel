@@ -54,15 +54,18 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddSpareParts from "./AddSpareParts";
-import UpdateSpareParts from "./UpdateSpareParts";
+import AddStockLimit from "./AddStockLimit";
+// import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
+import SparePartsSearch from "../../utils/SparePartsSearch";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const SparePartsList = () => {
+const AllBranchStockList = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const autocompleteSearchSparePartsRef = useRef(null);
+  const [sparePartsIds, setSparePartsIds] = useState({});
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -100,6 +103,8 @@ const SparePartsList = () => {
   const [categoryId, setCategoryId] = useState([]);
   const [deviceId, setDeviceId] = useState([]);
   const [modelId, setModelId] = useState([]);
+  const [branchList, setBranchList] = useState([]);
+  const [branch, setBranch] = useState("");
   const [brandList, setBrandList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -173,17 +178,11 @@ const SparePartsList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 10;
 
-    if (
-      ifixit_admin_panel?.user?.permission?.includes("view_spare_parts_details")
-    ) {
-      loadingNumber = loadingNumber + 1;
-    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(11).keys()].map((e, i) => (
+          {[...Array(7).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -204,17 +203,24 @@ const SparePartsList = () => {
     setModelId("");
     getModelList(e.target.value);
   };
+  const handleAutoComplete = () => {
+    // Find the clear button inside Autocomplete
+    const clearButton =
+      autocompleteSearchSparePartsRef.current?.getElementsByClassName(
+        "MuiAutocomplete-clearIndicator"
+      )[0];
+
+    if (clearButton) {
+      clearButton.click(); // Programmatically click the clear button
+    }
+  };
   const clearFilter = (event) => {
     setName("");
-    setNumber("");
-    setBrandId("");
-    setCategoryId("");
-    setDeviceId("");
-    setModelId("");
-    setStatus("");
-
+    setBranch("");
+    handleAutoComplete();
+    setSparePartsIds({});
     setPage(0);
-    const newUrl = `/api/v1/sparePart?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/sparePartVariation/all-branch-stock?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -239,28 +245,26 @@ const SparePartsList = () => {
     if (newUrl) {
       url = newUrl;
     } else {
+      let newBranch = branch;
       let newStatus = status;
-      let newCategoryId = categoryId;
-      let newBrandId = brandId;
-      let newModelId = modelId;
-      let newDeviceId = deviceId;
 
       let newStartingTime = "";
       let newEndingTime = "";
+
+      let new_spare_parts_id = "";
+      let new_spare_parts_variation_id = "";
+
+      if (sparePartsIds?.spare_parts_id) {
+        new_spare_parts_id = sparePartsIds?.spare_parts_id;
+      }
+      if (sparePartsIds?.spare_parts_variation_id) {
+        new_spare_parts_variation_id = sparePartsIds?.spare_parts_variation_id;
+      }
       if (status === "None") {
         newStatus = "";
       }
-      if (categoryId === "None") {
-        newCategoryId = "";
-      }
-      if (brandId === "None") {
-        newBrandId = "";
-      }
-      if (modelId === "None") {
-        newModelId = "";
-      }
-      if (deviceId === "None") {
-        newDeviceId = "";
+      if (branch === "None") {
+        newBranch = "";
       }
 
       if (startingTime !== null) {
@@ -270,7 +274,7 @@ const SparePartsList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePart?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/sparePartVariation/all-branch-stock?name=${name.trim()}&spare_parts_id=${new_spare_parts_id}&spare_parts_variation_id=${new_spare_parts_variation_id}&page=${
         newPageNO + 1
       }`;
     }
@@ -279,7 +283,6 @@ const SparePartsList = () => {
       logout();
       return;
     }
-
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
@@ -295,20 +298,27 @@ const SparePartsList = () => {
     setLoading(false);
   };
 
-  const sortByParentName = (a, b) => {
-    const nameA = a.parent_name.toUpperCase();
-    const nameB = b.parent_name.toUpperCase();
+  const getBranchList = async () => {
+    setLoading2(true);
 
-    if (nameA < nameB) {
-      return -1;
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
     }
-    if (nameA > nameB) {
-      return 1;
-    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
 
-    return 0;
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
   };
-
   const getBrandList = async () => {
     setLoading2(true);
 
@@ -398,10 +408,11 @@ const SparePartsList = () => {
 
   useEffect(() => {
     getData();
+    getBranchList();
 
-    getCategoryList();
-    getDeviceList();
-    getBrandList();
+    // getCategoryList();
+    // getDeviceList();
+    // getBrandList();
   }, []);
 
   return (
@@ -414,25 +425,19 @@ const SparePartsList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Spare Parts List
+            All Branch Stock
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
           {ifixit_admin_panel?.user?.permission?.includes(
-            "add_spare_parts"
+            "add_stock_alret"
           ) && (
             <Button
               variant="contained"
               disableElevation
               sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
               component={Link}
-              to="/add-spare-parts"
-              // onClick={() => {
-              //   setAddDialog(true);
-              //   getCategoryList();
-              //   getBrandList();
-              //   getDeviceList();
-              // }}
+              to="/add-stock-alert"
               startIcon={
                 <svg
                   width="20"
@@ -451,10 +456,10 @@ const SparePartsList = () => {
                 </svg>
               }
             >
-              Add Spare Parts
+              Add Stock Alert
             </Button>
           )}
-          {/* <AddSpareParts clearFilter={clearFilter} /> */}
+          {/* <AddStockLimit clearFilter={clearFilter} /> */}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -498,7 +503,7 @@ const SparePartsList = () => {
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
         >
-          {/* <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -507,8 +512,8 @@ const SparePartsList = () => {
             >
               Details
             </Typography>
-          </Grid> */}
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
                 container
@@ -516,21 +521,28 @@ const SparePartsList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <TextField
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                  {/* <TextField
                     size="small"
                     fullWidth
                     id="name"
-                    label="Full Name"
+                    label="Spare Parts Name"
                     variant="outlined"
                     sx={{ ...customeTextFeild }}
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
                     }}
+                  /> */}
+                  <SparePartsSearch
+                    sparePartsIds={sparePartsIds}
+                    setSparePartsIds={setSparePartsIds}
+                    autocompleteSearchSparePartsRef={
+                      autocompleteSearchSparePartsRef
+                    }
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -557,8 +569,8 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -585,8 +597,8 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -613,8 +625,8 @@ const SparePartsList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -623,48 +635,22 @@ const SparePartsList = () => {
                     sx={{ ...customeTextFeild }}
                   >
                     <InputLabel id="demo-status-outlined-label">
-                      Brand
+                      Branch
                     </InputLabel>
                     <Select
                       fullWidth
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
-                      label="Brand"
-                      value={brandId}
-                      onChange={(e) => setBrandId(e.target.value)}
+                      label="Branch"
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
                     >
                       <MenuItem value="None">None</MenuItem>
-                      {brandList?.map((item) => (
+                      {branchList?.map((item) => (
                         <MenuItem key={item?._id} value={item?._id}>
                           {item?.name}
                         </MenuItem>
                       ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Status
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Status"
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      <MenuItem value={true}>Active</MenuItem>
-                      <MenuItem value={false}>Inactive</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid> */}
@@ -720,38 +706,37 @@ const SparePartsList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
-
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Category
+                    Product Name
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
+                  {branchList?.map((item) => (
+                    <TableCell style={{ whiteSpace: "nowrap" }}>
+                      {" "}
+                      {item?.name}
+                      {/* <br />
+                      {item?._id} */}
+                    </TableCell>
+                  ))}
+
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Warranty
                   </TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Price / <br />
-                    Not on sale
-                  </TableCell> */}
+                 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
                   </TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
                     Description
-                  </TableCell> */}
+                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-                  {ifixit_admin_panel?.user?.permission?.includes(
-                    "view_spare_parts_details"
-                  ) && (
-                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                      Actions
-                    </TableCell>
-                  )}
+
+                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                    Actions
+                  </TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -774,16 +759,53 @@ const SparePartsList = () => {
                         />
                       </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.name}
+                        {row?.sparepart_data
+                          ? row?.sparepart_data[0]?.name
+                          : "---------"}{" "}
+                        &nbsp; {row?.name ? row?.name : "---------"}
                       </TableCell>
-
-                      <TableCell>
-                        {row?.brand_data[0]?.name
-                          ? row?.brand_data[0]?.name
+                      {row?.stock_data?.length > 0 &&
+                        row?.stock_data?.map((el, i) => (
+                          <TableCell
+                            style={{ whiteSpace: "nowrap" }}
+                            key={i}
+                            sx={{
+                              color:
+                                el?.stock[0]?.total_stock <
+                                el?.stock[0]?.stock_limit
+                                  ? "#D92D20"
+                                  : el?.stock[0]?.total_stock ===
+                                    el?.stock[0]?.stock_limit
+                                  ? "#DC6803"
+                                  : "#35b522",
+                            }}
+                          >
+                            {el?.stock?.length > 0
+                              ? el?.stock[0]?.total_stock
+                              : 0}{" "}
+                            PCs
+                          </TableCell>
+                        ))}
+                      {/* <TableCell>
+                        {row?.branch_data
+                          ? row?.branch_data[0]?.name
                           : "---------"}
                       </TableCell>
+                      <TableCell>{row?.stock_limit} PCs</TableCell>
+                      <TableCell
+                        sx={{
+                          color:
+                            row?.total_stock < row?.stock_limit
+                              ? "#D92D20"
+                              : row?.total_stock === row?.stock_limit
+                              ? "#DC6803"
+                              : "#35b522",
+                        }}
+                      >
+                        {row?.total_stock} PCs
+                      </TableCell> */}
 
-                      <TableCell>
+                      {/* <TableCell>
                         {row?.category_data[0]?.name
                           ? row?.category_data[0]?.name
                           : "---------"}
@@ -809,9 +831,9 @@ const SparePartsList = () => {
                         {row?.sparePart_id ? row?.sparePart_id : "---------"}
                       </TableCell>
 
-                      {/* <TableCell sx={{ minWidth: "150px" }}>
+                      <TableCell sx={{ minWidth: "150px" }}>
                         {row?.description ? row?.description : "---------"}
-                      </TableCell> */}
+                      </TableCell>
                       <TableCell sx={{ minWidth: "150px" }}>
                         {row?.remarks ? row?.remarks : "---------"}
                       </TableCell>
@@ -855,32 +877,26 @@ const SparePartsList = () => {
                         )}
                       </TableCell>
 
-                      {/* <TableCell align="center" style={{ minWidth: "130px" }}>
-                        <Invoice data={row} />
+                   
+                      <TableCell align="right">
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="info"
+                          startIcon={<ListAltOutlinedIcon />}
+                          component={Link}
+                          to={`/spare-parts/${row?._id}`}
+                        >
+                          Details
+                        </Button>
+                   
                       </TableCell> */}
-                      {ifixit_admin_panel?.user?.permission?.includes(
-                        "view_spare_parts_details"
-                      ) && (
-                        <TableCell align="right">
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="info"
-                            startIcon={<ListAltOutlinedIcon />}
-                            component={Link}
-                            to={`/spare-parts/${row?._id}`}
-                          >
-                            Details
-                          </Button>
-                          {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
-                        </TableCell>
-                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={10} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
@@ -967,4 +983,4 @@ const SparePartsList = () => {
   );
 };
 
-export default SparePartsList;
+export default AllBranchStockList;

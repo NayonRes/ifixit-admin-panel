@@ -26,7 +26,7 @@ import RepairSearch from "../repair/RepairSearch";
 import PurchaseList from "../purchase/PurchaseList";
 import PurchaseDetails from "../purchase/PurchaseDetails";
 import StockAlertList from "../stock-alert/StockAlertList";
-import BranchStockList from "../stock-alert/BranchStockList";
+import AllBranchStockList from "../stock-alert/AllBranchStockList";
 import AddStockLimit from "../stock-alert/AddStockLimit";
 import AddPurchaseReturn from "../purchase-return/AddPurchaseReturn";
 import PurchaseReturnList from "../purchase-return/PurchaseReturnList";
@@ -40,6 +40,7 @@ import ServiceList from "../service/ServiceList";
 import AddService from "../service/AddService";
 import ServiceDetails from "../service/ServiceDetails";
 import UpdateService from "../service/UpdateService";
+import BranchStockList from "../stock-alert/BranchStockList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -218,6 +219,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <BranchStockList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="all-branch-stock"
+          element={
+            <PrivateRoute>
+              <AllBranchStockList />
             </PrivateRoute>
           }
         />

@@ -57,13 +57,17 @@ import { designationList, roleList } from "../../data";
 import AddStockLimit from "./AddStockLimit";
 // import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
+import { jwtDecode } from "jwt-decode";
+import SparePartsSearch from "../../utils/SparePartsSearch";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
 const BranchStockList = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const autocompleteSearchSparePartsRef = useRef(null);
   const [tableDataList, setTableDataList] = useState([]);
+  const [sparePartsIds, setSparePartsIds] = useState({});
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -179,7 +183,7 @@ const BranchStockList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(7).keys()].map((e, i) => (
+          {[...Array(3).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -200,12 +204,26 @@ const BranchStockList = () => {
     setModelId("");
     getModelList(e.target.value);
   };
-  const clearFilter = (event) => {
-    setName("");
-    setBranch("");
 
+  const handleAutoComplete = () => {
+    // Find the clear button inside Autocomplete
+    const clearButton =
+      autocompleteSearchSparePartsRef.current?.getElementsByClassName(
+        "MuiAutocomplete-clearIndicator"
+      )[0];
+
+    if (clearButton) {
+      clearButton.click(); // Programmatically click the clear button
+    }
+  };
+  const clearFilter = (event) => {
+    let token = ifixit_admin_panel.token;
+    let decodedToken = jwtDecode(token);
+    let branch_id = decodedToken?.user?.branch_id;
+    handleAutoComplete();
+    setSparePartsIds({});
     setPage(0);
-    const newUrl = `/api/v1/stockCounterAndLimit?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/sparePartVariation/branch-stock?branch_id=${branch_id}&limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -224,22 +242,31 @@ const BranchStockList = () => {
       newPageNO = pageNO;
     }
     let newLimit = rowsPerPage;
+
     if (limit) {
       newLimit = limit;
     }
     if (newUrl) {
       url = newUrl;
     } else {
-      let newBranch = branch;
+      let token = ifixit_admin_panel.token;
+      let decodedToken = jwtDecode(token);
+      let branch_id = decodedToken?.user?.branch_id;
       let newStatus = status;
 
       let newStartingTime = "";
       let newEndingTime = "";
+      let new_spare_parts_id = "";
+      let new_spare_parts_variation_id = "";
+
+      if (sparePartsIds?.spare_parts_id) {
+        new_spare_parts_id = sparePartsIds?.spare_parts_id;
+      }
+      if (sparePartsIds?.spare_parts_variation_id) {
+        new_spare_parts_variation_id = sparePartsIds?.spare_parts_variation_id;
+      }
       if (status === "None") {
         newStatus = "";
-      }
-      if (branch === "None") {
-        newBranch = "";
       }
 
       if (startingTime !== null) {
@@ -249,7 +276,7 @@ const BranchStockList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePartVariation/branch-stock?name=${name.trim()}&branch_id=${newBranch}&page=${
+      url = `/api/v1/sparePartVariation/branch-stock?name=${name.trim()}&branch_id=${branch_id}&spare_parts_id=${new_spare_parts_id}&spare_parts_variation_id=${new_spare_parts_variation_id}&page=${
         newPageNO + 1
       }`;
     }
@@ -383,7 +410,7 @@ const BranchStockList = () => {
 
   useEffect(() => {
     getData();
-    getBranchList();
+    // getBranchList();
 
     // getCategoryList();
     // getDeviceList();
@@ -496,8 +523,8 @@ const BranchStockList = () => {
                 alignItems="center"
                 spacing={1}
               >
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <TextField
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
+                  {/* <TextField
                     required
                     size="small"
                     fullWidth
@@ -509,8 +536,16 @@ const BranchStockList = () => {
                     onChange={(e) => {
                       setName(e.target.value);
                     }}
+                  /> */}
+                  <SparePartsSearch
+                    sparePartsIds={sparePartsIds}
+                    setSparePartsIds={setSparePartsIds}
+               
+                    autocompleteSearchSparePartsRef={
+                      autocompleteSearchSparePartsRef
+                    }
                   />
-                </Grid> */}
+                </Grid>
                 {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -624,7 +659,7 @@ const BranchStockList = () => {
                   </FormControl>
                 </Grid> */}
 
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>
@@ -656,7 +691,7 @@ const BranchStockList = () => {
                       </Grid>
                     </Grid>
                   </Box>
-                </Grid> */}
+                </Grid>
               </Grid>
             </Box>
           </Grid>
@@ -678,16 +713,16 @@ const BranchStockList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Product Name
                   </TableCell>
-                  {branchList?.map((item) => (
-                    <TableCell style={{ whiteSpace: "nowrap" }}>
-                      {" "}
-                      {item?.name}
-                      {/* <br />
-                      {item?._id} */}
-                    </TableCell>
-                  ))}
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell> */}
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Alert Limit
+                  </TableCell>
 
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Available
+                  </TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -733,46 +768,30 @@ const BranchStockList = () => {
                           : "---------"}{" "}
                         &nbsp; {row?.name ? row?.name : "---------"}
                       </TableCell>
-                      {row?.stock_data?.length > 0 &&
-                        row?.stock_data?.map((el, i) => (
-                          <TableCell
-                            style={{ whiteSpace: "nowrap" }}
-                            key={i}
-                            sx={{
-                              color:
-                                el?.stock[0]?.total_stock <
-                                el?.stock[0]?.stock_limit
-                                  ? "#D92D20"
-                                  : el?.stock[0]?.total_stock ===
-                                    el?.stock[0]?.stock_limit
-                                  ? "#DC6803"
-                                  : "#35b522",
-                            }}
-                          >
-                            {el?.stock?.length > 0
-                              ? el?.stock[0]?.total_stock
-                              : 0}{" "}
-                            PCs
-                          </TableCell>
-                        ))}
-                      {/* <TableCell>
-                        {row?.branch_data
-                          ? row?.branch_data[0]?.name
-                          : "---------"}
+
+                      <TableCell>
+                        {row?.stock_data[0]?.stock_limit
+                          ? row?.stock_data[0]?.stock_limit
+                          : 0}{" "}
+                        PCs
                       </TableCell>
-                      <TableCell>{row?.stock_limit} PCs</TableCell>
                       <TableCell
                         sx={{
                           color:
-                            row?.total_stock < row?.stock_limit
+                            row?.stock_data[0]?.total_stock <
+                            row?.stock_data[0]?.stock_limit
                               ? "#D92D20"
-                              : row?.total_stock === row?.stock_limit
+                              : row?.stock_data[0]?.total_stock ===
+                                row?.stock_data[0]?.stock_limit
                               ? "#DC6803"
                               : "#35b522",
                         }}
                       >
-                        {row?.total_stock} PCs
-                      </TableCell> */}
+                        {row?.stock_data[0]?.total_stock
+                          ? row?.stock_data[0]?.total_stock
+                          : 0}{" "}
+                        PCs
+                      </TableCell>
 
                       {/* <TableCell>
                         {row?.category_data[0]?.name
@@ -865,7 +884,7 @@ const BranchStockList = () => {
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={3} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

@@ -847,7 +847,7 @@ const StockAlertList = () => {
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={4} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
