@@ -141,7 +141,7 @@ const Repair = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 8;
+    let loadingNumber = 9;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_repair")) {
       loadingNumber = loadingNumber + 1;

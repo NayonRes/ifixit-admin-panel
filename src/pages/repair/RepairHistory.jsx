@@ -11,6 +11,7 @@ import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import moment from "moment";
 import { enqueueSnackbar } from "notistack";
+import { statusList } from "../../data.js";
 
 export default function RepairHistory({ contactData }) {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -56,6 +57,12 @@ export default function RepairHistory({ contactData }) {
     setLoading(false);
   };
 
+  const getColor = (name) => {
+    let co = statusList.filter((i) => i.name == name);
+    console.log("co", co?.[0]?.color);
+    return co?.[0]?.bg;
+  };
+
   useEffect(() => {
     getData();
     console.log("contactData", contactData);
@@ -89,7 +96,9 @@ export default function RepairHistory({ contactData }) {
                   <TableCell>
                     {item?.model_data?.map((item, index) => item?.name)}
                   </TableCell>
-                  <TableCell>{item?.repair_status}</TableCell>
+                  <TableCell sx={{ color: getColor(item?.repair_status) }}>
+                    {item?.repair_status}
+                  </TableCell>
                 </TableRow>
               ))}
             <TableRow

@@ -31,7 +31,19 @@ const RepairList = ({
     "statusList",
     statusList?.find((el) => el.name === "Rework")?.color
   );
+  const calculateTotalAmount = (data) => {
+    const issueTotal = data?.issues?.length
+      ? data.issues.reduce((acc, issue) => acc + (issue.repair_cost || 0), 0)
+      : 0;
 
+    const sparePartsTotal = data?.spare_parts?.length
+      ? data.spare_parts.reduce((acc, part) => acc + (part.price || 0), 0)
+      : 0;
+
+    const totalCost = issueTotal + sparePartsTotal;
+
+    return <TableCell>{totalCost}</TableCell>;
+  };
   return (
     <div>
       <div
@@ -66,9 +78,12 @@ const RepairList = ({
                 Spare Parts
               </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>
-                Total Amount
+                Paid Amount
               </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Due Amount</TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>
+                Total Amount
+              </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
               {ifixit_admin_panel?.user?.permission?.includes(
                 "update_repair"
@@ -141,6 +156,7 @@ const RepairList = ({
                               sx={{
                                 mr: 1,
                                 px: 1,
+                                my: 0.5,
                               }}
                             />
                           ))}
@@ -160,6 +176,7 @@ const RepairList = ({
                               sx={{
                                 mr: 1,
                                 px: 1,
+                                my: 0.5,
                               }}
                             />
                           ))}
@@ -170,15 +187,20 @@ const RepairList = ({
                     </TableCell>
 
                     <TableCell>
-                      {row?.payment_info?.length > 0 &&
-                        row?.payment_info.reduce(
-                          (sum, item) => sum + item.amount,
-                          0
-                        )}
+                      {row?.payment_info?.length > 0
+                        ? row?.payment_info.reduce(
+                            (sum, item) => sum + item.amount,
+                            0
+                          )
+                        : 0}
                     </TableCell>
                     <TableCell sx={{ color: "#D92D20" }}>
                       {row?.due_amount ? row?.due_amount : "-------"}
                     </TableCell>
+                    <TableCell sx={{ color: "#D92D20" }}>
+                      {calculateTotalAmount(row)}
+                    </TableCell>
+
                     <TableCell>
                       <Chip
                         label={row.repair_status}
@@ -263,7 +285,7 @@ const RepairList = ({
 
             {!loading && tableDataList.length < 1 ? (
               <TableRow>
-                <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                <TableCell colSpan={10} style={{ textAlign: "center" }}>
                   <strong> {message}</strong>
                 </TableCell>
               </TableRow>
