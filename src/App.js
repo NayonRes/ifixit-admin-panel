@@ -9,7 +9,6 @@ import { BrowserRouter } from "react-router-dom";
 import { Paper } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import ColorPalette from "./color-palette/ColorPalette";
-import logo from "./logo.svg";
 import "./App.css";
 
 const theme = createTheme({

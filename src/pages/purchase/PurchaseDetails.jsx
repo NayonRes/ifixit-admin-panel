@@ -80,7 +80,7 @@ const Item = styled(Paper)(({ theme }) => ({
 const PurchaseDetails = () => {
   const { id } = useParams();
   console.log("id", id);
-
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState({});
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -161,13 +161,19 @@ const PurchaseDetails = () => {
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setProductList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setSearchLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setSearchLoading(false);
   };
@@ -210,7 +216,10 @@ const PurchaseDetails = () => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setUpdateVariationLoading(false);
       handleSnakbarOpen("Updated successfully", "success");
@@ -224,6 +233,8 @@ const PurchaseDetails = () => {
     // }
   };
   const handleGenerateSKU = async (item) => {
+    console.log("spare_part_details", item?.spare_part_details);
+
     setGenerateSKULoading(true);
     setGenerateSKUDetails(item);
 
@@ -232,7 +243,12 @@ const PurchaseDetails = () => {
       purchase_product_id: item._id,
       spare_parts_id: item.spare_parts_id,
       spare_parts_variation_id: item.spare_parts_variation_id,
+      supplier_id: tableDataList[0]?.supplier_id,
       branch_id: tableDataList[0]?.branch_id,
+      brand_id: item?.spare_part_details[0]?.brand_id,
+      category_id: item?.spare_part_details[0]?.category_id,
+      device_id: item?.spare_part_details[0]?.device_id,
+      model_id: item?.spare_part_details[0]?.model_id,
       quantity: parseInt(item.quantity),
     };
 
@@ -243,7 +259,10 @@ const PurchaseDetails = () => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setGenerateSKULoading(false);
       handleSnakbarOpen("Generate SKU successfully", "success");
@@ -380,7 +399,7 @@ const PurchaseDetails = () => {
   const pageLoading = () => {
     let content = [];
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 1; i++) {
       content.push(
         <TableRow key={i}>
           {[...Array(13).keys()].map((e, i) => (
@@ -400,13 +419,19 @@ const PurchaseDetails = () => {
     let url = `/api/v1/purchase/${encodeURIComponent(id.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
@@ -433,7 +458,10 @@ const PurchaseDetails = () => {
     )}&purchase_product_id=${encodeURIComponent(item._id)}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setSkuList(allData?.data?.data);
       setGenerateSkuData({});
@@ -441,6 +469,7 @@ const PurchaseDetails = () => {
         setMessage("No data found");
       }
     } else {
+      setSkuLoading(false);
       setGenerateSkuData({});
       setGenerateSKULoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
@@ -517,10 +546,16 @@ const PurchaseDetails = () => {
                     Payment status
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Payment Method
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Paid Amount
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
                     Shipping Charge
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Grand total
+                    Items Grand total
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -532,10 +567,13 @@ const PurchaseDetails = () => {
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_purchase"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -707,7 +745,43 @@ const PurchaseDetails = () => {
                           "---------"
                         )}
                       </TableCell>
-                      <TableCell>
+
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                        {row?.paid_amount === 0 ? (
+                          <Chip
+                            sx={{
+                              color: "#C81E1E",
+                              background: "#FDF2F2",
+                            }}
+                            label="Not Paid"
+                          />
+                        ) : row.purchase_products_data
+                            .reduce((total, item) => {
+                              const itemTotal =
+                                parseFloat(item?.quantity || 0) *
+                                parseFloat(item?.unit_price || 0);
+                              return total + itemTotal;
+                            }, 0)
+                            .toFixed(2) > row?.paid_amount ? (
+                          <Chip
+                            sx={{
+                              color: "#7527DA",
+                              background: "#F5F3FF",
+                            }}
+                            label="Partially Paid"
+                          />
+                        ) : (
+                          <Chip
+                            sx={{
+                              color: "#046C4E",
+                              background: "#F3FAF7",
+                            }}
+                            label="Paid"
+                          />
+                        )}
+                      </TableCell>
+
+                      {/* <TableCell>
                         {row?.payment_status ? (
                           <Chip
                             sx={{
@@ -733,10 +807,18 @@ const PurchaseDetails = () => {
                         ) : (
                           "---------"
                         )}
+                      </TableCell> */}
+                      <TableCell>
+                        {row?.payment_method
+                          ? row?.payment_method
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.paid_amount ? row?.paid_amount.toFixed(2) : 0}
                       </TableCell>
                       <TableCell>
                         {row?.shipping_charge
-                          ? row?.shipping_charge
+                          ? row?.shipping_charge.toFixed(2)
                           : "---------"}
                       </TableCell>
                       <TableCell>
@@ -803,10 +885,16 @@ const PurchaseDetails = () => {
                           </>
                         )}
                       </TableCell>
-
-                      <TableCell align="right">
-                        <UpdatePurchase getData={getData} row={tableDataList} />
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_purchase"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdatePurchase
+                            getData={getData}
+                            row={tableDataList}
+                          />
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
@@ -819,7 +907,7 @@ const PurchaseDetails = () => {
                 ) : null}
                 {loading && pageLoading()}
 
-                {loading && pageLoading()}
+                {/* {loading && pageLoading()} */}
               </TableBody>
             </Table>
           </TableContainer>
@@ -1151,13 +1239,16 @@ const PurchaseDetails = () => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           SKU Actions
                         </TableCell>
-
-                        <TableCell
-                          align="right"
-                          style={{ whiteSpace: "nowrap" }}
-                        >
-                          Actions
-                        </TableCell>
+                        {ifixit_admin_panel?.user?.permission?.includes(
+                          "update_purchase"
+                        ) && (
+                          <TableCell
+                            align="right"
+                            style={{ whiteSpace: "nowrap" }}
+                          >
+                            Actions
+                          </TableCell>
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -1174,7 +1265,11 @@ const PurchaseDetails = () => {
                             >
                               <TableCell sx={{ minWidth: "130px" }}>
                                 {" "}
-                                {item?.spare_part_variation_details[0]?.name}
+                                {item?.spare_part_details[0]?.name}
+                                <br />
+                                <span style={{ color: "#424949" }}>
+                                  {item?.spare_part_variation_details[0]?.name}
+                                </span>
                               </TableCell>
                               <TableCell sx={{ minWidth: "130px" }}>
                                 {updateData._id === item._id ? (
@@ -1298,6 +1393,7 @@ const PurchaseDetails = () => {
                                         e.target.value
                                       )
                                     }
+                                    onWheel={(e) => e.target.blur()}
                                   />
                                 ) : (
                                   item.quantity
@@ -1327,6 +1423,7 @@ const PurchaseDetails = () => {
                                         e.target.value
                                       )
                                     }
+                                    onWheel={(e) => e.target.blur()}
                                   />
                                 ) : (
                                   item.unit_price
@@ -1423,75 +1520,88 @@ const PurchaseDetails = () => {
                                   "---------"
                                 )}
                               </TableCell>
-                              <TableCell
-                                sx={{
-                                  whiteSpace: "nowrap",
-                                  textAlign: "right",
-                                }}
-                              >
-                                {updateData._id === item._id ? (
-                                  <>
-                                    <Button
-                                      size="small"
-                                      variant="outlined"
-                                      color="text"
-                                      disabled={updateVariationLoading}
-                                      sx={{ mr: 1 }}
-                                      onClick={() => {
-                                        setUpdateData({});
-                                      }}
-                                    >
-                                      {" "}
-                                      Cancel
-                                    </Button>
-                                    <Button
-                                      size="small"
+                              {ifixit_admin_panel?.user?.permission?.includes(
+                                "update_purchase"
+                              ) && (
+                                <TableCell
+                                  sx={{
+                                    whiteSpace: "nowrap",
+                                    textAlign: "right",
+                                  }}
+                                >
+                                  {updateData._id === item._id ? (
+                                    <>
+                                      <Button
+                                        size="small"
+                                        variant="outlined"
+                                        color="text"
+                                        disabled={updateVariationLoading}
+                                        sx={{ mr: 1 }}
+                                        onClick={() => {
+                                          setUpdateData({});
+                                        }}
+                                      >
+                                        {" "}
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="small"
+                                        variant="contained"
+                                        disabled={updateVariationLoading}
+                                        sx={{
+                                          minHeight: "33px",
+                                          minWidth: "80px",
+                                        }}
+                                        onClick={onProductSubmit}
+                                      >
+                                        <PulseLoader
+                                          color={"#4B46E5"}
+                                          loading={updateVariationLoading}
+                                          size={10}
+                                          speedMultiplier={0.5}
+                                        />{" "}
+                                        {updateVariationLoading === false &&
+                                          "Update"}
+                                      </Button>
+                                    </>
+                                  ) : (
+                                    <IconButton
                                       variant="contained"
-                                      disabled={updateVariationLoading}
+                                      // color="success"
+                                      disableElevation
+                                      disabled={
+                                        item.purchase_product_status ===
+                                        "Received"
+                                      }
+                                      onClick={() => setUpdateData(item)}
                                       sx={{
-                                        minHeight: "33px",
-                                        minWidth: "80px",
+                                        opacity:
+                                          item.purchase_product_status ===
+                                            "Received" && 0.5,
                                       }}
-                                      onClick={onProductSubmit}
                                     >
-                                      <PulseLoader
-                                        color={"#4B46E5"}
-                                        loading={updateVariationLoading}
-                                        size={10}
-                                        speedMultiplier={0.5}
-                                      />{" "}
-                                      {updateVariationLoading === false &&
-                                        "Update"}
-                                    </Button>
-                                  </>
-                                ) : (
-                                  <IconButton
-                                    variant="contained"
-                                    // color="success"
-                                    disableElevation
-                                    onClick={() => setUpdateData(item)}
-                                  >
-                                    {/* <EditOutlinedIcon /> */}
+                                      {/* <EditOutlinedIcon /> */}
 
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      id="Outline"
-                                      viewBox="0 0 24 24"
-                                      width="18"
-                                      height="18"
-                                    >
-                                      <path
-                                        d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-                                        fill="#787878"
-                                      />
-                                      <path
-                                        d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-                                        fill="#787878"
-                                      />
-                                    </svg>
-                                  </IconButton>
-                                )}
-                              </TableCell>
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        id="Outline"
+                                        viewBox="0 0 24 24"
+                                        width="18"
+                                        height="18"
+                                      >
+                                        <path
+                                          d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                                          fill="#787878"
+                                        />
+                                        <path
+                                          d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                                          fill="#787878"
+                                        />
+                                      </svg>
+                                    </IconButton>
+                                  )}
+                                </TableCell>
+                              )}
                             </TableRow>
                           )
                         )

@@ -61,6 +61,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const BranchList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -160,11 +161,15 @@ const BranchList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 2;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_branch")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(3).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -252,8 +257,12 @@ const BranchList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
+      setLoading(false);
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
       setTotalData(allData?.data?.totalData);
@@ -261,8 +270,10 @@ const BranchList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
-    setLoading(false);
   };
 
   const sortByParentName = (a, b) => {
@@ -297,7 +308,9 @@ const BranchList = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <AddBranch clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_branch") && (
+            <AddBranch clearFilter={clearFilter} />
+          )}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -452,10 +465,13 @@ const BranchList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_branch"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -511,43 +527,48 @@ const BranchList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <UpdateBranch clearFilter={clearFilter} row={row} />
 
-                        {/* <IconButton
-                          variant="contained"
-                          disableElevation
-                          onClick={() => handleDeleteDialog(i, row)}
-                        >
-                    
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            id="Outline"
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                          >
-                            <path
-                              d="M21,4H17.9A5.009,5.009,0,0,0,13,0H11A5.009,5.009,0,0,0,6.1,4H3A1,1,0,0,0,3,6H4V19a5.006,5.006,0,0,0,5,5h6a5.006,5.006,0,0,0,5-5V6h1a1,1,0,0,0,0-2ZM11,2h2a3.006,3.006,0,0,1,2.829,2H8.171A3.006,3.006,0,0,1,11,2Zm7,17a3,3,0,0,1-3,3H9a3,3,0,0,1-3-3V6H18Z"
-                              fill="#F91351"
-                            />
-                            <path
-                              d="M10,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,10,18Z"
-                              fill="#F91351"
-                            />
-                            <path
-                              d="M14,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,14,18Z"
-                              fill="#F91351"
-                            />
-                          </svg>
-                        </IconButton> */}
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_branch"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateBranch clearFilter={clearFilter} row={row} />
+
+                          {/* <IconButton
+                      variant="contained"
+                      disableElevation
+                      onClick={() => handleDeleteDialog(i, row)}
+                    >
+                
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        id="Outline"
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                      >
+                        <path
+                          d="M21,4H17.9A5.009,5.009,0,0,0,13,0H11A5.009,5.009,0,0,0,6.1,4H3A1,1,0,0,0,3,6H4V19a5.006,5.006,0,0,0,5,5h6a5.006,5.006,0,0,0,5-5V6h1a1,1,0,0,0,0-2ZM11,2h2a3.006,3.006,0,0,1,2.829,2H8.171A3.006,3.006,0,0,1,11,2Zm7,17a3,3,0,0,1-3,3H9a3,3,0,0,1-3-3V6H18Z"
+                          fill="#F91351"
+                        />
+                        <path
+                          d="M10,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,10,18Z"
+                          fill="#F91351"
+                        />
+                        <path
+                          d="M14,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,14,18Z"
+                          fill="#F91351"
+                        />
+                      </svg>
+                    </IconButton> */}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={3} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

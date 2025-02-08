@@ -22,9 +22,11 @@ import VariantList from "../variant/VariantList";
 import SparePartsList from "../spare-parts/SparePartsList";
 import SparePartsDetails from "../spare-parts/SparePartsDetails";
 import Repair from "../repair/Repair";
+import RepairSearch from "../repair/RepairSearch";
 import PurchaseList from "../purchase/PurchaseList";
 import PurchaseDetails from "../purchase/PurchaseDetails";
 import StockAlertList from "../stock-alert/StockAlertList";
+import AllBranchStockList from "../stock-alert/AllBranchStockList";
 import AddStockLimit from "../stock-alert/AddStockLimit";
 import AddPurchaseReturn from "../purchase-return/AddPurchaseReturn";
 import PurchaseReturnList from "../purchase-return/PurchaseReturnList";
@@ -32,6 +34,13 @@ import AddStockTransfer from "../stock-transfer/AddStockTransfer";
 import StockTransferList from "../stock-transfer/StockTransferList";
 import UpdateStockTransfer from "../stock-transfer/UpdateStockTransfer";
 import DetailsStockTransfer from "../stock-transfer/DetailsStockTransfer";
+import AddSpareParts from "../spare-parts/AddSpareParts";
+import AddPurchase from "../purchase/AddPurchase";
+import ServiceList from "../service/ServiceList";
+import AddService from "../service/AddService";
+import ServiceDetails from "../service/ServiceDetails";
+import UpdateService from "../service/UpdateService";
+import BranchStockList from "../stock-alert/BranchStockList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -40,7 +49,7 @@ import DetailsStockTransfer from "../stock-transfer/DetailsStockTransfer";
 // import Country from "../country/Country";
 
 function PrivateRoute({ children }) {
-  const { ifixit_admin_panel } = useContext(AuthContext);
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   // console.log("ifixit_admin_panel?.data?.token", ifixit_admin_panel);
   return ifixit_admin_panel?.token ? children : <Navigate to="/" />;
 }
@@ -155,11 +164,69 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="add-spare-parts"
+          element={
+            <PrivateRoute>
+              <AddSpareParts />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="service-list"
+          element={
+            <PrivateRoute>
+              <ServiceList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="service/update/:id"
+          element={
+            <PrivateRoute>
+              <UpdateService />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="service/details/:id"
+          element={
+            <PrivateRoute>
+              <ServiceDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="add-service"
+          element={
+            <PrivateRoute>
+              <AddService />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="stock-alert"
           element={
             <PrivateRoute>
               <StockAlertList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="branch-stock"
+          element={
+            <PrivateRoute>
+              <BranchStockList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="all-branch-stock"
+          element={
+            <PrivateRoute>
+              <AllBranchStockList />
             </PrivateRoute>
           }
         />
@@ -253,10 +320,26 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
+          path="add-purchase"
+          element={
+            <PrivateRoute>
+              <AddPurchase />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="repair"
           element={
             <PrivateRoute>
               <Repair />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair-search"
+          element={
+            <PrivateRoute>
+              <RepairSearch />
             </PrivateRoute>
           }
         />

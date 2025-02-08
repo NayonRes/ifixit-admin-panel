@@ -62,6 +62,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const PurchaseReturnList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -253,7 +254,10 @@ const PurchaseReturnList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
@@ -262,6 +266,9 @@ const PurchaseReturnList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
@@ -271,13 +278,19 @@ const PurchaseReturnList = () => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -286,13 +299,19 @@ const PurchaseReturnList = () => {
 
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -302,13 +321,19 @@ const PurchaseReturnList = () => {
 
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -318,13 +343,19 @@ const PurchaseReturnList = () => {
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -333,13 +364,19 @@ const PurchaseReturnList = () => {
 
     let url = `/api/v1/model/device-model?deviceId=${id}`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -367,32 +404,36 @@ const PurchaseReturnList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <Button
-            variant="contained"
-            disableElevation
-            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-            component={Link}
-            to="/purchase-return"
-            startIcon={
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-                  stroke="white"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            }
-          >
-            Purchase Return
-          </Button>
+          {ifixit_admin_panel?.user?.permission?.includes(
+            "add_purchase_return"
+          ) && (
+            <Button
+              variant="contained"
+              disableElevation
+              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+              component={Link}
+              to="/purchase-return"
+              startIcon={
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                    stroke="white"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+            >
+              Purchase Return
+            </Button>
+          )}
           {/* <AddPurchaseReturn clearFilter={clearFilter} /> */}
 
           {/* <IconButton

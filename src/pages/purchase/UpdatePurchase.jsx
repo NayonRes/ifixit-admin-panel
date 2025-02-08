@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -51,6 +53,7 @@ import { styled } from "@mui/material/styles";
 import {
   customerTypeList,
   designationList,
+  paymentMethodList,
   paymentStatusList,
   purchaseStatusList,
   ratingList,
@@ -94,6 +97,7 @@ const form = {
 };
 const UpdatePurchase = ({ getData, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
 
   const [supplierList, setSupplierList] = useState([]);
@@ -104,6 +108,7 @@ const UpdatePurchase = ({ getData, row }) => {
   const [purchaseStatus, setPurchaseStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [paidAmount, setPaidAmount] = useState();
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [purchaseDate, setPurchaseDate] = useState(null);
   const [shippingCharge, setShippingCharge] = useState("");
   const [invoiceNo, setInvoiceNo] = useState("");
@@ -158,6 +163,7 @@ const UpdatePurchase = ({ getData, row }) => {
     setCategoryId("");
     setDeviceId("");
     setModelId("");
+
     setWarranty("");
     setPrice("");
     setDetails("");
@@ -218,6 +224,8 @@ const UpdatePurchase = ({ getData, row }) => {
     formData.append("purchase_status", purchaseStatus);
     formData.append("payment_status", paymentStatus);
     formData.append("branch_id", branch);
+    formData.append("payment_method", paymentMethod);
+    formData.append("paid_amount", paidAmount);
     formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
 
     formData.append("remarks", remarks);
@@ -229,7 +237,14 @@ const UpdatePurchase = ({ getData, row }) => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
       handleSnakbarOpen("Updated successfully", "success");
@@ -306,13 +321,19 @@ const UpdatePurchase = ({ getData, row }) => {
 
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -322,13 +343,19 @@ const UpdatePurchase = ({ getData, row }) => {
 
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -338,13 +365,19 @@ const UpdatePurchase = ({ getData, row }) => {
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -353,13 +386,19 @@ const UpdatePurchase = ({ getData, row }) => {
 
     let url = `/api/v1/model/device-model?deviceId=${id}`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -375,13 +414,19 @@ const UpdatePurchase = ({ getData, row }) => {
 
     let url = `/api/v1/supplier/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setSupplierList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -390,7 +435,10 @@ const UpdatePurchase = ({ getData, row }) => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
@@ -405,19 +453,27 @@ const UpdatePurchase = ({ getData, row }) => {
 
     let url = `/api/v1/user/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setUserList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
 
   useEffect(() => {
     setSupplier(row[0]?.supplier_id);
+    setPaidAmount(row[0]?.paid_amount);
+    setPaymentMethod(row[0]?.payment_method);
     // setPurchaseDate(row[0]?.purchase_date);
 
     if (row[0]?.purchase_date) {
@@ -809,7 +865,7 @@ const UpdatePurchase = ({ getData, row }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={6}>
+            {/* <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -863,7 +919,7 @@ const UpdatePurchase = ({ getData, row }) => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -886,6 +942,7 @@ const UpdatePurchase = ({ getData, row }) => {
                 onChange={(e) => {
                   setShippingCharge(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
             </Grid>
             {/* <Grid size={4}>
@@ -935,6 +992,84 @@ const UpdatePurchase = ({ getData, row }) => {
                 }}
               />
             </Grid> */}
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Payment Method
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {paymentMethod?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Purchase Method
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="paymentStatus"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  {paymentMethodList?.map((item) => (
+                    <MenuItem key={item?._id} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Paid Amount
+              </Typography>
+              <TextField
+                size="small"
+                type="number"
+                fullWidth
+                id="paidAmount"
+                placeholder="Paid Amount"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={paidAmount}
+                onChange={(e) => {
+                  setPaidAmount(e.target.value);
+                }}
+                onWheel={(e) => e.target.blur()}
+              />
+            </Grid>
             <Grid size={6}>
               <Typography
                 variant="medium"

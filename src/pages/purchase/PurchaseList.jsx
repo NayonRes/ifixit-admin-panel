@@ -67,6 +67,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const PurchaseList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -179,11 +180,17 @@ const PurchaseList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 12;
 
+    if (
+      ifixit_admin_panel?.user?.permission?.includes("view_purchase_details")
+    ) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(11).keys()].map((e, i) => (
+          {[...Array(13).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -276,7 +283,10 @@ const PurchaseList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
@@ -285,6 +295,9 @@ const PurchaseList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
@@ -294,13 +307,19 @@ const PurchaseList = () => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -310,13 +329,19 @@ const PurchaseList = () => {
 
     let url = `/api/v1/supplier/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setSupplierList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -340,15 +365,14 @@ const PurchaseList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <AddPurchase clearFilter={clearFilter} />
-
-          {/* <IconButton
-            onClick={() => setOpen(!open)}
-            // size="large"
-            aria-label="show 5 new notifications"
-            color="inherit"
-          >
-            <Badge badgeContent={5} color="error">
+          {/* <AddPurchase clearFilter={clearFilter} /> */}
+          <Button
+            variant="contained"
+            disableElevation
+            sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            component={Link}
+            to="/add-purchase"
+            startIcon={
               <svg
                 width="20"
                 height="20"
@@ -357,15 +381,17 @@ const PurchaseList = () => {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M12.3807 14.2348C13.9595 14.0475 15.4819 13.6763 16.9259 13.1432C15.7286 11.8142 14.9998 10.0547 14.9998 8.125V7.54099C14.9999 7.52734 15 7.51368 15 7.5C15 4.73858 12.7614 2.5 10 2.5C7.23858 2.5 5 4.73858 5 7.5L4.99984 8.125C4.99984 10.0547 4.27106 11.8142 3.07373 13.1432C4.51784 13.6763 6.04036 14.0475 7.61928 14.2348M12.3807 14.2348C11.6 14.3274 10.8055 14.375 9.99984 14.375C9.19431 14.375 8.3999 14.3274 7.61928 14.2348M12.3807 14.2348C12.4582 14.4759 12.5 14.7331 12.5 15C12.5 16.3807 11.3807 17.5 10 17.5C8.61929 17.5 7.5 16.3807 7.5 15C7.5 14.7331 7.54183 14.476 7.61928 14.2348"
-                  stroke="#656E81"
-                  stroke-width="1.5"
+                  d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                  stroke="white"
+                  stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
               </svg>
-            </Badge>
-          </IconButton> */}
+            }
+          >
+            Add Purchase
+          </Button>
         </Grid>
       </Grid>
       <div
@@ -694,12 +720,18 @@ const PurchaseList = () => {
                     Payment status
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Shipping Charge
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Grand total
+                    Payment Method
                   </TableCell>
 
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Paid Amount
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Items Grand total
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Shipping Charge
+                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Purchase by
                   </TableCell>
@@ -709,10 +741,13 @@ const PurchaseList = () => {
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "view_purchase_details"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -783,7 +818,41 @@ const PurchaseList = () => {
                           "---------"
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                        {row?.paid_amount === 0 ? (
+                          <Chip
+                            sx={{
+                              color: "#C81E1E",
+                              background: "#FDF2F2",
+                            }}
+                            label="Not Paid"
+                          />
+                        ) : row.purchase_products_data
+                            .reduce((total, item) => {
+                              const itemTotal =
+                                parseFloat(item?.quantity || 0) *
+                                parseFloat(item?.unit_price || 0);
+                              return total + itemTotal;
+                            }, 0)
+                            .toFixed(2) > row?.paid_amount ? (
+                          <Chip
+                            sx={{
+                              color: "#7527DA",
+                              background: "#F5F3FF",
+                            }}
+                            label="Partially Paid"
+                          />
+                        ) : (
+                          <Chip
+                            sx={{
+                              color: "#046C4E",
+                              background: "#F3FAF7",
+                            }}
+                            label="Paid"
+                          />
+                        )}
+                      </TableCell>
+                      {/* <TableCell>
                         {row?.payment_status ? (
                           <Chip
                             sx={{
@@ -809,11 +878,16 @@ const PurchaseList = () => {
                         ) : (
                           "---------"
                         )}
-                      </TableCell>
+                      </TableCell> */}
+
                       <TableCell>
-                        {row?.shipping_charge
-                          ? row?.shipping_charge
+                        {row?.payment_method
+                          ? row?.payment_method
                           : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.paid_amount ? row?.paid_amount.toFixed(2) : 0}
                       </TableCell>
                       <TableCell>
                         {row?.purchase_products_data?.length > 0
@@ -824,7 +898,13 @@ const PurchaseList = () => {
                                   parseFloat(item?.unit_price || 0);
                                 return total + itemTotal;
                               }, 0)
-                              .toFixed(2) // Formats the final total to 2 decimal places
+                              .toFixed(2)
+                          : "---------"}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.shipping_charge
+                          ? row?.shipping_charge.toFixed(2)
                           : "---------"}
                       </TableCell>
 
@@ -883,24 +963,28 @@ const PurchaseList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="info"
-                          startIcon={<ListAltOutlinedIcon />}
-                          component={Link}
-                          to={`/purchase/${row?._id}`}
-                        >
-                          Details
-                        </Button>
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "view_purchase_details"
+                      ) && (
+                        <TableCell align="right">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="info"
+                            startIcon={<ListAltOutlinedIcon />}
+                            component={Link}
+                            to={`/purchase/${row?._id}`}
+                          >
+                            Details
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={13} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

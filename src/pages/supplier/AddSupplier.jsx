@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -85,7 +87,7 @@ const form = {
 };
 const AddSupplier = ({ clearFilter }) => {
   const navigate = useNavigate();
-
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
@@ -153,7 +155,10 @@ const AddSupplier = ({ clearFilter }) => {
     let response = await handlePostData("/api/v1/supplier/create", data, false);
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
       clearFilter(); // this is for get the table list again
@@ -200,7 +205,6 @@ const AddSupplier = ({ clearFilter }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",

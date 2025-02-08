@@ -6,7 +6,14 @@ import htmlToDraft from "html-to-draftjs";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { Box } from "@mui/material";
 
-const TextEditor = ({ convertedContent, setConvertedContent, data }) => {
+const TextEditor = ({
+  convertedContent,
+  setConvertedContent,
+  data,
+  onChange,
+}) => {
+  console.log("data*****************ggggg**************", data);
+
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
   );
@@ -32,6 +39,10 @@ const TextEditor = ({ convertedContent, setConvertedContent, data }) => {
   useEffect(() => {
     let html = convertToHTML(editorState.getCurrentContent());
     setConvertedContent(html);
+
+    if (onChange) {
+      onChange(html); // Trigger parent change handler
+    }
   }, [editorState]);
   useEffect(() => {
     console.log("aaaaaaaaaaaaaaaaaaaa data", data);
@@ -41,7 +52,9 @@ const TextEditor = ({ convertedContent, setConvertedContent, data }) => {
   }, []);
 
   return (
-    <Box sx={{ border: "1px solid #B2BAC2", borderRadius: "6px", py: 1,px:1.5 }}>
+    <Box
+      sx={{ border: "1px solid #cccccc", borderRadius: "6px", py: 1, px: 1.5 }}
+    >
       {/* <h2 onClick={check}>Check</h2>
       <h2 onClick={loadDataFormHtml}>load in editor from string html</h2>
       <div dangerouslySetInnerHTML={{ __html: convertedContent }}></div> */}

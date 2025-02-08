@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -43,6 +45,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
+import ImageUpload from "../../utils/ImageUpload";
 
 const baseStyle = {
   flex: 1,
@@ -81,6 +84,7 @@ const form = {
 };
 const UpdateModel = ({ clearFilter, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
@@ -89,6 +93,8 @@ const UpdateModel = ({ clearFilter, row }) => {
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [file, setFile] = useState(null);
+  const dropzoneRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
@@ -114,35 +120,43 @@ const UpdateModel = ({ clearFilter, row }) => {
     setName("");
     setParent_id("");
     setStatus("");
+    setFile(null);
   };
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
+    let formdata = new FormData();
+    formdata.append("name", name.trim());
 
-    // formdata.append("parent_id", parent_id);
+    formdata.append("device_id", parent_id.trim());
+    formdata.append("status", status);
+    if (file) {
+      formdata.append("image", file);
+    }
 
-    let data = {
-      name: name.trim(),
+    // let data = {
+    //   name: name.trim(),
 
-      device_id: parent_id?.length > 0 ? parent_id : null,
-      status: status,
-    };
+    //   device_id: parent_id?.length > 0 ? parent_id : null,
+    //   status: status,
+    // };
 
     let response = await handlePutData(
       `/api/v1/model/update/${row?._id}`,
-      data,
-      false
+      formdata,
+      true
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
-      clearFilter(); // this is for get the table list again
+      clearFilter();
       clearForm();
       handleDialogClose();
     } else {
@@ -153,6 +167,54 @@ const UpdateModel = ({ clearFilter, row }) => {
     setLoading(false);
     // }
   };
+
+  const onDrop = useCallback((acceptedFiles) => {
+    console.log("onDrop", acceptedFiles);
+    // if (!dropzoneRef.current) return;
+    const file = acceptedFiles[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // setBase64String(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+  const onFileDialogCancel = useCallback(() => {
+    setFile(null);
+    console.log("File dialog was closed without selecting a file");
+    // setBase64String(""); // Update state to indicate dialog was cancelled
+  }, []);
+
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    onDrop,
+    onFileDialogCancel,
+    ref: dropzoneRef,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+  });
+  const files = acceptedFiles.map((file) => (
+    <>
+      {file.path} - {file.size} bytes
+    </>
+  ));
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isFocused ? focusedStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isFocused, isDragAccept, isDragReject]
+  );
 
   const customeTextFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -186,7 +248,6 @@ const UpdateModel = ({ clearFilter, row }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -218,13 +279,19 @@ const UpdateModel = ({ clearFilter, row }) => {
 
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    }else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -347,7 +414,7 @@ const UpdateModel = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Select Brand
+            Select Device
           </Typography>
 
           <FormControl
@@ -395,6 +462,7 @@ const UpdateModel = ({ clearFilter, row }) => {
               ))}
             </Select>
           </FormControl>
+
           <Typography
             variant="medium"
             color="text.main"
@@ -407,6 +475,7 @@ const UpdateModel = ({ clearFilter, row }) => {
             fullWidth
             size="small"
             sx={{
+              mb: 3,
               ...customeSelectFeild,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
@@ -444,6 +513,10 @@ const UpdateModel = ({ clearFilter, row }) => {
               <MenuItem value={false}>Inactive</MenuItem>
             </Select>
           </FormControl>
+
+          <Box>
+            <ImageUpload file={file} setFile={setFile} />
+          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

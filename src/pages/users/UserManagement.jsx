@@ -128,12 +128,14 @@ const IOSSwitch = styled((props) => (
 
 const UserManagement = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [mainUserList, setMainUserList] = useState([]);
   const [userList, setUserList] = useState([]);
   const [userData, setUserData] = useState();
   const [name, setName] = useState("");
   const [permissionList, setPermissionList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
   const [loading3, setLoading3] = useState(false);
   const [message, setMessage] = useState("");
   const [loading2, setLoading2] = useState(false);
@@ -256,7 +258,10 @@ const UserManagement = () => {
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       setLoading3(false);
       handleSnakbarOpen("Updeated successfully", "success");
@@ -274,24 +279,24 @@ const UserManagement = () => {
     // }
   };
   const getPermissionData = async (pageNO, limit, newUrl) => {
-    try {
-      setLoading(true);
-      let url = `/api/v1/permission`;
-      let allData = await getDataWithToken(url);
-
-      if (allData.status >= 200 && allData.status < 300) {
-        transformPermissionData(allData?.data?.data);
-
-        if (allData.data.data.length < 1) {
-          setMessage("No data found");
-        }
-      }
-      setLoading(false);
-    } catch (error) {
-      console.log("error", error);
-      setLoading(false);
-      handleSnakbarOpen(error.response.data.message.toString(), "error");
+    setLoading(true);
+    let url = `/api/v1/permission`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
     }
+    if (allData.status >= 200 && allData.status < 300) {
+      transformPermissionData(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading(false);
   };
 
   const transformPermissionData = (permissions) => {
@@ -375,7 +380,10 @@ const UserManagement = () => {
 
     let url = `/api/v1/user/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setMainUserList(allData?.data?.data);
       setUserList(allData?.data?.data);
@@ -383,6 +391,9 @@ const UserManagement = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -563,7 +574,11 @@ const UserManagement = () => {
                 </Typography>
               </Grid>
               <Grid size={6} sx={{ textAlign: "right" }}>
+                {ifixit_admin_panel?.user?.permission?.includes("add_user") && 
+                
                 <AddUser getUser={getUser} />
+                }
+                     {ifixit_admin_panel?.user?.permission?.includes("update_user") && 
                 <Button
                   variant="contained"
                   color="info"
@@ -574,6 +589,7 @@ const UserManagement = () => {
                     px: 2,
                     borderRadius: "6px",
                     minWidth: "150px",
+                    height: "43px",
                     ml: 1,
                   }}
                   onClick={onSubmit}
@@ -598,12 +614,12 @@ const UserManagement = () => {
                 >
                   <PulseLoader
                     color={"#4B46E5"}
-                    loading={loading}
+                    loading={loading3}
                     size={10}
                     speedMultiplier={0.5}
                   />{" "}
-                  {loading === false && "Update User"}
-                </Button>
+                  {loading3 === false && "Update User"}
+                </Button>}
               </Grid>
             </Grid>
 

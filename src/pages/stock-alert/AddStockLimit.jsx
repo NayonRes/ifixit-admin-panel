@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -92,6 +94,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 const AddStockLimit = ({ clearFilter }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
   const [supplier, setSupplier] = useState("");
@@ -180,7 +183,10 @@ const AddStockLimit = ({ clearFilter }) => {
       const responses = await Promise.all(promises);
 
       // Handle all responses
-
+      if (responses?.status === 401) {
+        logout();
+        return;
+      }
       const allVariationAddedSuccessfully = responses.every(
         (item) => item.data.status >= 200 && item.data.status < 300
       );
@@ -328,13 +334,19 @@ const AddStockLimit = ({ clearFilter }) => {
 
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -344,7 +356,10 @@ const AddStockLimit = ({ clearFilter }) => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       let newBranchWithLimit = allData?.data?.data?.map((item) => ({
         ...item,
@@ -357,6 +372,9 @@ const AddStockLimit = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -366,13 +384,19 @@ const AddStockLimit = ({ clearFilter }) => {
 
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -398,13 +422,19 @@ const AddStockLimit = ({ clearFilter }) => {
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setProductList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setSearchLoading(false);
   };
@@ -804,6 +834,7 @@ const AddStockLimit = ({ clearFilter }) => {
                   sx={{ ...customeTextFeild }}
                   value={item?.limit}
                   onChange={(e) => handleLimitChange(i, e.target.value)}
+                  onWheel={(e) => e.target.blur()}
                 />
               </Grid>
             ))}

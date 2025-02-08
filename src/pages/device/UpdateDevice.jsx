@@ -1,12 +1,6 @@
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -16,25 +10,10 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
-import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import EmailIcon from "@mui/icons-material/Email";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -43,53 +22,23 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
+import ImageUpload from "../../utils/ImageUpload";
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-const form = {
-  padding: "50px",
-  background: "#fff",
-  borderRadius: "10px",
-  width: "400px",
-  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-};
 const UpdateDevice = ({ clearFilter, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
+  const [file, setFile] = useState(null);
+  const [iconFile, setIconFile] = useState(null);
   const [status, setStatus] = useState("");
   const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
+  const dropzoneRef = useRef(null);
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
@@ -112,9 +61,11 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
   const clearForm = () => {
     setName("");
-
+    setFile(null);
+    setIconFile(null);
     setStatus("");
   };
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -125,20 +76,34 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
     // formdata.append("parent_id", parent_id);
 
-    let data = {
-      name: name.trim(),
-      parent_name: parent_id.trim(),
-      status: status,
-    };
+    // let data = {
+    //   name: name.trim(),
+    //   parent_name: parent_id.trim(),
+    //   status: status,
+    // };
 
+    var formdata = new FormData();
+    formdata.append("name", name.trim());
+
+    formdata.append("parent_name", parent_id.trim());
+    formdata.append("status", status);
+    if (file) {
+      formdata.append("image", file);
+    }
+    if (iconFile) {
+      formdata.append("icon", iconFile);
+    }
     let response = await handlePutData(
       `/api/v1/device/update/${row?._id}`,
-      data,
-      false
+      formdata,
+      true
     );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
       clearFilter(); // this is for get the table list again
@@ -185,7 +150,6 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -217,13 +181,19 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    }else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -379,6 +349,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             fullWidth
             size="small"
             sx={{
+              mb: 3,
               ...customeSelectFeild,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
@@ -388,7 +359,6 @@ const UpdateDevice = ({ clearFilter, row }) => {
                 position: "relative",
                 top: "2px",
               },
-              mb: 3,
             }}
           >
             {parent_id?.length < 1 && (
@@ -420,6 +390,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
               ))}
             </Select>
           </FormControl>
+
           <Typography
             variant="medium"
             color="text.main"
@@ -432,6 +403,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             fullWidth
             size="small"
             sx={{
+              mb: 3,
               ...customeSelectFeild,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
@@ -469,6 +441,29 @@ const UpdateDevice = ({ clearFilter, row }) => {
               <MenuItem value={false}>Inactive</MenuItem>
             </Select>
           </FormControl>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Device Image
+          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <ImageUpload file={file} setFile={setFile} />
+          </Box>
+
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Device Icon
+          </Typography>
+          <Box>
+            <ImageUpload file={iconFile} setFile={setIconFile} />
+          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -90,6 +92,7 @@ const Item = styled(Paper)(({ theme }) => ({
 const UpdateStockTransfer = ({ clearFilter }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
   const [supplier, setSupplier] = useState("");
@@ -182,6 +185,10 @@ const UpdateStockTransfer = ({ clearFilter }) => {
     );
 
     console.log("response", response);
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
 
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
@@ -331,7 +338,10 @@ const UpdateStockTransfer = ({ clearFilter }) => {
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setSearchLoading(false);
 
@@ -414,13 +424,19 @@ const UpdateStockTransfer = ({ clearFilter }) => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -431,7 +447,10 @@ const UpdateStockTransfer = ({ clearFilter }) => {
     let url = `/api/v1/transferStock/${encodeURIComponent(id.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       // setTableDataList(allData?.data?.data);
       setTransferFrom(allData?.data?.data?.transfer_from);
@@ -462,6 +481,9 @@ const UpdateStockTransfer = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading3(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading3(false);
   };
@@ -712,6 +734,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                 onChange={(e) => {
                   setShippingCharge(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
             </Grid>
             <Grid size={8}>

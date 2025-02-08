@@ -62,6 +62,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const SparePartsList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -172,11 +173,17 @@ const SparePartsList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 10;
 
+    if (
+      ifixit_admin_panel?.user?.permission?.includes("view_spare_parts_details")
+    ) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(12).keys()].map((e, i) => (
+          {[...Array(11).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -268,6 +275,10 @@ const SparePartsList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
 
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
@@ -277,6 +288,9 @@ const SparePartsList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
@@ -300,13 +314,19 @@ const SparePartsList = () => {
 
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -316,13 +336,19 @@ const SparePartsList = () => {
 
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -332,13 +358,19 @@ const SparePartsList = () => {
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -347,13 +379,19 @@ const SparePartsList = () => {
 
     let url = `/api/v1/model/device-model?deviceId=${id}`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -380,7 +418,43 @@ const SparePartsList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          <AddSpareParts clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes(
+            "add_spare_parts"
+          ) && (
+            <Button
+              variant="contained"
+              disableElevation
+              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+              component={Link}
+              to="/add-spare-parts"
+              // onClick={() => {
+              //   setAddDialog(true);
+              //   getCategoryList();
+              //   getBrandList();
+              //   getDeviceList();
+              // }}
+              startIcon={
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+                    stroke="white"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+            >
+              Add Spare Parts
+            </Button>
+          )}
+          {/* <AddSpareParts clearFilter={clearFilter} /> */}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -444,11 +518,10 @@ const SparePartsList = () => {
               >
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
-                    required
                     size="small"
                     fullWidth
                     id="name"
-                    placeholder="Full Name"
+                    label="Full Name"
                     variant="outlined"
                     sx={{ ...customeTextFeild }}
                     value={name}
@@ -667,15 +740,18 @@ const SparePartsList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Description
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "view_spare_parts_details"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -733,9 +809,9 @@ const SparePartsList = () => {
                         {row?.sparePart_id ? row?.sparePart_id : "---------"}
                       </TableCell>
 
-                      <TableCell sx={{ minWidth: "150px" }}>
+                      {/* <TableCell sx={{ minWidth: "150px" }}>
                         {row?.description ? row?.description : "---------"}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell sx={{ minWidth: "150px" }}>
                         {row?.remarks ? row?.remarks : "---------"}
                       </TableCell>
@@ -782,25 +858,29 @@ const SparePartsList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="info"
-                          startIcon={<ListAltOutlinedIcon />}
-                          component={Link}
-                          to={`/spare-parts/${row?._id}`}
-                        >
-                          Details
-                        </Button>
-                        {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
-                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "view_spare_parts_details"
+                      ) && (
+                        <TableCell align="right">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="info"
+                            startIcon={<ListAltOutlinedIcon />}
+                            component={Link}
+                            to={`/spare-parts/${row?._id}`}
+                          >
+                            Details
+                          </Button>
+                          {/* <UpdateSpareParts clearFilter={clearFilter} row={row} /> */}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={10} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

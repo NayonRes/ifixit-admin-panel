@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -49,6 +51,7 @@ import {
   ratingList,
   roleList,
 } from "../../data";
+import TextEditor from "../../utils/TextEditor";
 
 const baseStyle = {
   flex: 1,
@@ -87,6 +90,7 @@ const form = {
 };
 const UpdateSpareParts = ({ getData, row }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [convertedContent, setConvertedContent] = useState("");
@@ -210,7 +214,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     formData.append("device_id", deviceId);
     formData.append("model_id", modelId);
     formData.append("warranty", warranty);
-    formData.append("price", price);
+    // formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
     {
@@ -224,6 +228,10 @@ const UpdateSpareParts = ({ getData, row }) => {
     );
 
     console.log("response", response);
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
 
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
@@ -271,7 +279,6 @@ const UpdateSpareParts = ({ getData, row }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -302,13 +309,19 @@ const UpdateSpareParts = ({ getData, row }) => {
 
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -318,13 +331,19 @@ const UpdateSpareParts = ({ getData, row }) => {
 
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -334,13 +353,19 @@ const UpdateSpareParts = ({ getData, row }) => {
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -349,13 +374,19 @@ const UpdateSpareParts = ({ getData, row }) => {
 
     let url = `/api/v1/model/device-model?deviceId=${id}`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -373,11 +404,11 @@ const UpdateSpareParts = ({ getData, row }) => {
 
     setModelId(row?.model_id);
     setWarranty(row?.warranty);
-    setPrice(row?.price);
+    // setPrice(row?.price);
     setDetails(row?.description);
     setRemarks(row?.remarks);
     // setStatus(row?.status);
-  }, []);
+  }, [row]);
   return (
     <>
       {/* <Button
@@ -497,7 +528,7 @@ const UpdateSpareParts = ({ getData, row }) => {
           }}
         >
           <Grid container spacing={2}>
-            <Grid size={12}>
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -762,9 +793,10 @@ const UpdateSpareParts = ({ getData, row }) => {
                 onChange={(e) => {
                   setWarranty(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
             </Grid>
-            <Grid size={6}>
+            {/* <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -787,36 +819,7 @@ const UpdateSpareParts = ({ getData, row }) => {
                   setPrice(e.target.value);
                 }}
               />
-            </Grid>
-
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Description
-              </Typography>
-              <TextField
-                multiline
-                rows={2}
-                size="small"
-                fullWidth
-                id="membershipId"
-                placeholder="Add Note"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={details}
-                onChange={(e) => {
-                  setDetails(e.target.value);
-                }}
-              />
-              {/* <TextEditor
-                convertedContent={convertedContent}
-                setConvertedContent={setConvertedContent}
-              /> */}
-            </Grid>
+            </Grid> */}
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -828,7 +831,7 @@ const UpdateSpareParts = ({ getData, row }) => {
               </Typography>
               <TextField
                 multiline
-                rows={2}
+                rows={1}
                 size="small"
                 fullWidth
                 id="membershipId"
@@ -841,6 +844,37 @@ const UpdateSpareParts = ({ getData, row }) => {
                 }}
               />
             </Grid>
+
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Description
+              </Typography>
+              {/* <TextField
+                multiline
+                rows={2}
+                size="small"
+                fullWidth
+                id="membershipId"
+                placeholder="Add Note"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={details}
+                onChange={(e) => {
+                  setDetails(e.target.value);
+                }}
+              /> */}
+              <TextEditor
+                convertedContent={details}
+                setConvertedContent={setDetails}
+                data={details}
+              />
+            </Grid>
+
             <Grid size={12}>
               {/* <Typography
                 variant="medium"
@@ -850,64 +884,6 @@ const UpdateSpareParts = ({ getData, row }) => {
               >
                 Add Note
               </Typography> */}
-
-              {/* <Box {...getRootProps({ style })}>
-                <input {...getInputProps()} />
-
-                <Grid container justifyContent="center">
-                  <Box
-                    sx={{
-                      mb: 1.5,
-                      p: 1.125,
-                      paddingBottom: "3px",
-                      borderRadius: "8px",
-                      border: "1px solid #EAECF0",
-                      boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                    >
-                      <path
-                        d="M6.66666 13.3333L9.99999 10M9.99999 10L13.3333 13.3333M9.99999 10V17.5M16.6667 13.9524C17.6846 13.1117 18.3333 11.8399 18.3333 10.4167C18.3333 7.88536 16.2813 5.83333 13.75 5.83333C13.5679 5.83333 13.3975 5.73833 13.3051 5.58145C12.2184 3.73736 10.212 2.5 7.91666 2.5C4.46488 2.5 1.66666 5.29822 1.66666 8.75C1.66666 10.4718 2.36286 12.0309 3.48911 13.1613"
-                        stroke="#344054"
-                        stroke-width="1.66667"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </Box>
-                </Grid>
-                <Box sx={{ pl: 1.5, textAlign: "center" }}>
-                  <Typography
-                    variant="base"
-                    color="text.fade"
-                    sx={{ fontWeight: 400, mb: 0.5 }}
-                  >
-                    <span style={{ color: "#4238CA", fontWeight: 500 }}>
-                      {" "}
-                      Click to upload{" "}
-                    </span>
-                    or drag and drop
-                  </Typography>
-                  <Typography variant="medium" color="text.fade">
-                    PNG, JPG (max. 400x400px)
-                  </Typography>
-                  {file?.path?.length > 0 && (
-                    <Typography
-                      variant="medium"
-                      color="text.light"
-                      sx={{ mt: 1 }}
-                    >
-                      <b>Uploaded:</b> {file?.path} - {file?.size} bytes
-                    </Typography>
-                  )}
-                </Box>
-              </Box> */}
             </Grid>
           </Grid>
         </DialogContent>

@@ -61,6 +61,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const DeviceList = () => {
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -160,11 +161,15 @@ const DeviceList = () => {
 
   const pageLoading = () => {
     let content = [];
+    let loadingNumber = 4;
 
+    if (ifixit_admin_panel?.user?.permission?.includes("update_device")) {
+      loadingNumber = loadingNumber + 1;
+    }
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(3).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>
@@ -181,6 +186,10 @@ const DeviceList = () => {
         url: `/api/v1/user/delete/${deleteData.row._id}`,
         method: "delete",
       });
+      if (response?.status === 401) {
+        logout();
+        return;
+      }
       if (response.status >= 200 && response.status < 300) {
         handleSnakbarOpen("Deleted successfully", "success");
         getData();
@@ -252,7 +261,10 @@ const DeviceList = () => {
       }`;
     }
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
@@ -261,6 +273,9 @@ const DeviceList = () => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading(false);
   };
@@ -297,7 +312,9 @@ const DeviceList = () => {
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          <AddDevice clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_device") && (
+            <AddDevice clearFilter={clearFilter} />
+          )}
 
           {/* <IconButton
             onClick={() => setOpen(!open)}
@@ -449,13 +466,19 @@ const DeviceList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
+                    Name
+                  </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-
-                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                    Actions
-                  </TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_device"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -466,7 +489,58 @@ const DeviceList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
+                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                        {/* {row?.image?.url?.length > 0 ? (
+                                                <> */}
+                        <img
+                          src={
+                            row?.icon?.url?.length > 0
+                              ? row?.icon?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "6px",
+                            width: "20px",
+                            height: "40px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+
+                        {/* </>
+                                              ) : (
+                                                "No Image"
+                                              )} */}
+                      </TableCell>
+                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                        {/* {row?.image?.url?.length > 0 ? (
+                                                <> */}
+                        <img
+                          src={
+                            row?.image?.url?.length > 0
+                              ? row?.image?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "6px",
+                            width: "20px",
+                            height: "40px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+
+                        {/* </>
+                                              ) : (
+                                                "No Image"
+                                              )} */}
+                      </TableCell>
                       <TableCell>{row?.name}</TableCell>
+                      {/* <TableCell>{row?.parent_name}</TableCell> */}
 
                       <TableCell>
                         {row?.status ? (
@@ -511,10 +585,13 @@ const DeviceList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
-                      <TableCell align="right">
-                        <UpdateDevice clearFilter={clearFilter} row={row} />
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_device"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateDevice clearFilter={clearFilter} row={row} />
 
-                        {/* <IconButton
+                          {/* <IconButton
                           variant="contained"
                           disableElevation
                           onClick={() => handleDeleteDialog(i, row)}
@@ -541,13 +618,14 @@ const DeviceList = () => {
                             />
                           </svg>
                         </IconButton> */}
-                      </TableCell>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
                   <TableRow>
-                    <TableCell colSpan={15} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -80,13 +82,17 @@ const form = {
 };
 const AddBranch = ({ clearFilter }) => {
   const navigate = useNavigate();
-
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
   const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [offDay, setOffDay] = useState("");
+  const [phoneNo, setPhoneNo] = useState();
+  const [address, setAddress] = useState();
 
   const [message, setMessage] = useState("");
 
@@ -135,18 +141,22 @@ const AddBranch = ({ clearFilter }) => {
     let response = await handlePostData("/api/v1/branch/create", data, false);
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
+      setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
       clearFilter(); // this is for get the table list again
 
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
-    setLoading(false);
     // }
   };
 
@@ -182,7 +192,6 @@ const AddBranch = ({ clearFilter }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -221,6 +230,9 @@ const AddBranch = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };

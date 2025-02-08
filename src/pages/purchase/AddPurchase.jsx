@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -12,11 +14,11 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Chip, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
@@ -47,6 +49,7 @@ import Paper from "@mui/material/Paper";
 import {
   customerTypeList,
   designationList,
+  paymentMethodList,
   paymentStatusList,
   purchaseStatusList,
   ratingList,
@@ -92,6 +95,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 const AddPurchase = ({ clearFilter }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [value, setValue] = useState(null);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
@@ -103,6 +107,7 @@ const AddPurchase = ({ clearFilter }) => {
   const [purchaseStatus, setPurchaseStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [paidAmount, setPaidAmount] = useState();
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [purchaseDate, setPurchaseDate] = useState(null);
   const [shippingCharge, setShippingCharge] = useState("");
   const [invoiceNo, setInvoiceNo] = useState("");
@@ -211,6 +216,8 @@ const AddPurchase = ({ clearFilter }) => {
     setPurchaseStatus("");
     setPaymentStatus("");
     setBrandId("");
+    setPaymentMethod("");
+    setPaidAmount("");
     setCategoryId("");
     setPrice("");
     setShippingCharge("");
@@ -255,6 +262,8 @@ const AddPurchase = ({ clearFilter }) => {
     formData.append("purchase_status", purchaseStatus);
     formData.append("payment_status", paymentStatus);
     formData.append("branch_id", branch);
+    formData.append("payment_method", paymentMethod);
+    formData.append("paid_amount", paidAmount ? paidAmount : 0);
     formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
 
     formData.append("remarks", remarks);
@@ -267,14 +276,18 @@ const AddPurchase = ({ clearFilter }) => {
     );
 
     console.log("response", response?.data?.data?._id);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       // await handleCreateSpareParts(variationList, response?.data?.data?._id);
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
-      clearFilter();
+      // clearFilter();
       clearForm();
       handleDialogClose();
+      navigate("/purchase-list");
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -410,13 +423,19 @@ const AddPurchase = ({ clearFilter }) => {
 
     let url = `/api/v1/brand/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -426,13 +445,19 @@ const AddPurchase = ({ clearFilter }) => {
 
     let url = `/api/v1/supplier/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setSupplierList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -441,13 +466,19 @@ const AddPurchase = ({ clearFilter }) => {
 
     let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -456,13 +487,19 @@ const AddPurchase = ({ clearFilter }) => {
 
     let url = `/api/v1/user/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setUserList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -472,13 +509,19 @@ const AddPurchase = ({ clearFilter }) => {
 
     let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -488,70 +531,121 @@ const AddPurchase = ({ clearFilter }) => {
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
   const getModelList = async (id) => {
     setLoading2(true);
 
-    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    // let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let url = `/api/v1/model/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
+  };
+  const getLastPurchaseItem = async (id) => {
+    setLoading2(true);
+
+    let url = `/api/v1/purchaseProduct/last-purchase?spare_parts_variation_id=${id}`;
+    let allData = await getDataWithToken(url);
+    console.log("last purchase item", allData?.data?.data[0]?.unit_price);
+    let last_purchase_price = allData?.data?.data[0]?.unit_price;
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      // setModelList(allData?.data?.data);
+      // return allData?.data?.data[0]?.unit_price;
+      // if (allData.data.data.length < 1) {
+      //   setMessage("No data found");
+      // }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+    return last_purchase_price;
   };
 
   const handleDeviceSelect = (e) => {
     setDeviceId(e.target.value);
     setModelId("");
-    getModelList(e.target.value);
+    // getModelList(e.target.value);
   };
 
-  const getProducts = async (searchText, catId, bId) => {
+  const getProducts = async (searchText, bId, dId, mId, catId) => {
     setSearchLoading(true);
     let url;
     let newSearchProductText = searchProductText;
-
-    let newCategoryId = categoryId;
     let newBrandId = brandId;
+    let newDeviceId = deviceId;
+    let newModelId = modelId;
+    let newCategoryId = categoryId;
     if (searchText) {
       newSearchProductText = searchText;
-    }
-    if (catId) {
-      newCategoryId = catId;
     }
     if (bId) {
       newBrandId = bId;
     }
+    if (dId) {
+      newDeviceId = dId;
+    }
+    if (mId) {
+      newModelId = mId;
+    }
+    if (catId) {
+      newCategoryId = catId;
+    }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
+    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setProductList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setSearchLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setSearchLoading(false);
   };
-  const handleSelectedProduct = (item) => {
+  const handleSelectedProduct = async (item, row) => {
     console.log("item", item);
 
     // spare_parts_id: element._id,
@@ -564,117 +658,59 @@ const AddPurchase = ({ clearFilter }) => {
         selectedProducts.filter((res) => res._id !== item._id)
       );
     } else {
+      const lastPurchasePrice = await getLastPurchaseItem(item._id);
       setSelectedProducts([
         ...selectedProducts,
         {
           ...item,
+          spare_parts_name: row.name,
           spare_parts_id: item.spare_parts_id,
           spare_parts_variation_id: item._id,
           purchase_product_status: "",
           quantity: "",
           unit_price: "",
+          last_purchase_price: lastPurchasePrice,
         },
       ]);
     }
   };
   useEffect(() => {
+    getSupplierList();
+    getCategoryList();
+    getBranchList();
+    getBrandList();
+    getUserList();
+    // getBrandList();
+    getDeviceList();
+    getModelList();
     // getDropdownList();
   }, []);
   return (
     <>
-      <Button
-        variant="contained"
-        disableElevation
-        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-        onClick={() => {
-          setAddDialog(true);
-          getSupplierList();
-          getCategoryList();
-          getBranchList();
-          getBrandList();
-          getUserList();
-          // getBrandList();
-          // getDeviceList();
-          // getDropdownList();
-        }}
-        startIcon={
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+      <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
+        <Grid size={6}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            <path
-              d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        }
-      >
-        Add Purchase
-      </Button>
-
-      <Dialog
-        open={addDialog}
-        onClose={handleDialogClose}
-        sx={{
-          "& .MuiPaper-root": {
-            borderRadius: "16px", // Customize the border-radius here
-          },
+            Add Purchase
+          </Typography>
+        </Grid>
+        <Grid size={6} style={{ textAlign: "right" }}></Grid>
+      </Grid>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          padding: "16px",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
         }}
-        PaperProps={{
-          component: "form",
-          onSubmit: onSubmit,
-        }}
-        maxWidth="xl"
       >
-        <DialogTitle
-          id="alert-dialog-title"
-          sx={{
-            fontSize: "20px",
-            fontFamily: '"Inter", sans-serif',
-            fontWeight: 600,
-            color: "#0F1624",
-            position: "relative",
-            px: 2,
-            borderBottom: "1px solid #EAECF1",
-          }}
-        >
-          Add Purchase
-          <IconButton
-            sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => setAddDialog(false)}
-          >
-            <svg
-              width="46"
-              height="44"
-              viewBox="0 0 46 44"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M29 16L17 28M17 16L29 28"
-                stroke="#656E81"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </IconButton>
-        </DialogTitle>
-        <DialogContent
-          sx={{
-            maxWidth: "1100px",
-            minWidth: "1100px",
-            px: 2,
-            borderBottom: "1px solid #EAECF1",
-            my: 1,
-          }}
-        >
+        <form onSubmit={onSubmit}>
           <Grid container spacing={2}>
             {/* <Grid size={6}>
               <Typography
@@ -960,7 +996,7 @@ const AddPurchase = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={6}>
+            {/* <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -1014,7 +1050,7 @@ const AddPurchase = ({ clearFilter }) => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -1037,6 +1073,7 @@ const AddPurchase = ({ clearFilter }) => {
                 onChange={(e) => {
                   setShippingCharge(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
             </Grid>
             {/* <Grid size={4}>
@@ -1062,15 +1099,69 @@ const AddPurchase = ({ clearFilter }) => {
                   setInvoiceNo(e.target.value);
                 }}
               />
-            </Grid>
-            <Grid size={4}>
+            </Grid>*/}
+            <Grid size={6}>
               <Typography
                 variant="medium"
                 color="text.main"
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Paid Amount *
+                Payment Method
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {paymentMethod?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Purchase Method
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="paymentStatus"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  {paymentMethodList?.map((item) => (
+                    <MenuItem key={item?._id} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Paid Amount
               </Typography>
               <TextField
                 size="small"
@@ -1084,8 +1175,9 @@ const AddPurchase = ({ clearFilter }) => {
                 onChange={(e) => {
                   setPaidAmount(e.target.value);
                 }}
+                onWheel={(e) => e.target.blur()}
               />
-            </Grid> */}
+            </Grid>
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -1111,112 +1203,15 @@ const AddPurchase = ({ clearFilter }) => {
             <Grid size={12}>
               <Divider />
             </Grid>
-            <Grid size={8}>
+            <Grid size={12}>
               <Typography
-                variant="medium"
-                color="text.main"
+                variant="base"
                 gutterBottom
                 sx={{ fontWeight: 500 }}
+                onClick={() => console.log(selectedProducts)}
               >
-                Search Product *
+                Search Product
               </Typography>
-              <TextField
-                size="small"
-                fullWidth
-                id="searchProductText"
-                placeholder="Search Product"
-                variant="outlined"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
-                            stroke="#85888E"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                sx={{ ...customeTextFeild }}
-                value={searchProductText}
-                onChange={(e) => {
-                  setsearchProductText(e.target.value);
-                  getProducts(e.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={2}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Category
-              </Typography>
-
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
-                }}
-              >
-                {categoryId?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Category
-                  </InputLabel>
-                )}
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="categoryId"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={categoryId}
-                  // onChange={(e) => setCategoryId(e.target.value)}
-
-                  onChange={(e) => {
-                    setCategoryId(e.target.value);
-                    getProducts(null, e.target.value);
-                  }}
-                >
-                  {categoryList
-                    ?.filter((obj) => obj.name !== "Primary")
-                    ?.map((item) => (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
             </Grid>
             <Grid size={2}>
               <Typography
@@ -1266,7 +1261,7 @@ const AddPurchase = ({ clearFilter }) => {
 
                   onChange={(e) => {
                     setBrandId(e.target.value);
-                    getProducts(null, null, e.target.value);
+                    getProducts(null, e.target.value);
                   }}
                 >
                   {brandList
@@ -1279,13 +1274,237 @@ const AddPurchase = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={12}>
+            <Grid size={2}>
               <Typography
-                variant="base"
+                variant="medium"
+                color="text.main"
                 gutterBottom
                 sx={{ fontWeight: 500 }}
-                onClick={() => console.log(selectedProducts)}
               >
+                Device
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {deviceId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Brand
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="deviceId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={deviceId}
+                  // onChange={(e) => setBrandId(e.target.value)}
+
+                  onChange={(e) => {
+                    setDeviceId(e.target.value);
+                    getProducts(null, null, e.target.value);
+                  }}
+                >
+                  {deviceList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={2}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Model
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {modelId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Model
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="modelId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={modelId}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setModelId(e.target.value);
+                    getProducts(null, null, null, e.target.value);
+                  }}
+                >
+                  {modelList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={2}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Category
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {categoryId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Category
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="categoryId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={categoryId}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setCategoryId(e.target.value);
+                    getProducts(null, null, null, null, e.target.value);
+                  }}
+                >
+                  {categoryList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Search Product *
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                id="searchProductText"
+                placeholder="Search Product"
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                            stroke="#85888E"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{ ...customeTextFeild }}
+                value={searchProductText}
+                onChange={(e) => {
+                  setsearchProductText(e.target.value);
+                  getProducts(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={12}>
+              <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
                 All Product
               </Typography>
               <Box sx={{ flexGrow: 1 }}>
@@ -1308,7 +1527,7 @@ const AddPurchase = ({ clearFilter }) => {
                                     (pro) => pro?._id === item?._id
                                   ) && "1px solid #818FF8",
                               }}
-                              onClick={() => handleSelectedProduct(item)}
+                              onClick={() => handleSelectedProduct(item, row)}
                             >
                               {" "}
                               <Box sx={{ flexGrow: 1 }}>
@@ -1348,7 +1567,12 @@ const AddPurchase = ({ clearFilter }) => {
                                           marginRight: 1, // Optional for spacing
                                         }}
                                       >
-                                        {item?.name}
+                                        {" "}
+                                        {row?.name}
+                                        <br />
+                                        <span style={{ color: "#424949" }}>
+                                          {item?.name}
+                                        </span>
                                       </Typography>
                                       <Checkbox
                                         sx={{
@@ -1517,6 +1741,9 @@ const AddPurchase = ({ clearFilter }) => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Price
                         </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Last Purchase Price
+                        </TableCell>
 
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Subtotal
@@ -1539,9 +1766,13 @@ const AddPurchase = ({ clearFilter }) => {
                               "&:last-child td, &:last-child th": { border: 0 },
                             }}
                           >
-                            <TableCell sx={{ minWidth: "130px" }}>
+                            <TableCell sx={{ minWidth: "200px" }}>
                               {" "}
-                              {item.name}
+                              {item?.spare_parts_name}
+                              <br />
+                              <span style={{ color: "#424949" }}>
+                                {item.name}
+                              </span>
                             </TableCell>
                             <TableCell sx={{ minWidth: "180px" }}>
                               <FormControl
@@ -1642,6 +1873,7 @@ const AddPurchase = ({ clearFilter }) => {
                                     )
                                   );
                                 }}
+                                onWheel={(e) => e.target.blur()}
                               />
                             </TableCell>
                             <TableCell sx={{ minWidth: "130px" }}>
@@ -1671,15 +1903,30 @@ const AddPurchase = ({ clearFilter }) => {
                                     )
                                   );
                                 }}
+                                onWheel={(e) => e.target.blur()}
                               />
                             </TableCell>
-
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              <Chip
+                                label={
+                                  item?.last_purchase_price
+                                    ? item?.last_purchase_price
+                                    : "N/A"
+                                }
+                                sx={{
+                                  background: "#FDE8E8",
+                                  color: "#E02424",
+                                  px: 2,
+                                }}
+                              />
+                            </TableCell>
                             <TableCell sx={{ minWidth: "130px" }}>
                               {item?.quantity && item?.unit_price
                                 ? parseInt(item?.quantity) *
                                   parseFloat(item?.unit_price).toFixed(2)
                                 : 0}
                             </TableCell>
+
                             <TableCell
                               sx={{ minWidth: "130px", textAlign: "right" }}
                             >
@@ -1731,50 +1978,54 @@ const AddPurchase = ({ clearFilter }) => {
               </Box>
             </Grid>
           </Grid>
-        </DialogContent>
 
-        <DialogActions sx={{ px: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={handleDialogClose}
-            sx={{
-              px: 2,
-              py: 1.25,
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#344054",
-              border: "1px solid #D0D5DD",
-              boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-            }}
+          <Box
+            sx={{ p: 2, marginTop: "1px solid #EAECF0", textAlign: "right" }}
           >
-            Close
-          </Button>
-          <Button
-            variant="contained"
-            disabled={loading}
-            type="submit"
-            sx={{
-              px: 2,
-              py: 1.25,
-              fontSize: "14px",
-              fontWeight: 600,
-              minWidth: "127px",
-              minHeight: "44px",
-            }}
-            // style={{ minWidth: "180px", minHeight: "35px" }}
-            autoFocus
-            disableElevation
-          >
-            <PulseLoader
-              color={"#4B46E5"}
-              loading={loading}
-              size={10}
-              speedMultiplier={0.5}
-            />{" "}
-            {loading === false && "Save changes"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <Button
+              variant="outlined"
+              sx={{
+                mr: 2,
+                px: 2,
+                py: 1.25,
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#344054",
+                border: "1px solid #D0D5DD",
+                boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+              }}
+              component={Link}
+              to="/purchase-list"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              disabled={loading}
+              type="submit"
+              sx={{
+                px: 2,
+                py: 1.25,
+                fontSize: "14px",
+                fontWeight: 600,
+                minWidth: "127px",
+                minHeight: "44px",
+              }}
+              // style={{ minWidth: "180px", minHeight: "35px" }}
+
+              disableElevation
+            >
+              <PulseLoader
+                color={"#4B46E5"}
+                loading={loading}
+                size={10}
+                speedMultiplier={0.5}
+              />{" "}
+              {loading === false && "Save changes"}
+            </Button>
+          </Box>
+        </form>
+      </div>
     </>
   );
 };

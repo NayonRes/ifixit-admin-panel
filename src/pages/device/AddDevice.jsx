@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -16,25 +18,11 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
-
-import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import EmailIcon from "@mui/icons-material/Email";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -42,35 +30,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import ImageUpload from "../../utils/ImageUpload";
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
 const form = {
   padding: "50px",
   background: "#fff",
@@ -80,13 +41,17 @@ const form = {
 };
 const AddDevice = ({ clearFilter }) => {
   const navigate = useNavigate();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
   const [branchList, setBranchList] = useState([]);
+  const [file, setFile] = useState(null);
+  const [iconFile, setIconFile] = useState(null);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
+  const dropzoneRef = useRef(null);
 
   const [message, setMessage] = useState("");
 
@@ -114,26 +79,41 @@ const AddDevice = ({ clearFilter }) => {
   const clearForm = () => {
     setName("");
     setParent_id("");
+    setFile(null);
+    setIconFile(null);
   };
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
+    let formdata = new FormData();
+    formdata.append("name", name.trim());
 
-    // formdata.append("parent_id", parent_id);
+    formdata.append("parent_name", parent_id.trim());
+    if (file) {
+      formdata.append("image", file);
+    }
+    if (iconFile) {
+      formdata.append("icon", iconFile);
+    }
 
-    let data = {
-      name: name.trim(),
-      parent_name: parent_id.trim(),
-    };
+    // let data = {
+    //   name: name.trim(),
+    //   parent_name: parent_id.trim(),
+    // };
 
-    let response = await handlePostData("/api/v1/device/create", data, false);
+    let response = await handlePostData(
+      "/api/v1/device/create",
+      formdata,
+      true
+    );
 
     console.log("response", response);
-
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
       clearFilter(); // this is for get the table list again
@@ -180,7 +160,6 @@ const AddDevice = ({ clearFilter }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -212,6 +191,27 @@ const AddDevice = ({ clearFilter }) => {
 
     let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+  const getDropdownListWithChildren = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/parent-child-list`;
+    let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
@@ -219,6 +219,9 @@ const AddDevice = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
     }
     setLoading2(false);
   };
@@ -232,6 +235,7 @@ const AddDevice = ({ clearFilter }) => {
         onClick={() => {
           setAddDialog(true);
           getDropdownList();
+          // getDropdownListWithChildren();
         }}
         startIcon={
           <svg
@@ -345,6 +349,7 @@ const AddDevice = ({ clearFilter }) => {
             fullWidth
             size="small"
             sx={{
+              mb: 3,
               ...customeSelectFeild,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
@@ -385,6 +390,28 @@ const AddDevice = ({ clearFilter }) => {
               ))}
             </Select>
           </FormControl>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Device Image
+          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <ImageUpload file={file} setFile={setFile} />
+          </Box>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Device Icon
+          </Typography>
+          <Box>
+            <ImageUpload file={iconFile} setFile={setIconFile} />
+          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

@@ -4,7 +4,9 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useContext,
 } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
@@ -17,7 +19,7 @@ import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
@@ -42,10 +44,12 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
+import CircleIcon from "@mui/icons-material/Circle";
 import {
   customerTypeList,
   designationList,
   ratingList,
+  ratingList2,
   roleList,
 } from "../../data";
 
@@ -84,8 +88,10 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const UpdateCustomer = ({ clearFilter, row }) => {
+const UpdateCustomer = ({ clearFilter, row, setContactData }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
@@ -161,7 +167,12 @@ const UpdateCustomer = ({ clearFilter, row }) => {
 
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
-      clearFilter(); // this is for get the table list again
+      if (location.pathname?.includes("/repair-search")) {
+        setContactData(response?.data?.data);
+      }
+      if (!location.pathname?.includes("/repair-search")) {
+        clearFilter();
+      }
       clearForm();
       handleDialogClose();
     } else {
@@ -205,7 +216,6 @@ const UpdateCustomer = ({ clearFilter, row }) => {
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
- 
 
     "& label.Mui-focused": {
       color: "#E5E5E5",
@@ -271,32 +281,72 @@ const UpdateCustomer = ({ clearFilter, row }) => {
         Update Branch
       </Button> */}
 
-      <IconButton
-        variant="contained"
-        // color="success"
-        disableElevation
-        onClick={() => {
-          setUpdateDialog(true);
-        }}
-      >
-        {/* <EditOutlinedIcon /> */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          id="Outline"
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
+      {location.pathname.includes("/repair-search") ? (
+        <Button
+          variant="outlined"
+          color=""
+          // disabled={loading3}
+          disableElevation
+          // sx={{
+          //   py: 1.125,
+          //   px: 2,
+          //   borderRadius: "6px",
+          //   minWidth: "150px",
+          //   ml: 1,
+          // }}
+          onClick={() => {
+            setUpdateDialog(true);
+          }}
+          sx={{ border: "1px solid #666", color: "#666" }}
+          startIcon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              id="Outline"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+            >
+              <path
+                d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+                fill="#666"
+              />
+              <path
+                d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+                fill="#666"
+              />
+            </svg>
+          }
         >
-          <path
-            d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-            fill="#787878"
-          />
-          <path
-            d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-            fill="#787878"
-          />
-        </svg>
-      </IconButton>
+          Edit
+        </Button>
+      ) : (
+        <IconButton
+          variant="contained"
+          // color="success"
+          disableElevation
+          onClick={() => {
+            setUpdateDialog(true);
+          }}
+        >
+          {/* <EditOutlinedIcon /> */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            id="Outline"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+          >
+            <path
+              d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+              fill="#787878"
+            />
+            <path
+              d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+              fill="#787878"
+            />
+          </svg>
+        </IconButton>
+      )}
 
       <Dialog
         open={updateDialog}
@@ -393,12 +443,21 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                 size="small"
                 fullWidth
                 id="number"
+                type="number"
                 placeholder="Mobile Number"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={number}
+                // onChange={(e) => {
+                //   setNumber(e.target.value);
+                // }}
                 onChange={(e) => {
-                  setNumber(e.target.value);
+                  if (
+                    e.target.value.length <= 11 &&
+                    /^\d*$/.test(e.target.value)
+                  ) {
+                    setNumber(e.target.value);
+                  }
                 }}
               />
             </Grid>
@@ -527,9 +586,27 @@ const UpdateCustomer = ({ clearFilter, row }) => {
                   value={rating}
                   onChange={(e) => setRating(e.target.value)}
                 >
-                  {ratingList?.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
+                  {ratingList2?.map((item) => (
+                    <MenuItem key={item} value={item.name}>
+                      {/* <CircleIcon
+                        style={{ color: "red", height: "20px", width: "20px" }}
+                      />{" "}
+                      {item.name} */}
+
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <CircleIcon
+                          style={{
+                            color: ratingList2?.find(
+                              (res) => res?.name === item.name
+                            )?.color,
+                            height: "20px",
+                            width: "20px",
+                          }}
+                        />
+                        {item.name}
+                      </Box>
                     </MenuItem>
                   ))}
                 </Select>
