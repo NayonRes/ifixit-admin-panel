@@ -589,6 +589,58 @@ const UpdateUser = ({ clearFilter, row }) => {
               ))}
             </Select>
           </FormControl>
+
+
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Status
+          </Typography>
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+              mb: 3,
+            }}
+          >
+            {/* {parent_id?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Status
+              </InputLabel>
+            )} */}
+            <Select
+              // required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <MenuItem value={true}>Active</MenuItem>
+              <MenuItem value={false}>Inactive</MenuItem>
+            </Select>
+          </FormControl>
           <Box>
             <ImageUpload file={file} setFile={setFile} />
           </Box>

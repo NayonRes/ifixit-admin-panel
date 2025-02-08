@@ -22,6 +22,7 @@ import { useSnackbar } from "notistack";
 import { all } from "axios";
 import { getDataWithToken } from "../../services/GetDataService";
 import { handlePutData } from "../../services/PutDataService";
+import { PulseLoader } from "react-spinners";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
@@ -141,7 +142,7 @@ const RepairSearch = () => {
     console.log("allSparePartsModified", allSparePartsModified);
     setLoading(true);
     const data = {
-      customer_id: customer_id,
+      customer_id: customer_id || contactData?._id,
       branch_id: decodedToken?.user?.branch_id,
       pass_code: passCode,
       brand_id: brand_id,
@@ -194,6 +195,7 @@ const RepairSearch = () => {
       setLoading(true);
       handleSnakbarOpen(response?.data?.message, "error");
     }
+    setLoading(false);
   };
 
   const revampSparePars = (all) => {
@@ -585,8 +587,15 @@ const RepairSearch = () => {
                   onClick={handleSubmit}
                   // onClick={checkSum}
                   sx={buttonStyle}
+                  disabled={loading}
                 >
                   {searchParams.get("repairId") ? "Update" : "Submit"}
+                  <PulseLoader
+                    color={"#4B46E5"}
+                    loading={loading}
+                    size={10}
+                    speedMultiplier={0.5}
+                  />
                 </Button>
               </>
             )}
