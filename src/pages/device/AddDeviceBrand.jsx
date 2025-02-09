@@ -39,7 +39,7 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddDevice = ({ clearFilter }) => {
+const AddDeviceBrand = ({ clearFilter }) => {
   const navigate = useNavigate();
 
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -87,8 +87,8 @@ const AddDevice = ({ clearFilter }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (orderNo < 100) {
-      handleSnakbarOpen("Order No must be above 100", "error");
+    if (orderNo > 100) {
+      handleSnakbarOpen("Order No must be below 100", "error");
       return;
     }
     setLoading(true);
@@ -96,7 +96,7 @@ const AddDevice = ({ clearFilter }) => {
     let formdata = new FormData();
     formdata.append("name", name.trim());
 
-    formdata.append("parent_name", parent_id.trim());
+    formdata.append("parent_name", "Primary");
     formdata.append("order_no", orderNo);
     if (file) {
       formdata.append("image", file);
@@ -196,7 +196,7 @@ const AddDevice = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdownlist?parent_name=Primary`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -262,7 +262,7 @@ const AddDevice = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Device
+        Add Device Brand
       </Button>
 
       <Dialog
@@ -290,7 +290,7 @@ const AddDevice = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Device
+          Add Device Brand
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddDialog(false)}
@@ -327,7 +327,7 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Device Name
+            Brand Name
           </Typography>
           <TextField
             required
@@ -348,7 +348,7 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No (Above 100)
+            Order No (Below 100)
           </Typography>
           <TextField
             required
@@ -365,7 +365,7 @@ const AddDevice = ({ clearFilter }) => {
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -412,15 +412,13 @@ const AddDevice = ({ clearFilter }) => {
               value={parent_id}
               onChange={(e) => setParent_id(e.target.value)}
             >
-              {branchList
-                ?.filter((res) => res.name !== "Primary")
-                ?.map((item) => (
-                  <MenuItem key={item} value={item?.name}>
-                    {item?.name}
-                  </MenuItem>
-                ))}
+              {branchList?.map((item) => (
+                <MenuItem key={item} value={item?.name}>
+                  {item?.name}
+                </MenuItem>
+              ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
           <Typography
             variant="medium"
             color="text.main"
@@ -430,13 +428,9 @@ const AddDevice = ({ clearFilter }) => {
             Device Image
           </Typography>
           <Box sx={{ mb: 3 }}>
-            <ImageUpload
-              file={file}
-              setFile={setFile}
-              dimension="Dimensions (200 * 250)"
-            />
+            <ImageUpload file={file} setFile={setFile}  dimension="Dimensions (200 * 250)"/>
           </Box>
-          {/* <Typography
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -446,7 +440,7 @@ const AddDevice = ({ clearFilter }) => {
           </Typography>
           <Box>
             <ImageUpload file={iconFile} setFile={setIconFile} />
-          </Box> */}
+          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -495,4 +489,4 @@ const AddDevice = ({ clearFilter }) => {
   );
 };
 
-export default AddDevice;
+export default AddDeviceBrand;
