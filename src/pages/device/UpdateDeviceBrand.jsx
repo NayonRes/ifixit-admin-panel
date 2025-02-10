@@ -70,10 +70,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (orderNo > 100) {
-      handleSnakbarOpen("Order No must be below 100", "error");
-      return;
-    }
+  
     setLoading(true);
 
     // var formdata = new FormData();
@@ -88,9 +85,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
     // };
 
     var formdata = new FormData();
-    formdata.append("name", name.trim());
-
-    formdata.append("parent_name", "Primary");
+    formdata.append("name", name.trim()); 
     formdata.append("order_no", orderNo);
     formdata.append("status", status);
     if (file) {
@@ -100,7 +95,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
       formdata.append("icon", iconFile);
     }
     let response = await handlePutData(
-      `/api/v1/device/update/${row?._id}`,
+      `/api/v1/deviceBrand/update/${row?._id}`,
       formdata,
       true
     );
@@ -243,7 +238,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
       >
         {/* <EditOutlinedIcon /> */}

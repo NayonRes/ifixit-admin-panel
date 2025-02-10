@@ -473,7 +473,7 @@ const DeviceList = () => {
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Parent Device
+                    Device Brand
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Order No
@@ -543,7 +543,10 @@ const DeviceList = () => {
                                               )} */}
                       </TableCell>
                       <TableCell>{row?.name}</TableCell>
-                      <TableCell>{row?.parent_name}</TableCell>
+                      <TableCell>
+                        {row?.device_brand_data?.length > 0 &&
+                          row?.device_brand_data[0]?.name}
+                      </TableCell>
                       <TableCell>{row?.order_no}</TableCell>
                       {/* <TableCell>{row?.parent_name}</TableCell> */}
 

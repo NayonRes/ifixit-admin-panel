@@ -47,7 +47,7 @@ const AddDevice = ({ clearFilter }) => {
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
-  const [branchList, setBranchList] = useState([]);
+  const [deviceBrandList, setDeviceBrandList] = useState([]);
   const [file, setFile] = useState(null);
   const [iconFile, setIconFile] = useState(null);
   const [loading2, setLoading2] = useState(false);
@@ -87,16 +87,13 @@ const AddDevice = ({ clearFilter }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (orderNo < 100) {
-      handleSnakbarOpen("Order No must be above 100", "error");
-      return;
-    }
+
     setLoading(true);
 
     let formdata = new FormData();
     formdata.append("name", name.trim());
 
-    formdata.append("parent_name", parent_id.trim());
+    formdata.append("device_brand_id", parent_id.trim());
     formdata.append("order_no", orderNo);
     if (file) {
       formdata.append("image", file);
@@ -196,14 +193,14 @@ const AddDevice = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdownlist?parent_name=Primary`;
+    let url = `/api/v1/deviceBrand/dropdownlist?parent_name=Primary`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
       return;
     }
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      setDeviceBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -221,7 +218,7 @@ const AddDevice = ({ clearFilter }) => {
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      setDeviceBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -348,7 +345,7 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No (Above 100)
+            Order No
           </Typography>
           <TextField
             required
@@ -371,7 +368,7 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Device
+            Select Device Brand
           </Typography>
 
           <FormControl
@@ -395,7 +392,7 @@ const AddDevice = ({ clearFilter }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Device
+                Select Device Brand
               </InputLabel>
             )}
             <Select
@@ -412,13 +409,11 @@ const AddDevice = ({ clearFilter }) => {
               value={parent_id}
               onChange={(e) => setParent_id(e.target.value)}
             >
-              {branchList
-                ?.filter((res) => res.name !== "Primary")
-                ?.map((item) => (
-                  <MenuItem key={item} value={item?.name}>
-                    {item?.name}
-                  </MenuItem>
-                ))}
+              {deviceBrandList?.map((item) => (
+                <MenuItem key={item} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Typography

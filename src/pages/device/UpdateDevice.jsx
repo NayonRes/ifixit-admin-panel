@@ -33,7 +33,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const [file, setFile] = useState(null);
   const [iconFile, setIconFile] = useState(null);
   const [status, setStatus] = useState("");
-  const [branchList, setBranchList] = useState([]);
+  const [deviceBrandList, SetDeviceBrandList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderNo, setOrderNo] = useState();
@@ -70,10 +70,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (orderNo < 100) {
-      handleSnakbarOpen("Order No must be above 100", "error");
-      return;
-    }
+
     setLoading(true);
 
     // var formdata = new FormData();
@@ -90,7 +87,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
     var formdata = new FormData();
     formdata.append("name", name.trim());
 
-    formdata.append("parent_name", parent_id.trim());
+    formdata.append("device_brand_id", parent_id.trim());
     formdata.append("order_no", orderNo);
     formdata.append("status", status);
     if (file) {
@@ -185,14 +182,14 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdownlist?parent_name=Primary`;
+    let url = `/api/v1/deviceBrand/dropdownlist?parent_name=Primary`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
       return;
     }
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      SetDeviceBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -206,7 +203,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   useEffect(() => {
     setName(row?.name);
     setOrderNo(row?.order_no);
-    setParent_id(row?.parent_name === null ? "" : row?.parent_name);
+    setParent_id(row?.parent_name === null ? "" : row?.device_brand_id);
     setStatus(row?.status);
   }, [updateDialog]);
   return (
@@ -348,7 +345,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No (Above 100)
+            Order No
           </Typography>
           <TextField
             required
@@ -370,7 +367,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Device
+            Select Device Brand
           </Typography>
 
           <FormControl
@@ -394,7 +391,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Device
+                Select Device Brand
               </InputLabel>
             )}
             <Select
@@ -411,13 +408,11 @@ const UpdateDevice = ({ clearFilter, row }) => {
               value={parent_id}
               onChange={(e) => setParent_id(e.target.value)}
             >
-              {branchList
-                ?.filter((res) => res.name !== "Primary")
-                ?.map((item) => (
-                  <MenuItem key={item} value={item?.name}>
-                    {item?.name}
-                  </MenuItem>
-                ))}
+              {deviceBrandList?.map((item) => (
+                <MenuItem key={item} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -492,7 +487,11 @@ const UpdateDevice = ({ clearFilter, row }) => {
             Device Icon
           </Typography>
           <Box>
-            <ImageUpload file={iconFile} setFile={setIconFile}  dimension="Dimensions (200 * 250)"/>
+            <ImageUpload
+              file={iconFile}
+              setFile={setIconFile}
+              dimension="Dimensions (200 * 250)"
+            />
           </Box>
         </DialogContent>
 

@@ -87,16 +87,12 @@ const AddDeviceBrand = ({ clearFilter }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (orderNo > 100) {
-      handleSnakbarOpen("Order No must be below 100", "error");
-      return;
-    }
+
     setLoading(true);
 
     let formdata = new FormData();
     formdata.append("name", name.trim());
 
-    formdata.append("parent_name", "Primary");
     formdata.append("order_no", orderNo);
     if (file) {
       formdata.append("image", file);
@@ -111,7 +107,7 @@ const AddDeviceBrand = ({ clearFilter }) => {
     // };
 
     let response = await handlePostData(
-      "/api/v1/device/create",
+      "/api/v1/deviceBrand/create",
       formdata,
       true
     );
@@ -214,24 +210,7 @@ const AddDeviceBrand = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
-  const getDropdownListWithChildren = async () => {
-    setLoading2(true);
 
-    let url = `/api/v1/device/parent-child-list`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
   useEffect(() => {}, []);
   return (
     <>
@@ -241,7 +220,7 @@ const AddDeviceBrand = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          getDropdownList();
+          // getDropdownList();
           // getDropdownListWithChildren();
         }}
         startIcon={
@@ -428,7 +407,11 @@ const AddDeviceBrand = ({ clearFilter }) => {
             Device Image
           </Typography>
           <Box sx={{ mb: 3 }}>
-            <ImageUpload file={file} setFile={setFile}  dimension="Dimensions (200 * 250)"/>
+            <ImageUpload
+              file={file}
+              setFile={setFile}
+              dimension="Dimensions (200 * 250)"
+            />
           </Box>
           <Typography
             variant="medium"
