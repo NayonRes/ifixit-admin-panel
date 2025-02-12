@@ -446,16 +446,15 @@ const UpdateUser = ({ clearFilter, row }) => {
             size="small"
             fullWidth
             id="number"
+            type="number"
             placeholder="Enter Number"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}
-            inputProps={{
-              minLength: 11, // Minimum length
-              maxLength: 11, // Maximum length
-            }}
             value={number}
             onChange={(e) => {
-              setNumber(e.target.value);
+              if (e.target.value.length <= 11 && /^\d*$/.test(e.target.value)) {
+                setNumber(e.target.value);
+              }
             }}
           />
 
@@ -590,7 +589,6 @@ const UpdateUser = ({ clearFilter, row }) => {
             </Select>
           </FormControl>
 
-
           <Typography
             variant="medium"
             color="text.main"
@@ -642,7 +640,11 @@ const UpdateUser = ({ clearFilter, row }) => {
             </Select>
           </FormControl>
           <Box>
-            <ImageUpload file={file} setFile={setFile} />
+            <ImageUpload
+              file={file}
+              setFile={setFile}
+              dimension="Dimensions (1 * 1)"
+            />
           </Box>
         </DialogContent>
 

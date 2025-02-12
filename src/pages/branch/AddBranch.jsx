@@ -18,68 +18,19 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
-
-import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import EmailIcon from "@mui/icons-material/Email";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { designationList, roleList } from "../../data";
+import { days, designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import ImageUpload from "../../utils/ImageUpload";
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-const form = {
-  padding: "50px",
-  background: "#fff",
-  borderRadius: "10px",
-  width: "400px",
-  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-};
 const AddBranch = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -90,9 +41,11 @@ const AddBranch = ({ clearFilter }) => {
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [number, setNumber] = useState("");
   const [offDay, setOffDay] = useState("");
   const [phoneNo, setPhoneNo] = useState();
   const [address, setAddress] = useState();
+  const [file, setFile] = useState(null);
 
   const [message, setMessage] = useState("");
 
@@ -120,25 +73,36 @@ const AddBranch = ({ clearFilter }) => {
   const clearForm = () => {
     setName("");
     setParent_id("");
+    setAddress("");
+    setNumber("");
+    setFile(null);
+    setOffDay("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
+    var formdata = new FormData();
+    formdata.append("name", name);
+    formdata.append("phone_no_1", number);
+    formdata.append("address", address);
+    formdata.append("off_day", offDay);
 
-    // formdata.append("parent_id", parent_id);
+    if (file) {
+      formdata.append("image", file);
+    }
 
     let data = {
       name: name.trim(),
       parent_name: parent_id,
-
-      // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData("/api/v1/branch/create", data, false);
+    let response = await handlePostData(
+      "/api/v1/branch/create",
+      formdata,
+      true
+    );
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -282,6 +246,7 @@ const AddBranch = ({ clearFilter }) => {
           component: "form",
           onSubmit: onSubmit,
         }}
+        maxWidth="xl"
       >
         <DialogTitle
           id="alert-dialog-title"
@@ -319,88 +284,218 @@ const AddBranch = ({ clearFilter }) => {
         </DialogTitle>
         <DialogContent
           sx={{
-            maxWidth: "400px",
-            minWidth: "400px",
+            maxWidth: "800px",
+            minWidth: "800px",
             px: 2,
             borderBottom: "1px solid #EAECF1",
             my: 1,
           }}
         >
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Branch Name
-          </Typography>
-          <TextField
-            required
-            size="small"
-            fullWidth
-            id="name"
-            placeholder="Full Name"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-            }}
-          />
-
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Parent Branch
-          </Typography>
-
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{
-              ...customeSelectFeild,
-              "& label.Mui-focused": {
-                color: "rgba(0,0,0,0)",
-              },
-
-              "& .MuiOutlinedInput-input img": {
-                position: "relative",
-                top: "2px",
-              },
-            }}
-          >
-            {parent_id?.length < 1 && (
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+          <Grid container spacing={2}>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
               >
-                Select Branch
-              </InputLabel>
-            )}
-            <Select
-              required
-              labelId="demo-simple-select-label"
-              id="baseLanguage"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 250, // Set the max height here
+                Branch Name
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="name"
+                placeholder="Full Name"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+            </Grid>
+            {/* <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Parent Branch
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
                   },
-                },
-              }}
-              value={parent_id}
-              onChange={(e) => setParent_id(e.target.value)}
-            >
-              {branchList?.map((item) => (
-                <MenuItem key={item} value={item?.name}>
-                  {item?.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {parent_id?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Branch
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="baseLanguage"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={parent_id}
+                  onChange={(e) => setParent_id(e.target.value)}
+                >
+                  {branchList?.map((item) => (
+                    <MenuItem key={item} value={item?.name}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid> */}
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Mobile No
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="number"
+                type="number"
+                placeholder="Full Number"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={number}
+                onChange={(e) => {
+                  if (
+                    e.target.value.length <= 11 &&
+                    /^\d*$/.test(e.target.value)
+                  ) {
+                    setNumber(e.target.value);
+                  }
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Off Day
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {offDay?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Branch
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="baseLanguage"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={offDay}
+                  onChange={(e) => setOffDay(e.target.value)}
+                >
+                  {days?.map((item) => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Address
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="address"
+                placeholder="Full Address"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={address}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                }}
+              />
+            </Grid>
+
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Branch Image
+              </Typography>
+              <Box>
+                <ImageUpload
+                  file={file}
+                  setFile={setFile}
+                  dimension="Dimensions (4 * 5)"
+                />
+              </Box>
+            </Grid>
+          </Grid>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

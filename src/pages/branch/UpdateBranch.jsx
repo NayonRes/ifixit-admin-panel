@@ -42,9 +42,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { designationList, roleList } from "../../data";
+import { days, designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
+import ImageUpload from "../../utils/ImageUpload";
 
 const baseStyle = {
   flex: 1,
@@ -94,6 +95,11 @@ const UpdateBranch = ({ clearFilter, row }) => {
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
+  const [number, setNumber] = useState("");
+  const [offDay, setOffDay] = useState("");
+  const [address, setAddress] = useState();
+  const [file, setFile] = useState(null);
+
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setUpdateDialog(false);
@@ -116,6 +122,10 @@ const UpdateBranch = ({ clearFilter, row }) => {
   const clearForm = () => {
     setName("");
     setParent_id("");
+    setAddress("");
+    setNumber("");
+    setFile(null);
+    setOffDay("");
     setStatus("");
   };
   const onSubmit = async (e) => {
@@ -128,17 +138,28 @@ const UpdateBranch = ({ clearFilter, row }) => {
 
     // formdata.append("parent_id", parent_id);
 
-    let data = {
-      name: name.trim(),
+    // let data = {
+    //   name: name.trim(),
 
-      parent_name: parent_id.trim(),
-      status: status,
-    };
+    //   parent_name: parent_id.trim(),
+    //   status: status,
+    // };
+
+    var formdata = new FormData();
+    formdata.append("name", name);
+    formdata.append("phone_no_1", number);
+    formdata.append("address", address);
+    formdata.append("off_day", offDay);
+    formdata.append("status", status);
+
+    if (file) {
+      formdata.append("image", file);
+    }
 
     let response = await handlePutData(
       `/api/v1/branch/update/${row?._id}`,
-      data,
-      false
+      formdata,
+      true
     );
 
     console.log("response", response);
@@ -243,8 +264,10 @@ const UpdateBranch = ({ clearFilter, row }) => {
     console.log("useEffect===========================", row);
 
     setName(row?.name);
+    setNumber(row?.phone_no_1);
+    setOffDay(row?.off_day);
+    setAddress(row?.address);
     setStatus(row?.status);
-    setParent_id(row?.parent_name === null ? "" : row?.parent_name);
   }, [updateDialog]);
   return (
     <>
@@ -314,6 +337,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
           component: "form",
           onSubmit: onSubmit,
         }}
+        maxWidth="lg"
       >
         <DialogTitle
           id="alert-dialog-title"
@@ -351,113 +375,224 @@ const UpdateBranch = ({ clearFilter, row }) => {
         </DialogTitle>
         <DialogContent
           sx={{
-            maxWidth: "400px",
-            minWidth: "400px",
+            maxWidth: "800px",
+            minWidth: "800px",
             px: 2,
             borderBottom: "1px solid #EAECF1",
             my: 1,
           }}
         >
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Branch Name
-          </Typography>
-          <TextField
-            required
-            size="small"
-            fullWidth
-            id="name"
-            placeholder="Full Name"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-            }}
-          />
-
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Parent Branch
-          </Typography>
-
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{
-              ...customeSelectFeild,
-              "& label.Mui-focused": {
-                color: "rgba(0,0,0,0)",
-              },
-
-              "& .MuiOutlinedInput-input img": {
-                position: "relative",
-                top: "2px",
-              },
-              mb: 3,
-            }}
-          >
-            {parent_id?.length < 1 && (
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+          <Grid container spacing={2}>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
               >
-                Select Branch
-              </InputLabel>
-            )}
-            <Select
-              required
-              labelId="demo-simple-select-label"
-              id="baseLanguage"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 250, // Set the max height here
-                  },
-                },
-              }}
-              value={parent_id}
-              onChange={(e) => setParent_id(e.target.value)}
-            >
-              {branchList?.map((item) => (
-                <MenuItem key={item} value={item?.name}>
-                  {item?.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Select Status
-          </Typography>
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{
-              ...customeSelectFeild,
-              "& label.Mui-focused": {
-                color: "rgba(0,0,0,0)",
-              },
+                Branch Name
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="name"
+                placeholder="Full Name"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+            </Grid>
+            {/* <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Parent Branch
+              </Typography>
 
-              "& .MuiOutlinedInput-input img": {
-                position: "relative",
-                top: "2px",
-              },
-            }}
-          >
-            {/* {parent_id?.length < 1 && (
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {parent_id?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Branch
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="baseLanguage"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={parent_id}
+                  onChange={(e) => setParent_id(e.target.value)}
+                >
+                  {branchList?.map((item) => (
+                    <MenuItem key={item} value={item?.name}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid> */}
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Mobile No
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="number"
+                type="number"
+                placeholder="Full Number"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={number}
+                onChange={(e) => {
+                  if (
+                    e.target.value.length <= 11 &&
+                    /^\d*$/.test(e.target.value)
+                  ) {
+                    setNumber(e.target.value);
+                  }
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Off Day
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {offDay?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Branch
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-simple-select-label"
+                  id="baseLanguage"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={offDay}
+                  onChange={(e) => setOffDay(e.target.value)}
+                >
+                  {days?.map((item) => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Address
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="address"
+                placeholder="Full Address"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={address}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Select Status
+              </Typography>
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {/* {parent_id?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -465,24 +600,43 @@ const UpdateBranch = ({ clearFilter, row }) => {
                 Select Status
               </InputLabel>
             )} */}
-            <Select
-              // required
-              labelId="demo-simple-select-label"
-              id="baseLanguage"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 250, // Set the max height here
-                  },
-                },
-              }}
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <MenuItem value={true}>Active</MenuItem>
-              <MenuItem value={false}>Inactive</MenuItem>
-            </Select>
-          </FormControl>
+                <Select
+                  // required
+                  labelId="demo-simple-select-label"
+                  id="baseLanguage"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <MenuItem value={true}>Active</MenuItem>
+                  <MenuItem value={false}>Inactive</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Branch Image
+              </Typography>
+              <Box>
+                <ImageUpload
+                  file={file}
+                  setFile={setFile}
+                  dimension="Dimensions (4 * 5)"
+                />
+              </Box>
+            </Grid>
+          </Grid>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

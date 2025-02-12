@@ -357,12 +357,18 @@ const AddSupplier = ({ clearFilter }) => {
                 size="small"
                 fullWidth
                 id="number"
+                type="number"
                 placeholder="Mobile Number"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={number}
                 onChange={(e) => {
-                  setNumber(e.target.value);
+                  if (
+                    e.target.value.length <= 11 &&
+                    /^\d*$/.test(e.target.value)
+                  ) {
+                    setNumber(e.target.value);
+                  }
                 }}
               />
             </Grid>
