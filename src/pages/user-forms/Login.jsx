@@ -29,8 +29,8 @@ const Login = () => {
   const navigate = useNavigate();
   const [checked, setChecked] = useState(true);
   const { login } = useContext(AuthContext);
-  const [email, setEmail] = useState("admin@dg.com");
-  const [password, setPassword] = useState("admin12345");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});

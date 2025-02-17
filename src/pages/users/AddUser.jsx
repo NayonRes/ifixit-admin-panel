@@ -63,26 +63,7 @@ const AddUser = ({ getUser }) => {
       setAddUserDialog(false);
     }
   };
-  const dropzoneRef = useRef(null);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    console.log("onDrop", acceptedFiles);
-    // if (!dropzoneRef.current) return;
-    const file = acceptedFiles[0];
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // setBase64String(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-  const onFileDialogCancel = useCallback(() => {
-    setFile(null);
-    console.log("File dialog was closed without selecting a file");
-    // setBase64String(""); // Update state to indicate dialog was cancelled
-  }, []);
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -435,16 +416,15 @@ const AddUser = ({ getUser }) => {
             size="small"
             fullWidth
             id="number"
+            type="number"
             placeholder="Enter Number"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}
-            inputProps={{
-              minLength: 11, // Minimum length
-              maxLength: 11, // Maximum length
-            }}
             value={number}
             onChange={(e) => {
-              setNumber(e.target.value);
+              if (e.target.value.length <= 11 && /^\d*$/.test(e.target.value)) {
+                setNumber(e.target.value);
+              }
             }}
           />
           <Typography
@@ -578,7 +558,11 @@ const AddUser = ({ getUser }) => {
             </Select>
           </FormControl>
           <Box>
-            <ImageUpload file={file} setFile={setFile} />
+            <ImageUpload
+              file={file}
+              setFile={setFile}
+              dimension="Dimensions (1 * 1)"
+            />
           </Box>
         </DialogContent>
 

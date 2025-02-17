@@ -284,7 +284,7 @@ const RepairList = ({
               ))}
 
             {!loading && tableDataList.length < 1 ? (
-              <TableRow>
+              <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                 <TableCell colSpan={10} style={{ textAlign: "center" }}>
                   <strong> {message}</strong>
                 </TableCell>

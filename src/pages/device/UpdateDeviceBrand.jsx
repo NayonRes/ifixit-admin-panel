@@ -1,14 +1,6 @@
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-  useContext,
-} from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -18,11 +10,10 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useDropzone } from "react-dropzone";
+import { useNavigate } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
-import IconButton from "@mui/material/IconButton";
 
+import IconButton from "@mui/material/IconButton";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -30,38 +21,29 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import { handlePutData } from "../../services/PutDataService";
 import ImageUpload from "../../utils/ImageUpload";
 
-const form = {
-  padding: "50px",
-  background: "#fff",
-  borderRadius: "10px",
-  width: "400px",
-  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-};
-const AddDevice = ({ clearFilter }) => {
+const UpdateDeviceBrand = ({ clearFilter, row }) => {
   const navigate = useNavigate();
-
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-
-  const [addDialog, setAddDialog] = useState(false);
+  const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
-  const [deviceBrandList, setDeviceBrandList] = useState([]);
   const [file, setFile] = useState(null);
   const [iconFile, setIconFile] = useState(null);
+  const [status, setStatus] = useState("");
+  const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderNo, setOrderNo] = useState();
-  const dropzoneRef = useRef(null);
-
   const [message, setMessage] = useState("");
-
   const { enqueueSnackbar } = useSnackbar();
+  const dropzoneRef = useRef(null);
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
-      setAddDialog(false);
+      setUpdateDialog(false);
     }
   };
 
@@ -81,34 +63,39 @@ const AddDevice = ({ clearFilter }) => {
   const clearForm = () => {
     setName("");
     setOrderNo();
-    setParent_id("");
     setFile(null);
     setIconFile(null);
+    setStatus("");
   };
+
   const onSubmit = async (e) => {
     e.preventDefault();
-
+  
     setLoading(true);
 
-    let formdata = new FormData();
-    formdata.append("name", name.trim());
+    // var formdata = new FormData();
+    // formdata.append("name", name);
 
-    formdata.append("device_brand_id", parent_id.trim());
+    // formdata.append("parent_id", parent_id);
+
+    // let data = {
+    //   name: name.trim(),
+    //   parent_name: parent_id.trim(),
+    //   status: status,
+    // };
+
+    var formdata = new FormData();
+    formdata.append("name", name.trim()); 
     formdata.append("order_no", orderNo);
+    formdata.append("status", status);
     if (file) {
       formdata.append("image", file);
     }
     if (iconFile) {
       formdata.append("icon", iconFile);
     }
-
-    // let data = {
-    //   name: name.trim(),
-    //   parent_name: parent_id.trim(),
-    // };
-
-    let response = await handlePostData(
-      "/api/v1/device/create",
+    let response = await handlePutData(
+      `/api/v1/deviceBrand/update/${row?._id}`,
       formdata,
       true
     );
@@ -119,12 +106,12 @@ const AddDevice = ({ clearFilter }) => {
       return;
     }
     if (response.status >= 200 && response.status < 300) {
-      handleSnakbarOpen("Added successfully", "success");
+      handleSnakbarOpen("Updated successfully", "success");
       clearFilter(); // this is for get the table list again
-
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
@@ -193,14 +180,14 @@ const AddDevice = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/deviceBrand/dropdownlist?parent_name=Primary`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
       return;
     }
     if (allData.status >= 200 && allData.status < 300) {
-      setDeviceBrandList(allData?.data?.data);
+      setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -211,36 +198,19 @@ const AddDevice = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
-  const getDropdownListWithChildren = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/device/parent-child-list`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setDeviceBrandList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
-  useEffect(() => {}, []);
+  useEffect(() => {
+    setName(row?.name);
+    setOrderNo(row?.order_no);
+    setParent_id(row?.parent_name === null ? "" : row?.parent_name);
+    setStatus(row?.status);
+  }, [updateDialog]);
   return (
     <>
-      <Button
+      {/* <Button
         variant="contained"
         disableElevation
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-        onClick={() => {
-          setAddDialog(true);
-          getDropdownList();
-          // getDropdownListWithChildren();
-        }}
+        onClick={() => setUpdateDialog(true)}
         startIcon={
           <svg
             width="20"
@@ -259,11 +229,39 @@ const AddDevice = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Device
-      </Button>
+     Update Device
+      </Button> */}
+
+      <IconButton
+        variant="contained"
+        // color="success"
+        disableElevation
+        onClick={() => {
+          setUpdateDialog(true);
+          // getDropdownList();
+        }}
+      >
+        {/* <EditOutlinedIcon /> */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          id="Outline"
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+        >
+          <path
+            d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+            fill="#787878"
+          />
+          <path
+            d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+            fill="#787878"
+          />
+        </svg>
+      </IconButton>
 
       <Dialog
-        open={addDialog}
+        open={updateDialog}
         onClose={handleDialogClose}
         sx={{
           "& .MuiPaper-root": {
@@ -287,10 +285,10 @@ const AddDevice = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Device
+          Update Device Brand
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => setAddDialog(false)}
+            onClick={() => setUpdateDialog(false)}
           >
             <svg
               width="46"
@@ -324,7 +322,7 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Device Name
+            Brand Name
           </Typography>
           <TextField
             required
@@ -345,7 +343,7 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No
+            Order No (Below 100)
           </Typography>
           <TextField
             required
@@ -361,14 +359,13 @@ const AddDevice = ({ clearFilter }) => {
               setOrderNo(e.target.value);
             }}
           />
-
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Select Device Brand
+            Parent Device
           </Typography>
 
           <FormControl
@@ -392,7 +389,7 @@ const AddDevice = ({ clearFilter }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Device Brand
+                Select Device
               </InputLabel>
             )}
             <Select
@@ -409,11 +406,62 @@ const AddDevice = ({ clearFilter }) => {
               value={parent_id}
               onChange={(e) => setParent_id(e.target.value)}
             >
-              {deviceBrandList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+              {branchList?.map((item) => (
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}
+            </Select>
+          </FormControl> */}
+
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Status
+          </Typography>
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              mb: 3,
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {/* {parent_id?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Status
+              </InputLabel>
+            )} */}
+            <Select
+              // required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <MenuItem value={true}>Active</MenuItem>
+              <MenuItem value={false}>Inactive</MenuItem>
             </Select>
           </FormControl>
           <Typography
@@ -425,13 +473,10 @@ const AddDevice = ({ clearFilter }) => {
             Device Image
           </Typography>
           <Box sx={{ mb: 3 }}>
-            <ImageUpload
-              file={file}
-              setFile={setFile}
-              dimension="Dimensions (350 * 350)"
-            />
+            <ImageUpload file={file} setFile={setFile}  dimension="Dimensions (200 * 250)"/>
           </Box>
-          {/* <Typography
+
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -441,7 +486,7 @@ const AddDevice = ({ clearFilter }) => {
           </Typography>
           <Box>
             <ImageUpload file={iconFile} setFile={setIconFile} />
-          </Box> */}
+          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -490,4 +535,4 @@ const AddDevice = ({ clearFilter }) => {
   );
 };
 
-export default AddDevice;
+export default UpdateDeviceBrand;

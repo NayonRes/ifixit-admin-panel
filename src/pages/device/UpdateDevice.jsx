@@ -33,9 +33,10 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const [file, setFile] = useState(null);
   const [iconFile, setIconFile] = useState(null);
   const [status, setStatus] = useState("");
-  const [branchList, setBranchList] = useState([]);
+  const [deviceBrandList, SetDeviceBrandList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [orderNo, setOrderNo] = useState();
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
   const dropzoneRef = useRef(null);
@@ -61,6 +62,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
   const clearForm = () => {
     setName("");
+    setOrderNo();
     setFile(null);
     setIconFile(null);
     setStatus("");
@@ -85,7 +87,8 @@ const UpdateDevice = ({ clearFilter, row }) => {
     var formdata = new FormData();
     formdata.append("name", name.trim());
 
-    formdata.append("parent_name", parent_id.trim());
+    formdata.append("device_brand_id", parent_id.trim());
+    formdata.append("order_no", orderNo);
     formdata.append("status", status);
     if (file) {
       formdata.append("image", file);
@@ -179,19 +182,19 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdownlist`;
+    let url = `/api/v1/deviceBrand/dropdownlist?parent_name=Primary`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
       return;
     }
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      SetDeviceBrandList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading2(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -199,7 +202,8 @@ const UpdateDevice = ({ clearFilter, row }) => {
   };
   useEffect(() => {
     setName(row?.name);
-    setParent_id(row?.parent_name === null ? "" : row?.parent_name);
+    setOrderNo(row?.order_no);
+    setParent_id(row?.parent_name === null ? "" : row?.device_brand_id);
     setStatus(row?.status);
   }, [updateDialog]);
   return (
@@ -335,14 +339,35 @@ const UpdateDevice = ({ clearFilter, row }) => {
               setName(e.target.value);
             }}
           />
-
           <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Device
+            Order No
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            id="name"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={orderNo}
+            onChange={(e) => {
+              setOrderNo(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Device Brand
           </Typography>
 
           <FormControl
@@ -366,7 +391,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Device
+                Select Device Brand
               </InputLabel>
             )}
             <Select
@@ -383,8 +408,8 @@ const UpdateDevice = ({ clearFilter, row }) => {
               value={parent_id}
               onChange={(e) => setParent_id(e.target.value)}
             >
-              {branchList?.map((item) => (
-                <MenuItem key={item} value={item?.name}>
+              {deviceBrandList?.map((item) => (
+                <MenuItem key={item} value={item?._id}>
                   {item?.name}
                 </MenuItem>
               ))}
@@ -441,7 +466,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
               <MenuItem value={false}>Inactive</MenuItem>
             </Select>
           </FormControl>
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -451,7 +476,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
           </Typography>
           <Box sx={{ mb: 3 }}>
             <ImageUpload file={file} setFile={setFile} />
-          </Box>
+          </Box> */}
 
           <Typography
             variant="medium"
@@ -462,7 +487,11 @@ const UpdateDevice = ({ clearFilter, row }) => {
             Device Icon
           </Typography>
           <Box>
-            <ImageUpload file={iconFile} setFile={setIconFile} />
+            <ImageUpload
+              file={iconFile}
+              setFile={setIconFile}
+              dimension="Dimensions (350 * 350)"
+            />
           </Box>
         </DialogContent>
 

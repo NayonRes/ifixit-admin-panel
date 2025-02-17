@@ -18,7 +18,8 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 import IconButton from "@mui/material/IconButton";
 
@@ -27,25 +28,32 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { days, designationList, roleList } from "../../data";
+import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import ImageUpload from "../../utils/ImageUpload";
 
-const AddBranch = ({ clearFilter }) => {
+const form = {
+  padding: "50px",
+  background: "#fff",
+  borderRadius: "10px",
+  width: "400px",
+  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+};
+const AddDeviceBrand = ({ clearFilter }) => {
   const navigate = useNavigate();
+
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
   const [branchList, setBranchList] = useState([]);
+  const [file, setFile] = useState(null);
+  const [iconFile, setIconFile] = useState(null);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const [number, setNumber] = useState("");
-  const [offDay, setOffDay] = useState("");
-  const [phoneNo, setPhoneNo] = useState();
-  const [address, setAddress] = useState();
-  const [file, setFile] = useState(null);
+  const [orderNo, setOrderNo] = useState();
+  const dropzoneRef = useRef(null);
 
   const [message, setMessage] = useState("");
 
@@ -72,34 +80,34 @@ const AddBranch = ({ clearFilter }) => {
 
   const clearForm = () => {
     setName("");
+    setOrderNo();
     setParent_id("");
-    setAddress("");
-    setNumber("");
     setFile(null);
-    setOffDay("");
+    setIconFile(null);
   };
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    var formdata = new FormData();
-    formdata.append("name", name);
-    formdata.append("phone_no_1", number);
-    formdata.append("address", address);
-    formdata.append("off_day", offDay);
+    let formdata = new FormData();
+    formdata.append("name", name.trim());
 
+    formdata.append("order_no", orderNo);
     if (file) {
       formdata.append("image", file);
     }
+    if (iconFile) {
+      formdata.append("icon", iconFile);
+    }
 
-    let data = {
-      name: name.trim(),
-      parent_name: parent_id,
-    };
+    // let data = {
+    //   name: name.trim(),
+    //   parent_name: parent_id.trim(),
+    // };
 
     let response = await handlePostData(
-      "/api/v1/branch/create",
+      "/api/v1/deviceBrand/create",
       formdata,
       true
     );
@@ -110,17 +118,16 @@ const AddBranch = ({ clearFilter }) => {
       return;
     }
     if (response.status >= 200 && response.status < 300) {
-      setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
       clearFilter(); // this is for get the table list again
 
       clearForm();
       handleDialogClose();
     } else {
-      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
+    setLoading(false);
     // }
   };
 
@@ -185,9 +192,12 @@ const AddBranch = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/branch/dropdownlist`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
 
@@ -200,9 +210,8 @@ const AddBranch = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
-  useEffect(() => {
-    // getDropdownList();
-  }, []);
+
+  useEffect(() => {}, []);
   return (
     <>
       <Button
@@ -211,7 +220,8 @@ const AddBranch = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          getDropdownList();
+          // getDropdownList();
+          // getDropdownListWithChildren();
         }}
         startIcon={
           <svg
@@ -231,7 +241,7 @@ const AddBranch = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Branch
+        Add Device Brand
       </Button>
 
       <Dialog
@@ -246,7 +256,6 @@ const AddBranch = ({ clearFilter }) => {
           component: "form",
           onSubmit: onSubmit,
         }}
-        maxWidth="xl"
       >
         <DialogTitle
           id="alert-dialog-title"
@@ -260,7 +269,7 @@ const AddBranch = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Branch
+          Add Device Brand
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddDialog(false)}
@@ -284,218 +293,137 @@ const AddBranch = ({ clearFilter }) => {
         </DialogTitle>
         <DialogContent
           sx={{
-            maxWidth: "800px",
-            minWidth: "800px",
+            maxWidth: "400px",
+            minWidth: "400px",
             px: 2,
             borderBottom: "1px solid #EAECF1",
             my: 1,
           }}
         >
-          <Grid container spacing={2}>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Branch Name
-              </Typography>
-              <TextField
-                required
-                size="small"
-                fullWidth
-                id="name"
-                placeholder="Full Name"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-              />
-            </Grid>
-            {/* <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Parent Branch
-              </Typography>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Brand Name
+          </Typography>
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="name"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Order No (Below 100)
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            id="name"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={orderNo}
+            onChange={(e) => {
+              setOrderNo(e.target.value);
+            }}
+          />
 
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
+          {/* <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Parent Device
+          </Typography>
+
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              mb: 3,
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {parent_id?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Device
+              </InputLabel>
+            )}
+            <Select
+              // required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
                   },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
-                }}
-              >
-                {parent_id?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Branch
-                  </InputLabel>
-                )}
-                <Select
-                  required
-                  labelId="demo-simple-select-label"
-                  id="baseLanguage"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={parent_id}
-                  onChange={(e) => setParent_id(e.target.value)}
-                >
-                  {branchList?.map((item) => (
-                    <MenuItem key={item} value={item?.name}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid> */}
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Mobile No
-              </Typography>
-              <TextField
-                required
-                size="small"
-                fullWidth
-                id="number"
-                type="number"
-                placeholder="Full Number"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={number}
-                onChange={(e) => {
-                  if (
-                    e.target.value.length <= 11 &&
-                    /^\d*$/.test(e.target.value)
-                  ) {
-                    setNumber(e.target.value);
-                  }
-                }}
-              />
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Off Day
-              </Typography>
-
-              <FormControl
-                fullWidth
-                size="small"
-                sx={{
-                  ...customeSelectFeild,
-                  "& label.Mui-focused": {
-                    color: "rgba(0,0,0,0)",
-                  },
-
-                  "& .MuiOutlinedInput-input img": {
-                    position: "relative",
-                    top: "2px",
-                  },
-                }}
-              >
-                {offDay?.length < 1 && (
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                  >
-                    Select Branch
-                  </InputLabel>
-                )}
-                <Select
-                  required
-                  labelId="demo-simple-select-label"
-                  id="baseLanguage"
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 250, // Set the max height here
-                      },
-                    },
-                  }}
-                  value={offDay}
-                  onChange={(e) => setOffDay(e.target.value)}
-                >
-                  {days?.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Address
-              </Typography>
-              <TextField
-                required
-                size="small"
-                fullWidth
-                id="address"
-                placeholder="Full Address"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={address}
-                onChange={(e) => {
-                  setAddress(e.target.value);
-                }}
-              />
-            </Grid>
-
-            <Grid size={12}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Branch Image
-              </Typography>
-              <Box>
-                <ImageUpload
-                  file={file}
-                  setFile={setFile}
-                  dimension="Dimensions (4 * 5)"
-                />
-              </Box>
-            </Grid>
-          </Grid>
+                },
+              }}
+              value={parent_id}
+              onChange={(e) => setParent_id(e.target.value)}
+            >
+              {branchList?.map((item) => (
+                <MenuItem key={item} value={item?.name}>
+                  {item?.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl> */}
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Device Image
+          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <ImageUpload
+              file={file}
+              setFile={setFile}
+              dimension="Dimensions (350 * 350)"
+            />
+          </Box>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Device Icon
+          </Typography>
+          <Box>
+            <ImageUpload file={iconFile} setFile={setIconFile} />
+          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -544,4 +472,4 @@ const AddBranch = ({ clearFilter }) => {
   );
 };
 
-export default AddBranch;
+export default AddDeviceBrand;

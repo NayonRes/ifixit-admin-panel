@@ -54,13 +54,15 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddCustomer from "./AddCustomer";
-import UpdateCustomer from "./UpdateCustomer";
+import AddDevice from "./AddDevice";
+import UpdateDevice from "./UpdateDevice";
+import AddDeviceBrand from "./AddDeviceBrand";
+import UpdateDeviceBrand from "./UpdateDeviceBrand";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const CustomerList = () => {
+const DeviceBrandList = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
@@ -72,18 +74,10 @@ const CustomerList = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [deleteData, setDeleteData] = useState({});
-  const [orderID, setOrderID] = useState("");
+
   const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [type, setType] = useState("");
-  const [remarks, setRemarks] = useState("");
-  const [rating, setRating] = useState("");
-  const [membershipId, setMembershipId] = useState("");
-  const [minPrice, setMinPrice] = useState(null);
-  const [maxPrice, setMaxPrice] = useState(null);
+  const [orderNo, setOrderNo] = useState();
   const [status, setStatus] = useState("");
-  const [category, SetCategory] = useState("");
 
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -164,9 +158,9 @@ const CustomerList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 7;
+    let loadingNumber = 5;
 
-    if (ifixit_admin_panel?.user?.permission?.includes("update_user")) {
+    if (ifixit_admin_panel?.user?.permission?.includes("update_device")) {
       loadingNumber = loadingNumber + 1;
     }
     for (let i = 0; i < 10; i++) {
@@ -191,12 +185,11 @@ const CustomerList = () => {
 
   const clearFilter = (event) => {
     setName("");
-    setNumber("");
-    setEmail("");
+    setOrderNo("");
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/customer?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/deviceBrand?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -236,13 +229,15 @@ const CustomerList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/customer?name=${name}&mobile=${number}&email=${email}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/deviceBrand?name=${name}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
     let allData = await getDataWithToken(url);
-    console.log("allData?.data", allData?.data.data);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
@@ -279,19 +274,19 @@ const CustomerList = () => {
   return (
     <>
       <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
-        <Grid size={6}>
+        <Grid size={9}>
           <Typography
             variant="h6"
             gutterBottom
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Customer List
+            Device Brand List
           </Typography>
         </Grid>
-        <Grid size={6} style={{ textAlign: "right" }}>
-          {ifixit_admin_panel?.user?.permission?.includes("add_customer") && (
-            <AddCustomer clearFilter={clearFilter} />
+        <Grid size={3} style={{ textAlign: "right" }}>
+          {ifixit_admin_panel?.user?.permission?.includes("add_device") && (
+            <AddDeviceBrand clearFilter={clearFilter} />
           )}
 
           {/* <IconButton
@@ -369,29 +364,21 @@ const CustomerList = () => {
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <TextField
                     sx={{ ...customeTextFeild }}
-                    id="number"
+                    id="orderNo"
+                    type="number"
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="number"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="email"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    label="Order No"
+                    InputLabelProps={{
+                      shrink: !!orderNo, // Shrink label only when there's a value
+                    }}
+                    value={orderNo}
+                    onChange={(e) => setOrderNo(e.target.value)}
                   />
                 </Grid>
 
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -415,7 +402,7 @@ const CustomerList = () => {
                       <MenuItem value={false}>Inactive</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid> */}
+                </Grid>
 
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
@@ -468,22 +455,17 @@ const CustomerList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Mobile Number
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
+                    Name
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Email</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Customer Type
+                    Order No
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Rating</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Membership ID
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell> */}
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
                   {ifixit_admin_panel?.user?.permission?.includes(
-                    "update_customer"
+                    "update_device"
                   ) && (
                     <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                       Actions
@@ -493,30 +475,67 @@ const CustomerList = () => {
               </TableHead>
               <TableBody>
                 {!loading &&
-                  tableDataList?.length > 0 &&
-                  tableDataList?.map((row, i) => (
+                  tableDataList.length > 0 &&
+                  tableDataList.map((row, i) => (
                     <TableRow
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
+                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                        {/* {row?.image?.url?.length > 0 ? (
+                                                <> */}
+                        <img
+                          src={
+                            row?.icon?.url?.length > 0
+                              ? row?.icon?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "6px",
+                            width: "20px",
+                            height: "40px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+
+                        {/* </>
+                                              ) : (
+                                                "No Image"
+                                              )} */}
+                      </TableCell>
+                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                        {/* {row?.image?.url?.length > 0 ? (
+                                                <> */}
+                        <img
+                          src={
+                            row?.image?.url?.length > 0
+                              ? row?.image?.url
+                              : "/noImage.png"
+                          }
+                          alt=""
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "6px",
+                            width: "20px",
+                            height: "40px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+
+                        {/* </>
+                                              ) : (
+                                                "No Image"
+                                              )} */}
+                      </TableCell>
                       <TableCell>{row?.name}</TableCell>
-                      <TableCell>{row?.mobile}</TableCell>
+                      {/* <TableCell>{row?.parent_name}</TableCell> */}
+                      <TableCell>{row?.order_no}</TableCell>
+
                       <TableCell>
-                        {row?.email ? row?.email : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.customer_type ? row?.customer_type : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.rating ? row?.rating : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.membership_id ? row?.membership_id : "---------"}
-                      </TableCell>
-                      <TableCell sx={{ minWidth: "150px" }}>
-                        {row?.remarks ? row?.remarks : "---------"}
-                      </TableCell>
-                      {/* <TableCell>
                         {row?.status ? (
                           <>
                             <TaskAltOutlinedIcon
@@ -554,24 +573,57 @@ const CustomerList = () => {
                             </span>
                           </>
                         )}
-                      </TableCell> */}
+                      </TableCell>
 
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
                       {ifixit_admin_panel?.user?.permission?.includes(
-                        "update_customer"
+                        "update_device"
                       ) && (
                         <TableCell align="right">
-                          <UpdateCustomer clearFilter={clearFilter} row={row} />
+                          <UpdateDeviceBrand
+                            clearFilter={clearFilter}
+                            row={row}
+                          />
+
+                          {/* <IconButton
+                          variant="contained"
+                          disableElevation
+                          onClick={() => handleDeleteDialog(i, row)}
+                        >
+                    
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            id="Outline"
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                          >
+                            <path
+                              d="M21,4H17.9A5.009,5.009,0,0,0,13,0H11A5.009,5.009,0,0,0,6.1,4H3A1,1,0,0,0,3,6H4V19a5.006,5.006,0,0,0,5,5h6a5.006,5.006,0,0,0,5-5V6h1a1,1,0,0,0,0-2ZM11,2h2a3.006,3.006,0,0,1,2.829,2H8.171A3.006,3.006,0,0,1,11,2Zm7,17a3,3,0,0,1-3,3H9a3,3,0,0,1-3-3V6H18Z"
+                              fill="#F91351"
+                            />
+                            <path
+                              d="M10,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,10,18Z"
+                              fill="#F91351"
+                            />
+                            <path
+                              d="M14,18a1,1,0,0,0,1-1V11a1,1,0,0,0-2,0v6A1,1,0,0,0,14,18Z"
+                              fill="#F91351"
+                            />
+                          </svg>
+                        </IconButton> */}
                         </TableCell>
                       )}
                     </TableRow>
                   ))}
 
-                {!loading && tableDataList?.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                    <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                {!loading && tableDataList.length < 1 ? (
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
@@ -581,7 +633,7 @@ const CustomerList = () => {
             </Table>
           </TableContainer>
         </div>
-        {tableDataList?.length > 0 ? (
+        {tableDataList.length > 0 ? (
           <div>
             <TablePagination
               style={{ display: "block", border: "none" }}
@@ -658,4 +710,4 @@ const CustomerList = () => {
   );
 };
 
-export default CustomerList;
+export default DeviceBrandList;

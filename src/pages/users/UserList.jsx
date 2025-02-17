@@ -696,7 +696,7 @@ const UserList = () => {
                 ))}
 
               {!loading && tableDataList.length < 1 ? (
-                <TableRow>
+                <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                   <TableCell colSpan={15} style={{ textAlign: "center" }}>
                     <strong> {message}</strong>
                   </TableCell>

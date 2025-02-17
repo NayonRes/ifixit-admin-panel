@@ -257,3 +257,13 @@ export const allIssueCheckList = [
   { name: "USB", status: false },
   { name: "Taptic", status: false },
 ];
+
+export const days = [
+  "Saturday",
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+];

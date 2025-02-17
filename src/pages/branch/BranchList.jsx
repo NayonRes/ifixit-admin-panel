@@ -161,7 +161,7 @@ const BranchList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 2;
+    let loadingNumber = 6;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_branch")) {
       loadingNumber = loadingNumber + 1;
@@ -462,8 +462,15 @@ const BranchList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
+                    Name
+                  </TableCell>
 
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Number</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Address
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Offday</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
                   {ifixit_admin_panel?.user?.permission?.includes(
                     "update_branch"
@@ -482,7 +489,41 @@ const BranchList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
+                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                        {/* {row?.image?.url?.length > 0 ? (
+                                                <> */}
+                        <img
+                          src={
+                            row?.image?.url?.length > 0
+                              ? row?.image?.url
+                              : "/userpic.png"
+                          }
+                          alt=""
+                          width="30px"
+                          height="30px"
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "100px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+
+                        {/* </>
+                                              ) : (
+                                                "No Image"
+                                              )} */}
+                      </TableCell>
                       <TableCell>{row?.name}</TableCell>
+                      <TableCell>
+                        {row?.phone_no_1 ? row?.phone_no_1 : "----------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.off_day ? row?.off_day : "----------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.address ? row?.address : "----------"}
+                      </TableCell>
 
                       <TableCell>
                         {row?.status ? (
@@ -567,8 +608,10 @@ const BranchList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} style={{ textAlign: "center" }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
@@ -650,40 +693,6 @@ const BranchList = () => {
           <Button onClick={handleImageClose}>Close</Button>
         </DialogActions>
         {/* </div> */}
-      </Dialog>
-      <Dialog
-        open={deleteDialog}
-        onClose={handleDeleteDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <div style={{ padding: "10px", minWidth: "300px" }}>
-          <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              You want to delete <b>{deleteData?.row?.name} </b>
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDeleteDialogClose}>cancel</Button>
-            <Button
-              variant="contained"
-              disabled={loading2}
-              onClick={handleDelete}
-              style={{ minWidth: "100px", minHeight: "35px" }}
-              autoFocus
-              disableElevation
-            >
-              <PulseLoader
-                color={"#4B46E5"}
-                loading={loading2}
-                size={10}
-                speedMultiplier={0.5}
-              />{" "}
-              {loading2 === false && "Confirm"}
-            </Button>
-          </DialogActions>
-        </div>
       </Dialog>
     </>
   );

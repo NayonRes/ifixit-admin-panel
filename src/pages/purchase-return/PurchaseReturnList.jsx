@@ -762,7 +762,7 @@ const PurchaseReturnList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow>
+                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                     <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>

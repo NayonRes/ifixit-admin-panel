@@ -39,7 +39,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImageUpload = ({ file, setFile }) => {
+const ImageUpload = ({ file, setFile, dimension }) => {
   const dropzoneRef = useRef(null);
   const onDrop = useCallback((acceptedFiles) => {
     console.log("onDrop", acceptedFiles);
@@ -72,7 +72,7 @@ const ImageUpload = ({ file, setFile }) => {
     onDrop,
     onFileDialogCancel,
     ref: dropzoneRef,
-    accept: { 'image/png': [], 'image/jpeg': [] }, 
+    accept: { "image/png": [], "image/jpeg": [] },
     maxFiles: 1,
     maxSize: 2 * 1024 * 1024, // 2MB file size limit
   });
@@ -135,7 +135,10 @@ const ImageUpload = ({ file, setFile }) => {
           or drag and drop
         </Typography>
         <Typography variant="medium" color="text.fade">
-          PNG, JPG
+          File Type : PNG, JPG
+        </Typography>
+        <Typography variant="medium" color="text.fade">
+          {dimension && dimension}
         </Typography>
         {file?.path?.length > 0 && (
           <Typography variant="medium" color="text.light" sx={{ mt: 1 }}>
