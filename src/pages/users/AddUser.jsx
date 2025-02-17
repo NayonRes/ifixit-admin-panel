@@ -436,6 +436,7 @@ const AddUser = ({ getUser }) => {
             Salary
           </Typography>
           <TextField
+            required
             type="number"
             size="small"
             fullWidth

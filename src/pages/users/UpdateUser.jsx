@@ -467,6 +467,7 @@ const UpdateUser = ({ clearFilter, row }) => {
             Salary
           </Typography>
           <TextField
+            required
             type="number"
             size="small"
             fullWidth
