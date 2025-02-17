@@ -70,7 +70,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-  
+
     setLoading(true);
 
     // var formdata = new FormData();
@@ -85,7 +85,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
     // };
 
     var formdata = new FormData();
-    formdata.append("name", name.trim()); 
+    formdata.append("name", name.trim());
     formdata.append("order_no", orderNo);
     formdata.append("status", status);
     if (file) {
@@ -473,7 +473,11 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
             Device Image
           </Typography>
           <Box sx={{ mb: 3 }}>
-            <ImageUpload file={file} setFile={setFile}  dimension="Dimensions (200 * 250)"/>
+            <ImageUpload
+              file={file}
+              setFile={setFile}
+              dimension="Dimensions (1 : 1.25)"
+            />
           </Box>
 
           <Typography

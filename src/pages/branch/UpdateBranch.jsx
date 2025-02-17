@@ -499,8 +499,19 @@ const UpdateBranch = ({ clearFilter, row }) => {
               >
                 Off Day
               </Typography>
-
-              <FormControl
+              <TextField
+                size="small"
+                fullWidth
+                id="offDay"
+                placeholder="Full Number"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={offDay}
+                onChange={(e) => {
+                  setOffDay(e.target.value);
+                }}
+              />
+              {/* <FormControl
                 fullWidth
                 size="small"
                 sx={{
@@ -543,7 +554,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </FormControl> */}
             </Grid>
             <Grid size={6}>
               <Typography
@@ -632,7 +643,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
                 <ImageUpload
                   file={file}
                   setFile={setFile}
-                  dimension="Dimensions (4 * 5)"
+                  dimension=" Dimensions (2 : 1)"
                 />
               </Box>
             </Grid>

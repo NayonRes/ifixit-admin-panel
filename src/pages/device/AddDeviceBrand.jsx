@@ -410,7 +410,7 @@ const AddDeviceBrand = ({ clearFilter }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              dimension="Dimensions (350 * 350)"
+              dimension=" Dimensions (1 : 1.25)"
             />
           </Box>
           <Typography

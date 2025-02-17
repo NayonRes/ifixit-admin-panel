@@ -490,7 +490,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             <ImageUpload
               file={iconFile}
               setFile={setIconFile}
-              dimension="Dimensions (350 * 350)"
+              dimension=" Dimensions (1 : 1)"
             />
           </Box>
         </DialogContent>
