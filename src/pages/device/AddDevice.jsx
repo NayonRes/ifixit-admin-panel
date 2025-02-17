@@ -428,7 +428,7 @@ const AddDevice = ({ clearFilter }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              dimension="Dimensions (2 * 2.5)"
+              dimension="Dimensions (350 * 350)"
             />
           </Box>
           {/* <Typography
