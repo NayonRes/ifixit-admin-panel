@@ -353,7 +353,7 @@ const AddDevice = ({ clearFilter }) => {
             size="small"
             fullWidth
             id="name"
-            placeholder="Full Name"
+            placeholder="Enter Order No"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 2 }}
             value={orderNo}
@@ -431,7 +431,7 @@ const AddDevice = ({ clearFilter }) => {
               dimension="Dimensions (1 : 1)"
             />
           </Box>
-          {/* <Typography
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -440,8 +440,12 @@ const AddDevice = ({ clearFilter }) => {
             Device Icon
           </Typography>
           <Box>
-            <ImageUpload file={iconFile} setFile={setIconFile} />
-          </Box> */}
+            <ImageUpload
+              file={iconFile}
+              setFile={setIconFile}
+              dimension="Dimensions (1 : 1)"
+            />
+          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

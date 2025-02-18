@@ -343,7 +343,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No (Below 100)
+            Order No
           </Typography>
           <TextField
             required
@@ -351,7 +351,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
             size="small"
             fullWidth
             id="name"
-            placeholder="Full Name"
+            placeholder="Enter Order No"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 2 }}
             value={orderNo}
@@ -476,11 +476,11 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              dimension="Dimensions (1 : 1.25)"
+              dimension="Dimensions (1 : 1)"
             />
           </Box>
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -490,7 +490,7 @@ const UpdateDeviceBrand = ({ clearFilter, row }) => {
           </Typography>
           <Box>
             <ImageUpload file={iconFile} setFile={setIconFile} />
-          </Box>
+          </Box> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

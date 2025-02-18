@@ -412,7 +412,7 @@ const AddBranch = ({ clearFilter }) => {
                 size="small"
                 fullWidth
                 id="offDay"
-                placeholder="Full Number"
+                placeholder="Full Off Day"
                 variant="outlined"
                 sx={{ ...customeTextFeild }}
                 value={offDay}

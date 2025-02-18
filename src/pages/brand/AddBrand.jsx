@@ -129,7 +129,8 @@ const AddBrand = ({ clearFilter }) => {
 
     let data = {
       name: name.trim(),
-      parent_name: parent_id.trim(),
+      parent_name: "Primary",
+      // parent_name: parent_id.trim(),
 
       // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
@@ -234,9 +235,7 @@ const AddBrand = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
-  useEffect(() => {
-    // getDropdownList();
-  }, []);
+  useEffect(() => {}, []);
   return (
     <>
       <Button
@@ -245,7 +244,7 @@ const AddBrand = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
         startIcon={
           <svg
@@ -339,14 +338,14 @@ const AddBrand = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
+            sx={{ ...customeTextFeild }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -398,7 +397,7 @@ const AddBrand = ({ clearFilter }) => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

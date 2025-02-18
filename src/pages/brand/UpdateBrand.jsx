@@ -131,7 +131,8 @@ const UpdateBrand = ({ clearFilter, row }) => {
     let data = {
       name: name.trim(),
 
-      parent_name: parent_id.trim(),
+      parent_name: "Primary",
+      // parent_name: parent_id.trim(),
       status: status,
     };
 
@@ -252,7 +253,7 @@ const UpdateBrand = ({ clearFilter, row }) => {
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -345,14 +346,14 @@ const UpdateBrand = ({ clearFilter, row }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
+            sx={{ ...customeTextFeild }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -405,7 +406,7 @@ const UpdateBrand = ({ clearFilter, row }) => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
           <Typography
             variant="medium"
             color="text.main"

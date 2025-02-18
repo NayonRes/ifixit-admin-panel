@@ -158,7 +158,7 @@ const DeviceBrandList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 5;
+    let loadingNumber = 4;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_device")) {
       loadingNumber = loadingNumber + 1;
@@ -455,7 +455,7 @@ const DeviceBrandList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
                     Name
                   </TableCell>
@@ -481,9 +481,8 @@ const DeviceBrandList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell sx={{ width: "30px", pr: 0 }}>
-                        {/* {row?.image?.url?.length > 0 ? (
-                                                <> */}
+                      {/* <TableCell sx={{ width: "30px", pr: 0 }}>
+                      
                         <img
                           src={
                             row?.icon?.url?.length > 0
@@ -501,11 +500,8 @@ const DeviceBrandList = () => {
                           }}
                         />
 
-                        {/* </>
-                                              ) : (
-                                                "No Image"
-                                              )} */}
-                      </TableCell>
+                   
+                      </TableCell> */}
                       <TableCell sx={{ width: "30px", pr: 0 }}>
                         {/* {row?.image?.url?.length > 0 ? (
                                                 <> */}
@@ -623,7 +619,7 @@ const DeviceBrandList = () => {
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={4} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

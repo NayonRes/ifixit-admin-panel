@@ -353,7 +353,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             size="small"
             fullWidth
             id="name"
-            placeholder="Full Name"
+            placeholder="Enter Order No"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 2 }}
             value={orderNo}
@@ -466,7 +466,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
               <MenuItem value={false}>Inactive</MenuItem>
             </Select>
           </FormControl>
-          {/* <Typography
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -475,8 +475,12 @@ const UpdateDevice = ({ clearFilter, row }) => {
             Device Image
           </Typography>
           <Box sx={{ mb: 3 }}>
-            <ImageUpload file={file} setFile={setFile} />
-          </Box> */}
+            <ImageUpload
+              file={file}
+              setFile={setFile}
+              dimension=" Dimensions (1 : 1)"
+            />
+          </Box>
 
           <Typography
             variant="medium"
