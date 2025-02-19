@@ -87,7 +87,7 @@ const AddModel = ({ clearFilter }) => {
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
-  const [branchList, setBranchList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -281,7 +281,7 @@ const AddModel = ({ clearFilter }) => {
       return;
     }
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -451,7 +451,7 @@ const AddModel = ({ clearFilter }) => {
               value={parent_id}
               onChange={(e) => setParent_id(e.target.value)}
             >
-              {branchList?.map((item) => (
+              {deviceList?.map((item) => (
                 <MenuItem key={item} value={item?._id}>
                   {item?.name}
                 </MenuItem>
@@ -460,7 +460,7 @@ const AddModel = ({ clearFilter }) => {
           </FormControl>
 
           <Box>
-            <ImageUpload file={file} setFile={setFile} />
+            <ImageUpload file={file} setFile={setFile} dimension=" Dimensions (1 : 2)"/>
           </Box>
         </DialogContent>
 
