@@ -89,7 +89,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
   const [status, setStatus] = useState("");
-  const [branchList, setBranchList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -284,12 +284,12 @@ const UpdateModel = ({ clearFilter, row }) => {
       return;
     }
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading2(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -455,7 +455,7 @@ const UpdateModel = ({ clearFilter, row }) => {
               value={parent_id}
               onChange={(e) => setParent_id(e.target.value)}
             >
-              {branchList?.map((item) => (
+              {deviceList?.map((item) => (
                 <MenuItem key={item} value={item?._id}>
                   {item?.name}
                 </MenuItem>
@@ -515,7 +515,11 @@ const UpdateModel = ({ clearFilter, row }) => {
           </FormControl>
 
           <Box>
-            <ImageUpload file={file} setFile={setFile} />
+            <ImageUpload
+              file={file}
+              setFile={setFile}
+              dimension=" Dimensions (1 : 2)"
+            />
           </Box>
         </DialogContent>
 
