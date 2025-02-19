@@ -129,7 +129,8 @@ const AddCategory = ({ clearFilter }) => {
 
     let data = {
       name: name.trim(),
-      parent_name: parent_id.trim(),
+      parent_name: "Primary",
+      // parent_name: parent_id.trim(),
 
       // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
@@ -339,14 +340,14 @@ const AddCategory = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
+            sx={{ ...customeTextFeild }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -354,7 +355,6 @@ const AddCategory = ({ clearFilter }) => {
           >
             Parent Category
           </Typography>
-
           <FormControl
             fullWidth
             size="small"
@@ -398,7 +398,7 @@ const AddCategory = ({ clearFilter }) => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

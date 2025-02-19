@@ -346,7 +346,7 @@ const UpdateBrand = ({ clearFilter, row }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
+            sx={{ ...customeTextFeild, mb: 3 }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
