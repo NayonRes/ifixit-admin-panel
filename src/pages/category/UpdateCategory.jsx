@@ -131,7 +131,8 @@ const UpdateCategory = ({ clearFilter, row }) => {
     let data = {
       name: name.trim(),
 
-      parent_name: parent_id.trim(),
+      parent_name: "Primary",
+      // parent_name: parent_id.trim(),
       status: status,
     };
 
@@ -233,7 +234,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading2(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -378,7 +379,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -431,7 +432,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
           <Typography
             variant="medium"
             color="text.main"
