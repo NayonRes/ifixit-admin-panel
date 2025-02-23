@@ -173,7 +173,7 @@ const SparePartsList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 10;
+    let loadingNumber = 7;
 
     if (
       ifixit_admin_panel?.user?.permission?.includes("view_spare_parts_details")
@@ -729,7 +729,7 @@ const SparePartsList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>*/}
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Warranty
                   </TableCell>
@@ -737,9 +737,9 @@ const SparePartsList = () => {
                     Price / <br />
                     Not on sale
                   </TableCell> */}
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
-                  </TableCell>
+                  </TableCell> */}
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Description
                   </TableCell> */}
@@ -798,16 +798,16 @@ const SparePartsList = () => {
                           ? row?.model_data[0]?.name
                           : "---------"}
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         {row?.price ? row?.price : "---------"}
-                      </TableCell>
+                      </TableCell> */}
 
                       <TableCell>
                         {row?.warranty ? row?.warranty : "---------"}
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         {row?.sparePart_id ? row?.sparePart_id : "---------"}
-                      </TableCell>
+                      </TableCell> */}
 
                       {/* <TableCell sx={{ minWidth: "150px" }}>
                         {row?.description ? row?.description : "---------"}
@@ -879,8 +879,10 @@ const SparePartsList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                    <TableCell colSpan={10} style={{ textAlign: "center" }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell colSpan={7} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

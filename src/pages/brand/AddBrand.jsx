@@ -128,8 +128,7 @@ const AddBrand = ({ clearFilter }) => {
     // formdata.append("parent_id", parent_id);
 
     let data = {
-      name: name.trim(),
-      parent_name: "Primary",
+      name: name.trim(), 
       // parent_name: parent_id.trim(),
 
       // parent_id: parent_id?.length > 0 ? parent_id : null,

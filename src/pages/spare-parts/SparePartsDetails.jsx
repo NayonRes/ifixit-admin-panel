@@ -205,7 +205,7 @@ const SparePartsDetails = () => {
   const pageLoading = () => {
     let content = [];
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 8; i++) {
       content.push(
         <TableRow key={i}>
           {[...Array(11).keys()].map((e, i) => (
@@ -340,7 +340,7 @@ const SparePartsDetails = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Warranty
                   </TableCell>
@@ -348,9 +348,9 @@ const SparePartsDetails = () => {
                     Price / <br />
                     Not on sale
                   </TableCell> */}
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Serial No
-                  </TableCell>
+                  </TableCell> */}
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Description
                   </TableCell> */}
@@ -392,22 +392,22 @@ const SparePartsDetails = () => {
                         ? tableDataList?.model_data[0]?.name
                         : "---------"}
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       {tableDataList?.price
                         ? tableDataList?.price
                         : "---------"}
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell>
                       {tableDataList?.warranty
                         ? tableDataList?.warranty
                         : "---------"}
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       {tableDataList?.sparePart_id
                         ? tableDataList?.sparePart_id
                         : "---------"}
-                    </TableCell>
+                    </TableCell> */}
 
                     {/* <TableCell sx={{ minWidth: "150px" }}>
                       {tableDataList?.description

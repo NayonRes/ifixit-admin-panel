@@ -70,6 +70,7 @@ const DeviceList = () => {
   const [filterLoading, setFilterLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [deviceList, setDeviceList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [deleteData, setDeleteData] = useState({});
   const [orderID, setOrderID] = useState("");
@@ -78,6 +79,7 @@ const DeviceList = () => {
   const [parentName, setParentName] = useState("");
 
   const [status, setStatus] = useState("");
+  const [parentId, setParentId] = useState("");
 
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -158,7 +160,7 @@ const DeviceList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 6;
+    let loadingNumber = 7;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_device")) {
       loadingNumber = loadingNumber + 1;
@@ -188,6 +190,7 @@ const DeviceList = () => {
     setParentName("");
     setOrderNo("");
     setStatus("");
+    setParentId("");
 
     setPage(0);
     const newUrl = `/api/v1/device?limit=${rowsPerPage}&page=1`;
@@ -216,11 +219,15 @@ const DeviceList = () => {
       url = newUrl;
     } else {
       let newStatus = status;
+      let newParentId = parentId;
 
       let newStartingTime = "";
       let newEndingTime = "";
       if (status === "None") {
         newStatus = "";
+      }
+      if (parentId === "None") {
+        newParentId = "";
       }
 
       if (startingTime !== null) {
@@ -230,7 +237,7 @@ const DeviceList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/device?name=${name}&parent_name=${parentName}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/device?name=${name}&parent_id=${newParentId}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -267,8 +274,27 @@ const DeviceList = () => {
 
     return 0;
   };
+  const getDeviceList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
   useEffect(() => {
     getData();
+    getDeviceList();
     // getCategoryList();
   }, []);
 
@@ -399,10 +425,52 @@ const DeviceList = () => {
                     sx={{ ...customeTextFeild }}
                   >
                     <InputLabel id="demo-status-outlined-label">
+                      Parent Device
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 250, // Set the max height here
+                          },
+                        },
+                      }}
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Parent Device"
+                      value={parentId}
+                      onChange={(e) => setParentId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {deviceList?.map((item) => (
+                        <MenuItem key={item} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
                       Status
                     </InputLabel>
                     <Select
                       fullWidth
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 250, // Set the max height here
+                          },
+                        },
+                      }}
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
                       label="Status"
@@ -473,6 +541,9 @@ const DeviceList = () => {
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Parent Device
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
                     Device Brand
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -497,7 +568,6 @@ const DeviceList = () => {
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell sx={{ width: "30px", pr: 0 }}>
-                
                         <img
                           src={
                             row?.icon?.url?.length > 0
@@ -514,8 +584,6 @@ const DeviceList = () => {
                             // border: "1px solid #d1d1d1",
                           }}
                         />
-
-                  
                       </TableCell>
                       <TableCell sx={{ width: "30px", pr: 0 }}>
                         {/* {row?.image?.url?.length > 0 ? (
@@ -543,6 +611,11 @@ const DeviceList = () => {
                                               )} */}
                       </TableCell>
                       <TableCell>{row?.name}</TableCell>
+                      <TableCell>
+                        {row?.parent_data?.length > 0
+                          ? row?.parent_data[0]?.name
+                          : "----------"}
+                      </TableCell>
                       <TableCell>
                         {row?.device_brand_data?.length > 0 &&
                           row?.device_brand_data[0]?.name}

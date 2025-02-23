@@ -53,6 +53,7 @@ const ModelList = () => {
   const [startingTime, setStartingTime] = useState(null);
   const [endingTime, setEndingTime] = useState(null);
 
+  const [orderNo, setOrderNo] = useState();
   const [imageDialog, setImageDialog] = useState(false);
   const [images, setImages] = useState([]);
   const [detailDialog, setDetailDialog] = useState(false);
@@ -119,7 +120,7 @@ const ModelList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 3;
+    let loadingNumber = 4;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_model")) {
       loadingNumber = loadingNumber + 1;
@@ -170,7 +171,7 @@ const ModelList = () => {
 
   const clearFilter = (event) => {
     setName("");
-
+    setOrderNo("");
     setStatus("");
 
     setPage(0);
@@ -214,7 +215,7 @@ const ModelList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/model?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/model?name=${name}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -320,7 +321,22 @@ const ModelList = () => {
                     onChange={(e) => setName(e.target.value)}
                   />
                 </Grid>
-
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                  <TextField
+                    sx={{ ...customeTextFeild }}
+                    id="orderNo"
+                    type="number"
+                    fullWidth
+                    size="small"
+                    variant="outlined"
+                    label="Order No"
+                    InputLabelProps={{
+                      shrink: !!orderNo, // Shrink label only when there's a value
+                    }}
+                    value={orderNo}
+                    onChange={(e) => setOrderNo(e.target.value)}
+                  />
+                </Grid>
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -400,7 +416,9 @@ const ModelList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
                     Name
                   </TableCell>
-
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Order No
+                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
                   {ifixit_admin_panel?.user?.permission?.includes(
                     "update_model"
@@ -434,6 +452,7 @@ const ModelList = () => {
                         />
                       </TableCell>
                       <TableCell>{row?.name}</TableCell>
+                      <TableCell>{row?.order_no}</TableCell>
 
                       <TableCell>
                         {row?.status ? (
@@ -485,8 +504,10 @@ const ModelList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                    <TableCell colSpan={3} style={{ textAlign: "center" }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell colSpan={4} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>

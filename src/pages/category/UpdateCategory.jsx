@@ -131,7 +131,7 @@ const UpdateCategory = ({ clearFilter, row }) => {
     let data = {
       name: name.trim(),
 
-      parent_name: "Primary",
+      // parent_name: "Primary",
       // parent_name: parent_id.trim(),
       status: status,
     };
