@@ -92,6 +92,7 @@ const AddModel = ({ clearFilter }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
+  const [orderNo, setOrderNo] = useState();
   const dropzoneRef = useRef(null);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -117,6 +118,7 @@ const AddModel = ({ clearFilter }) => {
 
   const clearForm = () => {
     setName("");
+    setOrderNo();
     setParent_id("");
     setFile(null);
   };
@@ -132,7 +134,7 @@ const AddModel = ({ clearFilter }) => {
 
     let formdata = new FormData();
     formdata.append("name", name.trim());
-
+    formdata.append("order_no", orderNo);
     formdata.append("device_id", parent_id.trim());
     if (file) {
       formdata.append("image", file);
@@ -274,7 +276,7 @@ const AddModel = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdownlist`;
+    let url = `/api/v1/device/leaf-dropdown`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -403,7 +405,28 @@ const AddModel = ({ clearFilter }) => {
               setName(e.target.value);
             }}
           />
-
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Order No
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            id="name"
+            placeholder="Enter Order No"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={orderNo}
+            onChange={(e) => {
+              setOrderNo(e.target.value);
+            }}
+          />
           <Typography
             variant="medium"
             color="text.main"
@@ -434,7 +457,7 @@ const AddModel = ({ clearFilter }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Model
+                Select Device
               </InputLabel>
             )}
             <Select
@@ -460,7 +483,11 @@ const AddModel = ({ clearFilter }) => {
           </FormControl>
 
           <Box>
-            <ImageUpload file={file} setFile={setFile} dimension=" Dimensions (1 : 2)"/>
+            <ImageUpload
+              file={file}
+              setFile={setFile}
+              dimension=" Dimensions (1 : 2)"
+            />
           </Box>
         </DialogContent>
 

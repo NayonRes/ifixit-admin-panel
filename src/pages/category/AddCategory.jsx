@@ -129,7 +129,7 @@ const AddCategory = ({ clearFilter }) => {
 
     let data = {
       name: name.trim(),
-      parent_name: "Primary",
+      // parent_name: "Primary",
       // parent_name: parent_id.trim(),
 
       // parent_id: parent_id?.length > 0 ? parent_id : null,

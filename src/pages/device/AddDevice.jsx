@@ -47,7 +47,9 @@ const AddDevice = ({ clearFilter }) => {
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
+  const [deviceBrandId, setDeviceBrandId] = useState("");
   const [deviceBrandList, setDeviceBrandList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
   const [file, setFile] = useState(null);
   const [iconFile, setIconFile] = useState(null);
   const [loading2, setLoading2] = useState(false);
@@ -82,6 +84,7 @@ const AddDevice = ({ clearFilter }) => {
     setName("");
     setOrderNo();
     setParent_id("");
+    setDeviceBrandId("");
     setFile(null);
     setIconFile(null);
   };
@@ -92,8 +95,12 @@ const AddDevice = ({ clearFilter }) => {
 
     let formdata = new FormData();
     formdata.append("name", name.trim());
+    if (deviceBrandId) {
+      formdata.append("device_brand_id", deviceBrandId);
+    }
 
-    formdata.append("device_brand_id", parent_id.trim());
+    formdata.append("parent_id", parent_id === "None" ? "" : parent_id);
+
     formdata.append("order_no", orderNo);
     if (file) {
       formdata.append("image", file);
@@ -193,7 +200,7 @@ const AddDevice = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/deviceBrand/dropdownlist?parent_name=Primary`;
+    let url = `/api/v1/deviceBrand/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -211,14 +218,17 @@ const AddDevice = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
-  const getDropdownListWithChildren = async () => {
+  const getDeviceList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/parent-child-list`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
-      setDeviceBrandList(allData?.data?.data);
+      setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -239,6 +249,7 @@ const AddDevice = ({ clearFilter }) => {
         onClick={() => {
           setAddDialog(true);
           getDropdownList();
+          getDeviceList();
           // getDropdownListWithChildren();
         }}
         startIcon={
@@ -387,7 +398,7 @@ const AddDevice = ({ clearFilter }) => {
               },
             }}
           >
-            {parent_id?.length < 1 && (
+            {deviceBrandId?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -406,10 +417,69 @@ const AddDevice = ({ clearFilter }) => {
                   },
                 },
               }}
-              value={parent_id}
-              onChange={(e) => setParent_id(e.target.value)}
+              value={deviceBrandId}
+              onChange={(e) => {
+                setDeviceBrandId(e.target.value);
+              }}
             >
               {deviceBrandList?.map((item) => (
+                <MenuItem key={item} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Parent Device
+          </Typography>
+
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              mb: 3,
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {parent_id?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Parent Device
+              </InputLabel>
+            )}
+            <Select
+              // required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={parent_id}
+              onChange={(e) => {
+                setParent_id(e.target.value);
+              }}
+            >
+              <MenuItem value={"None"}>None</MenuItem>
+              {deviceList?.map((item) => (
                 <MenuItem key={item} value={item?._id}>
                   {item?.name}
                 </MenuItem>

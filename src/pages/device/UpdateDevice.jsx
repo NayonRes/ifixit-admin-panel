@@ -30,10 +30,13 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
+  const [deviceBrandId, setDeviceBrandId] = useState("");
+
   const [file, setFile] = useState(null);
   const [iconFile, setIconFile] = useState(null);
   const [status, setStatus] = useState("");
   const [deviceBrandList, SetDeviceBrandList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderNo, setOrderNo] = useState();
@@ -73,21 +76,15 @@ const UpdateDevice = ({ clearFilter, row }) => {
 
     setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
-
-    // formdata.append("parent_id", parent_id);
-
-    // let data = {
-    //   name: name.trim(),
-    //   parent_name: parent_id.trim(),
-    //   status: status,
-    // };
-
     var formdata = new FormData();
     formdata.append("name", name.trim());
 
-    formdata.append("device_brand_id", parent_id.trim());
+    if (deviceBrandId) {
+      formdata.append("device_brand_id", deviceBrandId);
+    }
+
+    formdata.append("parent_id", parent_id === "None" ? "" : parent_id);
+
     formdata.append("order_no", orderNo);
     formdata.append("status", status);
     if (file) {
@@ -182,7 +179,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/deviceBrand/dropdownlist?parent_name=Primary`;
+    let url = `/api/v1/deviceBrand/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -200,10 +197,29 @@ const UpdateDevice = ({ clearFilter, row }) => {
     }
     setLoading2(false);
   };
+  const getDeviceList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
   useEffect(() => {
     setName(row?.name);
     setOrderNo(row?.order_no);
-    setParent_id(row?.parent_name === null ? "" : row?.device_brand_id);
+    setParent_id(row?.parent_id === null ? "" : row?.parent_id);
+    setDeviceBrandId(row?.device_brand_id === null ? "" : row?.device_brand_id);
     setStatus(row?.status);
   }, [updateDialog]);
   return (
@@ -241,6 +257,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
         onClick={() => {
           setUpdateDialog(true);
           getDropdownList();
+          getDeviceList();
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -386,7 +403,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
               },
             }}
           >
-            {parent_id?.length < 1 && (
+            {deviceBrandId?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
@@ -405,10 +422,69 @@ const UpdateDevice = ({ clearFilter, row }) => {
                   },
                 },
               }}
-              value={parent_id}
-              onChange={(e) => setParent_id(e.target.value)}
+              value={deviceBrandId}
+              onChange={(e) => {
+                setDeviceBrandId(e.target.value);
+              }}
             >
               {deviceBrandList?.map((item) => (
+                <MenuItem key={item} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Parent Device
+          </Typography>
+
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              mb: 3,
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {parent_id?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Parent Device
+              </InputLabel>
+            )}
+            <Select
+              // required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={parent_id}
+              onChange={(e) => {
+                setParent_id(e.target.value);
+              }}
+            >
+              <MenuItem value={"None"}>None</MenuItem>
+              {deviceList?.map((item) => (
                 <MenuItem key={item} value={item?._id}>
                   {item?.name}
                 </MenuItem>

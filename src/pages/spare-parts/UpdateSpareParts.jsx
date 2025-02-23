@@ -350,7 +350,7 @@ const UpdateSpareParts = ({ getData, row }) => {
   const getDeviceList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdownlist`;
+    let url = `/api/v1/device/leaf-dropdown`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
     if (allData?.status === 401) {

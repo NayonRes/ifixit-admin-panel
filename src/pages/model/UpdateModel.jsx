@@ -93,6 +93,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [orderNo, setOrderNo] = useState();
   const [file, setFile] = useState(null);
   const dropzoneRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
@@ -118,6 +119,7 @@ const UpdateModel = ({ clearFilter, row }) => {
 
   const clearForm = () => {
     setName("");
+    setOrderNo();
     setParent_id("");
     setStatus("");
     setFile(null);
@@ -129,7 +131,7 @@ const UpdateModel = ({ clearFilter, row }) => {
 
     let formdata = new FormData();
     formdata.append("name", name.trim());
-
+    formdata.append("order_no", orderNo);
     formdata.append("device_id", parent_id.trim());
     formdata.append("status", status);
     if (file) {
@@ -277,7 +279,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdownlist`;
+    let url = `/api/v1/device/leaf-dropdown`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -297,6 +299,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   };
   useEffect(() => {
     setName(row?.name);
+    setOrderNo(row?.order_no);
     setStatus(row?.status);
     setParent_id(row?.device_id === null ? "" : row?.device_id);
   }, [updateDialog]);
@@ -414,6 +417,28 @@ const UpdateModel = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
+            Order No
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            id="name"
+            placeholder="Enter Order No"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={orderNo}
+            onChange={(e) => {
+              setOrderNo(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
             Select Device
           </Typography>
 
@@ -438,7 +463,7 @@ const UpdateModel = ({ clearFilter, row }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Model
+                Select Device
               </InputLabel>
             )}
             <Select
