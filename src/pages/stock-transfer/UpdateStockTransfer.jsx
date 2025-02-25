@@ -52,6 +52,7 @@ import { handlePutData } from "../../services/PutDataService";
 import { handlePostData } from "../../services/PostDataService";
 import moment from "moment";
 import { transferStatusList } from "../../data";
+import { jwtDecode } from "jwt-decode";
 
 const baseStyle = {
   flex: 1,
@@ -93,6 +94,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
   const [addDialog, setAddDialog] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
   const [supplier, setSupplier] = useState("");
@@ -727,7 +729,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                 size="small"
                 fullWidth
                 id="name"
-                placeholder="Full Name"
+                placeholder="Shipping Charges"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={shippingCharge}
@@ -750,7 +752,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                 size="small"
                 fullWidth
                 id="name"
-                placeholder="Full Name"
+                placeholder="Additional Notes"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={note}
