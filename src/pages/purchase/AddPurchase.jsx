@@ -56,6 +56,7 @@ import {
   roleList,
 } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import { jwtDecode } from "jwt-decode";
 
 const baseStyle = {
   flex: 1,
@@ -96,13 +97,14 @@ const Item = styled(Paper)(({ theme }) => ({
 const AddPurchase = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
   const [value, setValue] = useState(null);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [supplierList, setSupplierList] = useState([]);
   const [supplier, setSupplier] = useState("");
   const [branchList, setBranchList] = useState([]);
-  const [branch, setBranch] = useState("");
+  const [branch, setBranch] = useState(myBranchId);
   const [convertedContent, setConvertedContent] = useState("");
   const [purchaseStatus, setPurchaseStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
@@ -831,6 +833,7 @@ const AddPurchase = ({ clearFilter }) => {
 
               <FormControl
                 fullWidth
+                disabled
                 size="small"
                 sx={{
                   ...customeSelectFeild,

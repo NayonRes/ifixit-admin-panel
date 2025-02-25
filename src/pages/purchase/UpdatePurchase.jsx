@@ -700,6 +700,7 @@ const UpdatePurchase = ({ getData, row }) => {
 
               <FormControl
                 fullWidth
+                disabled
                 size="small"
                 sx={{
                   ...customeSelectFeild,
