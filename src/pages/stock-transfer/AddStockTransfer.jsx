@@ -50,6 +50,7 @@ import SearchIcon from "@mui/icons-material/Search";
 
 import { handlePostData } from "../../services/PostDataService";
 import moment from "moment";
+import { jwtDecode } from "jwt-decode";
 
 const baseStyle = {
   flex: 1,
@@ -90,11 +91,12 @@ const Item = styled(Paper)(({ theme }) => ({
 const AddStockTransfer = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
   const [addDialog, setAddDialog] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
   const [supplier, setSupplier] = useState("");
   const [branchList, setBranchList] = useState([]);
-  const [transferFrom, setTransferFrom] = useState("");
+  const [transferFrom, setTransferFrom] = useState(myBranchId);
   const [transferTo, setTransferTo] = useState("");
 
   const [purchaseDate, setPurchaseDate] = useState(null);
@@ -152,6 +154,12 @@ const AddStockTransfer = ({ clearFilter }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (transferFrom.length < 1) {
+      return handleSnakbarOpen("Please select transfer from", "error");
+    }
+    if (transferTo.length < 1) {
+      return handleSnakbarOpen("Please select transfer to", "error");
+    }
     if (productList.length < 1) {
       return handleSnakbarOpen("Please enter product", "error");
     }
@@ -351,8 +359,9 @@ const AddStockTransfer = ({ clearFilter }) => {
             allData?.data?.data[0]?.stock_status !== "Returned",
             allData?.data?.data[0]?.stock_status
           );
-
-          if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          if (allData?.data?.data[0]?.branch_id !== myBranchId) {
+            handleSnakbarOpen("This is not your branch product", "error");
+          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
             console.log("*************************");
 
             setProductList([
@@ -513,6 +522,7 @@ const AddStockTransfer = ({ clearFilter }) => {
                   </InputLabel>
                 )}
                 <Select
+                  disabled
                   required
                   labelId="demo-simple-select-label"
                   id="type"
@@ -545,6 +555,7 @@ const AddStockTransfer = ({ clearFilter }) => {
               </Typography>
 
               <FormControl
+                required
                 fullWidth
                 size="small"
                 sx={{
@@ -581,11 +592,13 @@ const AddStockTransfer = ({ clearFilter }) => {
                   value={transferTo}
                   onChange={(e) => setTransferTo(e.target.value)}
                 >
-                  {branchList?.map((item) => (
-                    <MenuItem key={item?._id} value={item?._id}>
-                      {item?.name}
-                    </MenuItem>
-                  ))}
+                  {branchList
+                    ?.filter((res) => res._id !== myBranchId)
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -605,7 +618,7 @@ const AddStockTransfer = ({ clearFilter }) => {
                 size="small"
                 fullWidth
                 id="name"
-                placeholder="Full Name"
+                placeholder="Shipping Charges"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={shippingCharge}
@@ -628,7 +641,7 @@ const AddStockTransfer = ({ clearFilter }) => {
                 size="small"
                 fullWidth
                 id="name"
-                placeholder="Full Name"
+                placeholder="Additional Notes"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={note}
