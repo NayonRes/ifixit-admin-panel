@@ -255,7 +255,7 @@ const ServiceDetails = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Brnaches :{" "}
+                Branches :{" "}
                 <b>
                   {details?.branch_data?.length > 0 &&
                     details?.branch_data?.map((item, i) => (
