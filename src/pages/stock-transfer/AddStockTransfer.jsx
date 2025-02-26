@@ -354,11 +354,7 @@ const AddStockTransfer = ({ clearFilter }) => {
         console.log("isSkuPresent", isSkuPresent);
 
         if (!isSkuPresent) {
-          console.log(
-            "111111111111111111111111111111",
-            allData?.data?.data[0]?.stock_status !== "Returned",
-            allData?.data?.data[0]?.stock_status
-          );
+          
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
           } else if (allData?.data?.data[0]?.stock_status !== "Returned") {

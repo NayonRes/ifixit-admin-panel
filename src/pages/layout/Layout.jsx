@@ -1531,7 +1531,7 @@ export default function Layout() {
               sx={{ fontSize: "16px" }}
               title={
                 <List sx={{ pb: 0, mt: 0, pb: 0, minWidth: "238px" }}>
-                  <ListItem disablePadding sx={{ display: "block" }}>
+                  {/* <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       component={Link}
                       to="/profile"
@@ -1579,7 +1579,7 @@ export default function Layout() {
                       </ListItemIcon>
                       <ListItemText
                         primary="Profile"
-                        //
+                    
                       />
                     </ListItemButton>
                   </ListItem>
@@ -1640,7 +1640,7 @@ export default function Layout() {
                         //
                       />
                     </ListItemButton>
-                  </ListItem>
+                  </ListItem> */}
                   <ListItem disablePadding sx={{ display: "block" }}>
                     <ListItemButton
                       onClick={fnLogout}
@@ -1726,13 +1726,24 @@ export default function Layout() {
                       justifyContent: "center",
                     }}
                   >
-                    <img
-                      src="/user.png"
-                      alt="avatar"
-                      width="32px"
-                      height="32px"
-                      // style={{ position: "relative", left: 7 }}
-                    />
+                    {ifixit_admin_panel?.user?.image?.url ? (
+                      <img
+                        src={ifixit_admin_panel?.user?.image?.url}
+                        alt="avatar"
+                        width="28px"
+                        height="28px"
+                        style={{ borderRadius: "100px" }}
+                        // style={{ position: "relative", left: 7 }}
+                      />
+                    ) : (
+                      <img
+                        src="/user.png"
+                        alt="avatar"
+                        width="28px"
+                        height="28px"
+                        // style={{ position: "relative", left: 7 }}
+                      />
+                    )}
                   </ListItemIcon>
                   <ListItemText>
                     {ifixit_admin_panel?.user?.name}

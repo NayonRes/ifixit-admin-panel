@@ -495,7 +495,7 @@ const DeviceBrandList = () => {
                             margin: "5px 0px",
                             borderRadius: "6px",
                             width: "20px",
-                            height: "40px",
+                            maxHeight: "40px",
                             // border: "1px solid #d1d1d1",
                           }}
                         />
@@ -515,9 +515,9 @@ const DeviceBrandList = () => {
                           style={{
                             display: "block",
                             margin: "5px 0px",
-                            borderRadius: "6px",
+                            // borderRadius: "6px",
                             width: "20px",
-                            height: "40px",
+                            maxHeight: "40px",
                             // border: "1px solid #d1d1d1",
                           }}
                         />
