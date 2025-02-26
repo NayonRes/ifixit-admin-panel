@@ -445,9 +445,9 @@ const ModelList = () => {
                           style={{
                             display: "block",
                             margin: "5px 0px",
-                            borderRadius: "6px",
+                            // borderRadius: "6px",
                             width: "20px",
-                            height: "40px",
+                            maxHeight: "40px",
                           }}
                         />
                       </TableCell>

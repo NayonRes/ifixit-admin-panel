@@ -355,13 +355,9 @@ const UpdateStockTransfer = ({ clearFilter }) => {
         console.log("isSkuPresent", isSkuPresent);
 
         if (!isSkuPresent) {
-          console.log(
-            "111111111111111111111111111111",
-            allData?.data?.data[0]?.stock_status !== "Returned",
-            allData?.data?.data[0]?.stock_status
-          );
-
-          if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          if (allData?.data?.data[0]?.branch_id !== myBranchId) {
+            handleSnakbarOpen("This is not your branch product", "error");
+          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
             console.log("*************************");
 
             setProductList([
@@ -582,6 +578,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                   </InputLabel>
                 )}
                 <Select
+                  disabled
                   required
                   labelId="demo-simple-select-label"
                   id="type"
@@ -705,11 +702,17 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                   value={transferStatus}
                   onChange={(e) => setTransferStatus(e.target.value)}
                 >
-                  {transferStatusList?.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
-                    </MenuItem>
-                  ))}
+                  {transferStatusList?.map((item) => {
+                    if (item === "Received" && transferFrom === myBranchId) {
+                      return;
+                    } else {
+                      return (
+                        <MenuItem key={item} value={item}>
+                          {item}
+                        </MenuItem>
+                      );
+                    }
+                  })}
                 </Select>
               </FormControl>
             </Grid>

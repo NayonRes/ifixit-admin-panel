@@ -50,6 +50,7 @@ import SearchIcon from "@mui/icons-material/Search";
 
 import { handlePostData } from "../../services/PostDataService";
 import moment from "moment";
+import { jwtDecode } from "jwt-decode";
 
 const baseStyle = {
   flex: 1,
@@ -90,6 +91,7 @@ const Item = styled(Paper)(({ theme }) => ({
 const AddPurchaseReturn = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
   const [addDialog, setAddDialog] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
   const [supplier, setSupplier] = useState("");
@@ -333,13 +335,9 @@ const AddPurchaseReturn = ({ clearFilter }) => {
         console.log("isSkuPresent", isSkuPresent);
 
         if (!isSkuPresent) {
-          console.log(
-            "111111111111111111111111111111",
-            allData?.data?.data[0]?.stock_status !== "Returned",
-            allData?.data?.data[0]?.stock_status
-          );
-
-          if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          if (allData?.data?.data[0]?.branch_id !== myBranchId) {
+            handleSnakbarOpen("This is not your branch product", "error");
+          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
             console.log("*************************");
 
             setProductList([
