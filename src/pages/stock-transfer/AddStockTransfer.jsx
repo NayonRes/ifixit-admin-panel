@@ -174,7 +174,7 @@ const AddStockTransfer = ({ clearFilter }) => {
     let data = {
       transfer_from: transferFrom,
       transfer_to: transferTo,
-      shipping_charge: parseInt(shippingCharge),
+      shipping_charge: shippingCharge ? parseInt(shippingCharge) : 0,
       remarks: note,
       transfer_stocks_sku: skus,
     };
@@ -354,7 +354,6 @@ const AddStockTransfer = ({ clearFilter }) => {
         console.log("isSkuPresent", isSkuPresent);
 
         if (!isSkuPresent) {
-          
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
           } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
@@ -502,7 +501,10 @@ const AddStockTransfer = ({ clearFilter }) => {
                   "& label.Mui-focused": {
                     color: "rgba(0,0,0,0)",
                   },
-
+                  "& .MuiOutlinedInput-input.Mui-disabled": {
+                    color: "#343E54", // Customize the text color when disabled
+                    WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
+                  },
                   "& .MuiOutlinedInput-input img": {
                     position: "relative",
                     top: "2px",

@@ -174,7 +174,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
       transfer_from: transferFrom,
       transfer_to: transferTo,
       transfer_status: transferStatus,
-      shipping_charge: parseInt(shippingCharge),
+      shipping_charge: shippingCharge ? parseInt(shippingCharge) : 0,
       remarks: note,
       transfer_stocks_sku: skus,
     };
@@ -562,7 +562,10 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                   "& label.Mui-focused": {
                     color: "rgba(0,0,0,0)",
                   },
-
+                  "& .MuiOutlinedInput-input.Mui-disabled": {
+                    color: "#343E54", // Customize the text color when disabled
+                    WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
+                  },
                   "& .MuiOutlinedInput-input img": {
                     position: "relative",
                     top: "2px",
@@ -611,6 +614,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
               </Typography>
 
               <FormControl
+                disabled={transferFrom !== myBranchId}
                 fullWidth
                 size="small"
                 sx={{
@@ -618,7 +622,10 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                   "& label.Mui-focused": {
                     color: "rgba(0,0,0,0)",
                   },
-
+                  "& .MuiOutlinedInput-input.Mui-disabled": {
+                    color: "#343E54", // Customize the text color when disabled
+                    WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
+                  },
                   "& .MuiOutlinedInput-input img": {
                     position: "relative",
                     top: "2px",
@@ -765,162 +772,168 @@ const UpdateStockTransfer = ({ clearFilter }) => {
               />
             </Grid>
           </Grid>
-          <Box
-            sx={{ background: "#F9FAFB", padding: "12px", margin: "16px 0px" }}
-          >
-            <Typography
-              variant="medium"
-              color="text.main"
-              gutterBottom
-              sx={{ fontWeight: 500 }}
+          {transferFrom === myBranchId && (
+            <Box
+              sx={{
+                background: "#F9FAFB",
+                padding: "12px",
+                margin: "16px 0px",
+              }}
             >
-              Search SKU Number *
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid size={10}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  id="searchProductText"
-                  placeholder="Search SKU Number"
-                  variant="outlined"
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
-                              stroke="#85888E"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                  sx={{ ...customeTextFeild }}
-                  value={searchProductText}
-                  onChange={(e) => {
-                    setsearchProductText(e.target.value);
-                    // getProducts(e.target.value);
-                  }}
-                />
-              </Grid>
-              <Grid size={2}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  disableElevation
-                  color="info"
-                  sx={{ py: "4px", minHeight: "40px" }}
-                  size="small"
-                  startIcon={<SearchIcon />}
-                  onClick={() => getProducts()}
-                  // type="submit"
-                >
-                  Search
-                </Button>
-              </Grid>
-
-              <Grid size={12}>
-                <Box sx={{ flexGrow: 1 }}>
-                  <Grid container spacing={2}>
-                    {!searchLoading &&
-                      productList.length > 0 &&
-                      productList.map(
-                        (row, rowIndex) =>
-                          row?.variation_data?.length > 0 &&
-                          row.variation_data.map((item, itemIndex) => (
-                            <Grid
-                              key={`row-${rowIndex}-item-${itemIndex}`}
-                              item
-                              size={3}
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Search SKU Number *
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid size={10}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    id="searchProductText"
+                    placeholder="Search SKU Number"
+                    variant="outlined"
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              <Item
-                                sx={{
-                                  border:
-                                    selectedProducts.some(
-                                      (pro) => pro?._id === item?._id
-                                    ) && "1px solid #818FF8",
-                                }}
-                                onClick={() => handleSelectedProduct(item)}
+                              <path
+                                d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                                stroke="#85888E"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    sx={{ ...customeTextFeild }}
+                    value={searchProductText}
+                    onChange={(e) => {
+                      setsearchProductText(e.target.value);
+                      // getProducts(e.target.value);
+                    }}
+                  />
+                </Grid>
+                <Grid size={2}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    disableElevation
+                    color="info"
+                    sx={{ py: "4px", minHeight: "40px" }}
+                    size="small"
+                    startIcon={<SearchIcon />}
+                    onClick={() => getProducts()}
+                    // type="submit"
+                  >
+                    Search
+                  </Button>
+                </Grid>
+
+                <Grid size={12}>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Grid container spacing={2}>
+                      {!searchLoading &&
+                        productList.length > 0 &&
+                        productList.map(
+                          (row, rowIndex) =>
+                            row?.variation_data?.length > 0 &&
+                            row.variation_data.map((item, itemIndex) => (
+                              <Grid
+                                key={`row-${rowIndex}-item-${itemIndex}`}
+                                item
+                                size={3}
                               >
-                                {" "}
-                                <Box sx={{ flexGrow: 1 }}>
-                                  <Grid container alignItems="center">
-                                    <Grid size="auto" sx={{ width: "40px" }}>
-                                      {" "}
-                                      <img
-                                        src={
-                                          item?.images?.length > 0
-                                            ? item?.images[0]?.url
-                                            : "/noImage.png"
-                                        }
-                                        alt=""
-                                        width={30}
-                                        height={40}
-                                      />
-                                    </Grid>
-                                    <Grid
-                                      size="auto"
-                                      sx={{ width: "Calc(100% - 40px)" }}
-                                    >
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          justifyContent: "space-between",
-                                          alignItems: "center",
-                                        }}
+                                <Item
+                                  sx={{
+                                    border:
+                                      selectedProducts.some(
+                                        (pro) => pro?._id === item?._id
+                                      ) && "1px solid #818FF8",
+                                  }}
+                                  onClick={() => handleSelectedProduct(item)}
+                                >
+                                  {" "}
+                                  <Box sx={{ flexGrow: 1 }}>
+                                    <Grid container alignItems="center">
+                                      <Grid size="auto" sx={{ width: "40px" }}>
+                                        {" "}
+                                        <img
+                                          src={
+                                            item?.images?.length > 0
+                                              ? item?.images[0]?.url
+                                              : "/noImage.png"
+                                          }
+                                          alt=""
+                                          width={30}
+                                          height={40}
+                                        />
+                                      </Grid>
+                                      <Grid
+                                        size="auto"
+                                        sx={{ width: "Calc(100% - 40px)" }}
                                       >
-                                        <Typography
-                                          variant="medium"
+                                        <Box
                                           sx={{
-                                            fontWeight: 500,
-                                            color: "#344054",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            whiteSpace: "nowrap",
-                                            marginRight: 1, // Optional for spacing
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
                                           }}
                                         >
-                                          {item?.name}
-                                        </Typography>
-                                        <Checkbox
-                                          sx={{
-                                            display: selectedProducts.some(
-                                              (pro) => pro?._id === item?._id
-                                            )
-                                              ? "block"
-                                              : "none",
-                                          }}
-                                          size="small"
-                                          checked={true}
-                                          inputProps={{
-                                            "aria-label": "controlled",
-                                          }}
-                                        />
-                                      </Box>
+                                          <Typography
+                                            variant="medium"
+                                            sx={{
+                                              fontWeight: 500,
+                                              color: "#344054",
+                                              overflow: "hidden",
+                                              textOverflow: "ellipsis",
+                                              whiteSpace: "nowrap",
+                                              marginRight: 1, // Optional for spacing
+                                            }}
+                                          >
+                                            {item?.name}
+                                          </Typography>
+                                          <Checkbox
+                                            sx={{
+                                              display: selectedProducts.some(
+                                                (pro) => pro?._id === item?._id
+                                              )
+                                                ? "block"
+                                                : "none",
+                                            }}
+                                            size="small"
+                                            checked={true}
+                                            inputProps={{
+                                              "aria-label": "controlled",
+                                            }}
+                                          />
+                                        </Box>
+                                      </Grid>
                                     </Grid>
-                                  </Grid>
-                                </Box>
-                              </Item>
-                            </Grid>
-                          ))
-                      )}
-                  </Grid>
-                </Box>
+                                  </Box>
+                                </Item>
+                              </Grid>
+                            ))
+                        )}
+                    </Grid>
+                  </Box>
+                </Grid>
               </Grid>
-            </Grid>
-          </Box>
+            </Box>
+          )}
         </div>
 
         <Box
@@ -996,10 +1009,11 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>*/}
-
-                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                      Actions
-                    </TableCell>
+                    {transferFrom === myBranchId && (
+                      <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                        Actions
+                      </TableCell>
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1063,33 +1077,35 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                           }}
                         />
                       </TableCell> */}
-                        <TableCell align="right">
-                          <IconButton
-                            onClick={() =>
-                              setProductList(
-                                productList?.filter(
-                                  (res) => res.sku_number !== row?.sku_number
+                        {transferFrom === myBranchId && (
+                          <TableCell align="right">
+                            <IconButton
+                              onClick={() =>
+                                setProductList(
+                                  productList?.filter(
+                                    (res) => res.sku_number !== row?.sku_number
+                                  )
                                 )
-                              )
-                            }
-                          >
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 20 20"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
+                              }
                             >
-                              <path
-                                d="M12.2837 7.5L11.9952 15M8.00481 15L7.71635 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.875 4.96358M16.023 4.82547L15.1332 16.3938C15.058 17.3707 14.2434 18.125 13.2637 18.125H6.73631C5.75655 18.125 4.94198 17.3707 4.86683 16.3938L3.97696 4.82547M16.023 4.82547C15.0677 4.6812 14.1013 4.57071 13.125 4.49527M3.125 4.96358C3.40798 4.91456 3.69198 4.86851 3.97696 4.82547M3.97696 4.82547C4.93231 4.6812 5.89874 4.57071 6.875 4.49527M13.125 4.49527V3.73182C13.125 2.74902 12.3661 1.92853 11.3838 1.8971C10.9244 1.8824 10.463 1.875 10 1.875C9.53696 1.875 9.07565 1.8824 8.61618 1.8971C7.63388 1.92853 6.875 2.74902 6.875 3.73182V4.49527M13.125 4.49527C12.0938 4.41558 11.0516 4.375 10 4.375C8.94836 4.375 7.9062 4.41558 6.875 4.49527"
-                                stroke="#4A5468"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </IconButton>
-                        </TableCell>
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 20 20"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M12.2837 7.5L11.9952 15M8.00481 15L7.71635 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.875 4.96358M16.023 4.82547L15.1332 16.3938C15.058 17.3707 14.2434 18.125 13.2637 18.125H6.73631C5.75655 18.125 4.94198 17.3707 4.86683 16.3938L3.97696 4.82547M16.023 4.82547C15.0677 4.6812 14.1013 4.57071 13.125 4.49527M3.125 4.96358C3.40798 4.91456 3.69198 4.86851 3.97696 4.82547M3.97696 4.82547C4.93231 4.6812 5.89874 4.57071 6.875 4.49527M13.125 4.49527V3.73182C13.125 2.74902 12.3661 1.92853 11.3838 1.8971C10.9244 1.8824 10.463 1.875 10 1.875C9.53696 1.875 9.07565 1.8824 8.61618 1.8971C7.63388 1.92853 6.875 2.74902 6.875 3.73182V4.49527M13.125 4.49527C12.0938 4.41558 11.0516 4.375 10 4.375C8.94836 4.375 7.9062 4.41558 6.875 4.49527"
+                                  stroke="#4A5468"
+                                  stroke-width="1.5"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                              </svg>
+                            </IconButton>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                 </TableBody>
