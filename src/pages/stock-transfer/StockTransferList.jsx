@@ -771,7 +771,10 @@ const StockTransferList = () => {
 
                       <TableCell>{row?.transfer_stocks_sku?.length}</TableCell>
                       <TableCell>{row?.shipping_charge}</TableCell>
-                      <TableCell> {row?.remarks}</TableCell>
+                      <TableCell>
+                        {" "}
+                        {row?.remarks ? row?.remarks : "---------"}
+                      </TableCell>
 
                       <TableCell>
                         {row?.transfer_status ? (
@@ -825,11 +828,17 @@ const StockTransferList = () => {
                               size="small"
                               variant="outlined"
                               color="text"
-                              disabled={row?.transfer_status === "Received"}
+                              disabled={
+                                row?.transfer_status === "Received" ||
+                                row?.transfer_status === "Canceled"
+                              }
                               sx={{
                                 "& svg": {
-                                  opacity:
-                                    row?.transfer_status === "Received" && 0.5,
+                                  opacity: ["Received", "Canceled"].includes(
+                                    row?.transfer_status
+                                  )
+                                    ? 0.5
+                                    : 1,
                                 },
                               }}
                               startIcon={

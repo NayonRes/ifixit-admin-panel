@@ -245,6 +245,7 @@ const PurchaseDetails = () => {
       spare_parts_variation_id: item.spare_parts_variation_id,
       supplier_id: tableDataList[0]?.supplier_id,
       branch_id: tableDataList[0]?.branch_id,
+      purchase_branch_id: tableDataList[0]?.branch_id,
       brand_id: item?.spare_part_details[0]?.brand_id,
       category_id: item?.spare_part_details[0]?.category_id,
       device_id: item?.spare_part_details[0]?.device_id,
@@ -899,7 +900,9 @@ const PurchaseDetails = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={15} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>

@@ -337,6 +337,13 @@ const AddPurchaseReturn = ({ clearFilter }) => {
         if (!isSkuPresent) {
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
+          } else if (
+            allData?.data?.data[0]?.purchase_branch_id !== myBranchId
+          ) {
+            handleSnakbarOpen(
+              `This product purchased by ${allData?.data?.data[0]?.purchase_branch_data[0]?.name}. So you can't return it`,
+              "error"
+            );
           } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
             console.log("*************************");
 
