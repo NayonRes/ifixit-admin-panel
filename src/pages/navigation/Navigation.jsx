@@ -42,6 +42,7 @@ import AddService from "../service/AddService";
 import ServiceDetails from "../service/ServiceDetails";
 import UpdateService from "../service/UpdateService";
 import BranchStockList from "../stock-alert/BranchStockList";
+import StockAdjustment from "../stock-adjustment/StockAdjustment";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -260,6 +261,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <AddPurchaseReturn />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="stock-adjustment"
+          element={
+            <PrivateRoute>
+              <StockAdjustment />
             </PrivateRoute>
           }
         />

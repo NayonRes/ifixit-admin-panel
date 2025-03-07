@@ -1259,13 +1259,14 @@ export default function Layout() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   onClick={() => handleOpemMenu("")}
-                  // component={Link}
-                  // to="/live-chat"
-
+                  component={Link}
+                  to="/stock-adjustment"
                   sx={[
                     { ...listButtonStyle },
-                    pathname === "/live-chat" && { ...activeStyle },
+                    pathname === "/stock-adjustment" && { ...activeStyle },
                   ]}
+
+                
                 >
                   <ListItemIcon
                     sx={{

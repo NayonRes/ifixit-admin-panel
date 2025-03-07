@@ -52,35 +52,6 @@ import { handlePostData } from "../../services/PostDataService";
 import moment from "moment";
 import { jwtDecode } from "jwt-decode";
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#F9FAFB",
   padding: "16px 12px",
@@ -88,19 +59,20 @@ const Item = styled(Paper)(({ theme }) => ({
   border: "1px solid #EAECF0",
   cursor: "pointer",
 }));
-const AddPurchaseReturn = ({ clearFilter }) => {
+const StockAdjustment = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
-  const [addDialog, setAddDialog] = useState(false); 
-  const [branchList, setBranchList] = useState([]); 
+  const [addDialog, setAddDialog] = useState(false);
+  const [branchList, setBranchList] = useState([]);
   const [searchProductText, setsearchProductText] = useState("");
   const [productList, setProductList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-   
+  const [stockStatus, setStockStatus] = useState("");
+
   const [loading, setLoading] = useState(false);
- 
+
   const [details, setDetails] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
@@ -125,6 +97,9 @@ const AddPurchaseReturn = ({ clearFilter }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (stockStatus.length < 1) {
+      return handleSnakbarOpen("Please select stock status", "error");
+    }
     if (productList.length < 1) {
       return handleSnakbarOpen("Please enter return product", "error");
     }
@@ -134,18 +109,19 @@ const AddPurchaseReturn = ({ clearFilter }) => {
     // formdata.append("name", name);
 
     // formdata.append("parent_id", parent_id);
-    const purchase_return_data = productList.map((product) => ({
+    const adjustment_data = productList.map((product) => ({
       sku_number: parseInt(product?.sku_number),
       remarks: product?.note,
     }));
 
     let data = {
-      purchase_return_data,
+      stockStatus,
+      adjustment_data,
     };
     console.log("data", data);
 
     let response = await handlePostData(
-      "/api/v1/sparePartsStock/purchase-return",
+      "/api/v1/sparePartsStock/stock-adjustment",
       data,
       false
     );
@@ -159,6 +135,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
       setProductList([]);
+      setStockStatus("");
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -195,8 +172,34 @@ const AddPurchaseReturn = ({ clearFilter }) => {
       },
     },
   };
- 
+  const customeSelectFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
 
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+    "& .MuiOutlinedInput-input": {
+      // padding: "10px 16px",
+    },
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px",
+      "& fieldset": {
+        borderColor: "#",
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
   const getProducts = async (e) => {
     e.preventDefault();
     setSearchLoading(true);
@@ -298,7 +301,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
           component="div"
           sx={{ color: "#0F1624", fontWeight: 600 }}
         >
-          Add Purchase Return
+          Stock Adjustment
         </Typography>
       </Box>
 
@@ -312,6 +315,58 @@ const AddPurchaseReturn = ({ clearFilter }) => {
           boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
         }}
       >
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Stock Adjudtment Status *
+        </Typography>
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            mb: 3,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+          }}
+        >
+          {stockStatus.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Stock Adjudtment Status
+            </InputLabel>
+          )}
+          <Select
+            required
+            labelId="demo-simple-select-label"
+            id="type"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={stockStatus}
+            onChange={(e) => setStockStatus(e.target.value)}
+          >
+            <MenuItem value={"Available"}>Available</MenuItem>
+            <MenuItem value={"Abnormal"}>Abnormal</MenuItem>
+          </Select>
+        </FormControl>
+
         <Typography
           variant="medium"
           color="text.main"
@@ -507,7 +562,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
             boxSizing: "border-box",
           }}
         >
-          <TableContainer sx={{ height: "Calc(100vh - 370px)" }}>
+          <TableContainer sx={{ height: "Calc(100vh - 450px)" }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
@@ -696,7 +751,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                 size={10}
                 speedMultiplier={0.5}
               />{" "}
-              {loading === false && "Return"}
+              {loading === false && "Submit"}
             </Button>
           </Box>
         </div>
@@ -705,4 +760,4 @@ const AddPurchaseReturn = ({ clearFilter }) => {
   );
 };
 
-export default AddPurchaseReturn;
+export default StockAdjustment;
