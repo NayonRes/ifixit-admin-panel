@@ -130,12 +130,15 @@ const AddStockLimit = ({ clearFilter }) => {
 
   const [message, setMessage] = useState("");
   const [details, setDetails] = useState("");
+  const [limitDataList, setLimitDataList] = useState();
+  const [limitDataLoading, setLimitDataLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setAddDialog(false);
+      setBranchList(branchList?.map((item) => ({ ...item, limit: "" })));
     }
   };
 
@@ -448,6 +451,40 @@ const AddStockLimit = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
+  const getBranchLimit = async (spare_parts_variation_id) => {
+    setLimitDataLoading(true);
+
+    // let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let url = `/api/v1/stockCounterAndLimit/branch-limit?spare_parts_variation_id=${spare_parts_variation_id}`;
+    let data = { spare_parts_variation_id };
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("getBranchLimit************************", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setLimitDataLoading(false);
+      // setModelList(allData?.data?.data);
+
+      let newBranchList = branchList?.map((item) => {
+        let newData = allData?.data?.data?.find(
+          (el) => el.branch_id === item?._id
+        );
+        return { ...item, limit: newData?.stock_limit || 0 }; // Defaults to 0 if stock_limit is undefined
+      });
+
+      setBranchList(newBranchList);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLimitDataLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
 
   const getProducts = async (searchText, bId, dId, mId, catId) => {
     setSearchLoading(true);
@@ -496,6 +533,7 @@ const AddStockLimit = ({ clearFilter }) => {
   const handleSelectedProduct = (item) => {
     console.log("item", item);
     setDetails(item);
+    getBranchLimit(item?._id);
     setAddDialog(true);
 
     // if (selectedProducts.some((res) => res._id === item._id)) {
@@ -1136,7 +1174,12 @@ const AddStockLimit = ({ clearFilter }) => {
                   size="small"
                   fullWidth
                   id="branch"
-                  placeholder="Enter Alert Limit"
+                  disabled={limitDataLoading}
+                  placeholder={
+                    limitDataLoading
+                      ? "Checking Previous Alert Limit"
+                      : "Enter Alert Limit"
+                  }
                   variant="outlined"
                   sx={{ ...customeTextFeild }}
                   value={item?.limit}
@@ -1177,7 +1220,7 @@ const AddStockLimit = ({ clearFilter }) => {
               minHeight: "44px",
             }}
             // style={{ minWidth: "180px", minHeight: "35px" }}
-            autoFocus
+
             disableElevation
           >
             <PulseLoader
