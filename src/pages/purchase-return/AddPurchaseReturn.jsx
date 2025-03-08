@@ -92,15 +92,15 @@ const AddPurchaseReturn = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
-  const [addDialog, setAddDialog] = useState(false); 
-  const [branchList, setBranchList] = useState([]); 
+  const [addDialog, setAddDialog] = useState(false);
+  const [branchList, setBranchList] = useState([]);
   const [searchProductText, setsearchProductText] = useState("");
   const [productList, setProductList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-   
+
   const [loading, setLoading] = useState(false);
- 
+
   const [details, setDetails] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
@@ -157,7 +157,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
     }
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
-      handleSnakbarOpen("Added successfully", "success");
+      handleSnakbarOpen("Return successfully", "success");
       setProductList([]);
     } else {
       setLoading(false);
@@ -195,7 +195,6 @@ const AddPurchaseReturn = ({ clearFilter }) => {
       },
     },
   };
- 
 
   const getProducts = async (e) => {
     e.preventDefault();
@@ -298,7 +297,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
           component="div"
           sx={{ color: "#0F1624", fontWeight: 600 }}
         >
-          Add Purchase Return
+          Purchase Return
         </Typography>
       </Box>
 

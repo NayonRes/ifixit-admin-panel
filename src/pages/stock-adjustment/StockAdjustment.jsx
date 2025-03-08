@@ -133,7 +133,7 @@ const StockAdjustment = ({ clearFilter }) => {
     }
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
-      handleSnakbarOpen("Added successfully", "success");
+      handleSnakbarOpen("Adjust successfully", "success");
       setProductList([]);
       setStockStatus("");
     } else {

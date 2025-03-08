@@ -949,7 +949,7 @@ export default function Layout() {
                       <ListItemText primary="Add Spare parts" />
                     </ListItemButton>
                   </ListItem> */}
-                      {checkPermission("stock_alert_list") && (
+                      {/* {checkPermission("stock_alert_list") && (
                         <ListItem disablePadding sx={{ display: "block" }}>
                           <ListItemButton
                             component={Link}
@@ -963,7 +963,7 @@ export default function Layout() {
                             <ListItemText primary="Stock Alert" />
                           </ListItemButton>
                         </ListItem>
-                      )}
+                      )} */}
                       {/* {checkPermission("branch_stock_list") && (
                         <ListItem disablePadding sx={{ display: "block" }}>
                           <ListItemButton
@@ -1265,8 +1265,6 @@ export default function Layout() {
                     { ...listButtonStyle },
                     pathname === "/stock-adjustment" && { ...activeStyle },
                   ]}
-
-                
                 >
                   <ListItemIcon
                     sx={{
