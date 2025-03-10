@@ -211,11 +211,11 @@ const AddSpareParts = ({ clearFilter }) => {
     setRemarks("");
   };
 
-  const handleCreateSpareParts = async (variationList, spare_parts_id) => {
+  const handleCreateSpareParts = async (variationList, product_id) => {
     try {
       // Create an array of promises
       // const promises = variationList.map((variation) =>
-      //   handlePostData("/api/v1/sparePartVariation/create", variation, true)
+      //   handlePostData("/api/v1/productVariation/create", variation, true)
       // );
 
       const promises = variationList.map((variation) => {
@@ -225,7 +225,7 @@ const AddSpareParts = ({ clearFilter }) => {
         // price: 0,
         // file: null,
         const formData = new FormData();
-        formData.append("spare_parts_id", spare_parts_id);
+        formData.append("product_id", product_id);
         formData.append("name", variation?.name?.trim());
         formData.append("price", parseFloat(variation?.price).toFixed(2));
         {
@@ -236,7 +236,7 @@ const AddSpareParts = ({ clearFilter }) => {
 
         // Call handlePostData for this FormData
         return handlePostData(
-          "/api/v1/sparePartVariation/create",
+          "/api/v1/productVariation/create",
           formData,
           true
         );
@@ -302,7 +302,7 @@ const AddSpareParts = ({ clearFilter }) => {
     // });
 
     let response = await handlePostData(
-      "/api/v1/sparePart/create",
+      "/api/v1/product/create",
       formData,
       true
     );

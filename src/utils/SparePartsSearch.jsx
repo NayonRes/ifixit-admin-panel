@@ -14,7 +14,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 const options = ["Option 1", "Option 2"];
 const SparePartsSearch = ({
   sparePartsIds,
-  setSparePartsIds, 
+  setSparePartsIds,
   autocompleteSearchSparePartsRef,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -107,7 +107,7 @@ const SparePartsSearch = ({
       newCategoryId = catId;
     }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -146,21 +146,20 @@ const SparePartsSearch = ({
   const findIds = (findIds) => {
     if (findIds) {
       const result = findIds.split("-").map((s) => s.trim());
-      let spare_parts_id = productList?.find((res) => res.name === result[0]);
-      let spare_parts_variation_id = spare_parts_id?.variation_data?.find(
+      let product_id = productList?.find((res) => res.name === result[0]);
+      let product_variation_id = product_id?.variation_data?.find(
         (res) => res.name === result[1]
       );
 
       setSparePartsIds({
-        spare_parts_id: spare_parts_id?._id,
-        spare_parts_variation_id: spare_parts_variation_id?._id,
+        product_id: product_id?._id,
+        product_variation_id: product_variation_id?._id,
       });
       console.log("result", result);
-      console.log("spare_parts_id", spare_parts_id);
-      console.log("spare_parts_variation_id", spare_parts_variation_id);
+      console.log("product_id", product_id);
+      console.log("product_variation_id", product_variation_id);
     }
   };
- 
 
   return (
     <Box>

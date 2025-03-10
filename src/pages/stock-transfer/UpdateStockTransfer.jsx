@@ -336,7 +336,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
     setSearchLoading(true);
     let url;
 
-    url = `/api/v1/sparePartsStock?sku_number=${parseInt(searchProductText)}`;
+    url = `/api/v1/stock?sku_number=${parseInt(searchProductText)}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -407,8 +407,8 @@ const UpdateStockTransfer = ({ clearFilter }) => {
     //     ...selectedProducts,
     //     {
     //       ...item,
-    //       spare_parts_id: item.spare_parts_id,
-    //       spare_parts_variation_id: item._id,
+    //       product_id: item.product_id,
+    //       product_variation_id: item._id,
     //       purchase_product_status: "",
     //       quantity: "",
     //       unit_price: "",
@@ -459,11 +459,11 @@ const UpdateStockTransfer = ({ clearFilter }) => {
       let newSKUdetails = allData?.data?.data?.sku_details?.map((item) => ({
         ...item,
         spare_parts_name: allData?.data?.data?.spare_parts_details?.find(
-          (res) => res._id === item?.spare_parts_id
+          (res) => res._id === item?.product_id
         )?.name,
         spare_parts_variation_name:
           allData?.data?.data?.spare_parts_variation_details?.find(
-            (res) => res._id === item?.spare_parts_variation_id
+            (res) => res._id === item?.product_variation_id
           )?.name,
         purchase_date: allData?.data?.data?.purchase_details?.find(
           (res) => res._id === item?.purchase_id

@@ -113,7 +113,7 @@ const SparePartsDetails = () => {
     }
 
     let response = await handlePutData(
-      `/api/v1/sparePartVariation/update/${updateData?._id}`,
+      `/api/v1/productVariation/update/${updateData?._id}`,
       formData,
       true
     );
@@ -222,7 +222,7 @@ const SparePartsDetails = () => {
   const getData = async (controlLoading) => {
     setLoading(controlLoading ?? true);
 
-    let url = `/api/v1/sparePart/${encodeURIComponent(id.trim())}`;
+    let url = `/api/v1/product/${encodeURIComponent(id.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
     if (allData?.status === 401) {
@@ -404,8 +404,8 @@ const SparePartsDetails = () => {
                         : "---------"}
                     </TableCell>
                     {/* <TableCell>
-                      {tableDataList?.sparePart_id
-                        ? tableDataList?.sparePart_id
+                      {tableDataList?.product_id
+                        ? tableDataList?.product_id
                         : "---------"}
                     </TableCell> */}
 

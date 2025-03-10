@@ -160,7 +160,7 @@ const AddStockLimit = ({ clearFilter }) => {
     try {
       // Create an array of promises
       // const promises = variationList.map((variation) =>
-      //   handlePostData("/api/v1/sparePartVariation/create", variation, true)
+      //   handlePostData("/api/v1/productVariation/create", variation, true)
       // );
 
       if (branchList.filter((branch) => branch?.limit).length < 1) {
@@ -171,8 +171,8 @@ const AddStockLimit = ({ clearFilter }) => {
         .filter((branch) => branch?.limit)
         .map((branch) => {
           let data = {
-            spare_parts_id: details.spare_parts_id,
-            spare_parts_variation_id: details._id,
+            product_id: details.product_id,
+            product_variation_id: details._id,
             branch_id: branch?._id,
             stock_limit: branch?.limit ? parseInt(branch?.limit) : 0,
           };
@@ -451,12 +451,12 @@ const AddStockLimit = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
-  const getBranchLimit = async (spare_parts_variation_id) => {
+  const getBranchLimit = async (product_variation_id) => {
     setLimitDataLoading(true);
 
     // let url = `/api/v1/model/device-model?deviceId=${id}`;
-    let url = `/api/v1/stockCounterAndLimit/branch-limit?spare_parts_variation_id=${spare_parts_variation_id}`;
-    let data = { spare_parts_variation_id };
+    let url = `/api/v1/stockCounterAndLimit/branch-limit?product_variation_id=${product_variation_id}`;
+    let data = { product_variation_id };
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -510,7 +510,7 @@ const AddStockLimit = ({ clearFilter }) => {
       newCategoryId = catId;
     }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -545,8 +545,8 @@ const AddStockLimit = ({ clearFilter }) => {
     //     ...selectedProducts,
     //     {
     //       ...item,
-    //       spare_parts_id: item.spare_parts_id,
-    //       spare_parts_variation_id: item._id,
+    //       product_id: item.product_id,
+    //       product_variation_id: item._id,
     //       purchase_product_status: "",
     //       quantity: "",
     //       unit_price: "",

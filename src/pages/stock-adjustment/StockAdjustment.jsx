@@ -121,7 +121,7 @@ const StockAdjustment = ({ clearFilter }) => {
     console.log("data", data);
 
     let response = await handlePostData(
-      "/api/v1/sparePartsStock/stock-adjustment",
+      "/api/v1/stock/stock-adjustment",
       data,
       false
     );
@@ -205,7 +205,7 @@ const StockAdjustment = ({ clearFilter }) => {
     setSearchLoading(true);
     let url;
 
-    url = `/api/v1/sparePartsStock?sku_number=${parseInt(searchProductText)}`;
+    url = `/api/v1/stock?sku_number=${parseInt(searchProductText)}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -226,8 +226,8 @@ const StockAdjustment = ({ clearFilter }) => {
         if (!isSkuPresent) {
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
-          } 
-          
+          }
+
           // else if (
           //   allData?.data?.data[0]?.purchase_branch_id !== myBranchId
           // ) {
@@ -235,8 +235,7 @@ const StockAdjustment = ({ clearFilter }) => {
           //     `This product purchased by ${allData?.data?.data[0]?.purchase_branch_data[0]?.name}. So you can't return it`,
           //     "error"
           //   );
-          // } 
-          
+          // }
           else if (allData?.data?.data[0]?.stock_status !== "Returned") {
             console.log("*************************");
 
@@ -275,8 +274,8 @@ const StockAdjustment = ({ clearFilter }) => {
     //     ...selectedProducts,
     //     {
     //       ...item,
-    //       spare_parts_id: item.spare_parts_id,
-    //       spare_parts_variation_id: item._id,
+    //       product_id: item.product_id,
+    //       product_variation_id: item._id,
     //       purchase_product_status: "",
     //       quantity: "",
     //       unit_price: "",

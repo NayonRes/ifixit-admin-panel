@@ -249,7 +249,7 @@ const PurchaseReturnList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePartsStock?stock_status=Returned&branch_id=${newBranch}&page=${
+      url = `/api/v1/stock?stock_status=Returned&branch_id=${newBranch}&page=${
         newPageNO + 1
       }`;
     }
@@ -762,7 +762,9 @@ const PurchaseReturnList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>

@@ -157,7 +157,7 @@ const PurchaseDetails = () => {
       newBrandId = bId;
     }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -188,7 +188,7 @@ const PurchaseDetails = () => {
         ...selectedProducts,
         {
           ...item,
-          spare_parts_variation_id: row._id,
+          product_variation_id: row._id,
           quantity: "",
           price: "",
         },
@@ -202,8 +202,8 @@ const PurchaseDetails = () => {
 
     let data = {
       purchase_id: updateData.purchase_id,
-      spare_parts_id: updateData.spare_parts_id,
-      spare_parts_variation_id: updateData.spare_parts_variation_id,
+      product_id: updateData.product_id,
+      product_variation_id: updateData.product_variation_id,
       quantity: parseInt(updateData.quantity),
       unit_price: parseFloat(updateData.unit_price).toFixed(2),
       purchase_product_status: updateData.purchase_product_status,
@@ -241,8 +241,8 @@ const PurchaseDetails = () => {
     let data = {
       purchase_id: item.purchase_id,
       purchase_product_id: item._id,
-      spare_parts_id: item.spare_parts_id,
-      spare_parts_variation_id: item.spare_parts_variation_id,
+      product_id: item.product_id,
+      product_variation_id: item.product_variation_id,
       supplier_id: tableDataList[0]?.supplier_id,
       branch_id: tableDataList[0]?.branch_id,
       purchase_branch_id: tableDataList[0]?.branch_id,
@@ -253,11 +253,7 @@ const PurchaseDetails = () => {
       quantity: parseInt(item.quantity),
     };
 
-    let response = await handlePostData(
-      `/api/v1/sparePartsStock/create`,
-      data,
-      false
-    );
+    let response = await handlePostData(`/api/v1/stock/create`, data, false);
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -444,14 +440,12 @@ const PurchaseDetails = () => {
     setSkuLoading(true);
     setSkuList([]);
 
-    let url = `/api/v1/sparePartsStock/stock-skus-details?sku_number=${encodeURIComponent(
+    let url = `/api/v1/stock/stock-skus-details?sku_number=${encodeURIComponent(
       ""
-    )}&stock_status=${encodeURIComponent(
-      ""
-    )}&spare_parts_id=${encodeURIComponent(
-      item.spare_parts_id
-    )}&spare_parts_variation_id=${encodeURIComponent(
-      item.spare_parts_variation_id
+    )}&stock_status=${encodeURIComponent("")}&product_id=${encodeURIComponent(
+      item.product_id
+    )}&product_variation_id=${encodeURIComponent(
+      item.product_variation_id
     )}&branch_id=${encodeURIComponent(
       tableDataList[0]?.branch_id
     )}&purchase_id=${encodeURIComponent(
@@ -619,8 +613,8 @@ const PurchaseDetails = () => {
                         : "---------"}
                     </TableCell>
                     <TableCell>
-                      {tableDataList?.sparePart_id
-                        ? tableDataList?.sparePart_id
+                      {tableDataList?.product_id
+                        ? tableDataList?.product_id
                         : "---------"}
                     </TableCell>
 

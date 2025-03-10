@@ -222,7 +222,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     }
 
     let response = await handlePutData(
-      `/api/v1/sparePart/update/${row?._id}`,
+      `/api/v1/product/update/${row?._id}`,
       formData,
       true
     );

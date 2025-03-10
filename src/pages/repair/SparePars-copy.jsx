@@ -200,8 +200,8 @@ const SparePars = ({ allSpareParts, setAllSpareParts }) => {
       return;
     } else {
       newSelectedProduct = selectedProducts?.map((item, i) => ({
-        spare_parts_id: item.spare_parts_id,
-        spare_parts_variation_id: item.spare_parts_variation_id,
+        product_id: item.product_id,
+        product_variation_id: item.product_variation_id,
         quantity: item.quantity,
         unit_price: item.unit_price,
         purchase_product_status: item.purchase_product_status,
@@ -454,7 +454,7 @@ const SparePars = ({ allSpareParts, setAllSpareParts }) => {
       newCategoryId = catId;
     }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
     let allData = await getDataWithToken(url);
     // console.log("(allData?.data?.data products", allData?.data?.data);
@@ -480,8 +480,8 @@ const SparePars = ({ allSpareParts, setAllSpareParts }) => {
         ...selectedProducts,
         {
           ...item,
-          spare_parts_id: item.spare_parts_id,
-          spare_parts_variation_id: item._id,
+          product_id: item.product_id,
+          product_variation_id: item._id,
           purchase_product_status: "",
           quantity: "",
           unit_price: "",
@@ -491,8 +491,8 @@ const SparePars = ({ allSpareParts, setAllSpareParts }) => {
         ...selectedProducts,
         {
           ...item,
-          spare_parts_id: item.spare_parts_id,
-          spare_parts_variation_id: item._id,
+          product_id: item.product_id,
+          product_variation_id: item._id,
           purchase_product_status: "",
           quantity: "",
           unit_price: "",

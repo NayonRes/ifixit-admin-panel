@@ -128,12 +128,12 @@ const RepairSearch = () => {
     });
     let allSparePartsModified = allSpareParts.map((item) => {
       let d = {
-        id: item.spare_parts_id,
+        id: item.product_id,
         name: item.name,
         price: item.price,
         spare_parts_full_name: item.name,
-        spare_parts_id: item.spare_parts_id,
-        spare_parts_variation_id: item.spare_parts_variation_id,
+        product_id: item.product_id,
+        product_variation_id: item.product_variation_id,
       };
       return d;
     });
@@ -201,10 +201,10 @@ const RepairSearch = () => {
   const revampSparePars = (all) => {
     let list = all.map((i) => {
       let l = {
-        _id: i.spare_parts_id,
+        _id: i.product_id,
         name: i.name,
         price: i.price,
-        spare_parts_variation_id: i.spare_parts_variation_id,
+        product_variation_id: i.product_variation_id,
       };
       return l;
     });

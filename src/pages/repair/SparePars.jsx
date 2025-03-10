@@ -203,8 +203,8 @@ const SparePars = ({
       return;
     } else {
       newSelectedProduct = selectedProducts?.map((item, i) => ({
-        spare_parts_id: item.spare_parts_id,
-        spare_parts_variation_id: item.spare_parts_variation_id,
+        product_id: item.product_id,
+        product_variation_id: item.product_variation_id,
         quantity: item.quantity,
         unit_price: item.unit_price,
         purchase_product_status: item.purchase_product_status,
@@ -346,11 +346,11 @@ const SparePars = ({
 
     let branch_id = getBranchId();
 
-    // let url = `/api/v1/sparePart?brand_id=${brand_id}&model_id=${deviceId}&device_id=${partsDeviceId}&branch_id=${branch_id}`;
+    // let url = `/api/v1/product?brand_id=${brand_id}&model_id=${deviceId}&device_id=${partsDeviceId}&branch_id=${branch_id}`;
 
-    let url = `/api/v1/sparePart?model_id=${partsDeviceId}&branch_id=${branch_id}`;
+    let url = `/api/v1/product?model_id=${partsDeviceId}&branch_id=${branch_id}`;
 
-    // url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    // url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
     let allData = await getDataWithToken(url);
     // console.log("(allData?.data?.data products", allData?.data?.data);
@@ -376,25 +376,19 @@ const SparePars = ({
 
   const handleSelectedProduct = (item, row) => {
     console.log("item:::", item);
-    if (
-      selectedProducts.some((res) => res.spare_parts_id === item.spare_parts_id)
-    ) {
+    if (selectedProducts.some((res) => res.product_id === item.product_id)) {
       setSelectedProducts(
-        selectedProducts.filter(
-          (res) => res.spare_parts_id !== item.spare_parts_id
-        )
+        selectedProducts.filter((res) => res.product_id !== item.product_id)
       );
       setAllSpareParts(
-        selectedProducts.filter(
-          (res) => res.spare_parts_id !== item.spare_parts_id
-        )
+        selectedProducts.filter((res) => res.product_id !== item.product_id)
       );
     } else {
       // {
       //   ...item,
       //   spare_parts_full_name: `${row?.name} - ${item?.name}`,
-      //   spare_parts_id: item.spare_parts_id,
-      //   spare_parts_variation_id: item._id,
+      //   product_id: item.product_id,
+      //   product_variation_id: item._id,
       //   purchase_product_status: "",
       //   quantity: "",
       //   unit_price: "",
@@ -403,12 +397,12 @@ const SparePars = ({
         ...selectedProducts,
         {
           ...item,
-          id: item.spare_parts_id,
+          id: item.product_id,
           name: `${row?.name} - ${item?.name}`,
           price: item.price,
           spare_parts_full_name: `${row?.name} - ${item?.name}`,
-          spare_parts_id: item.spare_parts_id,
-          spare_parts_variation_id: item._id,
+          product_id: item.product_id,
+          product_variation_id: item._id,
         },
       ]);
       setAllSpareParts([
@@ -416,12 +410,12 @@ const SparePars = ({
         {
           ...item,
 
-          id: item.spare_parts_id,
+          id: item.product_id,
           name: `${row?.name} - ${item?.name}`,
           price: item.price,
           spare_parts_full_name: `${row?.name} - ${item?.name}`,
-          spare_parts_id: item.spare_parts_id,
-          spare_parts_variation_id: item._id,
+          product_id: item.product_id,
+          product_variation_id: item._id,
         },
       ]);
     }
@@ -442,8 +436,8 @@ const SparePars = ({
   //       {
   //         ...item,
   //         spare_parts_full_name: `${row?.name} - ${item?.name}`,
-  //         spare_parts_id: item.spare_parts_id,
-  //         spare_parts_variation_id: item._id,
+  //         product_id: item.product_id,
+  //         product_variation_id: item._id,
   //         purchase_product_status: "",
   //         quantity: "",
   //         unit_price: "",
@@ -454,8 +448,8 @@ const SparePars = ({
   //       {
   //         ...item,
   //         spare_parts_full_name: `${row?.name} - ${item?.name}`,
-  //         spare_parts_id: item.spare_parts_id,
-  //         spare_parts_variation_id: item._id,
+  //         product_id: item.product_id,
+  //         product_variation_id: item._id,
   //         purchase_product_status: "",
   //         quantity: "",
   //         unit_price: "",
@@ -507,8 +501,7 @@ const SparePars = ({
                         sx={{
                           border:
                             selectedProducts.some(
-                              (pro) =>
-                                pro?.spare_parts_id === item?.spare_parts_id
+                              (pro) => pro?.product_id === item?.product_id
                             ) && "1px solid #818FF8",
                         }}
                         onClick={() => handleSelectedProduct(item, row)}
@@ -588,8 +581,7 @@ const SparePars = ({
                                   sx={{
                                     display: selectedProducts.some(
                                       (pro) =>
-                                        pro?.spare_parts_id ===
-                                        item?.spare_parts_id
+                                        pro?.product_id === item?.product_id
                                     )
                                       ? "block"
                                       : "none",

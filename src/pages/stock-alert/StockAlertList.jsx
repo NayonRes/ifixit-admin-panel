@@ -779,7 +779,7 @@ const StockAlertList = () => {
                         {row?.warranty ? row?.warranty : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
+                        {row?.product_id ? row?.product_id : "---------"}
                       </TableCell>
 
                       <TableCell sx={{ minWidth: "150px" }}>
@@ -846,7 +846,9 @@ const StockAlertList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={4} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
