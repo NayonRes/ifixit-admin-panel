@@ -233,7 +233,7 @@ const PurchaseDetails = () => {
     // }
   };
   const handleGenerateSKU = async (item) => {
-    console.log("spare_part_details", item?.spare_part_details);
+    console.log("product_details", item?.product_details);
 
     setGenerateSKULoading(true);
     setGenerateSKUDetails(item);
@@ -246,10 +246,10 @@ const PurchaseDetails = () => {
       supplier_id: tableDataList[0]?.supplier_id,
       branch_id: tableDataList[0]?.branch_id,
       purchase_branch_id: tableDataList[0]?.branch_id,
-      brand_id: item?.spare_part_details[0]?.brand_id,
-      category_id: item?.spare_part_details[0]?.category_id,
-      device_id: item?.spare_part_details[0]?.device_id,
-      model_id: item?.spare_part_details[0]?.model_id,
+      brand_id: item?.product_details[0]?.brand_id,
+      category_id: item?.product_details[0]?.category_id,
+      device_id: item?.product_details[0]?.device_id,
+      model_id: item?.product_details[0]?.model_id,
       quantity: parseInt(item.quantity),
     };
 
@@ -433,10 +433,10 @@ const PurchaseDetails = () => {
     setLoading(false);
   };
   const getSKU = async (item) => {
-    console.log("item", item?.spare_part_variation_details[0]?.name);
+    console.log("item", item?.product_variation_details[0]?.name);
 
     setGenerateSkuData(item);
-    setSkuProductName(item?.spare_part_variation_details[0]?.name);
+    setSkuProductName(item?.product_variation_details[0]?.name);
     setSkuLoading(true);
     setSkuList([]);
 
@@ -1262,10 +1262,10 @@ const PurchaseDetails = () => {
                             >
                               <TableCell sx={{ minWidth: "130px" }}>
                                 {" "}
-                                {item?.spare_part_details[0]?.name}
+                                {item?.product_details[0]?.name}
                                 <br />
                                 <span style={{ color: "#424949" }}>
-                                  {item?.spare_part_variation_details[0]?.name}
+                                  {item?.product_variation_details[0]?.name}
                                 </span>
                               </TableCell>
                               <TableCell sx={{ minWidth: "130px" }}>

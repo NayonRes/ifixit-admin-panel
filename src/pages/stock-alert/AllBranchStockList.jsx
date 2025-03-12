@@ -759,8 +759,8 @@ const AllBranchStockList = () => {
                         />
                       </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.sparepart_data
-                          ? row?.sparepart_data[0]?.name
+                        {row?.product_data
+                          ? row?.product_data[0]?.name
                           : "---------"}{" "}
                         &nbsp; {row?.name ? row?.name : "---------"}
                       </TableCell>

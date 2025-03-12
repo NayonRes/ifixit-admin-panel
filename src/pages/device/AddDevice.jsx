@@ -127,7 +127,7 @@ const AddDevice = ({ clearFilter }) => {
     }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
-      clearFilter(); // this is for get the table list again
+      clearFilter();
 
       clearForm();
       handleDialogClose();
@@ -479,11 +479,13 @@ const AddDevice = ({ clearFilter }) => {
               }}
             >
               <MenuItem value={"None"}>None</MenuItem>
-              {deviceList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
-                  {item?.name}
-                </MenuItem>
-              ))}
+              {deviceList
+                .filter((item) => item.name.toLowerCase().includes("series"))
+                ?.map((item) => (
+                  <MenuItem key={item} value={item?._id}>
+                    {item?.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
           <Typography
