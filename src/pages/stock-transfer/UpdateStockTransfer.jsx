@@ -457,11 +457,11 @@ const UpdateStockTransfer = ({ clearFilter }) => {
       setTransferStatus(allData?.data?.data?.transfer_status);
       let newSKUdetails = allData?.data?.data?.sku_details?.map((item) => ({
         ...item,
-        spare_parts_name: allData?.data?.data?.spare_parts_details?.find(
+        spare_parts_name: allData?.data?.data?.product_details?.find(
           (res) => res._id === item?.product_id
         )?.name,
         spare_parts_variation_name:
-          allData?.data?.data?.spare_parts_variation_details?.find(
+          allData?.data?.data?.product_variation_details?.find(
             (res) => res._id === item?.product_variation_id
           )?.name,
         purchase_date: allData?.data?.data?.purchase_details?.find(

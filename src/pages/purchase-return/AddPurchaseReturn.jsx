@@ -370,8 +370,15 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                 startIcon={<SearchIcon />}
                 // onClick={() => getProducts()}
                 type="submit"
+                disabled={searchLoading}
               >
-                Search
+                <PulseLoader
+                  color={"#4B46E5"}
+                  loading={searchLoading}
+                  size={10}
+                  speedMultiplier={0.5}
+                />{" "}
+                {searchLoading === false && "Search"}
               </Button>
             </Grid>
 
@@ -548,8 +555,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {!loading &&
-                  productList.length > 0 &&
+                {productList.length > 0 &&
                   productList.map((row, i) => (
                     <TableRow
                       key={i}
