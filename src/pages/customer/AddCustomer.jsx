@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
-  useContext
+  useContext,
 } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
@@ -94,7 +94,7 @@ const AddCustomer = ({ clearFilter }) => {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState("Walk In");
   const [remarks, setRemarks] = useState("");
   const [rating, setRating] = useState("");
   const [membershipId, setMembershipId] = useState("");
@@ -245,7 +245,7 @@ const AddCustomer = ({ clearFilter }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading2(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -379,7 +379,7 @@ const AddCustomer = ({ clearFilter }) => {
                 required
                 size="small"
                 fullWidth
-                type="number" 
+                type="number"
                 id="number"
                 placeholder="Mobile Number"
                 variant="outlined"

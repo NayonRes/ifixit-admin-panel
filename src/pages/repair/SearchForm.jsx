@@ -180,8 +180,7 @@ const SearchForm = ({
   };
 
   const getParent = async () => {
-    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let url = `/api/v1/device/parent-child-list`;
+    let url = `/api/v1/deviceBrand/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();

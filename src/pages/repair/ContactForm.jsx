@@ -92,7 +92,7 @@ const ContactForm = ({ contactData, setContactData }) => {
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
-  const [customerType, setCustomerType] = useState("");
+  const [customerType, setCustomerType] = useState("Walk In");
   const [email, setEmail] = useState("");
   const [remark, setRemark] = useState("");
   const [rating, setRating] = useState("");
