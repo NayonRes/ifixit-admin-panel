@@ -190,13 +190,14 @@ const SearchForm = ({
     let p = allData?.data?.data;
 
     if (allData?.status >= 200 && allData?.status < 300) {
-      setParentList(p);
-      let items = p.filter((item) => item.parent_name == "Primary");
-      let newItems = items[0].items.filter(
-        (device) => device.name !== "Primary"
-      );
-      console.log("hello", newItems);
-      setBrandList(newItems);
+      setBrandList(p);
+      // setParentList(p);
+      // let items = p.filter((item) => item.parent_name == "Primary");
+      // let newItems = items[0].items.filter(
+      //   (device) => device.name !== "Primary"
+      // );
+      // console.log("hello", newItems);
+      // setBrandList(newItems);
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
