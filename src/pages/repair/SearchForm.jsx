@@ -213,6 +213,26 @@ const SearchForm = ({
       handleSnakbarOpen(allData?.data?.message, "error");
     }
   };
+  const getDeviceList = async (id) => {
+    let url = `/api/v1/brand`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBrandList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
+  const getModel = async () => {
+    let url = `/api/v1/brand`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBrandList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
 
   const getDevice = async () => {
     let url = `/api/v1/device`;
