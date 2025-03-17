@@ -1,16 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
+  Button,
   FormControl,
   IconButton,
   InputAdornment,
   InputLabel,
   MenuItem,
+  OutlinedInput,
   Select,
   TextField,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import SendIcon from "@mui/icons-material/Send";
 import { getDataWithToken } from "../../services/GetDataService";
 import IssueList from "./IssueList";
 import { useSnackbar } from "notistack";
@@ -135,6 +138,8 @@ const SearchForm = ({
   setAllSpareParts,
   set_customer_id,
   setScreenType,
+  steps,
+  setSteps,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
@@ -179,7 +184,7 @@ const SearchForm = ({
     }
   };
 
-  const getParent = async () => {
+  const getBrandList = async () => {
     let url = `/api/v1/deviceBrand/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
@@ -192,6 +197,7 @@ const SearchForm = ({
     if (allData?.status >= 200 && allData?.status < 300) {
       setBrandList(p);
       if (allData?.data?.data?.length > 0) {
+        // setBrand(p[0]?._id);
         // getDeviceList(p[0]?._id);
       }
       // setParentList(p);
@@ -211,7 +217,7 @@ const SearchForm = ({
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
-      setBrandList(allData?.data.data);
+      setParentList(allData?.data.data);
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -339,7 +345,7 @@ const SearchForm = ({
 
   useEffect(() => {
     // getBrand();
-    getParent();
+    getBrandList();
     getDevice();
   }, []);
   // useEffect(() => {
@@ -360,15 +366,17 @@ const SearchForm = ({
         }}
       >
         {/* {JSON.stringify(allIssue)} */}
+        {/* <button onClick={() => setSteps(1)}>Steps: {steps}</button> */}
         <TextField
           type="number"
           required
           size="small"
           fullWidth
           id="searchParams"
-          placeholder="Search"
+          placeholder="Search Number"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("contact")}
           value={searchPrams}
           onChange={handleSearch2}
           // onKeyDown={handleSearch2}
@@ -404,8 +412,9 @@ const SearchForm = ({
         >
           Full Name
         </Typography>
+
         <TextField
-          required
+          onClick={() => setSteps("contact")}
           size="small"
           fullWidth
           id="name"
@@ -418,6 +427,8 @@ const SearchForm = ({
               color: "#333", // Change text color
               WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
               // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
             },
           }}
           value={contactData?.name}
@@ -426,6 +437,7 @@ const SearchForm = ({
           //   setName(e.target.value);
           // }}
         />
+
         <Typography
           variant="medium"
           color="text.main"
@@ -434,18 +446,61 @@ const SearchForm = ({
         >
           Serial
         </Typography>
-        <TextField
-          required
+        {/* <TextField
           size="small"
           fullWidth
           id="serial"
-          placeholder="Enter Serial"
           variant="outlined"
+          required
+          placeholder="Enter Serial"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("repair_history")}
+          value={serial}
+          onChange={(e) => {
+            setSerial(e.target.value);
+          }}
+        /> */}
+        <OutlinedInput
+          size="small"
+          fullWidth
+          id="serial"
+          variant="outlined"
+          required
+          placeholder="Enter Serial"
+          onClick={() => setSteps("repair_history")}
           sx={{ ...customeTextFeild, mb: 3 }}
           value={serial}
           onChange={(e) => {
             setSerial(e.target.value);
           }}
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton
+                size="sm"
+                onClick={() => setSteps("repair_history")}
+                // onClick={handleClickShowPassword}
+                // onMouseDown={handleMouseDownPassword}
+                // onMouseUp={handleMouseUpPassword}
+                edge="end"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
+                    stroke="#667085"
+                    stroke-width="1.66667"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </IconButton>
+            </InputAdornment>
+          }
         />
         <Typography
           variant="medium"
@@ -514,9 +569,11 @@ const SearchForm = ({
             }}
             value={brand}
             // onClick={handleBranchClick}
+            onClick={() => setSteps("device")}
+            onOpen={() => setSteps("device")}
             onChange={(e) => {
               setBrand(e.target.value);
-              // getDeviceList(e.target.value);
+              getDeviceList(e.target.value);
               // setScreenType("steper");
             }}
           >
@@ -548,7 +605,20 @@ const SearchForm = ({
           id="device"
           placeholder="Enter Device"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          disabled
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
+            },
+          }}
+          onClick={() => setSteps("device")}
+          // onClick={() =>  alert('hello') }
           value={device}
           // onChange={(e) => {
           //   setDevice(e.target.value);
@@ -605,7 +675,19 @@ const SearchForm = ({
           id="repairBy"
           placeholder="Enter Repair By"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          disabled
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
+            },
+          }}
+          onClick={() => setSteps("repair_by")}
           value={technicianName}
           // onChange={(e) => {
           //   setRepairBy(e.target.value);
@@ -626,7 +708,19 @@ const SearchForm = ({
           id="repairStatus"
           placeholder="Enter Repair Status"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          disabled
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
+            },
+          }}
+          onClick={() => setSteps("repair_status")}
           value={repairStatus}
           // onChange={(e) => {
           //   setRepairStatus(e.target.value);
@@ -647,12 +741,31 @@ const SearchForm = ({
           id="deliveryStatus"
           placeholder="Enter Delivery Status"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          disabled
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
+            },
+          }}
+          onClick={() => setSteps("repair_status")}
           value={deliveryStatus}
           // onChange={(e) => {
           //   setDeliveryStatus(e.target.value);
           // }}
         />
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={() => setSteps("payment")}
+        >
+          Payment
+        </Button>
       </div>
     </div>
   );

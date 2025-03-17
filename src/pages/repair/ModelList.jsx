@@ -89,6 +89,8 @@ const ModelList = ({
   setParentList,
   deviceId,
   setDeviceId,
+  steps,
+  setSteps,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
@@ -116,12 +118,12 @@ const ModelList = ({
   const handleChangeParent = async (name, device_id) => {
     console.log("name", name, device_id);
     set_device_id(device_id);
-    let items = parentList.filter((item) => item.parent_name == name);
-    console.log("parent", items[0]?.items);
-    setSubChildList(items[0]?.items);
+    let items = parentList.filter((item) => item.parent_id === device_id);
+
+    setSubChildList(items);
     setParent(name);
     // TODO: WORKING
-    if (!items[0]?.items) {
+    if (items?.length < 1) {
       handleChangeChild(name, device_id);
     }
   };
@@ -155,33 +157,43 @@ const ModelList = ({
     setChildList(items[0]?.items);
   };
 
-  useEffect(() => {
-    getTopItems();
-  }, [brand]);
+  // useEffect(() => {
+  //   getTopItems();
+  // }, [brand]);
 
   return (
     <div className="">
-      {childList?.length > 0 && (
+      <Button onClick={() => setSteps("repair_list")}>Repair List</Button>
+
+      <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
+        Select Model
+      </Typography>
+      {parentList?.length > 0 && (
         <div>
           <Grid container columnSpacing={3} sx={{}}>
             <Grid size={12}>
-              <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-                Select Model
-              </Typography>
-            </Grid>
-            <Grid size={12}>
               <Box sx={style.nav}>
-                {childList?.length > 0 &&
-                  childList?.map((data, index) => (
-                    <Box
-                      role="button"
-                      sx={parent == data?.name ? style.linkActive : style.link}
-                      key={index}
-                      onClick={() => handleChangeParent(data?.name, data?._id)}
-                    >
-                      {data?.name}
-                    </Box>
-                  ))}
+                {parentList?.length > 0 &&
+                  parentList
+                    ?.filter((item) => item.parent_id === null) // Keep only those with parent_id: null
+                    .map((item) => ({
+                      ...item,
+                      name: item.name.replace(/series\.?/i, "").trim(), // Remove 'Series' (case-insensitive) and any trailing '.'
+                    }))
+                    ?.map((data, index) => (
+                      <Box
+                        role="button"
+                        sx={
+                          parent == data?.name ? style.linkActive : style.link
+                        }
+                        key={index}
+                        onClick={() =>
+                          handleChangeParent(data?.name, data?._id)
+                        }
+                      >
+                        {data?.name}
+                      </Box>
+                    ))}
               </Box>
               {subChildList?.length > 0 && (
                 <Box sx={style.nav2}>

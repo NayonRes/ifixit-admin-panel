@@ -2,6 +2,7 @@ export const designationList = [
   "Chairman",
   "Director",
   "Manager",
+  "Asst. Manager",
   "Employee",
   "Technician",
 ];

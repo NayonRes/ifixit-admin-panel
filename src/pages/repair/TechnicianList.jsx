@@ -187,7 +187,7 @@ const TechnicianList = ({
             Repair By
           </Typography>
         </Grid>
-        <Grid size={12}>
+        {/* <Grid size={12}>
           <Box sx={style.nav}>
             {ifixit_admin_panel?.user?.is_main_branch &&
               branchList.length > 0 &&
@@ -204,7 +204,7 @@ const TechnicianList = ({
                 </Box>
               ))}
           </Box>
-        </Grid>
+        </Grid> */}
       </Grid>
       <Grid container spacing={2} sx={{ mt: 3 }}>
         {!loading &&
@@ -230,7 +230,7 @@ const TechnicianList = ({
                     color="text.secondary"
                     sx={{ mt: "2px" }}
                   >
-                    {item.designation} {item.name}
+                    {item.designation}
                   </Typography>
                 </Box>
               </Box>

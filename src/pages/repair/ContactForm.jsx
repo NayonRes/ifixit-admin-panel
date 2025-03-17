@@ -203,130 +203,131 @@ const ContactForm = ({ contactData, setContactData }) => {
   }, [contactData]);
 
   return (
-    <>
-      <Grid size={6}>
-        <Typography
-          variant="medium"
-          color="text.main"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-        >
-          Full Name
-        </Typography>
-        <TextField
-          required
-          size="small"
-          fullWidth
-          id="full_name"
-          placeholder="Full Name"
-          variant="outlined"
-          disabled={contactData?._id}
-          sx={{ ...customeTextFeild, mb: 3 }}
-          value={fullName}
-          onChange={(e) => {
-            setFullName(e.target.value);
-          }}
-        />
-      </Grid>
-      <Grid size={6}>
-        <Typography
-          variant="medium"
-          color="text.main"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-        >
-          Mobile Number
-        </Typography>
-        <TextField
-          required
-          size="small"
-          type="number"
-          fullWidth
-          id="mobile"
-          placeholder="Enter Number"
-          variant="outlined"
-          disabled={contactData?._id}
-          sx={{ ...customeTextFeild, mb: 3 }}
-          value={mobile}
-          // onChange={(e) => {
-          //   setMobile(e.target.value);
-          // }}
-
-          onChange={(e) => {
-            if (e.target.value.length <= 11 && /^\d*$/.test(e.target.value)) {
-              setMobile(e.target.value);
-            }
-          }}
-        />
-      </Grid>
-      <Grid size={6}>
-        <Typography
-          variant="medium"
-          color="text.main"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-        >
-          Customer Type
-        </Typography>
-
-        <FormControl
-          fullWidth
-          size="small"
-          sx={{
-            ...customeSelectFeild,
-            "& label.Mui-focused": {
-              color: "rgba(0,0,0,0)",
-            },
-
-            "& .MuiOutlinedInput-input img": {
-              position: "relative",
-              top: "2px",
-            },
-          }}
-        >
-          {customerType?.length < 1 && (
-            <InputLabel
-              id="demo-simple-select-label"
-              sx={{ color: "#b3b3b3", fontWeight: 300 }}
-            >
-              Select Customer Type
-            </InputLabel>
-          )}
-          <Select
-            inputProps={{
-              sx: {
-                color: "red", // Change text color
-                WebkitTextFillColor: "#333",
-                "&.Mui-disabled": {
-                  color: "#333",
-                  WebkitTextFillColor: "#333",
-                  background: "#eee",
-                },
-              },
-            }}
-            required
-            labelId="demo-simple-select-label"
-            id="customer_type"
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  maxHeight: 250, // Set the max height here
-                },
-              },
-            }}
-            value={customerType}
-            disabled={contactData?._id}
-            onChange={(e) => setCustomerType(e.target.value)}
+    <form onSubmit={onSubmit}>
+      <Grid container columnSpacing={3} sx={{}}>
+        <Grid size={6}>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
           >
-            {customerTypeList?.map((item) => (
-              <MenuItem key={item} value={item}>
-                {item}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            Full Name
+          </Typography>
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="full_name"
+            placeholder="Full Name"
+            variant="outlined"
+            disabled={contactData?._id}
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={fullName}
+            onChange={(e) => {
+              setFullName(e.target.value);
+            }}
+          />
+        </Grid>
+        <Grid size={6}>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Mobile Number
+          </Typography>
+          <TextField
+            required
+            size="small"
+            type="number"
+            fullWidth
+            id="mobile"
+            placeholder="Enter Number"
+            variant="outlined"
+            disabled={contactData?._id}
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={mobile}
+            // onChange={(e) => {
+            //   setMobile(e.target.value);
+            // }}
 
-        {/* <FormControl
+            onChange={(e) => {
+              if (e.target.value.length <= 11 && /^\d*$/.test(e.target.value)) {
+                setMobile(e.target.value);
+              }
+            }}
+          />
+        </Grid>
+        <Grid size={6}>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Customer Type
+          </Typography>
+
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {customerType?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Customer Type
+              </InputLabel>
+            )}
+            <Select
+              inputProps={{
+                sx: {
+                  color: "red", // Change text color
+                  WebkitTextFillColor: "#333",
+                  "&.Mui-disabled": {
+                    color: "#333",
+                    WebkitTextFillColor: "#333",
+                    background: "#eee",
+                  },
+                },
+              }}
+              required
+              labelId="demo-simple-select-label"
+              id="customer_type"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={customerType}
+              disabled={contactData?._id}
+              onChange={(e) => setCustomerType(e.target.value)}
+            >
+              {customerTypeList?.map((item) => (
+                <MenuItem key={item} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* <FormControl
           fullWidth
           size="small"
           sx={{
@@ -383,134 +384,135 @@ const ContactForm = ({ contactData, setContactData }) => {
             ))}
           </Select>
         </FormControl> */}
-      </Grid>
-      <Grid size={6}>
-        <Typography
-          variant="medium"
-          color="text.main"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-        >
-          Email
-        </Typography>
-        <TextField
-          required
-          type="email"
-          size="small"
-          fullWidth
-          id="email"
-          placeholder="Enter Email"
-          variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
-          value={email}
-          disabled={contactData?._id}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
-        />
-      </Grid>
-      <Grid size={6}>
-        <Typography
-          variant="medium"
-          color="text.main"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-        >
-          Remark
-        </Typography>
-        <TextField
-          required
-          size="small"
-          fullWidth
-          id="remark"
-          placeholder="Enter Remark"
-          variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
-          value={remark}
-          disabled={contactData?._id}
-          onChange={(e) => {
-            setRemark(e.target.value);
-          }}
-        />
-      </Grid>
-
-      <Grid size={6}>
-        <Typography
-          variant="medium"
-          color="text.main"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-        >
-          Rating
-        </Typography>
-
-        <FormControl
-          fullWidth
-          size="small"
-          sx={{
-            ...customeSelectFeild,
-            "& label.Mui-focused": {
-              color: "rgba(0,0,0,0)",
-            },
-
-            "& .MuiOutlinedInput-input img": {
-              position: "relative",
-              top: "2px",
-            },
-          }}
-        >
-          {rating?.length < 1 && (
-            <InputLabel
-              id="demo-simple-select-label"
-              sx={{ color: "#b3b3b3", fontWeight: 300 }}
-            >
-              Select Customer Rating
-            </InputLabel>
-          )}
-          <Select
+        </Grid>
+        <Grid size={6}>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Email
+          </Typography>
+          <TextField
             required
-            labelId="demo-simple-select-label"
-            id="type"
-            inputProps={{
-              sx: {
-                color: "red", // Change text color
-                WebkitTextFillColor: "#333",
-                "&.Mui-disabled": {
-                  color: "#333",
-                  WebkitTextFillColor: "#333",
-                  background: "#eee",
-                },
+            type="email"
+            size="small"
+            fullWidth
+            id="email"
+            placeholder="Enter Email"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={email}
+            disabled={contactData?._id}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
+          />
+        </Grid>
+        <Grid size={6}>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Remark
+          </Typography>
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="remark"
+            placeholder="Enter Remark"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={remark}
+            disabled={contactData?._id}
+            onChange={(e) => {
+              setRemark(e.target.value);
+            }}
+          />
+        </Grid>
+
+        <Grid size={6}>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Rating
+          </Typography>
+
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
               },
             }}
-            className="custom-disabled-select"
-            disabled={contactData?._id}
-            value={rating}
-            onChange={(e) => setRating(e.target.value)}
           >
-            {ratingList2?.map((item) => (
-              <MenuItem key={item} value={item.name}>
-                {/* <CircleIcon
+            {rating?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Customer Rating
+              </InputLabel>
+            )}
+            <Select
+              required
+              labelId="demo-simple-select-label"
+              id="type"
+              inputProps={{
+                sx: {
+                  color: "red", // Change text color
+                  WebkitTextFillColor: "#333",
+                  "&.Mui-disabled": {
+                    color: "#333",
+                    WebkitTextFillColor: "#333",
+                    background: "#eee",
+                  },
+                },
+              }}
+              className="custom-disabled-select"
+              disabled={contactData?._id}
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+            >
+              {ratingList2?.map((item) => (
+                <MenuItem key={item} value={item.name}>
+                  {/* <CircleIcon
                         style={{ color: "red", height: "20px", width: "20px" }}
                       />{" "}
                       {item.name} */}
 
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <CircleIcon
-                    style={{
-                      color: ratingList2?.find((res) => res?.name === item.name)
-                        ?.color,
-                      height: "20px",
-                      width: "20px",
-                    }}
-                  />
-                  {item.name}
-                </Box>
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <CircleIcon
+                      style={{
+                        color: ratingList2?.find(
+                          (res) => res?.name === item.name
+                        )?.color,
+                        height: "20px",
+                        width: "20px",
+                      }}
+                    />
+                    {item.name}
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-        {/* <br />
+          {/* <br />
 
         
 
@@ -600,50 +602,51 @@ const ContactForm = ({ contactData, setContactData }) => {
             </Select>
           )}
         </FormControl> */}
-      </Grid>
-      <Grid size={6}>
-        <Typography
-          variant="medium"
-          color="text.main"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-        >
-          Membership ID
-        </Typography>
-        <TextField
-          required
-          type="email"
-          size="small"
-          fullWidth
-          id="email"
-          placeholder="Enter Membership ID"
-          variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
-          disabled={contactData?._id}
-          value={membershipId}
-          onChange={(e) => {
-            setMembershipId(e.target.value);
-          }}
-        />
-      </Grid>
-      {!contactData?._id && (
-        <Grid size={12}>
-          <Box
-            sx={{
-              borderTop: "1px solid #EAECF1",
-              pt: 2,
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 2,
-            }}
-          >
-            <Button variant="contained" sx={buttonStyle} onClick={onSubmit}>
-              Add Contact
-            </Button>
-          </Box>
         </Grid>
-      )}
-    </>
+        <Grid size={6}>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Membership ID
+          </Typography>
+          <TextField
+            required
+            type="email"
+            size="small"
+            fullWidth
+            id="email"
+            placeholder="Enter Membership ID"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            disabled={contactData?._id}
+            value={membershipId}
+            onChange={(e) => {
+              setMembershipId(e.target.value);
+            }}
+          />
+        </Grid>
+        {!contactData?._id && (
+          <Grid size={12}>
+            <Box
+              sx={{
+                borderTop: "1px solid #EAECF1",
+                pt: 2,
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+              }}
+            >
+              <Button variant="contained" sx={buttonStyle} type="submit">
+                Add Contact
+              </Button>
+            </Box>
+          </Grid>
+        )}
+      </Grid>
+    </form>
   );
 };
 

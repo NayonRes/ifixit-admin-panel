@@ -36,8 +36,8 @@ const RepairList = ({
       ? data.issues.reduce((acc, issue) => acc + (issue.repair_cost || 0), 0)
       : 0;
 
-    const sparePartsTotal = data?.spare_parts?.length
-      ? data.spare_parts.reduce((acc, part) => acc + (part.price || 0), 0)
+    const sparePartsTotal = data?.product_details?.length
+      ? data.product_details.reduce((acc, part) => acc + (part.price || 0), 0)
       : 0;
 
     const totalCost = issueTotal + sparePartsTotal;
@@ -166,9 +166,9 @@ const RepairList = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      {row?.spare_parts?.length > 0 ? (
+                      {row?.product_details?.length > 0 ? (
                         <>
-                          {row?.spare_parts?.map((item, index) => (
+                          {row?.product_details?.map((item, index) => (
                             <Chip
                               size="small"
                               label={item.name}
@@ -284,7 +284,9 @@ const RepairList = ({
               ))}
 
             {!loading && tableDataList.length < 1 ? (
-              <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
                 <TableCell colSpan={10} style={{ textAlign: "center" }}>
                   <strong> {message}</strong>
                 </TableCell>

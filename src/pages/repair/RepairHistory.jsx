@@ -13,7 +13,7 @@ import moment from "moment";
 import { enqueueSnackbar } from "notistack";
 import { statusList } from "../../data.js";
 
-export default function RepairHistory({ contactData }) {
+export default function RepairHistory({ contactData, serial }) {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -35,7 +35,8 @@ export default function RepairHistory({ contactData }) {
   const getData = async () => {
     setLoading(true);
 
-    let url = `/api/v1/repair?customer_id=${contactData?._id}&limit=100&page=1`;
+    // let url = `/api/v1/repair?customer_id=${contactData?._id}&limit=100&page=1`;
+    let url = `/api/v1/repair?serial=${serial}&limit=100&page=1`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data::::::", allData?.data?.data);
 

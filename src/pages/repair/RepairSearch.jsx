@@ -23,6 +23,7 @@ import { all } from "axios";
 import { getDataWithToken } from "../../services/GetDataService";
 import { handlePutData } from "../../services/PutDataService";
 import { PulseLoader } from "react-spinners";
+import RepairHistory from "./RepairHistory";
 
 const RepairSearch = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const RepairSearch = () => {
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
-  const [steps, setSteps] = useState(-1);
+  const [steps, setSteps] = useState("contact");
   const [technician, setTechnician] = useState("");
   const [technicianName, setTechnicianName] = useState("");
 
@@ -69,7 +70,7 @@ const RepairSearch = () => {
   const [payment_info, set_payment_info] = useState([]);
 
   const [screenType, setScreenType] = useState("add_contact");
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
@@ -152,7 +153,7 @@ const RepairSearch = () => {
       repair_by: technician,
       repair_status: repairStatus,
       issues: allIssueModified,
-      spare_parts: allSparePartsModified,
+      product_details: allSparePartsModified,
       repair_checklist: repair_checklist,
       payment_info: payment_info,
       serial: serial,
@@ -244,7 +245,7 @@ const RepairSearch = () => {
         setPassCode(data?.pass_code);
         setAllIssueUpdate(data?.issues);
         setAllIssue(data?.issues);
-        setAllSpareParts(data?.spare_parts);
+        setAllSpareParts(data?.product_details);
 
         setTechnician(data?.repair_by);
         setRepairStatus(data?.repair_status);
@@ -366,6 +367,8 @@ const RepairSearch = () => {
             setAllSpareParts={setAllSpareParts}
             set_customer_id={set_customer_id}
             setScreenType={setScreenType}
+            steps={steps}
+            setSteps={setSteps}
           />
         </Grid>
         {/*  TODO: don't remove */}
@@ -395,7 +398,7 @@ const RepairSearch = () => {
             justifyContent: "space-between",
           }}
         >
-          {steps == -1 && (
+          {steps == "contact" && (
             <Box>
               {contactData?._id ? (
                 <EditContact
@@ -413,10 +416,14 @@ const RepairSearch = () => {
               )}
             </Box>
           )}
+
+          {steps == "repair_history" && (
+            <RepairHistory contactData={contactData} serial={serial} />
+          )}
           {/* {device === "Primary" && !device && (
             <ModelList device={device} setDevice={setDevice} />
           )} */}
-          {steps == 0 && parentList.length > 0 && (
+          {steps == "device" && (
             <ModelList
               id={id}
               device={device}
@@ -427,10 +434,12 @@ const RepairSearch = () => {
               setParentList={setParentList}
               deviceId={deviceId}
               setDeviceId={setDeviceId}
+              steps={steps}
+              setSteps={setSteps}
             />
             // <div>Model list</div>
           )}
-          {steps == 1 && (
+          {steps == "repair_list" && (
             <IssueList
               issue={issue}
               setIssue={setIssue}
@@ -445,7 +454,7 @@ const RepairSearch = () => {
               deviceId={deviceId}
             />
           )}
-          {steps == 2 && (
+          {steps == "repair_by" && (
             <TechnicianList
               technician={technician}
               setTechnician={setTechnician}
@@ -453,7 +462,7 @@ const RepairSearch = () => {
               setTechnicianName={setTechnicianName}
             />
           )}
-          {steps == 3 && (
+          {steps == "repair_status" && (
             <RepairStatusList
               repairStatus={repairStatus}
               setRepairStatus={setRepairStatus}
@@ -462,7 +471,7 @@ const RepairSearch = () => {
               repair_status_history_data={repair_status_history_data}
             />
           )}
-          {steps == 4 && (
+          {steps == "payment" && (
             <PaymentList
               paymentStatus={paymentStatus}
               setPaymentStatus={setPaymentStatus}
@@ -509,78 +518,8 @@ const RepairSearch = () => {
               >
                 Back
               </Button> */}
-            <Button
-              variant="outlined"
-              disabled={steps == -1}
-              onClick={() => {
-                if (steps > -1) {
-                  setSteps(steps - 1);
-                } else {
-                  // setBrand("");
-                  // setScreenType("add_contact");
-                }
-              }}
-              sx={buttonStyle}
-            >
-              Back
-            </Button>
-            {steps == -1 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={!contactData?._id || !brand_id}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {steps == 0 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={device.length < 1}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {steps == 1 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={allIssue.length < 1 && allSpareParts.length < 1}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
 
-            {steps == 2 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={technician.length < 1}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {steps == 3 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={
-                  repairStatus?.length < 1 || deliveryStatus?.length < 1
-                }
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {/* <Button variant="contained" onClick={() => setSteps(steps + 1)}>
-              Next
-            </Button> */}
-            {steps == 4 && (
+            {steps == "payment" && (
               <>
                 <Button
                   variant="contained"
