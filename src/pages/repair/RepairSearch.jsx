@@ -69,7 +69,7 @@ const RepairSearch = () => {
   const [payment_info, set_payment_info] = useState([]);
 
   const [screenType, setScreenType] = useState("add_contact");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); 
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;

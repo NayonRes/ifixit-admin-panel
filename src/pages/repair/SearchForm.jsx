@@ -191,6 +191,9 @@ const SearchForm = ({
 
     if (allData?.status >= 200 && allData?.status < 300) {
       setBrandList(p);
+      if (allData?.data?.data?.length > 0) {
+        // getDeviceList(p[0]?._id);
+      }
       // setParentList(p);
       // let items = p.filter((item) => item.parent_name == "Primary");
       // let newItems = items[0].items.filter(
@@ -203,18 +206,8 @@ const SearchForm = ({
     }
   };
 
-  const getBrand = async () => {
-    let url = `/api/v1/brand`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setBrandList(allData?.data.data);
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
   const getDeviceList = async (id) => {
-    let url = `/api/v1/brand`;
+    let url = `/api/v1/device/dropdownlist?device_brand_id=${id}`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
@@ -508,7 +501,7 @@ const SearchForm = ({
             </InputLabel>
           )}
           <Select
-            disabled={!serial || !passCode}
+            // disabled={!serial || !passCode}
             required
             labelId="demo-simple-select-label"
             id="customer_type"
@@ -520,17 +513,20 @@ const SearchForm = ({
               },
             }}
             value={brand}
-            onClick={handleBranchClick}
+            // onClick={handleBranchClick}
             onChange={(e) => {
               setBrand(e.target.value);
+              // getDeviceList(e.target.value);
               // setScreenType("steper");
             }}
           >
             {brandList?.map((item, index) => (
               <MenuItem
                 key={index}
-                value={item.name}
-                onClick={() => setBrandId(item._id)}
+                value={item._id}
+                // onClick={() => {
+                //   setBrandId(item._id);
+                // }}
               >
                 {item.name}
               </MenuItem>
