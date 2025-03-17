@@ -1,16 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
+  Button,
   FormControl,
   IconButton,
   InputAdornment,
   InputLabel,
   MenuItem,
+  OutlinedInput,
   Select,
   TextField,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import SendIcon from "@mui/icons-material/Send";
 import { getDataWithToken } from "../../services/GetDataService";
 import IssueList from "./IssueList";
 import { useSnackbar } from "notistack";
@@ -135,6 +138,8 @@ const SearchForm = ({
   setAllSpareParts,
   set_customer_id,
   setScreenType,
+  steps,
+  setSteps,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
@@ -367,6 +372,7 @@ const SearchForm = ({
         }}
       >
         {/* {JSON.stringify(allIssue)} */}
+        {/* <button onClick={() => setSteps(1)}>Steps: {steps}</button> */}
         <TextField
           type="number"
           required
@@ -376,6 +382,7 @@ const SearchForm = ({
           placeholder="Search"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("contact")}
           value={searchPrams}
           onChange={handleSearch2}
           // onKeyDown={handleSearch2}
@@ -441,18 +448,46 @@ const SearchForm = ({
         >
           Serial
         </Typography>
-        <TextField
-          required
+        {/* <TextField
           size="small"
           fullWidth
           id="serial"
-          placeholder="Enter Serial"
           variant="outlined"
+          required
+          placeholder="Enter Serial"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("repair_history")}
+          value={serial}
+          onChange={(e) => {
+            setSerial(e.target.value);
+          }}
+        /> */}
+        <OutlinedInput
+          size="small"
+          fullWidth
+          id="serial"
+          variant="outlined"
+          required
+          placeholder="Enter Serial"
           sx={{ ...customeTextFeild, mb: 3 }}
           value={serial}
           onChange={(e) => {
             setSerial(e.target.value);
           }}
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton
+                size="sm"
+                onClick={() => setSteps("repair_history")}
+                // onClick={handleClickShowPassword}
+                // onMouseDown={handleMouseDownPassword}
+                // onMouseUp={handleMouseUpPassword}
+                edge="end"
+              >
+                <SendIcon />
+              </IconButton>
+            </InputAdornment>
+          }
         />
         <Typography
           variant="medium"
@@ -508,7 +543,7 @@ const SearchForm = ({
             </InputLabel>
           )}
           <Select
-            disabled={!serial || !passCode}
+            // disabled={!serial || !passCode}
             required
             labelId="demo-simple-select-label"
             id="customer_type"
@@ -520,7 +555,8 @@ const SearchForm = ({
               },
             }}
             value={brand}
-            onClick={handleBranchClick}
+            // onClick={handleBranchClick}
+            onClick={() => setSteps("device")}
             onChange={(e) => {
               setBrand(e.target.value);
               // setScreenType("steper");
@@ -553,6 +589,8 @@ const SearchForm = ({
           placeholder="Enter Device"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("device")}
+          // onClick={() =>  alert('hello') }
           value={device}
           // onChange={(e) => {
           //   setDevice(e.target.value);
@@ -610,6 +648,7 @@ const SearchForm = ({
           placeholder="Enter Repair By"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("repair_by")}
           value={technicianName}
           // onChange={(e) => {
           //   setRepairBy(e.target.value);
@@ -631,6 +670,7 @@ const SearchForm = ({
           placeholder="Enter Repair Status"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("repair_status")}
           value={repairStatus}
           // onChange={(e) => {
           //   setRepairStatus(e.target.value);
@@ -652,11 +692,19 @@ const SearchForm = ({
           placeholder="Enter Delivery Status"
           variant="outlined"
           sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("repair_status")}
           value={deliveryStatus}
           // onChange={(e) => {
           //   setDeliveryStatus(e.target.value);
           // }}
         />
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={() => setSteps("payment")}
+        >
+          Payment
+        </Button>
       </div>
     </div>
   );

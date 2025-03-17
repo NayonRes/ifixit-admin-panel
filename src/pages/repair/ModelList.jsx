@@ -89,6 +89,8 @@ const ModelList = ({
   setParentList,
   deviceId,
   setDeviceId,
+  steps,
+  setSteps,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
@@ -161,6 +163,7 @@ const ModelList = ({
 
   return (
     <div className="">
+      <Button onClick={() => setSteps('repair_list') }  >Repair List</Button>
       {childList?.length > 0 && (
         <div>
           <Grid container columnSpacing={3} sx={{}}>
