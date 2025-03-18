@@ -581,9 +581,9 @@ const SearchForm = ({
               <MenuItem
                 key={index}
                 value={item._id}
-                // onClick={() => {
-                //   setBrandId(item._id);
-                // }}
+                onClick={() => {
+                  setBrandId(item._id);
+                }}
               >
                 {item.name}
               </MenuItem>

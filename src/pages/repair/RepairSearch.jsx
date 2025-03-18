@@ -103,19 +103,23 @@ const RepairSearch = () => {
     let parsP = allSpareParts.reduce((sum, item) => sum + item.price, 0);
     let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
     let dueP = parseInt(due_amount || 0);
+    let discount_amount_p = parseInt(discount_amount || 0);
 
-    if (repairP + parsP !== dueP + paymentP) {
+    if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
       return handleSnakbarOpen("Total Amount and input are not same!", "error");
     }
 
     // return console.log('ok')
 
-    if (!serial) {
-      return handleSnakbarOpen("Serial is Required", "error");
+    if (repairP == 0) {
+      return handleSnakbarOpen("Repair list is empty", "error");
     }
-    if (!passCode) {
-      return handleSnakbarOpen("Pass Code is Required", "error");
-    }
+    // if (!serial) {
+    //   return handleSnakbarOpen("Serial is Required", "error");
+    // }
+    // if (!passCode) {
+    //   return handleSnakbarOpen("Pass Code is Required", "error");
+    // }
     let token = ifixit_admin_panel.token;
     const decodedToken = jwtDecode(token);
     // console.log('fdfdf',decodedToken?.user?.branch_id)
@@ -479,6 +483,8 @@ const RepairSearch = () => {
               set_payment_info={set_payment_info}
               due_amount={due_amount}
               set_due_amount={set_due_amount}
+              discount_amount={discount_amount}
+              set_discount_amount={set_discount_amount}
               allIssue={allIssue}
               allSpareParts={allSpareParts}
             />
