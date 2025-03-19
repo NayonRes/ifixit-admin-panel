@@ -20,7 +20,6 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import AddIcon from "@mui/icons-material/Add";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import { useSnackbar } from "notistack";
 import { allIssueCheckList } from "../../data";
 
@@ -70,8 +69,9 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
   };
 
   const handleSave = () => {
-    const transformed = issueList.filter((item) => item.status != false);
-    // .map((item) => item.name);
+    const transformed = issueList
+      .filter((item) => item.status)
+      .map((item) => item.name);
 
     let data = {
       has_power,
@@ -83,11 +83,9 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
     set_repair_checklist(data);
   };
 
-  const handleCheckboxChange = (index, clickStatus) => {
-    console.log("status", index, clickStatus, issueList);
-
+  const handleCheckboxChange = (index) => {
     const updatedList = [...issueList];
-    updatedList[index].status = clickStatus;
+    updatedList[index].status = !updatedList[index].status;
     setIssueList(updatedList);
   };
 
@@ -290,6 +288,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                     borderRadius: 2,
                     cursor: "pointer",
                   }}
+                  onClick={() => handleCheckboxChange(index)}
                 >
                   <Typography
                     variant="body1"
@@ -302,27 +301,10 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                     // onClick={() => handleCheckboxChange(index)}
                     sx={{ display: "flex", alignItems: "center " }}
                   >
-                    {item.status === "Functional" ? (
-                      <img
-                        src="/check.png"
-                        alt=""
-                        style={{ width: "25px" }}
-                        onClick={() => handleCheckboxChange(index, "Damaged")}
-                      />
-                    ) : item.status === "Damaged" ? (
-                      <img
-                        src="/cross.png"
-                        alt=""
-                        style={{ width: "25px" }}
-                        onClick={() => handleCheckboxChange(index, false)}
-                      />
+                    {item.status ? (
+                      <img src="/check.png" alt="" style={{ width: "25px" }} />
                     ) : (
-                      <CheckBoxOutlineBlankIcon
-                        sx={{ color: "#999" }}
-                        onClick={() =>
-                          handleCheckboxChange(index, "Functional")
-                        }
-                      />
+                      <img src="/cross.png" alt="" style={{ width: "25px" }} />
                     )}
                   </Box>
                   {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}
