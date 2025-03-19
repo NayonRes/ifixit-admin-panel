@@ -215,7 +215,7 @@ const ModelList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/model?name=${name}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/model?name=${name.trim()}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }

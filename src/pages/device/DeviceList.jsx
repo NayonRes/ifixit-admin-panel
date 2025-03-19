@@ -237,7 +237,7 @@ const DeviceList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/device?name=${name}&parent_id=${newParentId}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/device?name=${name.trim()}&parent_id=${newParentId}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
