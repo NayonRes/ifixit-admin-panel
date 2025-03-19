@@ -54,6 +54,13 @@ const RepairSearch = () => {
   const [technician, setTechnician] = useState("");
   const [technicianName, setTechnicianName] = useState("");
 
+  const [subChildDeviceList, setSubChildDeviceList] = useState([]);
+  const [parentDevice, setParentDevice] = useState("");
+  const [childDevice, setChildDevice] = useState("");
+  const [modelList, setModelList] = useState([]);
+
+  const [issueArr, setIssueArr] = useState([]);
+
   const [issue, setIssue] = useState("");
   const [allIssue, setAllIssue] = useState([]);
   const [allSpareParts, setAllSpareParts] = useState([]);
@@ -71,6 +78,9 @@ const RepairSearch = () => {
 
   const [screenType, setScreenType] = useState("add_contact");
   const [loading, setLoading] = useState(false);
+  const [issueLoading, setIssueLoading] = useState(false);
+  const [productList, setProductList] = useState([]);
+  const [productLoading, setProductLoading] = useState(false);
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
@@ -136,7 +146,7 @@ const RepairSearch = () => {
         id: item.product_id,
         name: item.name,
         price: item.price,
-        spare_parts_full_name: item.name,
+        product_full_name: item.name,
         product_id: item.product_id,
         product_variation_id: item.product_variation_id,
       };
@@ -440,10 +450,35 @@ const RepairSearch = () => {
               setDeviceId={setDeviceId}
               steps={steps}
               setSteps={setSteps}
+              repair_checklist={repair_checklist}
+              set_repair_checklist={set_repair_checklist}
+              issue={issue}
+              setIssue={setIssue}
+              allIssue={allIssue}
+              setAllIssue={setAllIssue}
+              allSpareParts={allSpareParts}
+              setAllSpareParts={setAllSpareParts}
+              allIssueUpdate={allIssueUpdate}
+              subChildDeviceList={subChildDeviceList}
+              setSubChildDeviceList={setSubChildDeviceList}
+              parentDevice={parentDevice}
+              setParentDevice={setParentDevice}
+              childDevice={childDevice}
+              setChildDevice={setChildDevice}
+              modelList={modelList}
+              setModelList={setModelList}
+              issueArr={issueArr}
+              setIssueArr={setIssueArr}
+              issueLoading={issueLoading}
+              setIssueLoading={setIssueLoading}
+              productList={productList}
+              setProductList={setProductList}
+              productLoading={productLoading}
+              setProductLoading={setProductLoading}
             />
             // <div>Model list</div>
           )}
-          {steps == "repair_list" && (
+          {/* {steps == "repair_list" && (
             <IssueList
               issue={issue}
               setIssue={setIssue}
@@ -451,13 +486,17 @@ const RepairSearch = () => {
               setAllIssue={setAllIssue}
               allSpareParts={allSpareParts}
               setAllSpareParts={setAllSpareParts}
-              repair_checklist={repair_checklist}
-              set_repair_checklist={set_repair_checklist}
               allIssueUpdate={allIssueUpdate}
               brand_id={brand_id}
               deviceId={deviceId}
+              repair_checklist={repair_checklist}
+              set_repair_checklist={set_repair_checklist}
+              steps={steps}
+              setSteps={setSteps}
+              issueArr={issueArr}
+              setIssueArr={setIssueArr}
             />
-          )}
+          )} */}
           {steps == "repair_by" && (
             <TechnicianList
               technician={technician}

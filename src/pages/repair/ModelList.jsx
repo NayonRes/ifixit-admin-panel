@@ -1,10 +1,20 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Box, Button, Checkbox, Skeleton, Typography } from "@mui/material";
+import {
+  backdropClasses,
+  Box,
+  Button,
+  Checkbox,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import { useSnackbar } from "notistack";
+import RepairChecklist from "./RepairChecklist";
+import IssueList from "./IssueList";
+import { jwtDecode } from "jwt-decode";
 
 const style = {
   nav: {
@@ -91,17 +101,46 @@ const ModelList = ({
   setDeviceId,
   steps,
   setSteps,
+  repair_checklist,
+  set_repair_checklist,
+  issue,
+  setIssue,
+  allIssue,
+  setAllIssue,
+  allSpareParts,
+  setAllSpareParts,
+  allIssueUpdate,
+  subChildDeviceList,
+  setSubChildDeviceList,
+  parentDevice,
+  setParentDevice,
+  childDevice,
+  setChildDevice,
+  modelList,
+  setModelList,
+  issueArr,
+  setIssueArr,
+  issueLoading,
+  setIssueLoading,
+  productList,
+  setProductList,
+  productLoading,
+  setProductLoading,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
-  const [items, setItems] = useState([]);
-  const [childList, setChildList] = useState([]);
-  const [subChildList, setSubChildList] = useState([]);
-  const [parent, setParent] = useState("");
-  const [child, setChild] = useState("");
-  const [device_id, set_device_id] = useState("");
-  const [loading, setLoading] = useState("");
+  const [showComponent, setShowComponent] = useState("Model List");
 
+  const [childList, setChildList] = useState([]);
+
+  const [selected_device_id, set_selected_device_id] = useState("");
+  const [loading, setLoading] = useState("");
+  const getBranchId = () => {
+    let token = ifixit_admin_panel.token;
+    let decodedToken = jwtDecode(token);
+    let branch_id = decodedToken?.user?.branch_id;
+    return branch_id;
+  };
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -117,11 +156,17 @@ const ModelList = ({
 
   const handleChangeParent = async (name, device_id) => {
     console.log("name", name, device_id);
-    set_device_id(device_id);
+
+    if (parentDevice === device_id) {
+      return;
+    }
+
+    // set_selected_device_id(device_id);
     let items = parentList.filter((item) => item.parent_id === device_id);
 
-    setSubChildList(items);
-    setParent(name);
+    setSubChildDeviceList(items);
+    setParentDevice(device_id);
+    setModelList([]);
     // TODO: WORKING
     if (items?.length < 1) {
       handleChangeChild(name, device_id);
@@ -129,20 +174,23 @@ const ModelList = ({
   };
 
   const handleChangeChild = async (name, device_id) => {
+    if (childDevice === device_id) {
+      return;
+    }
     setLoading(true);
-    setChild(name);
-    set_device_id(device_id);
+    setChildDevice(device_id);
+    // set_selected_device_id(device_id);
+
     let url = `/api/v1/model/get-by-device?device_id=${device_id}`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
       return;
     }
-    console.log("after child list", allData?.data?.data);
-    setItems(allData?.data?.data);
+    console.log("after childDevice list", allData?.data?.data);
 
     if (allData.status >= 200 && allData.status < 300) {
-      setItems(allData?.data?.data);
+      setModelList(allData?.data?.data);
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
       setLoading(false);
@@ -156,112 +204,247 @@ const ModelList = ({
     console.log("cc list ----- ", items[0]?.items);
     setChildList(items[0]?.items);
   };
+  const getProducts = async (device_id) => {
+    setProductLoading(true);
 
+    let branch_id = getBranchId();
+
+    // let url = `/api/v1/product?brand_id=${brand_id}&model_id=${deviceId}&device_id=${partsDeviceId}&branch_id=${branch_id}`;
+
+    let url = `/api/v1/product?model_id=${device_id}&branch_id=${branch_id}`;
+
+    // url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+
+    let allData = await getDataWithToken(url);
+    // console.log("(allData?.data?.data products", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      console.log("lll", allData?.data?.data);
+      setProductList(allData?.data?.data);
+    } else {
+      setProductLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setProductLoading(false);
+  };
+  const getServices = async (device_id) => {
+    setIssueLoading(true);
+
+    let branch_id = getBranchId();
+    //localhost:8088/api/v1/service?branch_id=id&brand_id=&device_id=&model_id=6787aac7c296a2f8e87871ec
+
+    let url = `/api/v1/service?model_id=${device_id}&branch_id=${branch_id}`;
+
+    let allData = await getDataWithToken(url);
+    console.log(
+      "(allData?.data?.data products issue list",
+      allData?.data?.data
+    );
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    let allRepairs = allData?.data?.data?.flatMap((item) => item.repair_info);
+
+    const repairServices = allRepairs.map((service) => ({
+      _id: service._id,
+      service_id: service._id,
+      name: service.name,
+      repair_image: service.repair_image,
+      details: service.details,
+      repair_cost: service.repair_cost,
+      guaranty: service.guaranty,
+      warranty: service.warranty,
+    }));
+
+    // console.log("dddfdf", repairServices);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setIssueLoading(false);
+      setIssueArr(repairServices);
+
+      // if (allData.data.data.length < 1) {
+      //   setMessage("No data found");
+      // }
+    } else {
+      setIssueLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
   // useEffect(() => {
   //   getTopItems();
   // }, [brand]);
 
   return (
     <div className="">
-      <Button onClick={() => setSteps("repair_list")}>Repair List</Button>
+      {/* <Button onClick={() => setSteps("repair_list")}>Repair List</Button> */}
+      <RepairChecklist
+        set_repair_checklist={set_repair_checklist}
+        repair_checklist={repair_checklist}
+        steps={steps}
+        setSteps={setSteps}
+        deviceId={deviceId}
+        showComponent={showComponent}
+        setShowComponent={setShowComponent}
+      />
+      {showComponent === "Model List" && (
+        <>
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: 600, mb: 3 }}
+            onClick={() =>
+              console.log("parentDevice", parentDevice, childDevice)
+            }
+          >
+            Select Model
+          </Typography>
+          {parentList?.length > 0 && (
+            <div>
+              <Grid container columnSpacing={3} sx={{}}>
+                <Grid size={12}>
+                  <Box sx={style.nav}>
+                    {parentList?.length > 0 &&
+                      parentList
+                        ?.filter((item) => item.parent_id === null) // Keep only those with parent_id: null
 
-      <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-        Select Model
-      </Typography>
-      {parentList?.length > 0 && (
-        <div>
-          <Grid container columnSpacing={3} sx={{}}>
-            <Grid size={12}>
-              <Box sx={style.nav}>
-                {parentList?.length > 0 &&
-                  parentList
-                    ?.filter((item) => item.parent_id === null) // Keep only those with parent_id: null
-                    .map((item) => ({
-                      ...item,
-                      name: item.name.replace(/series\.?/i, "").trim(), // Remove 'Series' (case-insensitive) and any trailing '.'
-                    }))
-                    ?.map((data, index) => (
-                      <Box
-                        role="button"
-                        sx={
-                          parent == data?.name ? style.linkActive : style.link
-                        }
-                        key={index}
-                        onClick={() =>
-                          handleChangeParent(data?.name, data?._id)
-                        }
-                      >
-                        {data?.name}
-                      </Box>
-                    ))}
-              </Box>
-              {subChildList?.length > 0 && (
-                <Box sx={style.nav2}>
-                  {subChildList?.map((data, index) => (
-                    <Button
-                      variant={child == data?.name ? "contained" : "outlined"}
-                      key={index}
-                      onClick={() => handleChangeChild(data?.name, data?._id)}
-                    >
-                      {data?.name}
-                    </Button>
-                  ))}
-                </Box>
-              )}
-            </Grid>
-          </Grid>
-          <Grid container spacing={2} sx={{ mt: 3 }}>
-            {!loading &&
-              items &&
-              items.length > 0 &&
-              items.map((item, index) => (
-                <Grid size={3} key={index}>
-                  <Box
-                    sx={device == item.name ? style.cardActive : style.card}
-                    role="button"
-                    onClick={() => {
-                      setDevice(item.name);
-                      setDeviceId(item?._id);
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <img
-                        src={
-                          item?.image?.url ? item?.image?.url : "/noImage.png"
-                        }
-                        alt=""
-                        style={{ maxWidth: 30 }}
-                      />
-                      <Typography variant="body1">{item.name}</Typography>
-                    </Box>
-
-                    {device == item.name && (
-                      <Box>
-                        <Checkbox checked={device == item.name} />
-                      </Box>
-                    )}
+                        ?.map((data, index) => (
+                          <Box
+                            role="button"
+                            sx={
+                              parentDevice == data?._id
+                                ? style.linkActive
+                                : style.link
+                            }
+                            key={index}
+                            onClick={() =>
+                              handleChangeParent(data?.name, data?._id)
+                            }
+                          >
+                            {data?.name?.replace(/series\.?/i, "").trim()}
+                            {/* item.name.replace(/series\.?/i, "").trim(), // Remove 'Series' (case-insensitive) and any trailing '.' */}
+                          </Box>
+                        ))}
                   </Box>
+                  {subChildDeviceList?.length > 0 && (
+                    <Box sx={style.nav2}>
+                      {subChildDeviceList?.map((data, index) => (
+                        <Button
+                          variant={
+                            childDevice === data?._id ? "contained" : "outlined"
+                          }
+                          key={index}
+                          onClick={() =>
+                            handleChangeChild(data?.name, data?._id)
+                          }
+                        >
+                          {data?.name}
+                        </Button>
+                      ))}
+                    </Box>
+                  )}
                 </Grid>
-              ))}
-
-            {loading && (
-              <Grid size={12}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: 3,
-                  }}
-                >
-                  <Skeleton height={100} sx={{ flex: 1 }} />
-                  <Skeleton height={100} sx={{ flex: 1 }} />
-                  <Skeleton height={100} sx={{ flex: 1 }} />
-                  <Skeleton height={100} sx={{ flex: 1 }} />
-                </Box>
               </Grid>
-            )}
-          </Grid>
-        </div>
+              <Grid container spacing={2} sx={{ mt: 3 }}>
+                {!loading &&
+                  modelList &&
+                  modelList.length > 0 &&
+                  modelList?.map((item, index) => (
+                    <Grid size={3} key={index}>
+                      <Box
+                        sx={
+                          deviceId == item._id ? style.cardActive : style.card
+                        }
+                        role="button"
+                        onClick={() => {
+                          setDevice(item.name);
+                          setDeviceId(item?._id);
+                          getServices(item?._id);
+                          getProducts(item?._id);
+                          setAllIssue([]);
+                          setAllSpareParts([]);
+                        }}
+                      >
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        >
+                          <img
+                            src={
+                              item?.image?.url
+                                ? item?.image?.url
+                                : "/noImage.png"
+                            }
+                            alt=""
+                            style={{ maxWidth: 30 }}
+                          />
+                          <Typography variant="body1">{item.name}</Typography>
+                        </Box>
+
+                        {deviceId == item._id && (
+                          <Box>
+                            <Checkbox checked={deviceId == item._id} />
+                          </Box>
+                        )}
+                      </Box>
+                    </Grid>
+                  ))}
+
+                {loading && (
+                  <Grid size={12}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: 3,
+                      }}
+                    >
+                      <Skeleton height={100} sx={{ flex: 1 }} />
+                      <Skeleton height={100} sx={{ flex: 1 }} />
+                      <Skeleton height={100} sx={{ flex: 1 }} />
+                      <Skeleton height={100} sx={{ flex: 1 }} />
+                    </Box>
+                  </Grid>
+                )}
+              </Grid>
+            </div>
+          )}
+        </>
+      )}
+
+      {showComponent == "Issue List" && (
+        <IssueList
+          issue={issue}
+          setIssue={setIssue}
+          allIssue={allIssue}
+          setAllIssue={setAllIssue}
+          allSpareParts={allSpareParts}
+          setAllSpareParts={setAllSpareParts}
+          allIssueUpdate={allIssueUpdate}
+          brand_id={brand_id}
+          deviceId={deviceId}
+          repair_checklist={repair_checklist}
+          set_repair_checklist={set_repair_checklist}
+          steps={steps}
+          setSteps={setSteps}
+          issueArr={issueArr}
+          setIssueArr={setIssueArr}
+          issueLoading={issueLoading}
+          setIssueLoading={setIssueLoading}
+          productList={productList}
+          setProductList={setProductList}
+          productLoading={productLoading}
+          setProductLoading={setProductLoading}
+        />
       )}
     </div>
   );

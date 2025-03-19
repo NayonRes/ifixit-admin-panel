@@ -503,7 +503,7 @@ const SparePars = ({
         ...selectedProducts,
         {
           ...item,
-          spare_parts_full_name: `${row?.name} - ${item?.name}`,
+          product_full_name: `${row?.name} - ${item?.name}`,
           product_id: item.product_id,
           product_variation_id: item._id,
           purchase_product_status: "",
@@ -515,7 +515,7 @@ const SparePars = ({
         ...selectedProducts,
         {
           ...item,
-          spare_parts_full_name: `${row?.name} - ${item?.name}`,
+          product_full_name: `${row?.name} - ${item?.name}`,
           product_id: item.product_id,
           product_variation_id: item._id,
           purchase_product_status: "",

@@ -20,7 +20,6 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import AddIcon from "@mui/icons-material/Add";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import { useSnackbar } from "notistack";
 import { allIssueCheckList } from "../../data";
 
@@ -50,18 +49,10 @@ const customeTextFeild = {
   },
 };
 
-const RepairChecklist = ({
-  repair_checklist,
-  set_repair_checklist,
-  steps,
-  setSteps,
-  deviceId,
-  showComponent,
-  setShowComponent,
-}) => {
+const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [issueList, setIssueList] = useState(allIssueCheckList);
 
@@ -78,8 +69,9 @@ const RepairChecklist = ({
   };
 
   const handleSave = () => {
-    const transformed = issueList.filter((item) => item.status != false);
-    // .map((item) => item.name);
+    const transformed = issueList
+      .filter((item) => item.status)
+      .map((item) => item.name);
 
     let data = {
       has_power,
@@ -91,11 +83,9 @@ const RepairChecklist = ({
     set_repair_checklist(data);
   };
 
-  const handleCheckboxChange = (index, clickStatus) => {
-    console.log("status", index, clickStatus, issueList);
-
+  const handleCheckboxChange = (index) => {
     const updatedList = [...issueList];
-    updatedList[index].status = clickStatus;
+    updatedList[index].status = !updatedList[index].status;
     setIssueList(updatedList);
   };
 
@@ -147,35 +137,34 @@ const RepairChecklist = ({
   // }, []);
 
   useEffect(() => {
-    console.log("all-----------:", allIssueCheckList);
-    console.log("REAPAIR-----------:", repair_checklist?.checklist);
-    // if (!repair_checklist?.checklist) {
-    //   const updatedCheckList = allIssueCheckList.map((item) => ({
-    //     ...item,
-    //     status: false,
-    //   }));
-    //   setIssueList(updatedCheckList);
-    //   return;
-    // }
+    console.log("all-----------", allIssueCheckList);
+    if (!repair_checklist?.checklist) {
+      const updatedCheckList = allIssueCheckList.map((item) => ({
+        ...item,
+        status: false,
+      }));
+      setIssueList(updatedCheckList);
+      return;
+    }
 
-    // // Extract existing issue names
-    // const existingNames = new Set(allIssueCheckList.map((item) => {item.name, status: false}));
+    // Extract existing issue names
+    const existingNames = new Set(allIssueCheckList.map((item) => item.name));
 
-    // // Create updated list with existing items
-    // const updatedIssueList = allIssueCheckList.map((item) => ({
-    //   ...item,
-    //   status: repair_checklist.checklist.includes(item.name),
-    // }));
+    // Create updated list with existing items
+    const updatedIssueList = allIssueCheckList.map((item) => ({
+      ...item,
+      status: repair_checklist.checklist.includes(item.name),
+    }));
 
-    // // Find new checklist items that are not in allIssueCheckList
-    // const newItems = repair_checklist.checklist
-    //   .filter((name) => !existingNames.has(name))
-    //   .map((name) => ({ name, status: true }));
+    // Find new checklist items that are not in allIssueCheckList
+    const newItems = repair_checklist.checklist
+      .filter((name) => !existingNames.has(name))
+      .map((name) => ({ name, status: true }));
 
-    // // Merge updated list with new items
-    // const finalIssueList = [...updatedIssueList, ...newItems];
+    // Merge updated list with new items
+    const finalIssueList = [...updatedIssueList, ...newItems];
 
-    // setIssueList(finalIssueList);
+    setIssueList(finalIssueList);
 
     // Set additional properties if available
     if (repair_checklist.has_power !== undefined) {
@@ -189,36 +178,15 @@ const RepairChecklist = ({
     }
   }, []);
 
+  // useEffect(() => {
+  //   setLoading(true);
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //   }, 2000);
+  // }, []);
+
   return (
     <div>
-      <Box sx={{ float: "right" }}>
-        <Button
-          variant="outlined"
-          disabled={!deviceId}
-          onClick={() => setOpen(true)}
-          sx={{ mr: 1 }}
-        >
-          Pre Repair Checklist
-        </Button>
-        {showComponent === "Model List" && (
-          <Button
-            variant="outlined"
-            disabled={!deviceId}
-            onClick={() => setShowComponent("Issue List")}
-          >
-            Model List
-          </Button>
-        )}
-        {showComponent === "Issue List" && (
-          <Button
-            variant="outlined"
-            disabled={!deviceId}
-            onClick={() => setShowComponent("Model List")}
-          >
-            Issue List
-          </Button>
-        )}
-      </Box>
       <Dialog
         open={open}
         onClose={handleDialogClose}
@@ -320,6 +288,7 @@ const RepairChecklist = ({
                     borderRadius: 2,
                     cursor: "pointer",
                   }}
+                  onClick={() => handleCheckboxChange(index)}
                 >
                   <Typography
                     variant="body1"
@@ -332,27 +301,10 @@ const RepairChecklist = ({
                     // onClick={() => handleCheckboxChange(index)}
                     sx={{ display: "flex", alignItems: "center " }}
                   >
-                    {item.status === "Functional" ? (
-                      <img
-                        src="/check.png"
-                        alt=""
-                        style={{ width: "25px" }}
-                        onClick={() => handleCheckboxChange(index, "Damaged")}
-                      />
-                    ) : item.status === "Damaged" ? (
-                      <img
-                        src="/cross.png"
-                        alt=""
-                        style={{ width: "25px" }}
-                        onClick={() => handleCheckboxChange(index, false)}
-                      />
+                    {item.status ? (
+                      <img src="/check.png" alt="" style={{ width: "25px" }} />
                     ) : (
-                      <CheckBoxOutlineBlankIcon
-                        sx={{ color: "#999", width: "26px", height: "26px" }}
-                        onClick={() =>
-                          handleCheckboxChange(index, "Functional")
-                        }
-                      />
+                      <img src="/cross.png" alt="" style={{ width: "25px" }} />
                     )}
                   </Box>
                   {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}

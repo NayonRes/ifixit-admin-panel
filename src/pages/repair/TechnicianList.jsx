@@ -246,7 +246,7 @@ const TechnicianList = ({
           </Typography>
         )}
 
-        {loading && (
+        {!loading && (
           <Grid size={12}>
             <Box
               sx={{
@@ -255,10 +255,10 @@ const TechnicianList = ({
                 gap: 3,
               }}
             >
-              <Skeleton height={200} sx={{ flex: 1 }} />
-              <Skeleton height={200} sx={{ flex: 1 }} />
-              <Skeleton height={200} sx={{ flex: 1 }} />
-              <Skeleton height={200} sx={{ flex: 1 }} />
+              <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+              <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+              <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+              <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
             </Box>
           </Grid>
         )}

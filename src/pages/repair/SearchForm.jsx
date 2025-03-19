@@ -617,7 +617,7 @@ const SearchForm = ({
               cursor: "pointer",
             },
           }}
-          onClick={() => setSteps("device")}
+          // onClick={() => setSteps("device")}
           // onClick={() =>  alert('hello') }
           value={device}
           // onChange={(e) => {
@@ -632,7 +632,7 @@ const SearchForm = ({
                 {item.name} | ৳ {item.repair_cost}
                 <Box
                   role="button"
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => removeItem(item._id)}
                   className="issue_list_btn"
                   sx={{ mt: "4px" }}
                 >
