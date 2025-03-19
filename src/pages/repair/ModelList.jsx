@@ -1,10 +1,19 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Box, Button, Checkbox, Skeleton, Typography } from "@mui/material";
+import {
+  backdropClasses,
+  Box,
+  Button,
+  Checkbox,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import { useSnackbar } from "notistack";
+import RepairChecklist from "./RepairChecklist";
+import IssueList from "./IssueList";
 
 const style = {
   nav: {
@@ -91,6 +100,15 @@ const ModelList = ({
   setDeviceId,
   steps,
   setSteps,
+  repair_checklist,
+  set_repair_checklist,
+  issue,
+  setIssue,
+  allIssue,
+  setAllIssue,
+  allSpareParts,
+  setAllSpareParts,
+  allIssueUpdate,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
@@ -163,7 +181,13 @@ const ModelList = ({
 
   return (
     <div className="">
-      <Button onClick={() => setSteps("repair_list")}>Repair List</Button>
+      {/* <Button onClick={() => setSteps("repair_list")}>Repair List</Button> */}
+      <RepairChecklist
+        set_repair_checklist={set_repair_checklist}
+        repair_checklist={repair_checklist}
+        steps={steps}
+        setSteps={setSteps}
+      />
 
       <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
         Select Model
@@ -263,6 +287,22 @@ const ModelList = ({
           </Grid>
         </div>
       )}
+
+      {/* <div className="" sx={{ mt: 4 }}>
+        <IssueList
+          issue={issue}
+          setIssue={setIssue}
+          allIssue={allIssue}
+          setAllIssue={setAllIssue}
+          allSpareParts={allSpareParts}
+          setAllSpareParts={setAllSpareParts}
+          allIssueUpdate={allIssueUpdate}
+          brand_id={brand_id}
+          deviceId={deviceId}
+          repair_checklist={repair_checklist}
+          set_repair_checklist={set_repair_checklist}
+        />
+      </div> */}
     </div>
   );
 };

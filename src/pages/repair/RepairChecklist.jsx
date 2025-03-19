@@ -50,10 +50,15 @@ const customeTextFeild = {
   },
 };
 
-const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
+const RepairChecklist = ({
+  repair_checklist,
+  set_repair_checklist,
+  steps,
+  setSteps,
+}) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [issueList, setIssueList] = useState(allIssueCheckList);
 
@@ -189,6 +194,21 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
 
   return (
     <div>
+      <Box sx={{ float: "right" }}>
+        <Button variant="outlined" onClick={() => setOpen(true)} sx={{ mr: 1 }}>
+          Pre Repair Checklist
+        </Button>
+        {steps === "repair_list" && (
+          <Button variant="outlined" onClick={() => setSteps("device")}>
+            Model List
+          </Button>
+        )}
+        {steps === "device" && (
+          <Button variant="outlined" onClick={() => setSteps("repair_list")}>
+            Issue List
+          </Button>
+        )}
+      </Box>
       <Dialog
         open={open}
         onClose={handleDialogClose}

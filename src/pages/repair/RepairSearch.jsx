@@ -440,6 +440,15 @@ const RepairSearch = () => {
               setDeviceId={setDeviceId}
               steps={steps}
               setSteps={setSteps}
+              repair_checklist={repair_checklist}
+              set_repair_checklist={set_repair_checklist}
+              issue={issue}
+              setIssue={setIssue}
+              allIssue={allIssue}
+              setAllIssue={setAllIssue}
+              allSpareParts={allSpareParts}
+              setAllSpareParts={setAllSpareParts}
+              allIssueUpdate={allIssueUpdate}
             />
             // <div>Model list</div>
           )}
@@ -451,11 +460,13 @@ const RepairSearch = () => {
               setAllIssue={setAllIssue}
               allSpareParts={allSpareParts}
               setAllSpareParts={setAllSpareParts}
-              repair_checklist={repair_checklist}
-              set_repair_checklist={set_repair_checklist}
               allIssueUpdate={allIssueUpdate}
               brand_id={brand_id}
               deviceId={deviceId}
+              repair_checklist={repair_checklist}
+              set_repair_checklist={set_repair_checklist}
+              steps={steps}
+              setSteps={setSteps}
             />
           )}
           {steps == "repair_by" && (

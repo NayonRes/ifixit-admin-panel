@@ -116,6 +116,8 @@ const IssueList = ({
   allIssueUpdate,
   brand_id,
   deviceId,
+  steps,
+  setSteps,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
@@ -267,6 +269,8 @@ const IssueList = ({
       <RepairChecklist
         set_repair_checklist={set_repair_checklist}
         repair_checklist={repair_checklist}
+        steps={steps}
+        setSteps={setSteps}
       />
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
