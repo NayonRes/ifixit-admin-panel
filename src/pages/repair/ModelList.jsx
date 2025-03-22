@@ -331,6 +331,15 @@ const ModelList = ({
                               handleChangeParent(data?.name, data?._id)
                             }
                           >
+                            <img
+                              src={
+                                data?.image?.url
+                                  ? data?.image?.url
+                                  : "/noImage.jpg"
+                              }
+                              alt=""
+                              style={{ maxWidth: 30 }}
+                            />
                             {data?.name?.replace(/series\.?/i, "").trim()}
                             {/* item.name.replace(/series\.?/i, "").trim(), // Remove 'Series' (case-insensitive) and any trailing '.' */}
                           </Box>
@@ -382,7 +391,7 @@ const ModelList = ({
                             src={
                               item?.image?.url
                                 ? item?.image?.url
-                                : "/noImage.png"
+                                : "/noImage.jpg"
                             }
                             alt=""
                             style={{ maxWidth: 30 }}

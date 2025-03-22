@@ -442,7 +442,6 @@ const StockAdjustment = ({ clearFilter }) => {
             </Grid>
 
             <Grid size={12}>
-              
               <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
                   {!searchLoading &&
@@ -474,7 +473,7 @@ const StockAdjustment = ({ clearFilter }) => {
                                       src={
                                         item?.images?.length > 0
                                           ? item?.images[0]?.url
-                                          : "/noImage.png"
+                                          : "/noImage.jpg"
                                       }
                                       alt=""
                                       width={30}
@@ -615,8 +614,7 @@ const StockAdjustment = ({ clearFilter }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {
-                  productList.length > 0 &&
+                {productList.length > 0 &&
                   productList.map((row, i) => (
                     <TableRow
                       key={i}
@@ -627,7 +625,7 @@ const StockAdjustment = ({ clearFilter }) => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}

@@ -439,7 +439,7 @@ const ModelList = () => {
                           src={
                             row?.image?.url?.length > 0
                               ? row?.image?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{

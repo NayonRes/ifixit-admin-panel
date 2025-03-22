@@ -214,7 +214,7 @@ const ModelList = ({
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                       <img
                         src={
-                          item?.image?.url ? item?.image?.url : "/noImage.png"
+                          item?.image?.url ? item?.image?.url : "/noImage.jpg"
                         }
                         alt=""
                         style={{ maxWidth: 30 }}

@@ -89,7 +89,6 @@ const RepairStatusList = ({
           </Typography>
         </Grid>
       </Grid>
-
       <Grid container spacing={2}>
         {statusList.length > 0 &&
           statusList.map((item, index) => (
@@ -109,7 +108,6 @@ const RepairStatusList = ({
             </Grid>
           ))}
       </Grid>
-
       {/* ..... */}
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
@@ -118,7 +116,6 @@ const RepairStatusList = ({
           </Typography>
         </Grid>
       </Grid>
-
       <Grid container spacing={2}>
         {deliveryStatusList.length > 0 &&
           deliveryStatusList.map((item, index) => (

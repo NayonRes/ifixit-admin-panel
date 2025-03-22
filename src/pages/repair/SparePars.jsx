@@ -317,7 +317,7 @@ const SparePars = ({
                                 src={
                                   item?.images?.length > 0
                                     ? item?.images[0]?.url
-                                    : "/noImage.png"
+                                    : "/noImage.jpg"
                                 }
                                 alt=""
                                 width={30}

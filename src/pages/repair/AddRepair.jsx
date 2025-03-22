@@ -24,8 +24,9 @@ import { getDataWithToken } from "../../services/GetDataService";
 import { handlePutData } from "../../services/PutDataService";
 import { PulseLoader } from "react-spinners";
 import RepairHistory from "./RepairHistory";
+import SerialHistory from "./SerialHistory";
 
-const RepairSearch = () => {
+const AddRepair = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -69,6 +70,9 @@ const RepairSearch = () => {
   const [repair_status_history_data, set_repair_status_history_data] = useState(
     []
   );
+
+  const [serialLoading, setSerialLoading] = useState(false);
+  const [serialHistoryList, setSerialHistoryList] = useState([]);
 
   const [due_amount, set_due_amount] = useState("");
   const [discount_amount, set_discount_amount] = useState("");
@@ -305,7 +309,7 @@ const RepairSearch = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair List
+            Create Repair Job
             {/* {name} */}
           </Typography>
         </Grid>
@@ -383,6 +387,10 @@ const RepairSearch = () => {
             setScreenType={setScreenType}
             steps={steps}
             setSteps={setSteps}
+            serialLoading={serialLoading}
+            setSerialLoading={setSerialLoading}
+            serialHistoryList={serialHistoryList}
+            setSerialHistoryList={setSerialHistoryList}
           />
         </Grid>
         {/*  TODO: don't remove */}
@@ -415,24 +423,37 @@ const RepairSearch = () => {
           {steps == "contact" && (
             <Box>
               {contactData?._id ? (
-                <EditContact
-                  contactData={contactData}
-                  setContactData={setContactData}
-                />
+                <>
+                  <EditContact
+                    contactData={contactData}
+                    setContactData={setContactData}
+                  />
+                  <br />
+                  <RepairHistory contactData={contactData} serial={serial} />
+                </>
               ) : !contactData?._id ? (
-                <AddContact
-                  searchPrams={searchPrams}
-                  contactData={contactData}
-                  setContactData={setContactData}
-                />
+                <>
+                  <AddContact
+                    searchPrams={searchPrams}
+                    contactData={contactData}
+                    setContactData={setContactData}
+                  />
+                </>
               ) : (
                 ""
               )}
             </Box>
           )}
 
-          {steps == "repair_history" && (
-            <RepairHistory contactData={contactData} serial={serial} />
+          {steps == "serial_history" && (
+            <SerialHistory
+              contactData={contactData}
+              serial={serial}
+              serialLoading={serialLoading}
+              setSerialLoading={setSerialLoading}
+              serialHistoryList={serialHistoryList}
+              setSerialHistoryList={setSerialHistoryList}
+            />
           )}
           {/* {device === "Primary" && !device && (
             <ModelList device={device} setDevice={setDevice} />
@@ -591,7 +612,7 @@ const RepairSearch = () => {
   );
 };
 
-export default RepairSearch;
+export default AddRepair;
 
 const buttonStyle = {
   px: 2,

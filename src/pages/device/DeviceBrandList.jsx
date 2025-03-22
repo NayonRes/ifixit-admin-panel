@@ -487,7 +487,7 @@ const DeviceBrandList = () => {
                           src={
                             row?.icon?.url?.length > 0
                               ? row?.icon?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{
@@ -509,7 +509,7 @@ const DeviceBrandList = () => {
                           src={
                             row?.image?.url?.length > 0
                               ? row?.image?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{

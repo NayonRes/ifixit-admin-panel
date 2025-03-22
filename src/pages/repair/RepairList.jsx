@@ -42,8 +42,10 @@ const RepairList = ({
 
     const totalCost = issueTotal + sparePartsTotal;
 
-    return <TableCell>{totalCost}</TableCell>;
+    return totalCost;
   };
+
+  
   return (
     <div>
       <div
@@ -81,6 +83,7 @@ const RepairList = ({
                 Paid Amount
               </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Due Amount</TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>Discount Amount</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Total Amount
               </TableCell>
@@ -198,6 +201,9 @@ const RepairList = ({
                       {row?.due_amount ? row?.due_amount : "-------"}
                     </TableCell>
                     <TableCell sx={{ color: "#D92D20" }}>
+                      {row?.discount_amount ? row?.discount_amount : "-------"}
+                    </TableCell>
+                    <TableCell  >
                       {calculateTotalAmount(row)}
                     </TableCell>
 
@@ -230,7 +236,7 @@ const RepairList = ({
                           // color="success"
                           disableElevation
                           component={Link}
-                          to={`/repair-search?repairId=${row?._id}`}
+                          to={`/add-repair?repairId=${row?._id}`}
                           state={{ row }}
                         >
                           <svg
@@ -287,7 +293,7 @@ const RepairList = ({
               <TableRow
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell colSpan={10} style={{ textAlign: "center" }}>
+                <TableCell colSpan={11} style={{ textAlign: "center" }}>
                   <strong> {message}</strong>
                 </TableCell>
               </TableRow>

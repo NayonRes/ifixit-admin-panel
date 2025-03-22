@@ -117,7 +117,7 @@ const RepairChecklist = ({
     }
 
     // Add new item if it doesn't exist
-    const newItem = { name: newName, status: true };
+    const newItem = { name: newName, status: false };
     setIssueList((prevList) => {
       const updatedList = [...prevList, newItem];
       console.log("Updated issueList:", updatedList);
@@ -319,7 +319,21 @@ const RepairChecklist = ({
                     p: 1,
                     borderRadius: 2,
                     cursor: "pointer",
+                    userSelect: "none",
                   }}
+                  onClick={() =>
+                    handleCheckboxChange(
+                      index,
+
+                      item.status === false
+                        ? "Functional"
+                        : item.status === "Functional"
+                        ? "Damaged"
+                        : item.status === "Damaged"
+                        ? false
+                        : ""
+                    )
+                  }
                 >
                   <Typography
                     variant="body1"
@@ -337,21 +351,21 @@ const RepairChecklist = ({
                         src="/check.png"
                         alt=""
                         style={{ width: "25px" }}
-                        onClick={() => handleCheckboxChange(index, "Damaged")}
+                        // onClick={() => handleCheckboxChange(index, "Damaged")}
                       />
                     ) : item.status === "Damaged" ? (
                       <img
                         src="/cross.png"
                         alt=""
                         style={{ width: "25px" }}
-                        onClick={() => handleCheckboxChange(index, false)}
+                        // onClick={() => handleCheckboxChange(index, false)}
                       />
                     ) : (
                       <CheckBoxOutlineBlankIcon
                         sx={{ color: "#999", width: "26px", height: "26px" }}
-                        onClick={() =>
-                          handleCheckboxChange(index, "Functional")
-                        }
+                        // onClick={() =>
+                        //   handleCheckboxChange(index, "Functional")
+                        // }
                       />
                     )}
                   </Box>
@@ -454,7 +468,7 @@ const RepairChecklist = ({
             Close
           </Button>
           <Button
-            disabled={issueList.filter((item) => item.status).length < 1}
+            // disabled={issueList.filter((item) => item.status).length < 1}
             variant="contained"
             // disabled={loading}
             // type="submit"
@@ -467,7 +481,7 @@ const RepairChecklist = ({
               minHeight: "44px",
             }}
             // style={{ minWidth: "180px", minHeight: "35px" }}
-            autoFocus
+
             disableElevation
             onClick={() => {
               handleSave();

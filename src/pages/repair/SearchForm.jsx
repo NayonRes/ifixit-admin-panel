@@ -140,6 +140,10 @@ const SearchForm = ({
   setScreenType,
   steps,
   setSteps,
+  serialLoading,
+  setSerialLoading,
+  serialHistoryList,
+  setSerialHistoryList,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
@@ -166,7 +170,30 @@ const SearchForm = ({
       autoHideDuration: duration,
     });
   };
+  const getSerialHistory = async () => {
+    if (!serial.trim()) {
+      handleSnakbarOpen("Please enter serial number", "error");
+      return;
+    }
+    setSerialLoading(true);
 
+    let url = `/api/v1/repair?serial=${serial?.trim()}&limit=100&page=1`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data::::::", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setSerialLoading(false);
+      setSerialHistoryList(allData?.data?.data);
+    } else {
+      setSerialLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
   const getUser = async (searchValue) => {
     let url = `/api/v1/customer?mobile=${searchValue || contactData?.mobile}`;
     let allData = await getDataWithToken(url);
@@ -266,7 +293,7 @@ const SearchForm = ({
       setTechnicianName("");
       setRepairStatus("");
       setDeliveryStatus("");
-      navigate("/repair-search");
+      navigate("/add-repair");
       setSearchPrams(searchValue);
     }
     if (searchValue.length === 11) {
@@ -281,7 +308,7 @@ const SearchForm = ({
   const handleSearch2 = (e) => {
     let searchValue = e.target.value;
     if (repairId) {
-      navigate("/repair-search");
+      navigate("/add-repair");
     }
     if (searchValue.length < 11) {
       console.log("under 11");
@@ -454,7 +481,7 @@ const SearchForm = ({
           required
           placeholder="Enter Serial"
           sx={{ ...customeTextFeild, mb: 3 }}
-          onClick={() => setSteps("repair_history")}
+          onClick={() => setSteps("serial_history")}
           value={serial}
           onChange={(e) => {
             setSerial(e.target.value);
@@ -467,7 +494,7 @@ const SearchForm = ({
           variant="outlined"
           required
           placeholder="Enter Serial"
-          onClick={() => setSteps("repair_history")}
+          onClick={() => setSteps("serial_history")}
           sx={{ ...customeTextFeild, mb: 3 }}
           value={serial}
           onChange={(e) => {
@@ -477,7 +504,8 @@ const SearchForm = ({
             <InputAdornment position="end">
               <IconButton
                 size="sm"
-                onClick={() => setSteps("repair_history")}
+                onClick={getSerialHistory}
+                // onClick={() => setSteps("serial_history")}
                 // onClick={handleClickShowPassword}
                 // onMouseDown={handleMouseDownPassword}
                 // onMouseUp={handleMouseUpPassword}

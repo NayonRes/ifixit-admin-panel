@@ -220,13 +220,28 @@ const TechnicianList = ({
                 }}
               >
                 <Box>
-                  <img src="/userpic.png" alt="" />
+                  <img
+                    src={
+                      item?.image?.url?.length > 0
+                        ? item?.image?.url
+                        : "/userpic.png"
+                    }
+                    alt=""
+                    width="40px"
+                    height="40px"
+                    style={{
+                      display: "block",
+                      margin: "5px 0px",
+                      borderRadius: "100px",
+                      // border: "1px solid #d1d1d1",
+                    }}
+                  />
                 </Box>
 
                 <Box>
-                  <Typography variant="body1">{item.name}</Typography>
+                  <Typography variant="medium">{item.name}</Typography>
                   <Typography
-                    variant="body2"
+                    variant="small"
                     color="text.secondary"
                     sx={{ mt: "2px" }}
                   >
@@ -246,7 +261,7 @@ const TechnicianList = ({
           </Typography>
         )}
 
-        {!loading && (
+        {loading && (
           <Grid size={12}>
             <Box
               sx={{

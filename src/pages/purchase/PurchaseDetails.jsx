@@ -685,7 +685,7 @@ const PurchaseDetails = () => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
@@ -1145,7 +1145,7 @@ const PurchaseDetails = () => {
                                       src={
                                         item?.images?.length > 0
                                           ? item?.images[0]?.url
-                                          : "/noImage.png"
+                                          : "/noImage.jpg"
                                       }
                                       alt=""
                                       width={30}
@@ -1636,7 +1636,7 @@ const PurchaseDetails = () => {
           variant="base"
           gutterBottom
           sx={{ fontWeight: 500 }}
-          onClick={() => console.log(updateData)}
+     
         >
           SKU and Barcode &nbsp;
           {skuList?.length > 0 && `of ${skuProductName} (${skuList?.length})`}

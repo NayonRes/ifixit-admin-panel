@@ -13,10 +13,15 @@ import moment from "moment";
 import { enqueueSnackbar } from "notistack";
 import { statusList } from "../../data.js";
 
-export default function RepairHistory({ contactData, serial }) {
+export default function SerialHistory({
+  contactData,
+  serial,
+  serialLoading,
+  setSerialLoading,
+  serialHistoryList,
+  setSerialHistoryList,
+}) {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const [tableDataList, setTableDataList] = useState([]);
-  const [loading, setLoading] = React.useState(false);
   const [message, setMessage] = useState("");
 
   const handleSnakbarOpen = (msg, vrnt) => {
@@ -48,42 +53,12 @@ export default function RepairHistory({ contactData, serial }) {
     }
     return content;
   };
-  const getData = async () => {
-    setLoading(true);
-
-    let url = `/api/v1/repair?customer_id=${contactData?._id}&limit=100&page=1`;
-    // let url = `/api/v1/repair?serial=${serial}&limit=100&page=1`;
-    let allData = await getDataWithToken(url);
-    console.log("allData?.data?.data::::::", allData?.data?.data);
-
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setTableDataList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading(false);
-  };
 
   const getColor = (name) => {
     let co = statusList.filter((i) => i.name == name);
     console.log("co", co?.[0]?.color);
     return co?.[0]?.bg;
   };
-
-  useEffect(() => {
-    getData();
-    console.log("contactData", contactData);
-  }, []);
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -103,9 +78,9 @@ export default function RepairHistory({ contactData, serial }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {!loading &&
-              tableDataList.length > 0 &&
-              tableDataList.map((item, index) => (
+            {!serialLoading &&
+              serialHistoryList.length > 0 &&
+              serialHistoryList.map((item, index) => (
                 <TableRow
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
@@ -125,16 +100,16 @@ export default function RepairHistory({ contactData, serial }) {
                 </TableRow>
               ))}
 
-            {!loading && tableDataList.length < 1 ? (
+            {!serialLoading && serialHistoryList.length < 1 ? (
               <TableRow
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell colSpan={4} style={{ textAlign: "center" }}>
-                  <strong> {message}</strong>
+                  <strong> No history found</strong>
                 </TableCell>
               </TableRow>
             ) : null}
-            {loading && pageLoading()}
+            {serialLoading && pageLoading()}
           </TableBody>
         </Table>
       </TableContainer>

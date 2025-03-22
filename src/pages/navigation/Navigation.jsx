@@ -23,7 +23,7 @@ import VariantList from "../variant/VariantList";
 import SparePartsList from "../spare-parts/SparePartsList";
 import SparePartsDetails from "../spare-parts/SparePartsDetails";
 import Repair from "../repair/Repair";
-import RepairSearch from "../repair/RepairSearch";
+import AddRepair from "../repair/AddRepair";
 import PurchaseList from "../purchase/PurchaseList";
 import PurchaseDetails from "../purchase/PurchaseDetails";
 import StockAlertList from "../stock-alert/StockAlertList";
@@ -354,10 +354,10 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
-          path="repair-search"
+          path="add-repair"
           element={
             <PrivateRoute>
-              <RepairSearch />
+              <AddRepair />
             </PrivateRoute>
           }
         />

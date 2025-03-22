@@ -167,10 +167,10 @@ const UpdateCustomer = ({ clearFilter, row, setContactData }) => {
 
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
-      if (location.pathname?.includes("/repair-search")) {
+      if (location.pathname?.includes("/add-repair")) {
         setContactData(response?.data?.data);
       }
-      if (!location.pathname?.includes("/repair-search")) {
+      if (!location.pathname?.includes("/add-repair")) {
         clearFilter();
       }
       clearForm();
@@ -281,7 +281,7 @@ const UpdateCustomer = ({ clearFilter, row, setContactData }) => {
         Update Branch
       </Button> */}
 
-      {location.pathname.includes("/repair-search") ? (
+      {location.pathname.includes("/add-repair") ? (
         <Button
           variant="outlined"
           color=""
