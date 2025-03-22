@@ -77,6 +77,12 @@ const RepairStatusList = ({
   deliveryStatus,
   setDeliveryStatus,
   repair_status_history_data,
+  technicianLoading,
+  setTechnicianLoading,
+  technicianList,
+  setTechnicianList,
+  technician,
+  setTechnician,
 }) => {
   const [searchParams] = useSearchParams();
   let repairId = searchParams.get("repairId");
@@ -141,6 +147,14 @@ const RepairStatusList = ({
         <Grid container spacing={2} sx={{ mt: 4 }}>
           <RepairStatusHistory
             repair_status_history_data={repair_status_history_data}
+            technicianLoading={technicianLoading}
+            setTechnicianLoading={setTechnicianLoading}
+            technicianList={technicianList}
+            setTechnicianList={setTechnicianList}
+            repairStatus={repairStatus}
+            setRepairStatus={setRepairStatus}
+            technician={technician}
+            setTechnician={setTechnician}
           />
         </Grid>
       )}

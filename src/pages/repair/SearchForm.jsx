@@ -19,6 +19,7 @@ import IssueList from "./IssueList";
 import { useSnackbar } from "notistack";
 import { AuthContext } from "../../context/AuthContext";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -144,8 +145,22 @@ const SearchForm = ({
   setSerialLoading,
   serialHistoryList,
   setSerialHistoryList,
+  technicianLoading,
+  setTechnicianLoading,
+  technicianList,
+  setTechnicianList,
+  
+  previousRepairData,
+  setPreviousRepairData,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+
+  const getBranchId = () => {
+    let token = ifixit_admin_panel.token;
+    let decodedToken = jwtDecode(token);
+    let branch_id = decodedToken?.user?.branch_id;
+    return branch_id;
+  };
   const [searchParams] = useSearchParams();
   let repairId = searchParams.get("repairId");
 
@@ -239,33 +254,12 @@ const SearchForm = ({
     }
   };
 
-  const getDeviceList = async (id) => {
-    let url = `/api/v1/device/dropdownlist?device_brand_id=${id}`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setParentList(allData?.data.data);
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
   const getModel = async () => {
     let url = `/api/v1/brand`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data.data);
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
-
-  const getDevice = async () => {
-    let url = `/api/v1/device`;
-    let allData = await getDataWithToken(url);
-
-    if (allData?.status >= 200 && allData?.status < 300) {
-      setDeviceList(allData?.data.data);
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -369,12 +363,72 @@ const SearchForm = ({
       return;
     }
   };
+  const getTechnician = async () => {
+    setTechnicianLoading(true);
 
+    let branch_id = getBranchId();
+    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    let newBranchId;
+    // if (ifixit_admin_panel?.user?.is_main_branch) {
+    //   newBranchId = selectedBranch;
+    // } else {
+    //   newBranchId = branch_id;
+    // }
+
+    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("technician list", allData?.data.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setTechnicianLoading(false);
+      setTechnicianList(allData?.data.data);
+
+      let name = allData?.data.data.filter((i) => i._id === technician);
+      setTechnicianName(name[0]?.name);
+
+      // if (allData.data.data.length < 1) {
+      //   setMessage("No Data found");
+      // } else {
+      //   setMessage("");
+      // }
+    } else {
+      setTechnicianLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
+  const getDevice = async () => {
+    let url = `/api/v1/device`;
+    let allData = await getDataWithToken(url);
+
+    if (allData?.status >= 200 && allData?.status < 300) {
+      setDeviceList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
+  const getDeviceList = async (id) => {
+    let url = `/api/v1/device/dropdownlist?device_brand_id=${id}`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setParentList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
   useEffect(() => {
     // getBrand();
     getBrandList();
     getDevice();
-  }, []);
+    getTechnician();
+    if (previousRepairData) {
+      getDeviceList(brand)
+    }
+  }, [previousRepairData]);
   // useEffect(() => {
   //   if (contactData?.mobile) {
   //     getUser();
@@ -394,43 +448,45 @@ const SearchForm = ({
       >
         {/* {JSON.stringify(allIssue)} */}
         {/* <button onClick={() => setSteps(1)}>Steps: {steps}</button> */}
-        <TextField
-          type="number"
-          required
-          size="small"
-          fullWidth
-          id="searchParams"
-          placeholder="Search Number"
-          variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
-          onClick={() => setSteps("contact")}
-          value={searchPrams}
-          onChange={handleSearch2}
-          // onKeyDown={handleSearch2}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
-                      stroke="#667085"
-                      stroke-width="1.66667"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        {!repairId && (
+          <TextField
+            type="number"
+            required
+            size="small"
+            fullWidth
+            id="searchParams"
+            placeholder="Search Number"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            onClick={() => setSteps("contact")}
+            value={searchPrams}
+            onChange={handleSearch2}
+            // onKeyDown={handleSearch2}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
+                        stroke="#667085"
+                        stroke-width="1.66667"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+        )}
         <Typography
           variant="medium"
           color="text.main"

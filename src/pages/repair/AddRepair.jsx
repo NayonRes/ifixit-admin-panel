@@ -54,6 +54,8 @@ const AddRepair = () => {
   const [steps, setSteps] = useState("contact");
   const [technician, setTechnician] = useState("");
   const [technicianName, setTechnicianName] = useState("");
+  const [technicianLoading, setTechnicianLoading] = useState(false);
+  const [technicianList, setTechnicianList] = useState([]);
 
   const [subChildDeviceList, setSubChildDeviceList] = useState([]);
   const [parentDevice, setParentDevice] = useState("");
@@ -85,7 +87,14 @@ const AddRepair = () => {
   const [issueLoading, setIssueLoading] = useState(false);
   const [productList, setProductList] = useState([]);
   const [productLoading, setProductLoading] = useState(false);
-
+  const [apiCallForUpdate, setApiCallForUpdate] = useState(false);
+  const [previousRepairData, setPreviousRepairData] = useState({});
+  const getBranchId = () => {
+    let token = ifixit_admin_panel.token;
+    let decodedToken = jwtDecode(token);
+    let branch_id = decodedToken?.user?.branch_id;
+    return branch_id;
+  };
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -231,6 +240,53 @@ const AddRepair = () => {
     console.log("old", all);
     console.log("new", list);
   };
+  const getTechnician = async () => {
+    setTechnicianLoading(true);
+
+    let branch_id = getBranchId();
+    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    let newBranchId;
+    // if (ifixit_admin_panel?.user?.is_main_branch) {
+    //   newBranchId = selectedBranch;
+    // } else {
+    //   newBranchId = branch_id;
+    // }
+
+    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("technician list", allData?.data.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setTechnicianLoading(false);
+      setTechnicianList(allData?.data.data);
+
+      let name = allData?.data.data.filter((i) => i._id === technician);
+      setTechnicianName(name[0]?.name);
+
+      // if (allData.data.data.length < 1) {
+      //   setMessage("No Data found");
+      // } else {
+      //   setMessage("");
+      // }
+    } else {
+      setTechnicianLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
+  // const getDevice = async () => {
+  //   let url = `/api/v1/device`;
+  //   let allData = await getDataWithToken(url);
+
+  //   if (allData?.status >= 200 && allData?.status < 300) {
+  //     setDeviceList(allData?.data.data);
+  //   } else {
+  //     handleSnakbarOpen(allData?.data?.message, "error");
+  //   }
+  // };
 
   const initState = async (repairId) => {
     if (repairId) {
@@ -245,6 +301,7 @@ const AddRepair = () => {
         // setScreenType("steper");
         // setSteps(0);
         let data = allData?.data?.data;
+        setPreviousRepairData(data);
         console.log("edit data", data);
         setId(data?._id);
         setName(data?.customer_data[0]?.name);
@@ -268,10 +325,11 @@ const AddRepair = () => {
         setTechnician(data?.repair_by);
         setRepairStatus(data?.repair_status);
         setDeliveryStatus(data?.delivery_status);
-        setBrand(data?.brand_data?.[0]?.name);
+        setBrand(data?.brand_id);
         setBrandId(data?.brand_data?.[0]?._id);
         setDevice(data?.model_data?.[0]?.name);
         setDeviceId(data?.model_data?.[0]?._id);
+        setParentDevice(data?.model_data?.[0]?.device_id);
         set_payment_info(data?.payment_info);
         set_due_amount(data?.due_amount);
         set_repair_checklist(data?.repair_checklist);
@@ -283,7 +341,7 @@ const AddRepair = () => {
         // setSteps(data?.steps);
         // setIssue(data?.issue);
         // set_discount_amount(data?.discount_amount);
-
+        setApiCallForUpdate(true);
         if (allData.data.data.length < 1) {
           // setMessage("No data found");
         }
@@ -391,25 +449,16 @@ const AddRepair = () => {
             setSerialLoading={setSerialLoading}
             serialHistoryList={serialHistoryList}
             setSerialHistoryList={setSerialHistoryList}
+            technicianLoading={technicianLoading}
+            setTechnicianLoading={setTechnicianLoading}
+            technicianList={technicianList}
+            setTechnicianList={setTechnicianList}
+          
+            previousRepairData={previousRepairData}
+            setPreviousRepairData={setPreviousRepairData}
           />
         </Grid>
-        {/*  TODO: don't remove */}
 
-        {/* <Grid size={9} sx={{ p: 3 }}>
-          {!brand && contactData?._id ? (
-            <EditContact contactData={contactData} />
-          ) : !brand && !contactData?._id ? (
-            <AddContact searchPrams={searchPrams} contactData={contactData} />
-          ) : (
-            ""
-          )}
-
-          {brand === "Apple" && !device && (
-            <ModelList device={device} setDevice={setDevice} />
-          )}
-          {device && <IssueList issue={issue} setIssue={setIssue} /> }
-        </Grid> */}
-        {/*  TODO: don't remove */}
         <Grid
           size={9}
           sx={{
@@ -455,9 +504,7 @@ const AddRepair = () => {
               setSerialHistoryList={setSerialHistoryList}
             />
           )}
-          {/* {device === "Primary" && !device && (
-            <ModelList device={device} setDevice={setDevice} />
-          )} */}
+
           {steps == "device" && (
             <ModelList
               id={id}
@@ -496,6 +543,9 @@ const AddRepair = () => {
               setProductList={setProductList}
               productLoading={productLoading}
               setProductLoading={setProductLoading}
+              apiCallForUpdate={apiCallForUpdate}
+              previousRepairData={previousRepairData}
+              setPreviousRepairData={setPreviousRepairData}
             />
             // <div>Model list</div>
           )}
@@ -524,6 +574,10 @@ const AddRepair = () => {
               setTechnician={setTechnician}
               technicianName={technicianName}
               setTechnicianName={setTechnicianName}
+              technicianLoading={technicianLoading}
+              setTechnicianLoading={setTechnicianLoading}
+              technicianList={technicianList}
+              setTechnicianList={setTechnicianList}
             />
           )}
           {steps == "repair_status" && (
@@ -533,6 +587,12 @@ const AddRepair = () => {
               deliveryStatus={deliveryStatus}
               setDeliveryStatus={setDeliveryStatus}
               repair_status_history_data={repair_status_history_data}
+              technicianLoading={technicianLoading}
+              setTechnicianLoading={setTechnicianLoading}
+              technicianList={technicianList}
+              setTechnicianList={setTechnicianList}
+              technician={technician}
+              setTechnician={setTechnician}
             />
           )}
           {steps == "payment" && (

@@ -45,7 +45,6 @@ const RepairList = ({
     return totalCost;
   };
 
-  
   return (
     <div>
       <div
@@ -83,7 +82,9 @@ const RepairList = ({
                 Paid Amount
               </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Due Amount</TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>Discount Amount</TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>
+                Discount Amount
+              </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Total Amount
               </TableCell>
@@ -203,23 +204,33 @@ const RepairList = ({
                     <TableCell sx={{ color: "#D92D20" }}>
                       {row?.discount_amount ? row?.discount_amount : "-------"}
                     </TableCell>
-                    <TableCell  >
-                      {calculateTotalAmount(row)}
-                    </TableCell>
+                    <TableCell>{calculateTotalAmount(row)}</TableCell>
 
                     <TableCell>
-                      <Chip
-                        label={row.repair_status}
-                        variant="outlined"
-                        // color="info"
-                        sx={{
-                          border: "0px",
-                          backgroundColor:
-                            statusList.find(
-                              (el) => el.name === row.repair_status
-                            )?.color || "black",
-                        }}
-                      />
+                      {row?.repair_status_history_data?.length > 0
+                        ? (() => {
+                            const lastStatus =
+                              row.repair_status_history_data[
+                                row.repair_status_history_data.length - 1
+                              ];
+                            const statusColor =
+                              statusList.find(
+                                (el) =>
+                                  el.name === lastStatus.repair_status_name
+                              )?.color || "";
+
+                            return (
+                              <Chip
+                                label={lastStatus.repair_status_name}
+                                variant="outlined"
+                                sx={{
+                                  border: "0px",
+                                  backgroundColor: statusColor,
+                                }}
+                              />
+                            );
+                          })()
+                        : "----------"}
                     </TableCell>
 
                     {/* <TableCell align="center" style={{ minWidth: "130px" }}>

@@ -15,6 +15,7 @@ import { useSnackbar } from "notistack";
 import RepairChecklist from "./RepairChecklist";
 import IssueList from "./IssueList";
 import { jwtDecode } from "jwt-decode";
+import { useSearchParams } from "react-router-dom";
 
 const style = {
   nav: {
@@ -126,7 +127,11 @@ const ModelList = ({
   setProductList,
   productLoading,
   setProductLoading,
+
+  previousRepairData,
+  setPreviousRepairData,
 }) => {
+  const [searchParams] = useSearchParams();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
   const [showComponent, setShowComponent] = useState("Model List");
@@ -154,29 +159,41 @@ const ModelList = ({
     });
   };
 
-  const handleChangeParent = async (name, device_id) => {
-    console.log("name", name, device_id);
-
-    if (parentDevice === device_id) {
-      return;
+  const handleChangeParent = async (device_id, update) => {
+    console.log(
+      "device_id **********************************************",
+      device_id
+    );
+    if (!update) {
+      if (parentDevice === device_id) {
+        // if click the previous device do not do anything
+        return;
+      }
     }
-
+    console.log("111111111111111111");
+    setSubChildDeviceList([])
     // set_selected_device_id(device_id);
     let items = parentList.filter((item) => item.parent_id === device_id);
-
+    console.log("222222222222222", items);
     setSubChildDeviceList(items);
     setParentDevice(device_id);
     setModelList([]);
+
+    console.log("333333333333333", update, items);
     // TODO: WORKING
     if (items?.length < 1) {
-      handleChangeChild(name, device_id);
+      console.log("333333333333333", update, items);
+      handleChangeChild(device_id, update);
     }
   };
 
-  const handleChangeChild = async (name, device_id) => {
-    if (childDevice === device_id) {
-      return;
+  const handleChangeChild = async (device_id, update) => {
+    if (!update) {
+      if (childDevice === device_id) {
+        return;
+      }
     }
+    console.log("55555555555555555555555555555", update);
     setLoading(true);
     setChildDevice(device_id);
     // set_selected_device_id(device_id);
@@ -286,6 +303,18 @@ const ModelList = ({
   //   getTopItems();
   // }, [brand]);
 
+  useEffect(() => {
+    console.log(
+      "previousRepairData?.model_data?.[0]?.device_id",
+      previousRepairData?.model_data?.[0]?.device_id
+    );
+
+    let repairId = searchParams.get("repairId");
+    if (repairId) {
+      handleChangeParent(previousRepairData?.model_data?.[0]?.device_id, true);
+    }
+  }, []);
+
   return (
     <div className="">
       {/* <Button onClick={() => setSteps("repair_list")}>Repair List</Button> */}
@@ -327,9 +356,7 @@ const ModelList = ({
                                 : style.link
                             }
                             key={index}
-                            onClick={() =>
-                              handleChangeParent(data?.name, data?._id)
-                            }
+                            onClick={() => handleChangeParent(data?._id)}
                           >
                             <img
                               src={
@@ -353,9 +380,7 @@ const ModelList = ({
                             childDevice === data?._id ? "contained" : "outlined"
                           }
                           key={index}
-                          onClick={() =>
-                            handleChangeChild(data?.name, data?._id)
-                          }
+                          onClick={() => handleChangeChild(data?._id)}
                         >
                           {data?.name}
                         </Button>

@@ -221,11 +221,6 @@ export default function Layout() {
     setSignOutLoading(false);
   };
 
-  console.log(
-    "ifixit_admin_panel?.permission",
-    ifixit_admin_panel?.user?.permission
-  );
-
   const checkPermission = (permissionName) => {
     return ifixit_admin_panel?.user?.permission?.includes(permissionName);
   };

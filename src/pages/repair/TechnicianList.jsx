@@ -77,11 +77,16 @@ const TechnicianList = ({
   setTechnician,
   technicianName,
   setTechnicianName,
+
+  technicianLoading,
+  setTechnicianLoading,
+  technicianList,
+  setTechnicianList,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
   const { enqueueSnackbar } = useSnackbar();
-  const [technicianList, setTechnicianList] = useState([]);
+  // const [technicianList, setTechnicianList] = useState([]);
   const [branchList, setBranchList] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -172,12 +177,12 @@ const TechnicianList = ({
     setLoading(false);
   };
 
-  useEffect(() => {
-    getBranchData();
-  }, []);
-  useEffect(() => {
-    getTechnician();
-  }, [selectedBranch]);
+  // useEffect(() => {
+  //   getBranchData();
+  // }, []);
+  // useEffect(() => {
+  //   getTechnician();
+  // }, [selectedBranch]);
 
   return (
     <div>
@@ -207,7 +212,7 @@ const TechnicianList = ({
         </Grid> */}
       </Grid>
       <Grid container spacing={2} sx={{ mt: 3 }}>
-        {!loading &&
+        {!technicianLoading &&
           technicianList.length > 0 &&
           technicianList.map((item, index) => (
             <Grid size={3} key={index}>
@@ -252,7 +257,7 @@ const TechnicianList = ({
             </Grid>
           ))}
 
-        {!loading && message && (
+        {!technicianLoading && message && (
           <Typography
             variant="h6"
             sx={{ textAlign: "center", mt: 4, width: "100%" }}
@@ -261,7 +266,7 @@ const TechnicianList = ({
           </Typography>
         )}
 
-        {loading && (
+        {technicianLoading && (
           <Grid size={12}>
             <Box
               sx={{

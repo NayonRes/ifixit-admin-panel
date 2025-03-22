@@ -107,6 +107,7 @@ export default function RepairHistory({ contactData, serial }) {
               tableDataList.length > 0 &&
               tableDataList.map((item, index) => (
                 <TableRow
+                  key={index}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell>
