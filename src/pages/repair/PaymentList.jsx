@@ -96,19 +96,19 @@ const customeTextFeild = {
   },
 };
 
-const cash = "./cash.png";
-const ucb = "./ucb.png";
+const cash = "/cash.png";
+const ucb = "/ucb.png";
 
-const city = "./city.png";
+const city = "/city.png";
 
-const brac = "./brac.png";
+const brac = "/brac.png";
 
-const ssl = "./ssl.png";
+const ssl = "/ssl.png";
 
-const bkash = "./bkash.png";
+const bkash = "/bkash.png";
 
-const due = "./due.png";
-const discount = "./discount.png";
+const due = "/due.png";
+const discount = "/discount.png";
 
 let statusList = [
   { name: "Cash", color: "#FEF7C3", icon: cash },
@@ -178,7 +178,7 @@ const PaymentList = ({
           </Box>
         </Grid>
       </Grid>
-{/* {JSON.stringify(amounts)} Amount: */}
+      {/* {JSON.stringify(amounts)} Amount: */}
       <Grid
         container
         spacing={0}
@@ -217,7 +217,11 @@ const PaymentList = ({
                   }}
                 >
                   <Box>
-                    <img src={item?.icon} style={{ maxHeight: "30px" }} alt="" />
+                    <img
+                      src={item?.icon}
+                      style={{ maxHeight: "30px" }}
+                      alt=""
+                    />
                   </Box>
                   <Box>{item.name}</Box>
                 </Box>
