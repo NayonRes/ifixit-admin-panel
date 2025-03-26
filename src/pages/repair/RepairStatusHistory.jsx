@@ -39,11 +39,13 @@ export default function RepairStatusHistory({
   setTechnicianList,
   repairStatus,
   setRepairStatus,
+  setLastUpdatedRepairStatus,
   technician,
   setTechnician,
 }) {
   const [searchParams] = useSearchParams();
-  const repairId = searchParams.get("repairId");
+  const { rid } = useParams();
+
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -120,7 +122,7 @@ export default function RepairStatusHistory({
     setSaveLoading(true);
 
     let data = {
-      repair_id: repairId,
+      repair_id: rid,
       user_id: technician,
       repair_status_name: repairStatus,
       remarks: newStatusRemarks,
@@ -193,7 +195,7 @@ export default function RepairStatusHistory({
   const getData = async () => {
     setLoading(true);
 
-    let url = `/api/v1/repairStatusHistory?repair_id=${repairId}&limit=100&page=1`;
+    let url = `/api/v1/repairStatusHistory?repair_id=${rid}&limit=100&page=1`;
     // let url = `/api/v1/repair?serial=${serial}&limit=100&page=1`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data::::::", allData?.data?.data);
@@ -205,6 +207,8 @@ export default function RepairStatusHistory({
 
     if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
+
+      setLastUpdatedRepairStatus(allData?.data?.data[0]?.repair_status_name);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");

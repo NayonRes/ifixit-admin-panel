@@ -28,6 +28,9 @@ import SerialHistory from "./SerialHistory";
 
 const AddRepair = () => {
   const navigate = useNavigate();
+  const { rid } = useParams();
+  console.log("rid", rid);
+
   const location = useLocation();
   const [searchParams] = useSearchParams();
   console.log("location", location.state);
@@ -48,6 +51,7 @@ const AddRepair = () => {
   const [deviceId, setDeviceId] = useState("");
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
+  const [lastUpdatedRepairStatus, setLastUpdatedRepairStatus] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
@@ -169,7 +173,7 @@ const AddRepair = () => {
     console.log("allSpareParts", allSpareParts);
     console.log("allSparePartsModified", allSparePartsModified);
     setLoading(true);
-    const data = {
+    let data = {
       customer_id: customer_id || contactData?._id,
       branch_id: decodedToken?.user?.branch_id,
       pass_code: passCode,
@@ -188,13 +192,20 @@ const AddRepair = () => {
       model_id: deviceId,
     };
 
+    if (location.pathname.includes("/update-repair")) {
+      data = {
+        ...data,
+        repair_status: lastUpdatedRepairStatus,
+      };
+    }
+
     console.log("final data", data);
 
     let response;
-    let repairId = searchParams.get("repairId");
-    if (repairId) {
+
+    if (rid) {
       response = await handlePutData(
-        `/api/v1/repair/update/${repairId}`,
+        `/api/v1/repair/update/${rid}`,
         data,
         false
       );
@@ -226,73 +237,11 @@ const AddRepair = () => {
     setLoading(false);
   };
 
-  const revampSparePars = (all) => {
-    let list = all.map((i) => {
-      let l = {
-        _id: i.product_id,
-        name: i.name,
-        price: i.price,
-        product_variation_id: i.product_variation_id,
-      };
-      return l;
-    });
-    setAllSpareParts(list);
-    console.log("old", all);
-    console.log("new", list);
-  };
-  const getTechnician = async () => {
-    setTechnicianLoading(true);
-
-    let branch_id = getBranchId();
-    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let newBranchId;
-    // if (ifixit_admin_panel?.user?.is_main_branch) {
-    //   newBranchId = selectedBranch;
-    // } else {
-    //   newBranchId = branch_id;
-    // }
-
-    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    console.log("technician list", allData?.data.data);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setTechnicianLoading(false);
-      setTechnicianList(allData?.data.data);
-
-      let name = allData?.data.data.filter((i) => i._id === technician);
-      setTechnicianName(name[0]?.name);
-
-      // if (allData.data.data.length < 1) {
-      //   setMessage("No Data found");
-      // } else {
-      //   setMessage("");
-      // }
-    } else {
-      setTechnicianLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
-  // const getDevice = async () => {
-  //   let url = `/api/v1/device`;
-  //   let allData = await getDataWithToken(url);
-
-  //   if (allData?.status >= 200 && allData?.status < 300) {
-  //     setDeviceList(allData?.data.data);
-  //   } else {
-  //     handleSnakbarOpen(allData?.data?.message, "error");
-  //   }
-  // };
-
-  const initState = async (repairId) => {
-    if (repairId) {
+  const initState = async (rid) => {
+    if (rid) {
       // setLoading2(true);
 
-      let url = `/api/v1/repair/${repairId}`;
+      let url = `/api/v1/repair/${rid}`;
       let allData = await getDataWithToken(url);
 
       if (allData.status >= 200 && allData.status < 300) {
@@ -324,6 +273,7 @@ const AddRepair = () => {
 
         setTechnician(data?.repair_by);
         setRepairStatus(data?.repair_status);
+        setLastUpdatedRepairStatus(data?.repair_status);
         setDeliveryStatus(data?.delivery_status);
         setBrand(data?.brand_id);
         setBrandId(data?.brand_data?.[0]?._id);
@@ -340,7 +290,7 @@ const AddRepair = () => {
         // setPaymentStatus(data?.paymentStatus);
         // setSteps(data?.steps);
         // setIssue(data?.issue);
-        // set_discount_amount(data?.discount_amount);
+        set_discount_amount(data?.discount_amount);
         setApiCallForUpdate(true);
         if (allData.data.data.length < 1) {
           // setMessage("No data found");
@@ -353,8 +303,9 @@ const AddRepair = () => {
   };
 
   useEffect(() => {
-    let repairId = searchParams.get("repairId");
-    initState(repairId);
+    if (rid) {
+      initState(rid);
+    }
   }, []);
 
   return (
@@ -430,6 +381,7 @@ const AddRepair = () => {
             setRepairBy={setRepairBy}
             repairStatus={repairStatus}
             setRepairStatus={setRepairStatus}
+            setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
             deliveryStatus={deliveryStatus}
             setDeliveryStatus={setDeliveryStatus}
             parentList={parentList}
@@ -453,7 +405,6 @@ const AddRepair = () => {
             setTechnicianLoading={setTechnicianLoading}
             technicianList={technicianList}
             setTechnicianList={setTechnicianList}
-          
             previousRepairData={previousRepairData}
             setPreviousRepairData={setPreviousRepairData}
           />
@@ -467,6 +418,8 @@ const AddRepair = () => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            height: "calc(100vh - 130px)",
+            overflow: "auto",
           }}
         >
           {steps == "contact" && (
@@ -584,6 +537,7 @@ const AddRepair = () => {
             <RepairStatusList
               repairStatus={repairStatus}
               setRepairStatus={setRepairStatus}
+              setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
               deliveryStatus={deliveryStatus}
               setDeliveryStatus={setDeliveryStatus}
               repair_status_history_data={repair_status_history_data}
@@ -654,7 +608,7 @@ const AddRepair = () => {
                   sx={buttonStyle}
                   disabled={loading}
                 >
-                  {searchParams.get("repairId") ? "Update" : "Submit"}
+                  {rid ? "Update" : "Submit"}
                   <PulseLoader
                     color={"#4B46E5"}
                     loading={loading}

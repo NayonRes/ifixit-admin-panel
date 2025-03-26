@@ -12,6 +12,7 @@ import { AuthContext } from "../../context/AuthContext";
 import moment from "moment";
 import { enqueueSnackbar } from "notistack";
 import { statusList } from "../../data.js";
+import { useParams } from "react-router-dom";
 
 export default function SerialHistory({
   contactData,
@@ -23,6 +24,7 @@ export default function SerialHistory({
 }) {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [message, setMessage] = useState("");
+  const { rid } = useParams();
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;

@@ -206,7 +206,7 @@ const RepairChecklist = ({
             disabled={!deviceId}
             onClick={() => setShowComponent("Issue List")}
           >
-            Model List
+            Issue List
           </Button>
         )}
         {showComponent === "Issue List" && (
@@ -215,7 +215,7 @@ const RepairChecklist = ({
             disabled={!deviceId}
             onClick={() => setShowComponent("Model List")}
           >
-            Issue List
+            Model List
           </Button>
         )}
       </Box>

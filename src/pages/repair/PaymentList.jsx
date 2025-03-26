@@ -217,7 +217,7 @@ const PaymentList = ({
                   }}
                 >
                   <Box>
-                    <img src={item.icon} style={{ maxHeight: "30px" }} alt="" />
+                    <img src={item?.icon} style={{ maxHeight: "30px" }} alt="" />
                   </Box>
                   <Box>{item.name}</Box>
                 </Box>

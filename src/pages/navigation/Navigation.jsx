@@ -362,6 +362,14 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
+          path="update-repair/:rid"
+          element={
+            <PrivateRoute>
+              <AddRepair />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="suppliers"
           element={
             <PrivateRoute>

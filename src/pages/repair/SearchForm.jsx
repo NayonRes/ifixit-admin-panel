@@ -18,7 +18,12 @@ import { getDataWithToken } from "../../services/GetDataService";
 import IssueList from "./IssueList";
 import { useSnackbar } from "notistack";
 import { AuthContext } from "../../context/AuthContext";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 const customeTextFeild = {
@@ -149,7 +154,7 @@ const SearchForm = ({
   setTechnicianLoading,
   technicianList,
   setTechnicianList,
-  
+
   previousRepairData,
   setPreviousRepairData,
 }) => {
@@ -161,8 +166,8 @@ const SearchForm = ({
     let branch_id = decodedToken?.user?.branch_id;
     return branch_id;
   };
-  const [searchParams] = useSearchParams();
-  let repairId = searchParams.get("repairId");
+
+  const { rid } = useParams();
 
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -186,10 +191,13 @@ const SearchForm = ({
     });
   };
   const getSerialHistory = async () => {
-    if (!serial.trim()) {
-      handleSnakbarOpen("Please enter serial number", "error");
-      return;
+    if (!location.pathname.includes("/update-repair")) {
+      if (!serial.trim()) {
+        handleSnakbarOpen("Please enter serial number", "error");
+        return;
+      }
     }
+
     setSerialLoading(true);
 
     let url = `/api/v1/repair?serial=${serial?.trim()}&limit=100&page=1`;
@@ -203,7 +211,14 @@ const SearchForm = ({
 
     if (allData.status >= 200 && allData.status < 300) {
       setSerialLoading(false);
-      setSerialHistoryList(allData?.data?.data);
+
+      if (rid) {
+        setSerialHistoryList(
+          allData?.data?.data.filter((res) => res._id !== rid)
+        );
+      } else {
+        setSerialHistoryList(allData?.data?.data);
+      }
     } else {
       setSerialLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
@@ -301,7 +316,7 @@ const SearchForm = ({
 
   const handleSearch2 = (e) => {
     let searchValue = e.target.value;
-    if (repairId) {
+    if (rid) {
       navigate("/add-repair");
     }
     if (searchValue.length < 11) {
@@ -426,7 +441,11 @@ const SearchForm = ({
     getDevice();
     getTechnician();
     if (previousRepairData) {
-      getDeviceList(brand)
+      getDeviceList(brand);
+    }
+
+    if (location.pathname.includes("/update-repair")) {
+      getSerialHistory();
     }
   }, [previousRepairData]);
   // useEffect(() => {
@@ -448,7 +467,7 @@ const SearchForm = ({
       >
         {/* {JSON.stringify(allIssue)} */}
         {/* <button onClick={() => setSteps(1)}>Steps: {steps}</button> */}
-        {!repairId && (
+        {!rid && (
           <TextField
             type="number"
             required
