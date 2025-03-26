@@ -7,13 +7,20 @@ import TableRow from "@mui/material/TableRow";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import UpdateUser from "./UpdateUser";
-import { Button, Chip, IconButton, TablePagination, Typography } from "@mui/material";
+import {
+  Button,
+  Chip,
+  IconButton,
+  TablePagination,
+  Typography,
+} from "@mui/material";
 import moment from "moment";
 import { Link } from "react-router-dom";
 import { statusList } from "../../data";
 import { AuthContext } from "../../context/AuthContext";
 
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
+import AddRepairProductSKU from "./AddRepairProductSKU";
 
 const RepairList = ({
   loading,
@@ -137,8 +144,8 @@ const RepairList = ({
                       <span style={{ color: "#4B46E5" }}>
                         {row?.branch_data[0]?.name}
                       </span>
-                    </TableCell>
-                    <TableCell>
+                    </TableCell >
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
                       {row?.customer_data[0]?.name}
 
                       <br />
@@ -241,6 +248,7 @@ const RepairList = ({
 
                     <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                       <>
+                        <AddRepairProductSKU row={row}/> &nbsp; &nbsp;
                         <Button
                           size="small"
                           variant="outlined"
