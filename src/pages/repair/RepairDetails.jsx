@@ -301,6 +301,78 @@ const RepairDetails = ({ clearFilter }) => {
                 </b>
               </Typography>
             </Grid>
+          </Grid>
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Grid container spacing={2}>
+            <Grid size={12}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                component="div"
+                sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+              >
+                Repair & Delivery Info
+              </Typography>
+            </Grid>
+
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Repair By :{" "}
+                <b>
+                  {details?.repair_by_data?.length > 0
+                    ? details?.repair_by_data[0]?.name
+                    : "---------"}
+                </b>
+              </Typography>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Repair Status :{" "}
+                <b>
+                  {details?.repair_status?.length > 0
+                    ? details?.repair_status
+                    : "---------"}
+                </b>
+              </Typography>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Delivery Status :{" "}
+                <b>
+                  {details?.delivery_status?.length > 0
+                    ? details?.delivery_status
+                    : "---------"}
+                </b>
+              </Typography>
+            </Grid>
             
           </Grid>
         </Box>

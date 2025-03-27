@@ -149,6 +149,21 @@ const RepairChecklist = ({
   useEffect(() => {
     console.log("all-----------:", allIssueCheckList);
     console.log("REAPAIR-----------:", repair_checklist?.checklist);
+    let preArr = repair_checklist?.checklist;
+
+    const updatedAllArr = allIssueCheckList.map((item) => {
+      const match = preArr.find((preItem) => preItem.name === item.name);
+      return match ? { ...item, status: match.status } : item;
+    });
+
+    const newItems = preArr.filter(
+      (preItem) => !allIssueCheckList.some((item) => item.name === preItem.name)
+    );
+
+    const finalUpdatedAllArr = [...updatedAllArr, ...newItems];
+
+    console.log("updatedAllArr", finalUpdatedAllArr);
+    setIssueList(finalUpdatedAllArr);
     // if (!repair_checklist?.checklist) {
     //   const updatedCheckList = allIssueCheckList.map((item) => ({
     //     ...item,
