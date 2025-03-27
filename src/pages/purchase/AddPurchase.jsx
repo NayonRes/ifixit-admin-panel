@@ -552,8 +552,8 @@ const AddPurchase = ({ clearFilter }) => {
   const getModelList = async (id) => {
     setLoading2(true);
 
-    // let url = `/api/v1/model/device-model?deviceId=${id}`;
-    let url = `/api/v1/model/dropdownlist`;
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    // let url = `/api/v1/model/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -684,7 +684,7 @@ const AddPurchase = ({ clearFilter }) => {
     getUserList();
     // getBrandList();
     getDeviceList();
-    getModelList();
+    // getModelList();
     // getDropdownList();
   }, []);
   return (
@@ -1311,7 +1311,7 @@ const AddPurchase = ({ clearFilter }) => {
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Brand
+                    Select Device
                   </InputLabel>
                 )}
                 <Select
@@ -1329,6 +1329,7 @@ const AddPurchase = ({ clearFilter }) => {
 
                   onChange={(e) => {
                     setDeviceId(e.target.value);
+                    getModelList(e.target.value);
                     getProducts(null, null, e.target.value);
                   }}
                 >

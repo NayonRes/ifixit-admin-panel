@@ -446,11 +446,20 @@ const PurchaseDetails = () => {
       item.product_id
     )}&product_variation_id=${encodeURIComponent(
       item.product_variation_id
-    )}&branch_id=${encodeURIComponent(
-      tableDataList[0]?.branch_id
     )}&purchase_id=${encodeURIComponent(
       item.purchase_id
     )}&purchase_product_id=${encodeURIComponent(item._id)}`;
+    // let url = `/api/v1/stock/stock-skus-details?sku_number=${encodeURIComponent(
+    //   ""
+    // )}&stock_status=${encodeURIComponent("")}&product_id=${encodeURIComponent(
+    //   item.product_id
+    // )}&product_variation_id=${encodeURIComponent(
+    //   item.product_variation_id
+    // )}&branch_id=${encodeURIComponent(
+    //   tableDataList[0]?.branch_id
+    // )}&purchase_id=${encodeURIComponent(
+    //   item.purchase_id
+    // )}&purchase_product_id=${encodeURIComponent(item._id)}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
     if (allData?.status === 401) {
@@ -1632,12 +1641,7 @@ const PurchaseDetails = () => {
           marginTop: "20px",
         }}
       >
-        <Typography
-          variant="base"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-     
-        >
+        <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
           SKU and Barcode &nbsp;
           {skuList?.length > 0 && `of ${skuProductName} (${skuList?.length})`}
         </Typography>
