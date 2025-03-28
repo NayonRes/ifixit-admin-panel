@@ -117,29 +117,24 @@ const AddRepairProductSKU = ({ row }) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    return;
-    setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
-
-    // formdata.append("parent_id", parent_id);
-
-    let formdata = new FormData();
-    formdata.append("name", name.trim());
-    formdata.append("order_no", orderNo);
-    formdata.append("device_id", parent_id.trim());
-    if (file) {
-      formdata.append("image", file);
+    if (productList?.length < 1) {
+      handleSnakbarOpen("Please add at least one product", "error");
+      return;
     }
+    setLoading(true);
+    let data = {
+      repair_id: row?._id,
 
-    // let data = {
-    //   name: name.trim(),
+      sku_numbers: productList?.map((item) => item.sku_number),
+    };
+    console.log("data", data);
 
-    //   device_id: parent_id?.length > 0 ? parent_id : null,
-    // };
-
-    let response = await handlePostData("/api/v1/model/create", formdata, true);
+    let response = await handlePostData(
+      "/api/v1/repairAttachedSpareparts/create",
+      data,
+      false
+    );
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -306,7 +301,7 @@ const AddRepairProductSKU = ({ row }) => {
         }}
         startIcon={<AddOutlinedIcon />}
       >
-        Add Product SKU
+        Attached Spare Parts
       </Button>
 
       <Dialog
