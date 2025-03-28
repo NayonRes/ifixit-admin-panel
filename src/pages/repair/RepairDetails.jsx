@@ -293,13 +293,215 @@ const RepairDetails = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Device :{" "}
+                Model :{" "}
+                <b>
+                  {details?.model_data?.length > 0
+                    ? details?.model_data[0]?.name
+                    : "---------"}
+                </b>
+              </Typography>
+            </Grid>
+
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Product :{" "}
                 <b>
                   {details?.product_details?.length > 0
                     ? details?.product_details[0]?.name
                     : "---------"}
                 </b>
               </Typography>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Serial :{" "}
+                <b>
+                  {details?.serial?.length > 0 ? details?.serial : "---------"}
+                </b>
+              </Typography>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Pass code :{" "}
+                <b>
+                  {details?.pass_code?.length > 0
+                    ? details?.pass_code
+                    : "---------"}
+                </b>
+              </Typography>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Issue:{" "}
+                {details?.issues?.length > 0
+                  ? details?.issues?.map((item, index) => (
+                      <b
+                        key={index}
+                        style={{
+                          background: "#eee",
+                          marginRight: "10px",
+                          padding: "5px 10px",
+                          borderRadius: "5px",
+                          marginBottom: "3px",
+                          display: "inline-block",
+                        }}
+                      >
+                        {item?.name}
+                      </b>
+                    ))
+                  : "---------"}
+              </Typography>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Spareparts:{" "}
+                {details?.product_details?.length > 0
+                  ? details?.product_details?.map((item, index) => (
+                      <b
+                        key={index}
+                        style={{
+                          background: "#eee",
+                          marginRight: "10px",
+                          padding: "5px 10px",
+                          borderRadius: "5px",
+                          marginBottom: "3px",
+                          display: "inline-block",
+                        }}
+                      >
+                        {item?.name}
+                      </b>
+                    ))
+                  : "---------"}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Grid container spacing={2}>
+            <Grid size={12}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                component="div"
+                sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+              >
+                Repair Checklist
+              </Typography>
+            </Grid>
+
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Power :{" "}
+                <b>
+                  {details?.repair_checklist?.has_power
+                    ? "Has power"
+                    : "No power"}
+                </b>
+              </Typography>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Battery health :{" "}
+                <b>
+                  {details?.repair_checklist?.battery_health
+                    ? details?.repair_checklist?.battery_health
+                    : "-------"}
+                </b>
+              </Typography>
+            </Grid>
+            <Grid size={4}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Note :{" "}
+                <b>
+                  {details?.repair_checklist?.note?.length > 0
+                    ? details?.repair_checklist?.note
+                    : "-------"}
+                </b>
+              </Typography>
+            </Grid>
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500, fontSize: "18px", mb: 2 }}
+              >
+                Check list :{" "}
+              </Typography>
+
+              {details?.repair_checklist?.checklist?.length > 0
+                ? details?.repair_checklist?.checklist?.map((item, index) => (
+                    <Typography
+                      key={index}
+                      variant="medium"
+                      color="text.main"
+                      gutterBottom
+                      sx={{ fontWeight: 500 }}
+                      style={{
+                        background: "#eee",
+                        marginRight: "10px",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
+                        marginBottom: "5px",
+                        display: "inline-block",
+                      }}
+                    >
+                      {item?.name} : <b>{item?.status}</b>
+                    </Typography>
+                  ))
+                : "---------"}
             </Grid>
           </Grid>
         </Box>
@@ -373,7 +575,56 @@ const RepairDetails = ({ clearFilter }) => {
                 </b>
               </Typography>
             </Grid>
-            
+          </Grid>
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Grid container spacing={2}>
+            <Grid size={12}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                component="div"
+                sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+              >
+                Payment Info
+              </Typography>
+            </Grid>
+
+            <Grid size={12}>
+              {details?.payment_info?.length > 0
+                ? details?.payment_info?.map((item, index) => (
+                    <Typography
+                      variant="medium"
+                      color="text.main"
+                      gutterBottom
+                      sx={{ fontWeight: 500 }}
+                      key={index}
+                      style={{
+                        background: "#eee",
+                        marginRight: "10px",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
+                        marginBottom: "5px",
+                        display: "inline-block",
+                      }}
+                    >
+                      {item?.name} : <b>{item?.amount}</b>
+                    </Typography>
+                  ))
+                : "---------"}
+            </Grid>
           </Grid>
         </Box>
       </div>
