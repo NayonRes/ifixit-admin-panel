@@ -34,9 +34,14 @@ const Invoice = () => {
     // onBeforePrint: handleBeforePrint,
   });
   return (
-    <Box sx={{ background: "#ddd", padding: "30px" }}>
+    <Box sx={{ padding: "30px" }}>
       <Box
-        sx={{ maxWidth: "900px", background: "#fff", margin: "auto" }}
+        sx={{
+          maxWidth: "900px",
+          background: "#fff",
+          margin: "auto",
+          border: "1px solid #eee",
+        }}
         ref={contentRef}
       >
         <Box
