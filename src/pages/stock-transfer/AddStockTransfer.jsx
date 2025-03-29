@@ -356,7 +356,11 @@ const AddStockTransfer = ({ clearFilter }) => {
         if (!isSkuPresent) {
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
-          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          } else if (
+            allData?.data?.data[0]?.stock_status !== "Returned" &&
+            allData?.data?.data[0]?.stock_status !== "Attached" &&
+            allData?.data?.data[0]?.stock_status !== "Sold"
+          ) {
             console.log("*************************");
 
             setProductList([
@@ -365,7 +369,10 @@ const AddStockTransfer = ({ clearFilter }) => {
             ]);
             setsearchProductText("");
           } else {
-            handleSnakbarOpen("This product is already returned", "error");
+            handleSnakbarOpen(
+              `This product status is ${allData?.data?.data[0]?.stock_status}`,
+              "error"
+            );
           }
         } else {
           handleSnakbarOpen("This product is already in the list", "error");
