@@ -371,7 +371,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
 
                 spare_parts_name: allData?.data?.data[0]?.product_data[0].name,
                 spare_parts_variation_name:
-                  allData?.data?.data[0]?.spare_parts_variation_data[0].name,
+                  allData?.data?.data[0]?.product_variation_data[0].name,
                 purchase_date:
                   allData?.data?.data[0]?.purchase_data[0].purchase_date,
                 unit_price:

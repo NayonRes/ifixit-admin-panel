@@ -48,7 +48,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment";
 import dayjs from "dayjs";
 
-const AddRepairProductSKU = ({ row }) => {
+const WarrantyProductSKU = ({ row }) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -363,7 +363,13 @@ const AddRepairProductSKU = ({ row }) => {
     }
     setLoading2(false);
   };
+  const isDateAfterMonths = (createdAt, monthsToAdd) => {
+    console.log("createdAt", createdAt);
+    console.log("monthsToAdd", monthsToAdd);
 
+    const newDate = dayjs(createdAt).add(monthsToAdd, "month");
+    return newDate.isAfter(dayjs());
+  };
   useEffect(() => {
     // getDropdownList();
   }, []);
@@ -373,6 +379,7 @@ const AddRepairProductSKU = ({ row }) => {
         variant="outlined"
         disableElevation
         size="small"
+        color="secondary"
         // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
@@ -380,7 +387,7 @@ const AddRepairProductSKU = ({ row }) => {
         }}
         startIcon={<AddOutlinedIcon />}
       >
-        Attached Spareparts
+        Add Warranty
       </Button>
 
       <Dialog
@@ -409,7 +416,7 @@ const AddRepairProductSKU = ({ row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Repair Spareparts
+          Warranty
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={handleDialogClose}
@@ -565,6 +572,9 @@ const AddRepairProductSKU = ({ row }) => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           SKU Number
                         </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Is Warranty Available
+                        </TableCell>
 
                         {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
@@ -583,18 +593,15 @@ const AddRepairProductSKU = ({ row }) => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>*/}
 
-                        <TableCell
-                          align="right"
-                          style={{ whiteSpace: "nowrap" }}
-                        >
-                          Actions
-                        </TableCell>
+                        {/* <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                        Actions
+                      </TableCell> */}
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {!loading2 &&
                         tableDataList.length > 0 &&
-                        tableDataList.map((row, i) => (
+                        tableDataList.map((item, i) => (
                           <TableRow
                             key={i}
                             // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -602,8 +609,8 @@ const AddRepairProductSKU = ({ row }) => {
                             {/* <TableCell sx={{ width: 50 }}>
                         <img
                           src={
-                            row?.images?.length > 0
-                              ? row?.images[0]?.url
+                            item?.images?.length > 0
+                              ? item?.images[0]?.url
                               : "/noImage.jpg"
                           }
                           alt=""
@@ -611,56 +618,113 @@ const AddRepairProductSKU = ({ row }) => {
                         />
                       </TableCell> */}
                             <TableCell sx={{ minWidth: "130px" }}>
-                              {row?.product?.product_data?.length > 0
-                                ? row?.product?.product_data[0]?.name
+                              {item?.product?.product_data?.length > 0
+                                ? item?.product?.product_data[0]?.name
                                 : "---------"}{" "}
                               &nbsp;{" "}
-                              {row?.product?.product_variation_data?.length > 0
-                                ? row?.product?.product_variation_data[0]?.name
+                              {item?.product?.product_variation_data?.length > 0
+                                ? item?.product?.product_variation_data[0]?.name
                                 : "---------"}
                             </TableCell>
 
                             {/* <TableCell>
                               {moment(
-                                row?.product?.purchase_data[0]?.purchase_date
+                                item?.product?.purchase_data[0]?.purchase_date
                               ).format("DD/MM/YYYY")}
                             </TableCell> */}
                             {/*  <TableCell>
-                            {row?.branch_data
-                              ? row?.branch_data[0]?.name
+                            {item?.branch_data
+                              ? item?.branch_data[0]?.name
                               : "---------"}
                           </TableCell>
                           <TableCell sx={{ minWidth: "130px" }}>
-                            {row?.purchase_products_data
-                              ? row?.purchase_products_data[0]?.unit_price
+                            {item?.purchase_products_data
+                              ? item?.purchase_products_data[0]?.unit_price
                               : "---------"}
                           </TableCell> */}
-                            <TableCell>{row?.sku_number}</TableCell>
+                            <TableCell>{item?.sku_number}</TableCell>
+                            <TableCell style={{ whiteSpace: "nowrap" }}>
+                              {isDateAfterMonths(
+                                row?.created_at,
 
-                            <TableCell align="right">
-                              <IconButton
-                                onClick={() => {
-                                  setRemoveSKUDialog(true);
-                                  setRemoveSkuDetails(row);
-                                }}
-                              >
-                                <svg
-                                  width="20"
-                                  height="20"
-                                  viewBox="0 0 20 20"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
+                                item?.product?.product_data[0]?.warranty
+                              ) ? (
+                                <Button
+                                  variant="outlined"
+                                  color="success"
+                                  endIcon={
+                                    <svg
+                                      width="20"
+                                      height="20"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M7.5 12L10.5 15L16.5 9M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                                        stroke="#35b522"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                      />
+                                    </svg>
+                                  }
                                 >
-                                  <path
-                                    d="M12.2837 7.5L11.9952 15M8.00481 15L7.71635 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.875 4.96358M16.023 4.82547L15.1332 16.3938C15.058 17.3707 14.2434 18.125 13.2637 18.125H6.73631C5.75655 18.125 4.94198 17.3707 4.86683 16.3938L3.97696 4.82547M16.023 4.82547C15.0677 4.6812 14.1013 4.57071 13.125 4.49527M3.125 4.96358C3.40798 4.91456 3.69198 4.86851 3.97696 4.82547M3.97696 4.82547C4.93231 4.6812 5.89874 4.57071 6.875 4.49527M13.125 4.49527V3.73182C13.125 2.74902 12.3661 1.92853 11.3838 1.8971C10.9244 1.8824 10.463 1.875 10 1.875C9.53696 1.875 9.07565 1.8824 8.61618 1.8971C7.63388 1.92853 6.875 2.74902 6.875 3.73182V4.49527M13.125 4.49527C12.0938 4.41558 11.0516 4.375 10 4.375C8.94836 4.375 7.9062 4.41558 6.875 4.49527"
-                                    stroke="#4A5468"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </IconButton>
+                                  {" "}
+                                  Warranty Available
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="outlined"
+                                  color="error"
+                                  endIcon={
+                                    <svg
+                                      width="20"
+                                      height="20"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M15 9L9 15M9 9L15 15M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                                        stroke="#D92D20"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                      />
+                                    </svg>
+                                  }
+                                >
+                                  {" "}
+                                  Warranty Not Available
+                                </Button>
+                              )}
                             </TableCell>
+
+                            {/*  <TableCell align="right">
+                         <IconButton
+                              onClick={() => {
+                                setRemoveSKUDialog(true);
+                                setRemoveSkuDetails(item);
+                              }}
+                            >
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 20 20"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M12.2837 7.5L11.9952 15M8.00481 15L7.71635 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.875 4.96358M16.023 4.82547L15.1332 16.3938C15.058 17.3707 14.2434 18.125 13.2637 18.125H6.73631C5.75655 18.125 4.94198 17.3707 4.86683 16.3938L3.97696 4.82547M16.023 4.82547C15.0677 4.6812 14.1013 4.57071 13.125 4.49527M3.125 4.96358C3.40798 4.91456 3.69198 4.86851 3.97696 4.82547M3.97696 4.82547C4.93231 4.6812 5.89874 4.57071 6.875 4.49527M13.125 4.49527V3.73182C13.125 2.74902 12.3661 1.92853 11.3838 1.8971C10.9244 1.8824 10.463 1.875 10 1.875C9.53696 1.875 9.07565 1.8824 8.61618 1.8971C7.63388 1.92853 6.875 2.74902 6.875 3.73182V4.49527M13.125 4.49527C12.0938 4.41558 11.0516 4.375 10 4.375C8.94836 4.375 7.9062 4.41558 6.875 4.49527"
+                                  stroke="#4A5468"
+                                  stroke-width="1.5"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                              </svg>
+                            </IconButton> 
+                          </TableCell>*/}
                           </TableRow>
                         ))}
                     </TableBody>
@@ -922,7 +986,7 @@ const AddRepairProductSKU = ({ row }) => {
                   </TableHead>
                   <TableBody>
                     {productList.length > 0 &&
-                      productList.map((row, i) => (
+                      productList.map((item, i) => (
                         <TableRow
                           key={i}
                           // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -930,8 +994,8 @@ const AddRepairProductSKU = ({ row }) => {
                           {/* <TableCell sx={{ width: 50 }}>
                         <img
                           src={
-                            row?.images?.length > 0
-                              ? row?.images[0]?.url
+                            item?.images?.length > 0
+                              ? item?.images[0]?.url
                               : "/noImage.jpg"
                           }
                           alt=""
@@ -939,38 +1003,38 @@ const AddRepairProductSKU = ({ row }) => {
                         />
                       </TableCell> */}
                           <TableCell sx={{ minWidth: "130px" }}>
-                            {row?.product_data
-                              ? row?.product_data[0]?.name
+                            {item?.product_data
+                              ? item?.product_data[0]?.name
                               : "---------"}{" "}
                             &nbsp;{" "}
-                            {row?.product_variation_data
-                              ? row?.product_variation_data[0]?.name
+                            {item?.product_variation_data
+                              ? item?.product_variation_data[0]?.name
                               : "---------"}
                           </TableCell>
 
                           {/* <TableCell>
                             {moment(
-                              row?.purchase_data[0]?.purchase_date
+                              item?.purchase_data[0]?.purchase_date
                             ).format("DD/MM/YYYY")}
                           </TableCell> */}
                           {/* <TableCell>
-                            {row?.branch_data
-                              ? row?.branch_data[0]?.name
+                            {item?.branch_data
+                              ? item?.branch_data[0]?.name
                               : "---------"}
                           </TableCell>
                           <TableCell sx={{ minWidth: "130px" }}>
-                            {row?.purchase_products_data
-                              ? row?.purchase_products_data[0]?.unit_price
+                            {item?.purchase_products_data
+                              ? item?.purchase_products_data[0]?.unit_price
                               : "---------"}
                           </TableCell> */}
-                          <TableCell>{row?.sku_number}</TableCell>
+                          <TableCell>{item?.sku_number}</TableCell>
 
                           <TableCell align="right">
                             <IconButton
                               onClick={() =>
                                 setProductList(
                                   productList?.filter(
-                                    (res) => res.sku_number !== row?.sku_number
+                                    (res) => res.sku_number !== item?.sku_number
                                   )
                                 )
                               }
@@ -1030,7 +1094,7 @@ const AddRepairProductSKU = ({ row }) => {
               minHeight: "44px",
             }}
             // style={{ minWidth: "180px", minHeight: "35px" }}
-
+            autoFocus
             disableElevation
           >
             <PulseLoader
@@ -1225,4 +1289,4 @@ const AddRepairProductSKU = ({ row }) => {
   );
 };
 
-export default AddRepairProductSKU;
+export default WarrantyProductSKU;

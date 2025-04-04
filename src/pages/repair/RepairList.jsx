@@ -21,6 +21,7 @@ import { AuthContext } from "../../context/AuthContext";
 
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import AddRepairProductSKU from "./AddRepairProductSKU";
+import WarrantyProductSKU from "./WarrantyProductSKU";
 
 const RepairList = ({
   loading,
@@ -101,7 +102,7 @@ const RepairList = ({
               {ifixit_admin_panel?.user?.permission?.includes(
                 "update_repair"
               ) && (
-                <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                <TableCell  style={{ whiteSpace: "nowrap" }}>
                   Actions
                 </TableCell>
               )}
@@ -246,9 +247,10 @@ const RepairList = ({
                         <Invoice data={row} />
                       </TableCell> */}
 
-                    <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                    <TableCell   sx={{ whiteSpace: "nowrap" }}>
                       <>
                         <AddRepairProductSKU row={row}/> &nbsp; &nbsp;
+                        <WarrantyProductSKU row={row}/> &nbsp; &nbsp;
                         <Button
                           size="small"
                           variant="outlined"

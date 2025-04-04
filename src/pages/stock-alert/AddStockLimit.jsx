@@ -754,7 +754,7 @@ const AddStockLimit = ({ clearFilter }) => {
                 }}
               >
                 {deviceList
-                  ?.filter((obj) => obj.name !== "Primary")
+                  .filter((item) => !item.name.toLowerCase().includes("series"))
                   ?.map((item) => (
                     <MenuItem key={item?._id} value={item?._id}>
                       {item?.name}
