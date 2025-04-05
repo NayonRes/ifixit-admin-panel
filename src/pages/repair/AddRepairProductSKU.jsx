@@ -144,7 +144,7 @@ const AddRepairProductSKU = ({ row }) => {
     setLoading(true);
     let data = {
       repair_id: row?._id,
-
+      is_warranty_claimed_sku: false,
       sku_numbers: productList?.map((item) => item.sku_number),
     };
     console.log("data", data);
@@ -531,7 +531,7 @@ const AddRepairProductSKU = ({ row }) => {
                     sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
                     onClick={() => console.log("tableDataList", tableDataList)}
                   >
-                    Atteched List ({tableDataList?.length})
+                    Attached List ({tableDataList?.length})
                   </Typography>
                 </Grid>
               </Grid>

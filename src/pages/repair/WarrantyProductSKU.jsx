@@ -55,6 +55,7 @@ const WarrantyProductSKU = ({ row }) => {
   const [addDialog, setAddDialog] = useState(false);
 
   const [tableDataList, setTableDataList] = useState([]);
+  const [warrantyList, setWarrantyList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -70,6 +71,12 @@ const WarrantyProductSKU = ({ row }) => {
   const [removeLoading, setRemoveLoading] = useState(false);
   const [stockStatus, setStockStatus] = useState("");
   const [stockRemarks, setStockRemarks] = useState("");
+
+  const [serviceCharge, setServiceCharge] = useState("");
+  const [discount, setDiscount] = useState("");
+  const [serviceStatus, setServiceStatus] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [warrantyLoading, setWarrantyLoading] = useState(false);
 
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: "#F9FAFB",
@@ -111,6 +118,8 @@ const WarrantyProductSKU = ({ row }) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setRemoveSKUDialog(false);
       setRemoveSkuDetails({});
+      setStockStatus("");
+      setStockRemarks("");
     }
   };
 
@@ -118,6 +127,10 @@ const WarrantyProductSKU = ({ row }) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setProductList([]);
       setAddDialog(false);
+      setServiceCharge("");
+      setDiscount("");
+      setRemarks("");
+      setServiceStatus("");
     }
   };
 
@@ -134,9 +147,33 @@ const WarrantyProductSKU = ({ row }) => {
     });
   };
 
-  const onSubmit = async (e) => {
+  const onWarrantySubmit = async (e) => {
     e.preventDefault();
 
+    setWarrantyLoading(true);
+    let data = {
+      repair_id: row?._id,
+      service_charge: serviceCharge,
+      discount,
+      warranty_service_status: serviceStatus,
+      remarks,
+    };
+
+    let response = await handlePostData("/api/v1/warranty/create", data, false);
+
+    if (response?.status === 401) {
+      logout();
+      return;
+    }
+    if (response.status >= 200 && response.status < 300) {
+      setWarrantyLoading(false);
+      handleSnakbarOpen("Added successfully", "success");
+    } else {
+      setWarrantyLoading(false);
+      handleSnakbarOpen(response?.data?.message, "error");
+    }
+  };
+  const onSubmit = async () => {
     if (productList?.length < 1) {
       handleSnakbarOpen("Please add at least one product", "error");
       return;
@@ -144,10 +181,9 @@ const WarrantyProductSKU = ({ row }) => {
     setLoading(true);
     let data = {
       repair_id: row?._id,
-
+      is_warranty_claimed_sku: true,
       sku_numbers: productList?.map((item) => item.sku_number),
     };
-    console.log("data", data);
 
     let response = await handlePostData(
       "/api/v1/repairAttachedSpareparts/create",
@@ -155,7 +191,6 @@ const WarrantyProductSKU = ({ row }) => {
       false
     );
 
-    console.log("response", response);
     if (response?.status === 401) {
       logout();
       return;
@@ -163,8 +198,9 @@ const WarrantyProductSKU = ({ row }) => {
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
-
-      handleDialogClose();
+      getWarrantyData();
+      setProductList([]);
+      // handleDialogClose();
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -181,7 +217,6 @@ const WarrantyProductSKU = ({ row }) => {
       remarks: stockRemarks,
       stockStatus: stockStatus,
     };
-    console.log("data", data);
 
     let response = await handlePostData(
       "/api/v1/repairAttachedSpareparts/remove-stock-adjustment",
@@ -189,14 +224,14 @@ const WarrantyProductSKU = ({ row }) => {
       false
     );
 
-    console.log("response", response);
     if (response?.status === 401) {
       logout();
       return;
     }
     if (response.status >= 200 && response.status < 300) {
       setRemoveLoading(false);
-      getData();
+
+      getWarrantyData();
       handleRemoveSKUDialogClose();
       handleSnakbarOpen("Remove successfully", "success");
     } else {
@@ -243,7 +278,7 @@ const WarrantyProductSKU = ({ row }) => {
     url = `/api/v1/stock?sku_number=${parseInt(searchProductText)}`;
 
     let allData = await getDataWithToken(url);
-    console.log("(allData?.data?.data products", allData?.data?.data);
+
     if (allData?.status === 401) {
       logout();
       return;
@@ -256,14 +291,11 @@ const WarrantyProductSKU = ({ row }) => {
           (product) =>
             parseInt(product.sku_number) === allData?.data?.data[0]?.sku_number
         );
-        console.log("isSkuPresent", isSkuPresent);
 
         if (!isSkuPresent) {
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
           } else if (allData?.data?.data[0]?.stock_status === "Available") {
-            console.log("*************************");
-
             setProductList([
               { ...allData?.data?.data[0], note: "" },
               ...productList,
@@ -294,7 +326,7 @@ const WarrantyProductSKU = ({ row }) => {
     url = `/api/v1/stock?sku_number=${parseInt(sku)}`;
 
     let allData = await getDataWithToken(url);
-    console.log("(allData?.data?.data products", allData?.data?.data);
+
     if (allData?.status === 401) {
       logout();
       return;
@@ -312,7 +344,6 @@ const WarrantyProductSKU = ({ row }) => {
     }
   };
   const handleSelectedProduct = (item) => {
-    console.log("item", item);
     setDetails(item);
     setAddDialog(true);
 
@@ -363,10 +394,62 @@ const WarrantyProductSKU = ({ row }) => {
     }
     setLoading2(false);
   };
-  const isDateAfterMonths = (createdAt, monthsToAdd) => {
-    console.log("createdAt", createdAt);
-    console.log("monthsToAdd", monthsToAdd);
+  const getWarantyDetails = async () => {
+    let url = `/api/v1/warranty?repair_id=${row?._id}`;
 
+    let warrantyData = await getDataWithToken(url);
+    if (warrantyData?.status === 401) {
+      logout();
+      return;
+    }
+
+    console.log(
+      "warrantyData **************************",
+      warrantyData?.data?.data
+    );
+
+    if (warrantyData.status >= 200 && warrantyData.status < 300) {
+      if (warrantyData?.data?.data?.length > 0) {
+        let newDetails = warrantyData?.data?.data[0];
+
+        setServiceCharge(newDetails?.service_charge);
+        setDiscount(newDetails?.discount);
+        setRemarks(newDetails?.remarks);
+        setServiceStatus(newDetails?.warranty_service_status);
+      }
+    } else {
+      handleSnakbarOpen(warrantyData?.data?.message, "error");
+    }
+  };
+  const getWarrantyData = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/repairAttachedSpareparts?repair_id=${row?._id}&is_warranty_claimed_sku=true&status=true`;
+
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      const items = allData?.data?.data || [];
+
+      // Using Promise.all to resolve all async operations inside map
+      const newData = await Promise.all(
+        items.map(async (item) => {
+          const product = await getPreviousProducts(item?.sku_number);
+          return { ...item, product }; // Merge the product data with existing item
+        })
+      );
+
+      setWarrantyList(newData);
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+  const isDateAfterMonths = (createdAt, monthsToAdd) => {
     const newDate = dayjs(createdAt).add(monthsToAdd, "month");
     return newDate.isAfter(dayjs());
   };
@@ -384,6 +467,8 @@ const WarrantyProductSKU = ({ row }) => {
         onClick={() => {
           setAddDialog(true);
           getData();
+          getWarrantyData();
+          getWarantyDetails();
         }}
         startIcon={<AddOutlinedIcon />}
       >
@@ -398,10 +483,10 @@ const WarrantyProductSKU = ({ row }) => {
             borderRadius: "16px", // Customize the border-radius here
           },
         }}
-        PaperProps={{
-          component: "form",
-          onSubmit: onSubmit,
-        }}
+        // PaperProps={{
+        //   component: "form",
+        //   onSubmit: onSubmit,
+        // }}
         maxWidth="xl"
       >
         <DialogTitle
@@ -455,10 +540,11 @@ const WarrantyProductSKU = ({ row }) => {
               overflow: "hidden",
               backgroundColor: "#F9FAFB",
               boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-              mb: 1,
+              mb: 2,
+              p: 2,
             }}
           >
-            <Box sx={{ padding: "12px", margin: "16px 16px 8px" }}>
+            <Box sx={{ margin: "16px" }}>
               <Grid container spacing={2}>
                 <Grid size={4}>
                   <Typography
@@ -467,7 +553,7 @@ const WarrantyProductSKU = ({ row }) => {
                     gutterBottom
                     sx={{ fontWeight: 500 }}
                   >
-                    Job / Invoice No :{" "}
+                    Invoice No :{" "}
                     <b>{row?.repair_id ? row?.repair_id : "---------"}</b>
                   </Typography>
                   <Typography
@@ -476,7 +562,7 @@ const WarrantyProductSKU = ({ row }) => {
                     gutterBottom
                     sx={{ fontWeight: 500 }}
                   >
-                    Job / Invoice Date :{" "}
+                    Invoice Date :{" "}
                     <b>{dayjs(row?.created_at).format("DD MMM YYYY")}</b>
                   </Typography>
                 </Grid>
@@ -514,7 +600,6 @@ const WarrantyProductSKU = ({ row }) => {
 
             <Box
               sx={{
-                mx: 1,
                 mb: 2,
                 background: "#fff",
                 border: "1px solid #EAECF1",
@@ -532,13 +617,13 @@ const WarrantyProductSKU = ({ row }) => {
               >
                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
                   <Typography
-                    variant="h6"
+                    variant="medium"
                     gutterBottom
                     component="div"
                     sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
                     onClick={() => console.log("tableDataList", tableDataList)}
                   >
-                    Atteched List ({tableDataList?.length})
+                    Attached List ({tableDataList?.length})
                   </Typography>
                 </Grid>
               </Grid>
@@ -553,7 +638,20 @@ const WarrantyProductSKU = ({ row }) => {
                 }}
               >
                 <TableContainer>
-                  <Table stickyHeader aria-label="sticky table">
+                  <Table
+                    stickyHeader
+                    aria-label="sticky table"
+                    sx={{
+                      "& th": {
+                        padding: "4px 16px",
+                        fontSize: "12px",
+                      },
+                      "& td": {
+                        padding: "4px 12px",
+                        fontSize: "12px",
+                      },
+                    }}
+                  >
                     <TableHead>
                       <TableRow>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -571,6 +669,9 @@ const WarrantyProductSKU = ({ row }) => {
                       </TableCell> */}
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           SKU Number
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Warranty (Months)
                         </TableCell>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Is Warranty Available
@@ -643,6 +744,9 @@ const WarrantyProductSKU = ({ row }) => {
                               : "---------"}
                           </TableCell> */}
                             <TableCell>{item?.sku_number}</TableCell>
+                            <TableCell>
+                              {item?.product?.product_data[0]?.warranty}
+                            </TableCell>
                             <TableCell style={{ whiteSpace: "nowrap" }}>
                               {isDateAfterMonths(
                                 row?.created_at,
@@ -652,10 +756,25 @@ const WarrantyProductSKU = ({ row }) => {
                                 <Button
                                   variant="outlined"
                                   color="success"
+                                  size="small"
+                                  disabled
+                                  sx={{
+                                    fontSize: "12px",
+                                    pointerEvents: "none", // prevent hover/click
+                                    backgroundColor: "transparent",
+                                    color: "#35b522", // same as the icon color
+                                    borderColor: "#35b522",
+                                    "&.Mui-disabled": {
+                                      opacity: 1, // prevent default disabled opacity
+                                      backgroundColor: "transparent",
+                                      color: "#35b522",
+                                      borderColor: "#35b522",
+                                    },
+                                  }}
                                   endIcon={
                                     <svg
-                                      width="20"
-                                      height="20"
+                                      width="16"
+                                      height="16"
                                       viewBox="0 0 24 24"
                                       fill="none"
                                       xmlns="http://www.w3.org/2000/svg"
@@ -677,10 +796,25 @@ const WarrantyProductSKU = ({ row }) => {
                                 <Button
                                   variant="outlined"
                                   color="error"
+                                  size="small"
+                                  disabled
+                                  sx={{
+                                    fontSize: "12px",
+                                    pointerEvents: "none", // prevent hover/click
+                                    backgroundColor: "transparent",
+                                    color: "#D92D20", // same as the icon color
+                                    borderColor: "#D92D20",
+                                    "&.Mui-disabled": {
+                                      opacity: 1, // prevent default disabled opacity
+                                      backgroundColor: "transparent",
+                                      color: "#D92D20",
+                                      borderColor: "#D92D20",
+                                    },
+                                  }}
                                   endIcon={
                                     <svg
-                                      width="20"
-                                      height="20"
+                                      width="16"
+                                      height="16"
                                       viewBox="0 0 24 24"
                                       fill="none"
                                       xmlns="http://www.w3.org/2000/svg"
@@ -732,237 +866,84 @@ const WarrantyProductSKU = ({ row }) => {
                 </TableContainer>
               </div>
             </Box>
-          </Box>
-          <div
-            style={{
-              background: "#fff",
-              border: "1px solid #EAECF1",
-              borderRadius: "12px",
-              // overflow: "hidden",
-              padding: "20px",
-              boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-            }}
-          >
-            <Typography
-              variant="medium"
-              color="text.main"
-              gutterBottom
-              sx={{ fontWeight: 500 }}
-            >
-              Search SKU Number *
-            </Typography>
 
-            <Grid container spacing={2}>
-              <Grid size={10}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  id="searchProductText"
-                  placeholder="Search SKU Number"
-                  variant="outlined"
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
-                              stroke="#85888E"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                  sx={{ ...customeTextFeild }}
-                  value={searchProductText}
-                  onChange={(e) => {
-                    setsearchProductText(e.target.value);
-                  }}
-                />
-              </Grid>
-              <Grid size={2}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  disableElevation
-                  color="info"
-                  sx={{ py: "4px", minHeight: "40px" }}
-                  size="small"
-                  startIcon={<SearchIcon />}
-                  onClick={() => getProducts()}
-                  disabled={searchLoading}
-                >
-                  <PulseLoader
-                    color={"#4B46E5"}
-                    loading={searchLoading}
-                    size={10}
-                    speedMultiplier={0.5}
-                  />{" "}
-                  {searchLoading === false && "Search"}
-                </Button>
-              </Grid>
+            <Box
+              sx={{
+                mt: 1,
 
-              <Grid size={12}>
-                <Box sx={{ flexGrow: 1 }}>
-                  <Grid container spacing={2}>
-                    {!searchLoading &&
-                      productList.length > 0 &&
-                      productList.map(
-                        (row, rowIndex) =>
-                          row?.variation_data?.length > 0 &&
-                          row.variation_data.map((item, itemIndex) => (
-                            <Grid
-                              key={`row-${rowIndex}-item-${itemIndex}`}
-                              item
-                              size={3}
-                            >
-                              <Item
-                                sx={{
-                                  border:
-                                    selectedProducts.some(
-                                      (pro) => pro?._id === item?._id
-                                    ) && "1px solid #818FF8",
-                                }}
-                                onClick={() => handleSelectedProduct(item)}
-                              >
-                                {" "}
-                                <Box sx={{ flexGrow: 1 }}>
-                                  <Grid container alignItems="center">
-                                    <Grid size="auto" sx={{ width: "40px" }}>
-                                      {" "}
-                                      <img
-                                        src={
-                                          item?.images?.length > 0
-                                            ? item?.images[0]?.url
-                                            : "/noImage.jpg"
-                                        }
-                                        alt=""
-                                        width={30}
-                                        height={40}
-                                      />
-                                    </Grid>
-                                    <Grid
-                                      size="auto"
-                                      sx={{ width: "Calc(100% - 40px)" }}
-                                    >
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          justifyContent: "space-between",
-                                          alignItems: "center",
-                                        }}
-                                      >
-                                        <Typography
-                                          variant="medium"
-                                          sx={{
-                                            fontWeight: 500,
-                                            color: "#344054",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            whiteSpace: "nowrap",
-                                            marginRight: 1, // Optional for spacing
-                                          }}
-                                        >
-                                          {item?.name}
-                                        </Typography>
-                                        <Checkbox
-                                          sx={{
-                                            display: selectedProducts.some(
-                                              (pro) => pro?._id === item?._id
-                                            )
-                                              ? "block"
-                                              : "none",
-                                          }}
-                                          size="small"
-                                          checked={true}
-                                          inputProps={{
-                                            "aria-label": "controlled",
-                                          }}
-                                        />
-                                      </Box>
-                                    </Grid>
-                                  </Grid>
-                                </Box>
-                              </Item>
-                            </Grid>
-                          ))
-                      )}
-                  </Grid>
-                </Box>
-              </Grid>
-            </Grid>
-          </div>
-
-          <Box
-            sx={{
-              mt: 1,
-              background: "#fff",
-              border: "1px solid #EAECF1",
-              borderRadius: "12px",
-              // overflow: "hidden",
-              padding: "16px 0",
-              boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-            }}
-          >
-            <Grid
-              container
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ px: 1.5, mb: 1.75 }}
-            >
-              <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  component="div"
-                  sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-                >
-                  New Added List ({productList?.length})
-                </Typography>
-              </Grid>
-            </Grid>
-            <div
-              style={{
-                overflowX: "auto",
-
-                minWidth: "100%",
-
-                // padding: "10px 16px 0px",
-                boxSizing: "border-box",
+                background: "#fff",
+                border: "1px solid #EAECF1",
+                borderRadius: "12px",
+                // overflow: "hidden",
+                padding: "16px 0",
+                boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
               }}
             >
-              <TableContainer>
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell style={{ whiteSpace: "nowrap" }}>
-                        Product Name
-                      </TableCell>
-                      {/* <TableCell style={{ whiteSpace: "nowrap" }}>
-                        Purchase date
-                      </TableCell> */}
-                      {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ px: 1.5, mb: 1.75 }}
+              >
+                <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
+                  <Typography
+                    variant="medium"
+                    gutterBottom
+                    component="div"
+                    sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+                  >
+                    Previous Warranty Stock List ({warrantyList?.length})
+                  </Typography>
+                </Grid>
+              </Grid>
+              <div
+                style={{
+                  overflowX: "auto",
+
+                  minWidth: "100%",
+
+                  // padding: "10px 16px 0px",
+                  boxSizing: "border-box",
+                }}
+              >
+                <TableContainer>
+                  <Table
+                    stickyHeader
+                    aria-label="sticky table"
+                    sx={{
+                      "& th": {
+                        padding: "4px 16px",
+                        fontSize: "12px",
+                      },
+                      "& td": {
+                        padding: "2px 12px",
+                        fontSize: "12px",
+                      },
+                    }}
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Product Name
+                        </TableCell>
+                        {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Purchase date
+                        </TableCell> */}
+                        {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                         Branch
                       </TableCell>
 
                       <TableCell style={{ whiteSpace: "nowrap" }}>
                         Purchase price
                       </TableCell> */}
-                      <TableCell style={{ whiteSpace: "nowrap" }}>
-                        SKU Number
-                      </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          SKU Number
+                        </TableCell>
+                        {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                        Is Warranty Available
+                      </TableCell> */}
 
-                      {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                        {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
@@ -979,19 +960,23 @@ const WarrantyProductSKU = ({ row }) => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>*/}
 
-                      <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                        Actions
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {productList.length > 0 &&
-                      productList.map((item, i) => (
-                        <TableRow
-                          key={i}
-                          // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                        <TableCell
+                          align="right"
+                          style={{ whiteSpace: "nowrap" }}
                         >
-                          {/* <TableCell sx={{ width: 50 }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {!loading2 &&
+                        warrantyList.length > 0 &&
+                        warrantyList.map((item, i) => (
+                          <TableRow
+                            key={i}
+                            // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                          >
+                            {/* <TableCell sx={{ width: 50 }}>
                         <img
                           src={
                             item?.images?.length > 0
@@ -1002,22 +987,22 @@ const WarrantyProductSKU = ({ row }) => {
                           width={40}
                         />
                       </TableCell> */}
-                          <TableCell sx={{ minWidth: "130px" }}>
-                            {item?.product_data
-                              ? item?.product_data[0]?.name
-                              : "---------"}{" "}
-                            &nbsp;{" "}
-                            {item?.product_variation_data
-                              ? item?.product_variation_data[0]?.name
-                              : "---------"}
-                          </TableCell>
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              {item?.product?.product_data?.length > 0
+                                ? item?.product?.product_data[0]?.name
+                                : "---------"}{" "}
+                              &nbsp;{" "}
+                              {item?.product?.product_variation_data?.length > 0
+                                ? item?.product?.product_variation_data[0]?.name
+                                : "---------"}
+                            </TableCell>
 
-                          {/* <TableCell>
-                            {moment(
-                              item?.purchase_data[0]?.purchase_date
-                            ).format("DD/MM/YYYY")}
-                          </TableCell> */}
-                          {/* <TableCell>
+                            {/* <TableCell>
+                              {moment(
+                                item?.product?.purchase_data[0]?.purchase_date
+                              ).format("DD/MM/YYYY")}
+                            </TableCell> */}
+                            {/*  <TableCell>
                             {item?.branch_data
                               ? item?.branch_data[0]?.name
                               : "---------"}
@@ -1027,45 +1012,680 @@ const WarrantyProductSKU = ({ row }) => {
                               ? item?.purchase_products_data[0]?.unit_price
                               : "---------"}
                           </TableCell> */}
-                          <TableCell>{item?.sku_number}</TableCell>
+                            <TableCell>{item?.sku_number}</TableCell>
+                            {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                            {isDateAfterMonths(
+                              row?.created_at,
 
-                          <TableCell align="right">
-                            <IconButton
-                              onClick={() =>
-                                setProductList(
-                                  productList?.filter(
-                                    (res) => res.sku_number !== item?.sku_number
-                                  )
-                                )
-                              }
-                            >
-                              <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
+                              item?.product?.product_data[0]?.warranty
+                            ) ? (
+                              <Button
+                                variant="outlined"
+                                color="success"
+                                size="small"
+                                endIcon={
+                                  <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M7.5 12L10.5 15L16.5 9M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                                      stroke="#35b522"
+                                      stroke-width="2"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                    />
+                                  </svg>
+                                }
                               >
-                                <path
-                                  d="M12.2837 7.5L11.9952 15M8.00481 15L7.71635 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.875 4.96358M16.023 4.82547L15.1332 16.3938C15.058 17.3707 14.2434 18.125 13.2637 18.125H6.73631C5.75655 18.125 4.94198 17.3707 4.86683 16.3938L3.97696 4.82547M16.023 4.82547C15.0677 4.6812 14.1013 4.57071 13.125 4.49527M3.125 4.96358C3.40798 4.91456 3.69198 4.86851 3.97696 4.82547M3.97696 4.82547C4.93231 4.6812 5.89874 4.57071 6.875 4.49527M13.125 4.49527V3.73182C13.125 2.74902 12.3661 1.92853 11.3838 1.8971C10.9244 1.8824 10.463 1.875 10 1.875C9.53696 1.875 9.07565 1.8824 8.61618 1.8971C7.63388 1.92853 6.875 2.74902 6.875 3.73182V4.49527M13.125 4.49527C12.0938 4.41558 11.0516 4.375 10 4.375C8.94836 4.375 7.9062 4.41558 6.875 4.49527"
-                                  stroke="#4A5468"
-                                  stroke-width="1.5"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                />
-                              </svg>
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                                {" "}
+                                Warranty Available
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                size="small"
+                                endIcon={
+                                  <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M15 9L9 15M9 9L15 15M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                                      stroke="#D92D20"
+                                      stroke-width="2"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                    />
+                                  </svg>
+                                }
+                              >
+                                {" "}
+                                Warranty Not Available
+                              </Button>
+                            )}
+                          </TableCell> */}
+
+                            <TableCell align="right">
+                              <IconButton
+                                onClick={() => {
+                                  setRemoveSKUDialog(true);
+                                  setRemoveSkuDetails(item);
+                                }}
+                              >
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 20 20"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M12.2837 7.5L11.9952 15M8.00481 15L7.71635 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.875 4.96358M16.023 4.82547L15.1332 16.3938C15.058 17.3707 14.2434 18.125 13.2637 18.125H6.73631C5.75655 18.125 4.94198 17.3707 4.86683 16.3938L3.97696 4.82547M16.023 4.82547C15.0677 4.6812 14.1013 4.57071 13.125 4.49527M3.125 4.96358C3.40798 4.91456 3.69198 4.86851 3.97696 4.82547M3.97696 4.82547C4.93231 4.6812 5.89874 4.57071 6.875 4.49527M13.125 4.49527V3.73182C13.125 2.74902 12.3661 1.92853 11.3838 1.8971C10.9244 1.8824 10.463 1.875 10 1.875C9.53696 1.875 9.07565 1.8824 8.61618 1.8971C7.63388 1.92853 6.875 2.74902 6.875 3.73182V4.49527M13.125 4.49527C12.0938 4.41558 11.0516 4.375 10 4.375C8.94836 4.375 7.9062 4.41558 6.875 4.49527"
+                                    stroke="#4A5468"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              background: "#fff",
+              border: "1px solid #EAECF1",
+              borderRadius: "12px",
+              overflow: "hidden",
+              backgroundColor: "#F9FAFB",
+              boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+              mb: 1,
+              p: 2,
+            }}
+          >
+            <Typography
+              variant="base"
+              gutterBottom
+              component="div"
+              sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 2 }}
+            >
+              Warranty Form
+            </Typography>
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid #EAECF1",
+                borderRadius: "12px",
+                // overflow: "hidden",
+                padding: "12px",
+                boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+              }}
+            >
+              <Typography
+                variant="small"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Search SKU Number *
+              </Typography>
+
+              <Grid container spacing={2}>
+                <Grid size={10}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    id="searchProductText"
+                    placeholder="Search SKU Number"
+                    variant="outlined"
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                                stroke="#85888E"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    sx={{ ...customeTextFeild }}
+                    value={searchProductText}
+                    onChange={(e) => {
+                      setsearchProductText(e.target.value);
+                    }}
+                  />
+                </Grid>
+                <Grid size={2}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    disableElevation
+                    color="info"
+                    sx={{ py: "4px", minHeight: "40px" }}
+                    size="small"
+                    startIcon={<SearchIcon />}
+                    onClick={() => getProducts()}
+                    disabled={searchLoading}
+                  >
+                    <PulseLoader
+                      color={"#4B46E5"}
+                      loading={searchLoading}
+                      size={10}
+                      speedMultiplier={0.5}
+                    />{" "}
+                    {searchLoading === false && "Search"}
+                  </Button>
+                </Grid>
+
+                <Grid size={12}>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Grid container spacing={2}>
+                      {!searchLoading &&
+                        productList.length > 0 &&
+                        productList.map(
+                          (row, rowIndex) =>
+                            row?.variation_data?.length > 0 &&
+                            row.variation_data.map((item, itemIndex) => (
+                              <Grid
+                                key={`row-${rowIndex}-item-${itemIndex}`}
+                                item
+                                size={3}
+                              >
+                                <Item
+                                  sx={{
+                                    border:
+                                      selectedProducts.some(
+                                        (pro) => pro?._id === item?._id
+                                      ) && "1px solid #818FF8",
+                                  }}
+                                  onClick={() => handleSelectedProduct(item)}
+                                >
+                                  {" "}
+                                  <Box sx={{ flexGrow: 1 }}>
+                                    <Grid container alignItems="center">
+                                      <Grid size="auto" sx={{ width: "40px" }}>
+                                        {" "}
+                                        <img
+                                          src={
+                                            item?.images?.length > 0
+                                              ? item?.images[0]?.url
+                                              : "/noImage.jpg"
+                                          }
+                                          alt=""
+                                          width={30}
+                                          height={40}
+                                        />
+                                      </Grid>
+                                      <Grid
+                                        size="auto"
+                                        sx={{ width: "Calc(100% - 40px)" }}
+                                      >
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          <Typography
+                                            variant="medium"
+                                            sx={{
+                                              fontWeight: 500,
+                                              color: "#344054",
+                                              overflow: "hidden",
+                                              textOverflow: "ellipsis",
+                                              whiteSpace: "nowrap",
+                                              marginRight: 1, // Optional for spacing
+                                            }}
+                                          >
+                                            {item?.name}
+                                          </Typography>
+                                          <Checkbox
+                                            sx={{
+                                              display: selectedProducts.some(
+                                                (pro) => pro?._id === item?._id
+                                              )
+                                                ? "block"
+                                                : "none",
+                                            }}
+                                            size="small"
+                                            checked={true}
+                                            inputProps={{
+                                              "aria-label": "controlled",
+                                            }}
+                                          />
+                                        </Box>
+                                      </Grid>
+                                    </Grid>
+                                  </Box>
+                                </Item>
+                              </Grid>
+                            ))
+                        )}
+                    </Grid>
+                  </Box>
+                </Grid>
+              </Grid>
             </div>
+
+            <Box
+              sx={{
+                my: 1,
+
+                background: "#fff",
+                border: "1px solid #EAECF1",
+                borderRadius: "12px",
+                // overflow: "hidden",
+                padding: "16px 0",
+                boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+              }}
+            >
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ px: 1.5, mb: 1.75 }}
+              >
+                <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
+                  <Typography
+                    variant="medium"
+                    gutterBottom
+                    component="div"
+                    sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+                  >
+                    New Warranty Spareparts ({productList?.length})
+                  </Typography>
+                </Grid>
+              </Grid>
+              <div
+                style={{
+                  overflowX: "auto",
+
+                  minWidth: "100%",
+
+                  // padding: "10px 16px 0px",
+                  boxSizing: "border-box",
+                }}
+              >
+                <TableContainer>
+                  <Table
+                    stickyHeader
+                    aria-label="sticky table"
+                    sx={{
+                      "& th": {
+                        padding: "4px 16px",
+                        fontSize: "12px",
+                      },
+                      "& td": {
+                        padding: "2px 12px",
+                        fontSize: "12px",
+                      },
+                    }}
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Product Name
+                        </TableCell>
+                        {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                        Purchase date
+                      </TableCell> */}
+                        {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                        Branch
+                      </TableCell>
+
+                      <TableCell style={{ whiteSpace: "nowrap" }}>
+                        Purchase price
+                      </TableCell> */}
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          SKU Number
+                        </TableCell>
+
+                        {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Warranty
+                  </TableCell>
+                 
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Serial No
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Description
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>*/}
+
+                        <TableCell
+                          align="right"
+                          style={{ whiteSpace: "nowrap" }}
+                        >
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {productList.length > 0 &&
+                        productList.map((item, i) => (
+                          <TableRow
+                            key={i}
+                            // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                          >
+                            {/* <TableCell sx={{ width: 50 }}>
+                        <img
+                          src={
+                            item?.images?.length > 0
+                              ? item?.images[0]?.url
+                              : "/noImage.jpg"
+                          }
+                          alt=""
+                          width={40}
+                        />
+                      </TableCell> */}
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              {item?.product_data
+                                ? item?.product_data[0]?.name
+                                : "---------"}{" "}
+                              &nbsp;{" "}
+                              {item?.product_variation_data
+                                ? item?.product_variation_data[0]?.name
+                                : "---------"}
+                            </TableCell>
+
+                            {/* <TableCell>
+                            {moment(
+                              item?.purchase_data[0]?.purchase_date
+                            ).format("DD/MM/YYYY")}
+                          </TableCell> */}
+                            {/* <TableCell>
+                            {item?.branch_data
+                              ? item?.branch_data[0]?.name
+                              : "---------"}
+                          </TableCell>
+                          <TableCell sx={{ minWidth: "130px" }}>
+                            {item?.purchase_products_data
+                              ? item?.purchase_products_data[0]?.unit_price
+                              : "---------"}
+                          </TableCell> */}
+                            <TableCell>{item?.sku_number}</TableCell>
+
+                            <TableCell align="right">
+                              <IconButton
+                                onClick={() =>
+                                  setProductList(
+                                    productList?.filter(
+                                      (res) =>
+                                        res.sku_number !== item?.sku_number
+                                    )
+                                  )
+                                }
+                              >
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 20 20"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M12.2837 7.5L11.9952 15M8.00481 15L7.71635 7.5M16.023 4.82547C16.308 4.86851 16.592 4.91456 16.875 4.96358M16.023 4.82547L15.1332 16.3938C15.058 17.3707 14.2434 18.125 13.2637 18.125H6.73631C5.75655 18.125 4.94198 17.3707 4.86683 16.3938L3.97696 4.82547M16.023 4.82547C15.0677 4.6812 14.1013 4.57071 13.125 4.49527M3.125 4.96358C3.40798 4.91456 3.69198 4.86851 3.97696 4.82547M3.97696 4.82547C4.93231 4.6812 5.89874 4.57071 6.875 4.49527M13.125 4.49527V3.73182C13.125 2.74902 12.3661 1.92853 11.3838 1.8971C10.9244 1.8824 10.463 1.875 10 1.875C9.53696 1.875 9.07565 1.8824 8.61618 1.8971C7.63388 1.92853 6.875 2.74902 6.875 3.73182V4.49527M13.125 4.49527C12.0938 4.41558 11.0516 4.375 10 4.375C8.94836 4.375 7.9062 4.41558 6.875 4.49527"
+                                    stroke="#4A5468"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                <Box sx={{ px: 1, mt: 2, textAlign: "right" }}>
+                  <Button
+                    variant="contained"
+                    disabled={loading}
+                    onClick={() => onSubmit()}
+                    sx={{
+                      px: 2,
+                      py: 1.25,
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      minWidth: "220px",
+                      minHeight: "44px",
+                    }}
+                    // style={{ minWidth: "180px", minHeight: "35px" }}
+                    autoFocus
+                    disableElevation
+                  >
+                    <PulseLoader
+                      color={"#4B46E5"}
+                      loading={loading}
+                      size={10}
+                      speedMultiplier={0.5}
+                    />{" "}
+                    {loading === false && "Save Warranty Spareparts"}
+                  </Button>
+                </Box>
+              </div>
+            </Box>
+
+            <form
+              onSubmit={onWarrantySubmit}
+              style={{
+                background: "#fff",
+                border: "1px solid #EAECF1",
+                borderRadius: "12px",
+                // overflow: "hidden",
+                padding: "32px 16px",
+                boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+              }}
+            >
+              <Typography
+                variant="medium"
+                gutterBottom
+                component="div"
+                sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 2 }}
+              >
+                Warranty Details
+              </Typography>
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="center"
+                spacing={2}
+              >
+                {" "}
+                <Grid size={6}>
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Service Charge *
+                  </Typography>
+                  <TextField
+                    required
+                    size="small"
+                    type="number"
+                    fullWidth
+                    id="serviceCharge"
+                    placeholder="Service Charges"
+                    variant="outlined"
+                    sx={{ ...customeTextFeild }}
+                    value={serviceCharge}
+                    onChange={(e) => {
+                      setServiceCharge(e.target.value);
+                    }}
+                    onWheel={(e) => e.target.blur()}
+                  />
+                </Grid>
+                <Grid size={6}>
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Discount
+                  </Typography>
+                  <TextField
+                    size="small"
+                    type="number"
+                    fullWidth
+                    id="discount"
+                    placeholder="Discount Amount"
+                    variant="outlined"
+                    sx={{ ...customeTextFeild }}
+                    value={discount}
+                    onChange={(e) => {
+                      setDiscount(e.target.value);
+                    }}
+                    onWheel={(e) => e.target.blur()}
+                  />
+                </Grid>
+                <Grid size={6}>
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Service Status *
+                  </Typography>
+
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    sx={{
+                      ...customeSelectFeild,
+                      "& label.Mui-focused": {
+                        color: "rgba(0,0,0,0)",
+                      },
+
+                      "& .MuiOutlinedInput-input img": {
+                        position: "relative",
+                        top: "2px",
+                      },
+                    }}
+                  >
+                    {serviceStatus?.length < 1 && (
+                      <InputLabel
+                        id="demo-simple-select-label"
+                        sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                      >
+                        Service Status
+                      </InputLabel>
+                    )}
+                    <Select
+                      required
+                      labelId="demo-simple-select-label"
+                      id="purchaseStatus"
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 250, // Set the max height here
+                          },
+                        },
+                      }}
+                      value={serviceStatus}
+                      onChange={(e) => setServiceStatus(e.target.value)}
+                    >
+                      <MenuItem value={"Pending"}>Pending</MenuItem>
+                      <MenuItem value={"Delivered"}>Delivered</MenuItem>
+                      <MenuItem value={"Canceled"}>Canceled</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={6}>
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Add Note
+                  </Typography>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    id="membershipId"
+                    placeholder="Add Note"
+                    variant="outlined"
+                    sx={{ ...customeTextFeild }}
+                    value={remarks}
+                    onChange={(e) => {
+                      setRemarks(e.target.value);
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <Box sx={{ px: 1, mt: 2, textAlign: "right" }}>
+                <Button
+                  variant="contained"
+                  disabled={warrantyLoading}
+                  type="submit"
+                  // onClick={() => onWarrantySubmit()}
+                  sx={{
+                    px: 2,
+                    py: 1.25,
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    minWidth: "220px",
+                    minHeight: "44px",
+                  }}
+                  // style={{ minWidth: "180px", minHeight: "35px" }}
+                  autoFocus
+                  disableElevation
+                >
+                  <PulseLoader
+                    color={"#4B46E5"}
+                    loading={warrantyLoading}
+                    size={10}
+                    speedMultiplier={0.5}
+                  />{" "}
+                  {warrantyLoading === false && "Save Warranty Details"}
+                </Button>
+              </Box>
+              {/* 111 */}
+            </form>
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ px: 2 }}>
+        {/* <DialogActions sx={{ px: 2 }}>
           <Button
             variant="outlined"
             onClick={handleDialogClose}
@@ -1084,7 +1704,7 @@ const WarrantyProductSKU = ({ row }) => {
           <Button
             variant="contained"
             disabled={loading}
-            type="submit"
+            // type="submit"
             sx={{
               px: 2,
               py: 1.25,
@@ -1105,7 +1725,7 @@ const WarrantyProductSKU = ({ row }) => {
             />{" "}
             {loading === false && "Save changes"}
           </Button>
-        </DialogActions>
+        </DialogActions> */}
       </Dialog>
 
       <Dialog
