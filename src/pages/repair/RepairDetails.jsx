@@ -3,7 +3,7 @@ import Grid from "@mui/material/Grid2";
 
 import { Box, Divider, TextField, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -114,6 +114,7 @@ const RepairDetails = ({ clearFilter }) => {
         >
           Repair Details
         </Typography>
+        <Link to={`/repair/invoice/${rid}`}>Invoice</Link>
       </Box>
 
       <div

@@ -380,7 +380,7 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
-          path="repair/invoice"
+          path="repair/invoice/:rid"
           element={
             <PrivateRoute>
               <Invoice />

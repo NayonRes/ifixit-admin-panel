@@ -262,7 +262,7 @@ const Repair = () => {
     if (allData?.status >= 200 && allData?.status < 300) {
       setBranchList(allData?.data?.data);
 
-      if (allData.data.data.length < 1) {
+      if (allData.data?.data?.length < 1) {
         setMessage("No data found");
       }
     } else {

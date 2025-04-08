@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Box, Button, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -9,21 +9,21 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
+import { useParams } from "react-router-dom";
+import { enqueueSnackbar } from "notistack";
+import { getDataWithToken } from "../../services/GetDataService";
+import { AuthContext } from "../../context/AuthContext";
 
 const Invoice = () => {
+  const { rid } = useParams();
   const contentRef = useRef();
+  const [details, setDetails] = useState("");
+  const [repairCost, setRepairCost] = useState(0);
+  const [spareParsCost, setSpareParsCost] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const { logout } = useContext(AuthContext);
+
   // const handlePrint = useReactToPrint({ contentRef });
   const handlePrint = useReactToPrint({
     contentRef: contentRef,
@@ -33,6 +33,68 @@ const Invoice = () => {
     // onAfterPrint: handleAfterPrint,
     // onBeforePrint: handleBeforePrint,
   });
+
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
+
+  const calculateTotalRepairCost = (services) => {
+    return services.reduce((total, service) => {
+      return total + service.repair_cost;
+    }, 0);
+  };
+  const calculateTotalSparePartsCost = (services) => {
+    return services.reduce((total, service) => {
+      return total + service.price;
+    }, 0);
+  };
+
+  const getData = async () => {
+    setLoading(true);
+
+    let url = `/api/v1/repair/${encodeURIComponent(rid.trim())}`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
+
+    let totalRepairCost = calculateTotalRepairCost(allData?.data?.data?.issues);
+    let totalSpareCost = calculateTotalSparePartsCost(
+      allData?.data?.data?.product_details
+    );
+    // console.log('allData?.data?.data?.product_details',totalSpareCost)
+    setRepairCost(totalRepairCost);
+    setSpareParsCost(totalSpareCost);
+    setDetails(allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDetails(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        // setMessage("No data found");
+      }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading(false);
+  };
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
     <Box sx={{ padding: "30px" }}>
       <Box
@@ -83,7 +145,7 @@ const Invoice = () => {
                 fontSize: "18px",
               }}
             >
-              Invoice to
+              Invoice to {rid}
             </Typography>
             <Typography
               variant="body1"
@@ -123,54 +185,154 @@ const Invoice = () => {
           </Box>
         </Box>
         <Box sx={{ padding: "0px 60px 60px 60px" }}>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
-                    Dessert (100g serving)
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    sx={{ fontWeight: 600, fontSize: "16px" }}
-                  >
-                    Calories
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    sx={{ fontWeight: 600, fontSize: "16px" }}
-                  >
-                    Fat&nbsp;(g)
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    sx={{ fontWeight: 600, fontSize: "16px" }}
-                  >
-                    Carbs&nbsp;(g)
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <TableRow
-                    key={row.name}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {row.name}
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+              Service
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
+                      Service Name
                     </TableCell>
-                    <TableCell align="right">{row.calories}</TableCell>
-                    <TableCell align="right">{row.fat}</TableCell>
-                    <TableCell align="right">{row.carbs}</TableCell>
+
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: 600, fontSize: "16px" }}
+                    >
+                      Cost
+                    </TableCell>
                   </TableRow>
-                ))}
-                <TableRow>
-                  <TableCell colSpan={3}>Total</TableCell>
-                  <TableCell align="right">4000</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {details?.issues?.length > 0 &&
+                    details?.issues?.map((item) => (
+                      <TableRow
+                        key={item.name}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {item.name}
+                        </TableCell>
+
+                        <TableCell align="right">{item.repair_cost}</TableCell>
+                      </TableRow>
+                    ))}
+
+                  <TableRow sx={{ background: "#eee" }}>
+                    <TableCell>Total</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>
+                      {repairCost}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+          <Box sx={{ mt: 6 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+              Spare Parts
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
+                      Spare Parts Name
+                    </TableCell>
+
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: 600, fontSize: "16px" }}
+                    >
+                      Cost
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {details?.product_details?.length > 0 &&
+                    details?.product_details?.map((item) => (
+                      <TableRow
+                        key={item.name}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {item.name}
+                        </TableCell>
+
+                        <TableCell align="right">{item.price}</TableCell>
+                      </TableRow>
+                    ))}
+
+                  <TableRow sx={{ background: "#eee" }}>
+                    <TableCell>Total</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>
+                      {repairCost}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+          <Box sx={{ mt: 6, textAlign: "right" }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+              Payment Info
+            </Typography>
+            <TableContainer
+              sx={{ display: "flex", justifyContent: "flex-end" }}
+            >
+              <Table
+                sx={{ maxWidth: 350, border: "1px solid #ddd" }}
+                aria-label="simple table"
+              >
+                <TableBody>
+                  <TableRow>
+                    <TableCell sx={{}}>Repair Subtotal</TableCell>
+
+                    <TableCell align="right" sx={{}}>
+                      {repairCost}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{}}>Spare Parts Subtotal</TableCell>
+
+                    <TableCell align="right" sx={{}}>
+                      {spareParsCost}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{}}>Due Amount</TableCell>
+
+                    <TableCell align="right" sx={{}}>
+                      {details?.due_amount}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{}}>Discount Amount</TableCell>
+
+                    <TableCell align="right" sx={{}}>
+                      {details?.discount_amount}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow sx={{ background: "#eee" }}>
+                    <TableCell sx={{}}>Total Amount</TableCell>
+
+                    <TableCell align="right">
+                      {repairCost +
+                        spareParsCost -
+                        details?.discount_amount -
+                        details?.due_amount}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
           <Box>
             <Box
               sx={{
