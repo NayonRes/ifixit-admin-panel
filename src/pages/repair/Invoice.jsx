@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import { enqueueSnackbar } from "notistack";
 import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
+import dayjs from "dayjs";
 
 const Invoice = () => {
   const { rid } = useParams();
@@ -145,7 +146,7 @@ const Invoice = () => {
                 fontSize: "18px",
               }}
             >
-              Invoice to {rid}
+              Invoice to
             </Typography>
             <Typography
               variant="body1"
@@ -155,10 +156,14 @@ const Invoice = () => {
                 fontWeight: 600,
               }}
             >
-              Mr. Jhone Doe
+              {details?.customer_data?.[0]?.name}
             </Typography>
-            <Typography variant="body1">Customer Address</Typography>
-            <Typography variant="body1">Customer Contact Number</Typography>
+            <Typography variant="body1">
+              {details?.customer_data?.[0]?.mobile}
+            </Typography>
+            <Typography variant="body1">
+              {details?.customer_data?.[0]?.email}
+            </Typography>
           </Box>
           <Box sx={{ textAlign: "right" }}>
             <Typography
@@ -179,159 +184,181 @@ const Invoice = () => {
                 fontWeight: 600,
               }}
             >
-              Invoice No. 2003
+              Invoice No. {details?.repair_id}
             </Typography>
-            <Typography variant="body1">Date: 12-04-2025</Typography>
+            <Typography variant="body1">
+              Date: {dayjs(details?.created_at).format("YYYY-MM-DD")}{" "}
+            </Typography>
           </Box>
         </Box>
         <Box sx={{ padding: "0px 60px 60px 60px" }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Service
-            </Typography>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
-                      Service Name
-                    </TableCell>
-
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: 600, fontSize: "16px" }}
-                    >
-                      Cost
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {details?.issues?.length > 0 &&
-                    details?.issues?.map((item) => (
-                      <TableRow
-                        key={item.name}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {item.name}
+          <Box sx={{ minHeight: "600px" }}>
+            {details?.issues?.length > 0 && (
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  Service
+                </Typography>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
+                          Service Name
                         </TableCell>
 
-                        <TableCell align="right">{item.repair_cost}</TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontWeight: 600, fontSize: "16px" }}
+                        >
+                          Cost
+                        </TableCell>
                       </TableRow>
-                    ))}
+                    </TableHead>
+                    <TableBody>
+                      {details?.issues?.length > 0 &&
+                        details?.issues?.map((item) => (
+                          <TableRow
+                            key={item.name}
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell component="th" scope="row">
+                              {item.name}
+                            </TableCell>
 
-                  <TableRow sx={{ background: "#eee" }}>
-                    <TableCell>Total</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>
-                      {repairCost}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-          <Box sx={{ mt: 6 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Spare Parts
-            </Typography>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
-                      Spare Parts Name
-                    </TableCell>
+                            <TableCell align="right">
+                              {item.repair_cost}
+                            </TableCell>
+                          </TableRow>
+                        ))}
 
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: 600, fontSize: "16px" }}
-                    >
-                      Cost
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {details?.product_details?.length > 0 &&
-                    details?.product_details?.map((item) => (
-                      <TableRow
-                        key={item.name}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {item.name}
+                      <TableRow sx={{ background: "#eee" }}>
+                        <TableCell>Total</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600 }}>
+                          {repairCost}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            )}
+
+            {details?.product_details?.length > 0 && (
+              <Box sx={{ mt: 6 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  Spare Parts
+                </Typography>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
+                          Spare Parts Name
                         </TableCell>
 
-                        <TableCell align="right">{item.price}</TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontWeight: 600, fontSize: "16px" }}
+                        >
+                          Cost
+                        </TableCell>
                       </TableRow>
-                    ))}
+                    </TableHead>
+                    <TableBody>
+                      {details?.product_details?.length > 0 &&
+                        details?.product_details?.map((item) => (
+                          <TableRow
+                            key={item.name}
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell component="th" scope="row">
+                              {item.name}
+                            </TableCell>
 
-                  <TableRow sx={{ background: "#eee" }}>
-                    <TableCell>Total</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>
-                      {repairCost}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-          <Box sx={{ mt: 6, textAlign: "right" }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Payment Info
-            </Typography>
-            <TableContainer
-              sx={{ display: "flex", justifyContent: "flex-end" }}
-            >
-              <Table
-                sx={{ maxWidth: 350, border: "1px solid #ddd" }}
-                aria-label="simple table"
-              >
-                <TableBody>
-                  <TableRow>
-                    <TableCell sx={{}}>Repair Subtotal</TableCell>
+                            <TableCell align="right">{item.price}</TableCell>
+                          </TableRow>
+                        ))}
 
-                    <TableCell align="right" sx={{}}>
-                      {repairCost}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{}}>Spare Parts Subtotal</TableCell>
+                      <TableRow sx={{ background: "#eee" }}>
+                        <TableCell>Total</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600 }}>
+                          {repairCost}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            )}
 
-                    <TableCell align="right" sx={{}}>
-                      {spareParsCost}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{}}>Due Amount</TableCell>
+            <Box sx={{ display: "flex", gap: 4, mt: 6 }}>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="body1" sx={{ mt: 6 }}>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                  Sapiente veritatis enim explicabo tempora suscipit, magni
+                  obcaecati commodi cum libero laudantium recusandae officiis
+                  labore optio. Necessitatibus officia omnis quas totam earum!
+                </Typography>
+              </Box>
+              <Box sx={{ textAlign: "right", flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  Payment Info
+                </Typography>
+                <TableContainer
+                  sx={{ display: "flex", justifyContent: "flex-end" }}
+                >
+                  <Table
+                    sx={{ border: "1px solid #ddd" }}
+                    aria-label="simple table"
+                  >
+                    <TableBody>
+                      <TableRow>
+                        <TableCell sx={{}}>Repair Subtotal</TableCell>
 
-                    <TableCell align="right" sx={{}}>
-                      {details?.due_amount}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{}}>Discount Amount</TableCell>
+                        <TableCell align="right" sx={{}}>
+                          {repairCost}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell sx={{}}>Spare Parts Subtotal</TableCell>
 
-                    <TableCell align="right" sx={{}}>
-                      {details?.discount_amount}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow sx={{ background: "#eee" }}>
-                    <TableCell sx={{}}>Total Amount</TableCell>
+                        <TableCell align="right" sx={{}}>
+                          {spareParsCost}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell sx={{}}>Due Amount</TableCell>
 
-                    <TableCell align="right">
-                      {repairCost +
-                        spareParsCost -
-                        details?.discount_amount -
-                        details?.due_amount}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+                        <TableCell align="right" sx={{}}>
+                          {details?.due_amount}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell sx={{}}>Discount Amount</TableCell>
+
+                        <TableCell align="right" sx={{}}>
+                          {details?.discount_amount}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow sx={{ background: "#eee" }}>
+                        <TableCell sx={{}}>Total Amount</TableCell>
+
+                        <TableCell align="right">
+                          {repairCost +
+                            spareParsCost -
+                            details?.discount_amount -
+                            details?.due_amount}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            </Box>
           </Box>
           <Box>
             <Box
