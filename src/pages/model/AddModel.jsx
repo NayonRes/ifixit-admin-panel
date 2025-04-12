@@ -42,7 +42,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { designationList, roleList } from "../../data";
+import { designationList, iphoneModels, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import ImageUpload from "../../utils/ImageUpload";
 

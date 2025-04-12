@@ -503,7 +503,7 @@ const AddDevice = ({ clearFilter }) => {
               dimension="Dimensions (1 : 1)"
             />
           </Box>
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -517,7 +517,7 @@ const AddDevice = ({ clearFilter }) => {
               setFile={setIconFile}
               dimension="Dimensions (1 : 1)"
             />
-          </Box>
+          </Box> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
