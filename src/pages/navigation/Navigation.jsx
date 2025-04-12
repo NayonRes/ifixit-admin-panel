@@ -43,6 +43,8 @@ import ServiceDetails from "../service/ServiceDetails";
 import UpdateService from "../service/UpdateService";
 import BranchStockList from "../stock-alert/BranchStockList";
 import StockAdjustment from "../stock-adjustment/StockAdjustment";
+import RepairDetails from "../repair/RepairDetails";
+import Invoice from "../repair/Invoice";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -366,6 +368,22 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <AddRepair />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/details/:rid"
+          element={
+            <PrivateRoute>
+              <RepairDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/invoice/:rid"
+          element={
+            <PrivateRoute>
+              <Invoice />
             </PrivateRoute>
           }
         />
