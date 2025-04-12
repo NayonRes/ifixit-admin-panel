@@ -141,7 +141,7 @@ const Repair = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 9;
+    let loadingNumber = 10;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_repair")) {
       loadingNumber = loadingNumber + 1;
@@ -262,7 +262,7 @@ const Repair = () => {
     if (allData?.status >= 200 && allData?.status < 300) {
       setBranchList(allData?.data?.data);
 
-      if (allData.data.data.length < 1) {
+      if (allData.data?.data?.length < 1) {
         setMessage("No data found");
       }
     } else {
@@ -308,7 +308,7 @@ const Repair = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair
+            Repair List
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
@@ -323,7 +323,7 @@ const Repair = () => {
               minWidth: "127px",
               minHeight: "44px",
             }}
-            onClick={() => navigate("/repair-search")}
+            onClick={() => navigate("/add-repair")}
             startIcon={
               <svg
                 width="20"
@@ -351,7 +351,7 @@ const Repair = () => {
               disableElevation
               sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
               component={Link}
-              to="/repair-search"
+              to="/add-repair"
               startIcon={
                 <svg
                   width="20"

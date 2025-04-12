@@ -248,8 +248,8 @@ const AddPurchase = ({ clearFilter }) => {
       return;
     } else {
       newSelectedProduct = selectedProducts?.map((item, i) => ({
-        spare_parts_id: item.spare_parts_id,
-        spare_parts_variation_id: item.spare_parts_variation_id,
+        product_id: item.product_id,
+        product_variation_id: item.product_variation_id,
         quantity: item.quantity,
         unit_price: item.unit_price,
         purchase_product_status: item.purchase_product_status,
@@ -552,8 +552,8 @@ const AddPurchase = ({ clearFilter }) => {
   const getModelList = async (id) => {
     setLoading2(true);
 
-    // let url = `/api/v1/model/device-model?deviceId=${id}`;
-    let url = `/api/v1/model/dropdownlist`;
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    // let url = `/api/v1/model/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -574,7 +574,7 @@ const AddPurchase = ({ clearFilter }) => {
   const getLastPurchaseItem = async (id) => {
     setLoading2(true);
 
-    let url = `/api/v1/purchaseProduct/last-purchase?spare_parts_variation_id=${id}`;
+    let url = `/api/v1/purchaseProduct/last-purchase?product_variation_id=${id}`;
     let allData = await getDataWithToken(url);
     console.log("last purchase item", allData?.data?.data[0]?.unit_price);
     let last_purchase_price = allData?.data?.data[0]?.unit_price;
@@ -627,7 +627,7 @@ const AddPurchase = ({ clearFilter }) => {
       newCategoryId = catId;
     }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -650,8 +650,8 @@ const AddPurchase = ({ clearFilter }) => {
   const handleSelectedProduct = async (item, row) => {
     console.log("item", item);
 
-    // spare_parts_id: element._id,
-    //     spare_parts_variation_id: element.spare_parts_variation_id,
+    // product_id: element._id,
+    //     product_variation_id: element.product_variation_id,
     //     quantity: element.quantity,
     //     unit_price: element.unit_price,
     //     purchase_product_status: element.purchase_product_status,
@@ -666,8 +666,8 @@ const AddPurchase = ({ clearFilter }) => {
         {
           ...item,
           spare_parts_name: row.name,
-          spare_parts_id: item.spare_parts_id,
-          spare_parts_variation_id: item._id,
+          product_id: item.product_id,
+          product_variation_id: item._id,
           purchase_product_status: "",
           quantity: "",
           unit_price: "",
@@ -684,7 +684,7 @@ const AddPurchase = ({ clearFilter }) => {
     getUserList();
     // getBrandList();
     getDeviceList();
-    getModelList();
+    // getModelList();
     // getDropdownList();
   }, []);
   return (
@@ -839,6 +839,10 @@ const AddPurchase = ({ clearFilter }) => {
                   ...customeSelectFeild,
                   "& label.Mui-focused": {
                     color: "rgba(0,0,0,0)",
+                  },
+                  "& .MuiOutlinedInput-input.Mui-disabled": {
+                    color: "#343E54", // Customize the text color when disabled
+                    WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
                   },
 
                   "& .MuiOutlinedInput-input img": {
@@ -1307,7 +1311,7 @@ const AddPurchase = ({ clearFilter }) => {
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Brand
+                    Select Device
                   </InputLabel>
                 )}
                 <Select
@@ -1325,11 +1329,14 @@ const AddPurchase = ({ clearFilter }) => {
 
                   onChange={(e) => {
                     setDeviceId(e.target.value);
+                    getModelList(e.target.value);
                     getProducts(null, null, e.target.value);
                   }}
                 >
                   {deviceList
-                    ?.filter((obj) => obj.name !== "Primary")
+                    .filter(
+                      (item) => !item.name.toLowerCase().includes("series")
+                    )
                     ?.map((item) => (
                       <MenuItem key={item?._id} value={item?._id}>
                         {item?.name}
@@ -1541,7 +1548,7 @@ const AddPurchase = ({ clearFilter }) => {
                                       src={
                                         item?.images?.length > 0
                                           ? item?.images[0]?.url
-                                          : "/noImage.png"
+                                          : "/noImage.jpg"
                                       }
                                       alt=""
                                       width={30}

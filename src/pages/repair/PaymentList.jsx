@@ -96,18 +96,19 @@ const customeTextFeild = {
   },
 };
 
-const cash = "./cash.png";
-const ucb = "./ucb.png";
+const cash = "/cash.png";
+const ucb = "/ucb.png";
 
-const city = "./city.png";
+const city = "/city.png";
 
-const brac = "./brac.png";
+const brac = "/brac.png";
 
-const ssl = "./ssl.png";
+const ssl = "/ssl.png";
 
-const bkash = "./bkash.png";
+const bkash = "/bkash.png";
 
-const due = "./due.png";
+const due = "/due.png";
+const discount = "/discount.png";
 
 let statusList = [
   { name: "Cash", color: "#FEF7C3", icon: cash },
@@ -124,6 +125,8 @@ const PaymentList = ({
   set_payment_info,
   due_amount,
   set_due_amount,
+  discount_amount,
+  set_discount_amount,
   allIssue,
   allSpareParts,
 }) => {
@@ -175,7 +178,7 @@ const PaymentList = ({
           </Box>
         </Grid>
       </Grid>
-
+      {/* {JSON.stringify(amounts)} Amount: */}
       <Grid
         container
         spacing={0}
@@ -214,7 +217,11 @@ const PaymentList = ({
                   }}
                 >
                   <Box>
-                    <img src={item.icon} style={{ maxHeight: "30px" }} alt="" />
+                    <img
+                      src={item?.icon}
+                      style={{ maxHeight: "30px" }}
+                      alt=""
+                    />
                   </Box>
                   <Box>{item.name}</Box>
                 </Box>
@@ -281,6 +288,48 @@ const PaymentList = ({
                 value={due_amount}
                 onChange={(e) => {
                   set_due_amount(e.target.value);
+                }}
+              />
+            </Box>
+          </Box>
+        </Grid>
+        <Grid size={12} sx={{ p: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              height: "100%",
+              gap: 3,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                flex: 1,
+              }}
+            >
+              <Box>
+                <img src={discount} style={{ maxHeight: "30px" }} alt="" />
+              </Box>
+              <Box>Discount</Box>
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <TextField
+                required
+                type="number"
+                onWheel={(e) => e.target.blur()}
+                size="small"
+                fullWidth
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 0 }}
+                value={discount_amount}
+                onChange={(e) => {
+                  set_discount_amount(e.target.value);
                 }}
               />
             </Box>

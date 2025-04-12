@@ -75,7 +75,13 @@ const TextEditor = ({
             "textAlign",
             "history",
             "colorPicker",
+            "image",
           ],
+          // image: {
+          //   uploadCallback: uploadImageCallback,
+          //   previewImage: true,
+          //   alt: { present: true, mandatory: false },
+          // },
           // inline: { inDropdown: true },
           // list: { inDropdown: true },
           // textAlign: { inDropdown: true },

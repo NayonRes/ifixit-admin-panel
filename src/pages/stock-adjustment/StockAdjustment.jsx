@@ -14,11 +14,11 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Chip, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
@@ -47,40 +47,10 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import SearchIcon from "@mui/icons-material/Search";
-import { handlePutData } from "../../services/PutDataService";
 
 import { handlePostData } from "../../services/PostDataService";
 import moment from "moment";
-import { transferStatusList } from "../../data";
-
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
+import { jwtDecode } from "jwt-decode";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#F9FAFB",
@@ -89,50 +59,20 @@ const Item = styled(Paper)(({ theme }) => ({
   border: "1px solid #EAECF0",
   cursor: "pointer",
 }));
-const DetailsStockTransfer = ({ clearFilter }) => {
-  const { id } = useParams();
+const StockAdjustment = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
   const [addDialog, setAddDialog] = useState(false);
-  const [supplierList, setSupplierList] = useState([]);
-  const [supplier, setSupplier] = useState("");
   const [branchList, setBranchList] = useState([]);
-  const [transferFrom, setTransferFrom] = useState("");
-  const [transferTo, setTransferTo] = useState("");
-
-  const [purchaseDate, setPurchaseDate] = useState(null);
-  const [shippingCharge, setShippingCharge] = useState("");
-
-  const [note, setNote] = useState("");
-  const [transferStatus, setTransferStatus] = useState("");
-
-  const [branch, setBranch] = useState("");
-  const [purchaseStatus, setPurchaseStatus] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
-
-  const [invoiceNo, setInvoiceNo] = useState("");
   const [searchProductText, setsearchProductText] = useState("");
   const [productList, setProductList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [purchaseBy, setPurchaseBy] = useState("");
-  const [userList, setUserList] = useState([]);
+  const [stockStatus, setStockStatus] = useState("");
 
-  const [brandId, setBrandId] = useState([]);
-  const [categoryId, setCategoryId] = useState([]);
-
-  const [brandList, setBrandList] = useState([]);
-  const [categoryList, setCategoryList] = useState([]);
-
-  const [price, setPrice] = useState("");
-  const [file, setFile] = useState(null);
-  const [remarks, setRemarks] = useState("");
-
-  const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loading3, setLoading3] = useState(false);
 
-  const [message, setMessage] = useState("");
   const [details, setDetails] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
@@ -157,8 +97,11 @@ const DetailsStockTransfer = ({ clearFilter }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (stockStatus.length < 1) {
+      return handleSnakbarOpen("Please select stock status", "error");
+    }
     if (productList.length < 1) {
-      return handleSnakbarOpen("Please enter product", "error");
+      return handleSnakbarOpen("Please enter return product", "error");
     }
     setLoading(true);
 
@@ -166,19 +109,19 @@ const DetailsStockTransfer = ({ clearFilter }) => {
     // formdata.append("name", name);
 
     // formdata.append("parent_id", parent_id);
-    const skus = productList.map((product) => parseInt(product?.sku_number));
+    const adjustment_data = productList.map((product) => ({
+      sku_number: parseInt(product?.sku_number),
+      remarks: product?.note,
+    }));
 
     let data = {
-      transfer_from: transferFrom,
-      transfer_to: transferTo,
-      shipping_charge: parseInt(shippingCharge),
-      remarks: note,
-      transfer_stocks_sku: skus,
+      stockStatus,
+      adjustment_data,
     };
     console.log("data", data);
 
-    let response = await handlePutData(
-      `/api/v1/transferStock/update/${id}`,
+    let response = await handlePostData(
+      "/api/v1/stock/stock-adjustment",
       data,
       false
     );
@@ -190,13 +133,9 @@ const DetailsStockTransfer = ({ clearFilter }) => {
     }
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
-      handleSnakbarOpen("Added successfully", "success");
+      handleSnakbarOpen("Adjust successfully", "success");
       setProductList([]);
-      setTransferFrom("");
-      setTransferTo("");
-      setShippingCharge("");
-      setNote("");
-      navigate("/stock-transfer-list");
+      setStockStatus("");
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -223,41 +162,6 @@ const DetailsStockTransfer = ({ clearFilter }) => {
       // paddingLeft: "24px",
       "& fieldset": {
         borderColor: "",
-      },
-
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
-  };
-  const custopDatePickerFeild = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    background: "#ffffff",
-
-    "& .MuiInputBase-root": {
-      fontSize: "0.875rem", // Adjust font size for a smaller appearance
-      height: "2.5rem",
-    },
-
-    "& label.Mui-focused": {
-      color: "#E5E5E5",
-    },
-
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-
-    "& .MuiOutlinedInput-input": {
-      // padding: "10px 16px", (uncomment if needed)
-    },
-
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px", (uncomment if needed)
-      "& fieldset": {
-        borderColor: "#", // Update with a specific color if needed
       },
 
       "&:hover fieldset": {
@@ -296,39 +200,8 @@ const DetailsStockTransfer = ({ clearFilter }) => {
       },
     },
   };
-  const customeSelectFeildSmall = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    background: "#ffffff",
-
-    "& label.Mui-focused": {
-      color: "#E5E5E5",
-    },
-
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-    "& .MuiOutlinedInput-input": {
-      padding: "6px 16px",
-      fontSize: "14px",
-    },
-
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px",
-      "& fieldset": {
-        borderColor: "#",
-      },
-
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
-  };
-
-  const getProducts = async () => {
-    // e.preventDefault();
+  const getProducts = async (e) => {
+    e.preventDefault();
     setSearchLoading(true);
     let url;
 
@@ -351,34 +224,31 @@ const DetailsStockTransfer = ({ clearFilter }) => {
         console.log("isSkuPresent", isSkuPresent);
 
         if (!isSkuPresent) {
-          console.log(
-            "111111111111111111111111111111",
-            allData?.data?.data[0]?.stock_status !== "Returned",
-            allData?.data?.data[0]?.stock_status
-          );
-
-          if (allData?.data?.data[0]?.stock_status !== "Returned") {
-            console.log("*************************");
-
-            setProductList([
-              {
-                ...allData?.data?.data[0],
-                note: "",
-
-                spare_parts_name: allData?.data?.data[0]?.product_data[0].name,
-                spare_parts_variation_name:
-                  allData?.data?.data[0]?.product_variation_data[0].name,
-                purchase_date:
-                  allData?.data?.data[0]?.purchase_data[0].purchase_date,
-                unit_price:
-                  allData?.data?.data[0]?.purchase_products_data[0].unit_price,
-              },
-              ...productList,
-            ]);
-            setsearchProductText("");
-          } else {
-            handleSnakbarOpen("This product is already returned", "error");
+          if (allData?.data?.data[0]?.branch_id !== myBranchId) {
+            handleSnakbarOpen("This is not your branch product", "error");
           }
+
+          // else if (
+          //   allData?.data?.data[0]?.purchase_branch_id !== myBranchId
+          // ) {
+          //   handleSnakbarOpen(
+          //     `This product purchased by ${allData?.data?.data[0]?.purchase_branch_data[0]?.name}. So you can't return it`,
+          //     "error"
+          //   );
+          // }
+          // else if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          console.log("*************************");
+
+          setProductList([
+            { ...allData?.data?.data[0], note: "" },
+            ...productList,
+          ]);
+          setsearchProductText("");
+          // }
+
+          // else {
+          //   handleSnakbarOpen("This product is already returned", "error");
+          // }
         } else {
           handleSnakbarOpen("This product is already in the list", "error");
         }
@@ -416,80 +286,16 @@ const DetailsStockTransfer = ({ clearFilter }) => {
     // }
   };
 
-  const getBranchList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/branch/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
-
-  const getData = async () => {
-    setLoading3(true);
-
-    let url = `/api/v1/transferStock/${encodeURIComponent(id.trim())}`;
-    let allData = await getDataWithToken(url);
-    console.log("allData?.data?.data", allData?.data?.data);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      // setTableDataList(allData?.data?.data);
-      setTransferFrom(allData?.data?.data?.transfer_from_data[0]?.name);
-      setTransferTo(allData?.data?.data?.transfer_to_data[0]?.name);
-      setShippingCharge(allData?.data?.data?.shipping_charge);
-      setNote(allData?.data?.data?.remarks);
-      setTransferStatus(allData?.data?.data?.transfer_status);
-      let newSKUdetails = allData?.data?.data?.sku_details?.map((item) => ({
-        ...item,
-        spare_parts_name: allData?.data?.data?.product_details?.find(
-          (res) => res._id === item?.product_id
-        )?.name,
-        spare_parts_variation_name:
-          allData?.data?.data?.product_variation_details?.find(
-            (res) => res._id === item?.product_variation_id
-          )?.name,
-        purchase_date: allData?.data?.data?.purchase_details?.find(
-          (res) => res._id === item?.purchase_id
-        )?.purchase_date,
-        unit_price: allData?.data?.data?.purchase_product_details?.find(
-          (res) => res._id === item?.purchase_product_id
-        )?.unit_price,
-      }));
-      console.log("newSKUdetails", newSKUdetails);
-
-      setProductList(newSKUdetails);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading3(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading3(false);
+  const handleLimitChange = (index, value) => {
+    const updatedList = [...branchList];
+    updatedList[index].limit = value;
+    setBranchList(updatedList);
   };
   useEffect(() => {
     // getDropdownList();
     // getCategoryList();
     // getBrandList();
-    getData();
-    getBranchList();
+    // getBranchList();
   }, []);
   return (
     <>
@@ -500,7 +306,7 @@ const DetailsStockTransfer = ({ clearFilter }) => {
           component="div"
           sx={{ color: "#0F1624", fontWeight: 600 }}
         >
-          Stock Transfer Details
+          Stock Adjustment
         </Typography>
       </Box>
 
@@ -510,62 +316,223 @@ const DetailsStockTransfer = ({ clearFilter }) => {
           border: "1px solid #EAECF1",
           borderRadius: "12px",
           overflow: "hidden",
-          backgroundColor: "#F9FAFB",
+          padding: "20px",
           boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
         }}
       >
-        <Box sx={{ padding: "12px", margin: "16px" }}>
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Stock Adjudtment Status *
+        </Typography>
+
+        <FormControl
+          fullWidth
+          size="small"
+          sx={{
+            ...customeSelectFeild,
+            mb: 3,
+            "& label.Mui-focused": {
+              color: "rgba(0,0,0,0)",
+            },
+
+            "& .MuiOutlinedInput-input img": {
+              position: "relative",
+              top: "2px",
+            },
+          }}
+        >
+          {stockStatus.length < 1 && (
+            <InputLabel
+              id="demo-simple-select-label"
+              sx={{ color: "#b3b3b3", fontWeight: 300 }}
+            >
+              Stock Adjudtment Status
+            </InputLabel>
+          )}
+          <Select
+            required
+            labelId="demo-simple-select-label"
+            id="type"
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 250, // Set the max height here
+                },
+              },
+            }}
+            value={stockStatus}
+            onChange={(e) => setStockStatus(e.target.value)}
+          >
+            <MenuItem value={"Available"}>Available</MenuItem>
+            <MenuItem value={"Abnormal"}>Abnormal</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Typography
+          variant="medium"
+          color="text.main"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Search SKU Number *
+        </Typography>
+        <form onSubmit={getProducts}>
           <Grid container spacing={2}>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
+            <Grid size={10}>
+              <TextField
+                size="small"
+                fullWidth
+                id="searchProductText"
+                placeholder="Search SKU Number"
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                            stroke="#85888E"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{ ...customeTextFeild }}
+                value={searchProductText}
+                onChange={(e) => {
+                  setsearchProductText(e.target.value);
+                  // getProducts(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={2}>
+              <Button
+                fullWidth
+                variant="contained"
+                disableElevation
+                color="info"
+                sx={{ py: "4px", minHeight: "40px" }}
+                size="small"
+                startIcon={<SearchIcon />}
+                // onClick={() => getProducts()}
+                type="submit"
+                disabled={searchLoading}
               >
-                Transfer From : <b>{transferFrom}</b>
-              </Typography>
-
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Transfer To : <b>{transferTo}</b>
-              </Typography>
-
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Transfer Status : <b>{transferStatus}</b>
-              </Typography>
+                <PulseLoader
+                  color={"#4B46E5"}
+                  loading={searchLoading}
+                  size={10}
+                  speedMultiplier={0.5}
+                />{" "}
+                {searchLoading === false && "Search"}
+              </Button>
             </Grid>
 
-            <Grid size={8}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Shipping Charges : <b>{shippingCharge} TK</b>
-              </Typography>
-
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Additional Notes : <b>{note}</b>
-              </Typography>
+            <Grid size={12}>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={2}>
+                  {!searchLoading &&
+                    productList.length > 0 &&
+                    productList.map(
+                      (row, rowIndex) =>
+                        row?.variation_data?.length > 0 &&
+                        row.variation_data.map((item, itemIndex) => (
+                          <Grid
+                            key={`row-${rowIndex}-item-${itemIndex}`}
+                            item
+                            size={3}
+                          >
+                            <Item
+                              sx={{
+                                border:
+                                  selectedProducts.some(
+                                    (pro) => pro?._id === item?._id
+                                  ) && "1px solid #818FF8",
+                              }}
+                              onClick={() => handleSelectedProduct(item)}
+                            >
+                              {" "}
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Grid container alignItems="center">
+                                  <Grid size="auto" sx={{ width: "40px" }}>
+                                    {" "}
+                                    <img
+                                      src={
+                                        item?.images?.length > 0
+                                          ? item?.images[0]?.url
+                                          : "/noImage.jpg"
+                                      }
+                                      alt=""
+                                      width={30}
+                                      height={40}
+                                    />
+                                  </Grid>
+                                  <Grid
+                                    size="auto"
+                                    sx={{ width: "Calc(100% - 40px)" }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="medium"
+                                        sx={{
+                                          fontWeight: 500,
+                                          color: "#344054",
+                                          overflow: "hidden",
+                                          textOverflow: "ellipsis",
+                                          whiteSpace: "nowrap",
+                                          marginRight: 1, // Optional for spacing
+                                        }}
+                                      >
+                                        {item?.name}
+                                      </Typography>
+                                      <Checkbox
+                                        sx={{
+                                          display: selectedProducts.some(
+                                            (pro) => pro?._id === item?._id
+                                          )
+                                            ? "block"
+                                            : "none",
+                                        }}
+                                        size="small"
+                                        checked={true}
+                                        inputProps={{
+                                          "aria-label": "controlled",
+                                        }}
+                                      />
+                                    </Box>
+                                  </Grid>
+                                </Grid>
+                              </Box>
+                            </Item>
+                          </Grid>
+                        ))
+                    )}
+                </Grid>
+              </Box>
             </Grid>
           </Grid>
-        </Box>
+        </form>
       </div>
 
       <Box
@@ -607,7 +574,7 @@ const DetailsStockTransfer = ({ clearFilter }) => {
             boxSizing: "border-box",
           }}
         >
-          <TableContainer sx={{ height: "Calc(100vh - 340px)" }}>
+          <TableContainer sx={{ height: "Calc(100vh - 450px)" }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
@@ -615,16 +582,18 @@ const DetailsStockTransfer = ({ clearFilter }) => {
                     Product Name
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Purchase Date
+                    Purchase date
                   </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Purchase Price
+                    Purchase price
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     SKU Number
                   </TableCell>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell> */}
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
 
@@ -639,17 +608,15 @@ const DetailsStockTransfer = ({ clearFilter }) => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Description
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>*/}
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>*/}
 
-                  {/* <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                  <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
-                  </TableCell> */}
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {!loading &&
-                  productList.length > 0 &&
+                {productList.length > 0 &&
                   productList.map((row, i) => (
                     <TableRow
                       key={i}
@@ -667,24 +634,43 @@ const DetailsStockTransfer = ({ clearFilter }) => {
                         />
                       </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.spare_parts_name
-                          ? row?.spare_parts_name
+                        {row?.product_data
+                          ? row?.product_data[0]?.name
                           : "---------"}{" "}
                         &nbsp;{" "}
-                        {row?.spare_parts_variation_name
-                          ? row?.spare_parts_variation_name
+                        {row?.product_variation_data
+                          ? row?.product_variation_data[0]?.name
                           : "---------"}
                       </TableCell>
 
                       <TableCell>
-                        {moment(row?.purchase_date).format("DD/MM/YYYY")}
+                        {moment(row?.purchase_data[0]?.purchase_date).format(
+                          "DD/MM/YYYY"
+                        )}
                       </TableCell>
-
+                      <TableCell>
+                        {row?.branch_data
+                          ? row?.branch_data[0]?.name
+                          : "---------"}
+                      </TableCell>
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.unit_price ? row?.unit_price : "---------"}
+                        {row?.purchase_products_data
+                          ? row?.purchase_products_data[0]?.unit_price
+                          : "---------"}
                       </TableCell>
                       <TableCell>{row?.sku_number}</TableCell>
-                      {/* <TableCell>
+                      <TableCell>
+                        <Chip
+                          variant="outlined"
+                          color={
+                            row?.stock_status === "Available"
+                              ? "success"
+                              : "error"
+                          }
+                          label={row?.stock_status}
+                        />
+                      </TableCell>
+                      <TableCell>
                         {" "}
                         <TextField
                           required
@@ -707,8 +693,8 @@ const DetailsStockTransfer = ({ clearFilter }) => {
                             setProductList(updatedRows);
                           }}
                         />
-                      </TableCell> */}
-                      {/* <TableCell align="right">
+                      </TableCell>
+                      <TableCell align="right">
                         <IconButton
                           onClick={() =>
                             setProductList(
@@ -734,16 +720,66 @@ const DetailsStockTransfer = ({ clearFilter }) => {
                             />
                           </svg>
                         </IconButton>
-                      </TableCell> */}
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
             </Table>
           </TableContainer>
+          <Box
+            sx={{
+              px: 2,
+              pt: 1,
+              textAlign: "right",
+              borderTop: "1px solid #EAECF0",
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={handleDialogClose}
+              sx={{
+                px: 2,
+                py: 1.25,
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#344054",
+                border: "1px solid #D0D5DD",
+                boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+              }}
+            >
+              Cancel
+            </Button>
+            &nbsp;
+            <Button
+              variant="contained"
+              disabled={loading}
+              type="submit"
+              sx={{
+                px: 2,
+                py: 1.25,
+                fontSize: "14px",
+                fontWeight: 600,
+                minWidth: "127px",
+                minHeight: "44px",
+              }}
+              // style={{ minWidth: "180px", minHeight: "35px" }}
+              autoFocus
+              disableElevation
+              onClick={onSubmit}
+            >
+              <PulseLoader
+                color={"#4B46E5"}
+                loading={loading}
+                size={10}
+                speedMultiplier={0.5}
+              />{" "}
+              {loading === false && "Submit"}
+            </Button>
+          </Box>
         </div>
       </Box>
     </>
   );
 };
 
-export default DetailsStockTransfer;
+export default StockAdjustment;

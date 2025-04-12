@@ -57,6 +57,7 @@ import { designationList, roleList } from "../../data";
 // import AddPurchaseReturn from "./AddPurchaseReturn";
 // import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
+import { jwtDecode } from "jwt-decode";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -495,15 +496,16 @@ const StockTransferList = () => {
               Details
             </Typography>
           </Grid>
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
-            <Box sx={{ flexGrow: 1 }}>
-              <Grid
-                container
-                justifyContent="right"
-                alignItems="center"
-                spacing={1}
-              >
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+          {jwtDecode(ifixit_admin_panel?.token)?.user?.is_main_branch && (
+            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid
+                  container
+                  justifyContent="right"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <TextField
                     required
                     size="small"
@@ -518,7 +520,7 @@ const StockTransferList = () => {
                     }}
                   />
                 </Grid> */}
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -546,7 +548,7 @@ const StockTransferList = () => {
                     </Select>
                   </FormControl>
                 </Grid> */}
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -574,7 +576,7 @@ const StockTransferList = () => {
                     </Select>
                   </FormControl>
                 </Grid> */}
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -602,71 +604,72 @@ const StockTransferList = () => {
                     </Select>
                   </FormControl>
                 </Grid> */}
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Branch
-                    </InputLabel>
-                    <Select
+                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                    <FormControl
+                      variant="outlined"
                       fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Branch"
-                      value={branch}
-                      onChange={(e) => setBranch(e.target.value)}
+                      size="small"
+                      // sx={{ ...customeTextFeild }}
+                      sx={{ ...customeTextFeild }}
                     >
-                      <MenuItem value="None">None</MenuItem>
-                      {branchList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
+                      <InputLabel id="demo-status-outlined-label">
+                        Branch
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        labelId="demo-status-outlined-label"
+                        id="demo-status-outlined"
+                        label="Branch"
+                        value={branch}
+                        onChange={(e) => setBranch(e.target.value)}
+                      >
+                        <MenuItem value="None">None</MenuItem>
+                        {branchList?.map((item) => (
+                          <MenuItem key={item?._id} value={item?._id}>
+                            {item?.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Grid container spacing={{ lg: 1, xl: 1 }}>
-                      <Grid size={4}>
-                        <Button
-                          fullWidth
-                          variant="outlined"
-                          color="info"
-                          disableElevation
-                          size="small"
-                          sx={{ py: "4px" }}
-                          onClick={clearFilter}
-                        >
-                          <RestartAltIcon />
-                        </Button>
+                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Grid container spacing={{ lg: 1, xl: 1 }}>
+                        <Grid size={4}>
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            color="info"
+                            disableElevation
+                            size="small"
+                            sx={{ py: "4px" }}
+                            onClick={clearFilter}
+                          >
+                            <RestartAltIcon />
+                          </Button>
+                        </Grid>
+                        <Grid size={8}>
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            disableElevation
+                            color="info"
+                            sx={{ py: "4px" }}
+                            size="small"
+                            startIcon={<SearchIcon />}
+                            onClick={(event) => handleChangePage(event, 0)}
+                          >
+                            Search
+                          </Button>
+                        </Grid>
                       </Grid>
-                      <Grid size={8}>
-                        <Button
-                          fullWidth
-                          variant="contained"
-                          disableElevation
-                          color="info"
-                          sx={{ py: "4px" }}
-                          size="small"
-                          startIcon={<SearchIcon />}
-                          onClick={(event) => handleChangePage(event, 0)}
-                        >
-                          Search
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </Box>
+                    </Box>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Box>
-          </Grid>
+              </Box>
+            </Grid>
+          )}
         </Grid>
         <div
           style={{
@@ -744,7 +747,7 @@ const StockTransferList = () => {
                               src={
                                 row?.images?.length > 0
                                   ? row?.images[0]?.url
-                                  : "/noImage.png"
+                                  : "/noImage.jpg"
                               }
                               alt=""
                               width={40}
@@ -768,7 +771,10 @@ const StockTransferList = () => {
 
                       <TableCell>{row?.transfer_stocks_sku?.length}</TableCell>
                       <TableCell>{row?.shipping_charge}</TableCell>
-                      <TableCell> {row?.remarks}</TableCell>
+                      <TableCell>
+                        {" "}
+                        {row?.remarks ? row?.remarks : "---------"}
+                      </TableCell>
 
                       <TableCell>
                         {row?.transfer_status ? (
@@ -785,7 +791,7 @@ const StockTransferList = () => {
                                   ? "#FDF2F2"
                                   : row?.transfer_status === "Received"
                                   ? "#F3FAF7"
-                                  : "#222",
+                                  : "#f1f1f1",
                             }}
                             label={row?.transfer_status}
                           />
@@ -822,11 +828,17 @@ const StockTransferList = () => {
                               size="small"
                               variant="outlined"
                               color="text"
-                              disabled={row?.transfer_status === "Received"}
+                              disabled={
+                                row?.transfer_status === "Received" ||
+                                row?.transfer_status === "Canceled"
+                              }
                               sx={{
                                 "& svg": {
-                                  opacity:
-                                    row?.transfer_status === "Received" && 0.5,
+                                  opacity: ["Received", "Canceled"].includes(
+                                    row?.transfer_status
+                                  )
+                                    ? 0.5
+                                    : 1,
                                 },
                               }}
                               startIcon={
@@ -888,7 +900,9 @@ const StockTransferList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>

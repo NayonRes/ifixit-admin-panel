@@ -46,41 +46,6 @@ import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import ImageUpload from "../../utils/ImageUpload";
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-const form = {
-  padding: "50px",
-  background: "#fff",
-  borderRadius: "10px",
-  width: "400px",
-  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-};
 const AddModel = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -155,8 +120,7 @@ const AddModel = ({ clearFilter }) => {
     }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
-      clearFilter(); // this is for get the table list again
-
+      clearFilter();
       clearForm();
       handleDialogClose();
     } else {
@@ -166,54 +130,6 @@ const AddModel = ({ clearFilter }) => {
     setLoading(false);
     // }
   };
-
-  const onDrop = useCallback((acceptedFiles) => {
-    console.log("onDrop", acceptedFiles);
-    // if (!dropzoneRef.current) return;
-    const file = acceptedFiles[0];
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // setBase64String(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-  const onFileDialogCancel = useCallback(() => {
-    setFile(null);
-    console.log("File dialog was closed without selecting a file");
-    // setBase64String(""); // Update state to indicate dialog was cancelled
-  }, []);
-
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
-    onDrop,
-    onFileDialogCancel,
-    ref: dropzoneRef,
-    accept: { "image/*": [] },
-    maxFiles: 1,
-  });
-  const files = acceptedFiles.map((file) => (
-    <>
-      {file.path} - {file.size} bytes
-    </>
-  ));
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject]
-  );
 
   const customeTextFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -486,7 +402,7 @@ const AddModel = ({ clearFilter }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              dimension=" Dimensions (1 : 2)"
+              dimension=" Dimensions (1 : 1)"
             />
           </Box>
         </DialogContent>

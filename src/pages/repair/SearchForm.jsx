@@ -1,21 +1,30 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
+  Button,
   FormControl,
   IconButton,
   InputAdornment,
   InputLabel,
   MenuItem,
+  OutlinedInput,
   Select,
   TextField,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import SendIcon from "@mui/icons-material/Send";
 import { getDataWithToken } from "../../services/GetDataService";
 import IssueList from "./IssueList";
 import { useSnackbar } from "notistack";
 import { AuthContext } from "../../context/AuthContext";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -135,10 +144,30 @@ const SearchForm = ({
   setAllSpareParts,
   set_customer_id,
   setScreenType,
+  steps,
+  setSteps,
+  serialLoading,
+  setSerialLoading,
+  serialHistoryList,
+  setSerialHistoryList,
+  technicianLoading,
+  setTechnicianLoading,
+  technicianList,
+  setTechnicianList,
+
+  previousRepairData,
+  setPreviousRepairData,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const [searchParams] = useSearchParams();
-  let repairId = searchParams.get("repairId");
+
+  const getBranchId = () => {
+    let token = ifixit_admin_panel.token;
+    let decodedToken = jwtDecode(token);
+    let branch_id = decodedToken?.user?.branch_id;
+    return branch_id;
+  };
+
+  const { rid } = useParams();
 
   const [brandList, setBrandList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
@@ -161,7 +190,40 @@ const SearchForm = ({
       autoHideDuration: duration,
     });
   };
+  const getSerialHistory = async () => {
+    if (!location.pathname.includes("/update-repair")) {
+      if (!serial.trim()) {
+        handleSnakbarOpen("Please enter serial number", "error");
+        return;
+      }
+    }
 
+    setSerialLoading(true);
+
+    let url = `/api/v1/repair?serial=${serial?.trim()}&limit=100&page=1`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data::::::", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setSerialLoading(false);
+
+      if (rid) {
+        setSerialHistoryList(
+          allData?.data?.data.filter((res) => res._id !== rid)
+        );
+      } else {
+        setSerialHistoryList(allData?.data?.data);
+      }
+    } else {
+      setSerialLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
   const getUser = async (searchValue) => {
     let url = `/api/v1/customer?mobile=${searchValue || contactData?.mobile}`;
     let allData = await getDataWithToken(url);
@@ -179,9 +241,8 @@ const SearchForm = ({
     }
   };
 
-  const getParent = async () => {
-    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let url = `/api/v1/device/parent-child-list`;
+  const getBrandList = async () => {
+    let url = `/api/v1/deviceBrand/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -191,35 +252,29 @@ const SearchForm = ({
     let p = allData?.data?.data;
 
     if (allData?.status >= 200 && allData?.status < 300) {
-      setParentList(p);
-      let items = p.filter((item) => item.parent_name == "Primary");
-      let newItems = items[0].items.filter(
-        (device) => device.name !== "Primary"
-      );
-      console.log("hello", newItems);
-      setBrandList(newItems);
+      setBrandList(p);
+      if (allData?.data?.data?.length > 0) {
+        // setBrand(p[0]?._id);
+        // getDeviceList(p[0]?._id);
+      }
+      // setParentList(p);
+      // let items = p.filter((item) => item.parent_name == "Primary");
+      // let newItems = items[0].items.filter(
+      //   (device) => device.name !== "Primary"
+      // );
+      // console.log("hello", newItems);
+      // setBrandList(newItems);
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
   };
 
-  const getBrand = async () => {
+  const getModel = async () => {
     let url = `/api/v1/brand`;
     let allData = await getDataWithToken(url);
 
     if (allData.status >= 200 && allData.status < 300) {
       setBrandList(allData?.data.data);
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
-
-  const getDevice = async () => {
-    let url = `/api/v1/device`;
-    let allData = await getDataWithToken(url);
-
-    if (allData?.status >= 200 && allData?.status < 300) {
-      setDeviceList(allData?.data.data);
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -247,7 +302,7 @@ const SearchForm = ({
       setTechnicianName("");
       setRepairStatus("");
       setDeliveryStatus("");
-      navigate("/repair-search");
+      navigate("/add-repair");
       setSearchPrams(searchValue);
     }
     if (searchValue.length === 11) {
@@ -261,8 +316,8 @@ const SearchForm = ({
 
   const handleSearch2 = (e) => {
     let searchValue = e.target.value;
-    if (repairId) {
-      navigate("/repair-search");
+    if (rid) {
+      navigate("/add-repair");
     }
     if (searchValue.length < 11) {
       console.log("under 11");
@@ -323,12 +378,76 @@ const SearchForm = ({
       return;
     }
   };
+  const getTechnician = async () => {
+    setTechnicianLoading(true);
 
+    let branch_id = getBranchId();
+    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    let newBranchId;
+    // if (ifixit_admin_panel?.user?.is_main_branch) {
+    //   newBranchId = selectedBranch;
+    // } else {
+    //   newBranchId = branch_id;
+    // }
+
+    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("technician list", allData?.data.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setTechnicianLoading(false);
+      setTechnicianList(allData?.data.data);
+
+      let name = allData?.data.data.filter((i) => i._id === technician);
+      setTechnicianName(name[0]?.name);
+
+      // if (allData.data.data.length < 1) {
+      //   setMessage("No Data found");
+      // } else {
+      //   setMessage("");
+      // }
+    } else {
+      setTechnicianLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
+  const getDevice = async () => {
+    let url = `/api/v1/device`;
+    let allData = await getDataWithToken(url);
+
+    if (allData?.status >= 200 && allData?.status < 300) {
+      setDeviceList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
+  const getDeviceList = async (id) => {
+    let url = `/api/v1/device/dropdownlist?device_brand_id=${id}`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setParentList(allData?.data.data);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
   useEffect(() => {
     // getBrand();
-    getParent();
+    getBrandList();
     getDevice();
-  }, []);
+    getTechnician();
+    if (previousRepairData) {
+      getDeviceList(brand);
+    }
+
+    if (location.pathname.includes("/update-repair")) {
+      getSerialHistory();
+    }
+  }, [previousRepairData]);
   // useEffect(() => {
   //   if (contactData?.mobile) {
   //     getUser();
@@ -347,42 +466,46 @@ const SearchForm = ({
         }}
       >
         {/* {JSON.stringify(allIssue)} */}
-        <TextField
-          type="number"
-          required
-          size="small"
-          fullWidth
-          id="searchParams"
-          placeholder="Search"
-          variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
-          value={searchPrams}
-          onChange={handleSearch2}
-          // onKeyDown={handleSearch2}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
-                      stroke="#667085"
-                      stroke-width="1.66667"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        {/* <button onClick={() => setSteps(1)}>Steps: {steps}</button> */}
+        {!rid && (
+          <TextField
+            type="number"
+            required
+            size="small"
+            fullWidth
+            id="searchParams"
+            placeholder="Search Number"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            onClick={() => setSteps("contact")}
+            value={searchPrams}
+            onChange={handleSearch2}
+            // onKeyDown={handleSearch2}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
+                        stroke="#667085"
+                        stroke-width="1.66667"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+        )}
         <Typography
           variant="medium"
           color="text.main"
@@ -391,8 +514,9 @@ const SearchForm = ({
         >
           Full Name
         </Typography>
+
         <TextField
-          required
+          onClick={() => setSteps("contact")}
           size="small"
           fullWidth
           id="name"
@@ -405,6 +529,8 @@ const SearchForm = ({
               color: "#333", // Change text color
               WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
               // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
             },
           }}
           value={contactData?.name}
@@ -413,6 +539,7 @@ const SearchForm = ({
           //   setName(e.target.value);
           // }}
         />
+
         <Typography
           variant="medium"
           color="text.main"
@@ -421,18 +548,62 @@ const SearchForm = ({
         >
           Serial
         </Typography>
-        <TextField
-          required
+        {/* <TextField
           size="small"
           fullWidth
           id="serial"
-          placeholder="Enter Serial"
           variant="outlined"
+          required
+          placeholder="Enter Serial"
+          sx={{ ...customeTextFeild, mb: 3 }}
+          onClick={() => setSteps("serial_history")}
+          value={serial}
+          onChange={(e) => {
+            setSerial(e.target.value);
+          }}
+        /> */}
+        <OutlinedInput
+          size="small"
+          fullWidth
+          id="serial"
+          variant="outlined"
+          required
+          placeholder="Enter Serial"
+          onClick={() => setSteps("serial_history")}
           sx={{ ...customeTextFeild, mb: 3 }}
           value={serial}
           onChange={(e) => {
             setSerial(e.target.value);
           }}
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton
+                size="sm"
+                onClick={getSerialHistory}
+                // onClick={() => setSteps("serial_history")}
+                // onClick={handleClickShowPassword}
+                // onMouseDown={handleMouseDownPassword}
+                // onMouseUp={handleMouseUpPassword}
+                edge="end"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
+                    stroke="#667085"
+                    stroke-width="1.66667"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </IconButton>
+            </InputAdornment>
+          }
         />
         <Typography
           variant="medium"
@@ -488,7 +659,7 @@ const SearchForm = ({
             </InputLabel>
           )}
           <Select
-            disabled={!serial || !passCode}
+            // disabled={!serial || !passCode}
             required
             labelId="demo-simple-select-label"
             id="customer_type"
@@ -500,17 +671,22 @@ const SearchForm = ({
               },
             }}
             value={brand}
-            onClick={handleBranchClick}
+            // onClick={handleBranchClick}
+            onClick={() => setSteps("device")}
+            onOpen={() => setSteps("device")}
             onChange={(e) => {
               setBrand(e.target.value);
+              getDeviceList(e.target.value);
               // setScreenType("steper");
             }}
           >
             {brandList?.map((item, index) => (
               <MenuItem
                 key={index}
-                value={item.name}
-                onClick={() => setBrandId(item._id)}
+                value={item._id}
+                onClick={() => {
+                  setBrandId(item._id);
+                }}
               >
                 {item.name}
               </MenuItem>
@@ -532,7 +708,20 @@ const SearchForm = ({
           id="device"
           placeholder="Enter Device"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          disabled
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
+            },
+          }}
+          // onClick={() => setSteps("device")}
+          // onClick={() =>  alert('hello') }
           value={device}
           // onChange={(e) => {
           //   setDevice(e.target.value);
@@ -546,7 +735,7 @@ const SearchForm = ({
                 {item.name} | ৳ {item.repair_cost}
                 <Box
                   role="button"
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => removeItem(item._id)}
                   className="issue_list_btn"
                   sx={{ mt: "4px" }}
                 >
@@ -589,7 +778,19 @@ const SearchForm = ({
           id="repairBy"
           placeholder="Enter Repair By"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          disabled
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
+            },
+          }}
+          onClick={() => setSteps("repair_by")}
           value={technicianName}
           // onChange={(e) => {
           //   setRepairBy(e.target.value);
@@ -610,7 +811,19 @@ const SearchForm = ({
           id="repairStatus"
           placeholder="Enter Repair Status"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          disabled
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
+            },
+          }}
+          onClick={() => setSteps("repair_status")}
           value={repairStatus}
           // onChange={(e) => {
           //   setRepairStatus(e.target.value);
@@ -631,12 +844,31 @@ const SearchForm = ({
           id="deliveryStatus"
           placeholder="Enter Delivery Status"
           variant="outlined"
-          sx={{ ...customeTextFeild, mb: 3 }}
+          disabled
+          sx={{
+            ...customeTextFeild,
+            mb: 3,
+            "& .MuiInputBase-input.Mui-disabled": {
+              color: "#333", // Change text color
+              WebkitTextFillColor: "#333", // Ensures text color changes in WebKit browsers
+              // background: "#eee",
+              pointerEvents: "none", // ✅ Allows clicks to pass through
+              cursor: "pointer",
+            },
+          }}
+          onClick={() => setSteps("repair_status")}
           value={deliveryStatus}
           // onChange={(e) => {
           //   setDeliveryStatus(e.target.value);
           // }}
         />
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={() => setSteps("payment")}
+        >
+          Payment
+        </Button>
       </div>
     </div>
   );

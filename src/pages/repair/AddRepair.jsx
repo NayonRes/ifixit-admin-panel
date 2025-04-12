@@ -23,9 +23,14 @@ import { all } from "axios";
 import { getDataWithToken } from "../../services/GetDataService";
 import { handlePutData } from "../../services/PutDataService";
 import { PulseLoader } from "react-spinners";
+import RepairHistory from "./RepairHistory";
+import SerialHistory from "./SerialHistory";
 
-const RepairSearch = () => {
+const AddRepair = () => {
   const navigate = useNavigate();
+  const { rid } = useParams();
+  console.log("rid", rid);
+
   const location = useLocation();
   const [searchParams] = useSearchParams();
   console.log("location", location.state);
@@ -46,12 +51,22 @@ const RepairSearch = () => {
   const [deviceId, setDeviceId] = useState("");
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
+  const [lastUpdatedRepairStatus, setLastUpdatedRepairStatus] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
-  const [steps, setSteps] = useState(-1);
+  const [steps, setSteps] = useState("contact");
   const [technician, setTechnician] = useState("");
   const [technicianName, setTechnicianName] = useState("");
+  const [technicianLoading, setTechnicianLoading] = useState(false);
+  const [technicianList, setTechnicianList] = useState([]);
+
+  const [subChildDeviceList, setSubChildDeviceList] = useState([]);
+  const [parentDevice, setParentDevice] = useState("");
+  const [childDevice, setChildDevice] = useState("");
+  const [modelList, setModelList] = useState([]);
+
+  const [issueArr, setIssueArr] = useState([]);
 
   const [issue, setIssue] = useState("");
   const [allIssue, setAllIssue] = useState([]);
@@ -62,6 +77,9 @@ const RepairSearch = () => {
     []
   );
 
+  const [serialLoading, setSerialLoading] = useState(false);
+  const [serialHistoryList, setSerialHistoryList] = useState([]);
+
   const [due_amount, set_due_amount] = useState("");
   const [discount_amount, set_discount_amount] = useState("");
   const [customer_id, set_customer_id] = useState("");
@@ -70,7 +88,17 @@ const RepairSearch = () => {
 
   const [screenType, setScreenType] = useState("add_contact");
   const [loading, setLoading] = useState(false);
-
+  const [issueLoading, setIssueLoading] = useState(false);
+  const [productList, setProductList] = useState([]);
+  const [productLoading, setProductLoading] = useState(false);
+  const [apiCallForUpdate, setApiCallForUpdate] = useState(false);
+  const [previousRepairData, setPreviousRepairData] = useState({});
+  const getBranchId = () => {
+    let token = ifixit_admin_panel.token;
+    let decodedToken = jwtDecode(token);
+    let branch_id = decodedToken?.user?.branch_id;
+    return branch_id;
+  };
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -102,19 +130,23 @@ const RepairSearch = () => {
     let parsP = allSpareParts.reduce((sum, item) => sum + item.price, 0);
     let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
     let dueP = parseInt(due_amount || 0);
+    let discount_amount_p = parseInt(discount_amount || 0);
 
-    if (repairP + parsP !== dueP + paymentP) {
+    if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
       return handleSnakbarOpen("Total Amount and input are not same!", "error");
     }
 
     // return console.log('ok')
 
-    if (!serial) {
-      return handleSnakbarOpen("Serial is Required", "error");
+    if (repairP == 0) {
+      return handleSnakbarOpen("Repair list is empty", "error");
     }
-    if (!passCode) {
-      return handleSnakbarOpen("Pass Code is Required", "error");
-    }
+    // if (!serial) {
+    //   return handleSnakbarOpen("Serial is Required", "error");
+    // }
+    // if (!passCode) {
+    //   return handleSnakbarOpen("Pass Code is Required", "error");
+    // }
     let token = ifixit_admin_panel.token;
     const decodedToken = jwtDecode(token);
     // console.log('fdfdf',decodedToken?.user?.branch_id)
@@ -128,12 +160,12 @@ const RepairSearch = () => {
     });
     let allSparePartsModified = allSpareParts.map((item) => {
       let d = {
-        id: item.spare_parts_id,
+        id: item.product_id,
         name: item.name,
         price: item.price,
-        spare_parts_full_name: item.name,
-        spare_parts_id: item.spare_parts_id,
-        spare_parts_variation_id: item.spare_parts_variation_id,
+        product_full_name: item.name,
+        product_id: item.product_id,
+        product_variation_id: item.product_variation_id,
       };
       return d;
     });
@@ -141,7 +173,7 @@ const RepairSearch = () => {
     console.log("allSpareParts", allSpareParts);
     console.log("allSparePartsModified", allSparePartsModified);
     setLoading(true);
-    const data = {
+    let data = {
       customer_id: customer_id || contactData?._id,
       branch_id: decodedToken?.user?.branch_id,
       pass_code: passCode,
@@ -152,7 +184,7 @@ const RepairSearch = () => {
       repair_by: technician,
       repair_status: repairStatus,
       issues: allIssueModified,
-      spare_parts: allSparePartsModified,
+      product_details: allSparePartsModified,
       repair_checklist: repair_checklist,
       payment_info: payment_info,
       serial: serial,
@@ -160,13 +192,20 @@ const RepairSearch = () => {
       model_id: deviceId,
     };
 
+    if (location.pathname.includes("/update-repair")) {
+      data = {
+        ...data,
+        repair_status: lastUpdatedRepairStatus,
+      };
+    }
+
     console.log("final data", data);
 
     let response;
-    let repairId = searchParams.get("repairId");
-    if (repairId) {
+
+    if (rid) {
       response = await handlePutData(
-        `/api/v1/repair/update/${repairId}`,
+        `/api/v1/repair/update/${rid}`,
         data,
         false
       );
@@ -198,26 +237,11 @@ const RepairSearch = () => {
     setLoading(false);
   };
 
-  const revampSparePars = (all) => {
-    let list = all.map((i) => {
-      let l = {
-        _id: i.spare_parts_id,
-        name: i.name,
-        price: i.price,
-        spare_parts_variation_id: i.spare_parts_variation_id,
-      };
-      return l;
-    });
-    setAllSpareParts(list);
-    console.log("old", all);
-    console.log("new", list);
-  };
-
-  const initState = async (repairId) => {
-    if (repairId) {
+  const initState = async (rid) => {
+    if (rid) {
       // setLoading2(true);
 
-      let url = `/api/v1/repair/${repairId}`;
+      let url = `/api/v1/repair/${rid}`;
       let allData = await getDataWithToken(url);
 
       if (allData.status >= 200 && allData.status < 300) {
@@ -226,6 +250,7 @@ const RepairSearch = () => {
         // setScreenType("steper");
         // setSteps(0);
         let data = allData?.data?.data;
+        setPreviousRepairData(data);
         console.log("edit data", data);
         setId(data?._id);
         setName(data?.customer_data[0]?.name);
@@ -244,15 +269,17 @@ const RepairSearch = () => {
         setPassCode(data?.pass_code);
         setAllIssueUpdate(data?.issues);
         setAllIssue(data?.issues);
-        setAllSpareParts(data?.spare_parts);
+        setAllSpareParts(data?.product_details);
 
         setTechnician(data?.repair_by);
         setRepairStatus(data?.repair_status);
+        setLastUpdatedRepairStatus(data?.repair_status);
         setDeliveryStatus(data?.delivery_status);
-        setBrand(data?.brand_data?.[0]?.name);
+        setBrand(data?.brand_id);
         setBrandId(data?.brand_data?.[0]?._id);
         setDevice(data?.model_data?.[0]?.name);
         setDeviceId(data?.model_data?.[0]?._id);
+        setParentDevice(data?.model_data?.[0]?.device_id);
         set_payment_info(data?.payment_info);
         set_due_amount(data?.due_amount);
         set_repair_checklist(data?.repair_checklist);
@@ -263,8 +290,8 @@ const RepairSearch = () => {
         // setPaymentStatus(data?.paymentStatus);
         // setSteps(data?.steps);
         // setIssue(data?.issue);
-        // set_discount_amount(data?.discount_amount);
-
+        set_discount_amount(data?.discount_amount);
+        setApiCallForUpdate(true);
         if (allData.data.data.length < 1) {
           // setMessage("No data found");
         }
@@ -276,8 +303,9 @@ const RepairSearch = () => {
   };
 
   useEffect(() => {
-    let repairId = searchParams.get("repairId");
-    initState(repairId);
+    if (rid) {
+      initState(rid);
+    }
   }, []);
 
   return (
@@ -290,7 +318,7 @@ const RepairSearch = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair List
+            Create Repair Job
             {/* {name} */}
           </Typography>
         </Grid>
@@ -353,6 +381,7 @@ const RepairSearch = () => {
             setRepairBy={setRepairBy}
             repairStatus={repairStatus}
             setRepairStatus={setRepairStatus}
+            setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
             deliveryStatus={deliveryStatus}
             setDeliveryStatus={setDeliveryStatus}
             parentList={parentList}
@@ -366,25 +395,21 @@ const RepairSearch = () => {
             setAllSpareParts={setAllSpareParts}
             set_customer_id={set_customer_id}
             setScreenType={setScreenType}
+            steps={steps}
+            setSteps={setSteps}
+            serialLoading={serialLoading}
+            setSerialLoading={setSerialLoading}
+            serialHistoryList={serialHistoryList}
+            setSerialHistoryList={setSerialHistoryList}
+            technicianLoading={technicianLoading}
+            setTechnicianLoading={setTechnicianLoading}
+            technicianList={technicianList}
+            setTechnicianList={setTechnicianList}
+            previousRepairData={previousRepairData}
+            setPreviousRepairData={setPreviousRepairData}
           />
         </Grid>
-        {/*  TODO: don't remove */}
 
-        {/* <Grid size={9} sx={{ p: 3 }}>
-          {!brand && contactData?._id ? (
-            <EditContact contactData={contactData} />
-          ) : !brand && !contactData?._id ? (
-            <AddContact searchPrams={searchPrams} contactData={contactData} />
-          ) : (
-            ""
-          )}
-
-          {brand === "Apple" && !device && (
-            <ModelList device={device} setDevice={setDevice} />
-          )}
-          {device && <IssueList issue={issue} setIssue={setIssue} /> }
-        </Grid> */}
-        {/*  TODO: don't remove */}
         <Grid
           size={9}
           sx={{
@@ -393,30 +418,47 @@ const RepairSearch = () => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            height: "calc(100vh - 130px)",
+            overflow: "auto",
           }}
         >
-          {steps == -1 && (
+          {steps == "contact" && (
             <Box>
               {contactData?._id ? (
-                <EditContact
-                  contactData={contactData}
-                  setContactData={setContactData}
-                />
+                <>
+                  <EditContact
+                    contactData={contactData}
+                    setContactData={setContactData}
+                  />
+                  <br />
+                  <RepairHistory contactData={contactData} serial={serial} />
+                </>
               ) : !contactData?._id ? (
-                <AddContact
-                  searchPrams={searchPrams}
-                  contactData={contactData}
-                  setContactData={setContactData}
-                />
+                <>
+                  <AddContact
+                    searchPrams={searchPrams}
+                    contactData={contactData}
+                    setContactData={setContactData}
+                  />
+                </>
               ) : (
                 ""
               )}
             </Box>
           )}
-          {/* {device === "Primary" && !device && (
-            <ModelList device={device} setDevice={setDevice} />
-          )} */}
-          {steps == 0 && parentList.length > 0 && (
+
+          {steps == "serial_history" && (
+            <SerialHistory
+              contactData={contactData}
+              serial={serial}
+              serialLoading={serialLoading}
+              setSerialLoading={setSerialLoading}
+              serialHistoryList={serialHistoryList}
+              setSerialHistoryList={setSerialHistoryList}
+            />
+          )}
+
+          {steps == "device" && (
             <ModelList
               id={id}
               device={device}
@@ -427,10 +469,40 @@ const RepairSearch = () => {
               setParentList={setParentList}
               deviceId={deviceId}
               setDeviceId={setDeviceId}
+              steps={steps}
+              setSteps={setSteps}
+              repair_checklist={repair_checklist}
+              set_repair_checklist={set_repair_checklist}
+              issue={issue}
+              setIssue={setIssue}
+              allIssue={allIssue}
+              setAllIssue={setAllIssue}
+              allSpareParts={allSpareParts}
+              setAllSpareParts={setAllSpareParts}
+              allIssueUpdate={allIssueUpdate}
+              subChildDeviceList={subChildDeviceList}
+              setSubChildDeviceList={setSubChildDeviceList}
+              parentDevice={parentDevice}
+              setParentDevice={setParentDevice}
+              childDevice={childDevice}
+              setChildDevice={setChildDevice}
+              modelList={modelList}
+              setModelList={setModelList}
+              issueArr={issueArr}
+              setIssueArr={setIssueArr}
+              issueLoading={issueLoading}
+              setIssueLoading={setIssueLoading}
+              productList={productList}
+              setProductList={setProductList}
+              productLoading={productLoading}
+              setProductLoading={setProductLoading}
+              apiCallForUpdate={apiCallForUpdate}
+              previousRepairData={previousRepairData}
+              setPreviousRepairData={setPreviousRepairData}
             />
             // <div>Model list</div>
           )}
-          {steps == 1 && (
+          {/* {steps == "repair_list" && (
             <IssueList
               issue={issue}
               setIssue={setIssue}
@@ -438,31 +510,46 @@ const RepairSearch = () => {
               setAllIssue={setAllIssue}
               allSpareParts={allSpareParts}
               setAllSpareParts={setAllSpareParts}
-              repair_checklist={repair_checklist}
-              set_repair_checklist={set_repair_checklist}
               allIssueUpdate={allIssueUpdate}
               brand_id={brand_id}
               deviceId={deviceId}
+              repair_checklist={repair_checklist}
+              set_repair_checklist={set_repair_checklist}
+              steps={steps}
+              setSteps={setSteps}
+              issueArr={issueArr}
+              setIssueArr={setIssueArr}
             />
-          )}
-          {steps == 2 && (
+          )} */}
+          {steps == "repair_by" && (
             <TechnicianList
               technician={technician}
               setTechnician={setTechnician}
               technicianName={technicianName}
               setTechnicianName={setTechnicianName}
+              technicianLoading={technicianLoading}
+              setTechnicianLoading={setTechnicianLoading}
+              technicianList={technicianList}
+              setTechnicianList={setTechnicianList}
             />
           )}
-          {steps == 3 && (
+          {steps == "repair_status" && (
             <RepairStatusList
               repairStatus={repairStatus}
               setRepairStatus={setRepairStatus}
+              setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
               deliveryStatus={deliveryStatus}
               setDeliveryStatus={setDeliveryStatus}
               repair_status_history_data={repair_status_history_data}
+              technicianLoading={technicianLoading}
+              setTechnicianLoading={setTechnicianLoading}
+              technicianList={technicianList}
+              setTechnicianList={setTechnicianList}
+              technician={technician}
+              setTechnician={setTechnician}
             />
           )}
-          {steps == 4 && (
+          {steps == "payment" && (
             <PaymentList
               paymentStatus={paymentStatus}
               setPaymentStatus={setPaymentStatus}
@@ -470,6 +557,8 @@ const RepairSearch = () => {
               set_payment_info={set_payment_info}
               due_amount={due_amount}
               set_due_amount={set_due_amount}
+              discount_amount={discount_amount}
+              set_discount_amount={set_discount_amount}
               allIssue={allIssue}
               allSpareParts={allSpareParts}
             />
@@ -509,78 +598,8 @@ const RepairSearch = () => {
               >
                 Back
               </Button> */}
-            <Button
-              variant="outlined"
-              disabled={steps == -1}
-              onClick={() => {
-                if (steps > -1) {
-                  setSteps(steps - 1);
-                } else {
-                  // setBrand("");
-                  // setScreenType("add_contact");
-                }
-              }}
-              sx={buttonStyle}
-            >
-              Back
-            </Button>
-            {steps == -1 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={!contactData?._id || !brand_id}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {steps == 0 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={device.length < 1}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {steps == 1 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={allIssue.length < 1 && allSpareParts.length < 1}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
 
-            {steps == 2 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={technician.length < 1}
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {steps == 3 && (
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                disabled={
-                  repairStatus?.length < 1 || deliveryStatus?.length < 1
-                }
-                sx={buttonStyle}
-              >
-                Next
-              </Button>
-            )}
-            {/* <Button variant="contained" onClick={() => setSteps(steps + 1)}>
-              Next
-            </Button> */}
-            {steps == 4 && (
+            {steps == "payment" && (
               <>
                 <Button
                   variant="contained"
@@ -589,7 +608,7 @@ const RepairSearch = () => {
                   sx={buttonStyle}
                   disabled={loading}
                 >
-                  {searchParams.get("repairId") ? "Update" : "Submit"}
+                  {rid ? "Update" : "Submit"}
                   <PulseLoader
                     color={"#4B46E5"}
                     loading={loading}
@@ -607,7 +626,7 @@ const RepairSearch = () => {
   );
 };
 
-export default RepairSearch;
+export default AddRepair;
 
 const buttonStyle = {
   px: 2,

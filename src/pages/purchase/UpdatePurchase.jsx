@@ -707,7 +707,10 @@ const UpdatePurchase = ({ getData, row }) => {
                   "& label.Mui-focused": {
                     color: "rgba(0,0,0,0)",
                   },
-
+                  "& .MuiOutlinedInput-input.Mui-disabled": {
+                    color: "#343E54", // Customize the text color when disabled
+                    WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
+                  },
                   "& .MuiOutlinedInput-input img": {
                     position: "relative",
                     top: "2px",

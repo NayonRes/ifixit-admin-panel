@@ -229,7 +229,7 @@ const DeviceBrandList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/deviceBrand?name=${name}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/deviceBrand?name=${name.trim()}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -487,7 +487,7 @@ const DeviceBrandList = () => {
                           src={
                             row?.icon?.url?.length > 0
                               ? row?.icon?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{
@@ -509,7 +509,7 @@ const DeviceBrandList = () => {
                           src={
                             row?.image?.url?.length > 0
                               ? row?.image?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{

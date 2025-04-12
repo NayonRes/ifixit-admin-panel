@@ -214,7 +214,7 @@ const SparePartsList = () => {
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/sparePart?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/product?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -270,7 +270,7 @@ const SparePartsList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePart?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/product?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -767,7 +767,7 @@ const SparePartsList = () => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
@@ -806,7 +806,7 @@ const SparePartsList = () => {
                         {row?.warranty ? row?.warranty : "---------"}
                       </TableCell>
                       {/* <TableCell>
-                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
+                        {row?.product_id ? row?.product_id : "---------"}
                       </TableCell> */}
 
                       {/* <TableCell sx={{ minWidth: "150px" }}>

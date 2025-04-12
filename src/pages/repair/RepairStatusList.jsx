@@ -6,7 +6,7 @@ import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
 import RepairStatusHistory from "./RepairStatusHistory";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const style = {
   nav: {
@@ -74,12 +74,19 @@ const style = {
 const RepairStatusList = ({
   repairStatus,
   setRepairStatus,
+  setLastUpdatedRepairStatus,
   deliveryStatus,
   setDeliveryStatus,
   repair_status_history_data,
+  technicianLoading,
+  setTechnicianLoading,
+  technicianList,
+  setTechnicianList,
+  technician,
+  setTechnician,
 }) => {
-  const [searchParams] = useSearchParams();
-  let repairId = searchParams.get("repairId");
+  const { rid } = useParams();
+
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
@@ -89,7 +96,6 @@ const RepairStatusList = ({
           </Typography>
         </Grid>
       </Grid>
-
       <Grid container spacing={2}>
         {statusList.length > 0 &&
           statusList.map((item, index) => (
@@ -109,7 +115,6 @@ const RepairStatusList = ({
             </Grid>
           ))}
       </Grid>
-
       {/* ..... */}
       <Grid container columnSpacing={3} sx={{}}>
         <Grid size={12}>
@@ -118,7 +123,6 @@ const RepairStatusList = ({
           </Typography>
         </Grid>
       </Grid>
-
       <Grid container spacing={2}>
         {deliveryStatusList.length > 0 &&
           deliveryStatusList.map((item, index) => (
@@ -140,10 +144,20 @@ const RepairStatusList = ({
             </Grid>
           ))}
       </Grid>
-      {repairId?.length > 0 && (
+      {rid?.length > 0 && (
         <Grid container spacing={2} sx={{ mt: 4 }}>
           <RepairStatusHistory
             repair_status_history_data={repair_status_history_data}
+            technicianLoading={technicianLoading}
+            setTechnicianLoading={setTechnicianLoading}
+            technicianList={technicianList}
+            setTechnicianList={setTechnicianList}
+            repairStatus={repairStatus}
+            setRepairStatus={setRepairStatus}
+            setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
+
+            technician={technician}
+            setTechnician={setTechnician}
           />
         </Grid>
       )}

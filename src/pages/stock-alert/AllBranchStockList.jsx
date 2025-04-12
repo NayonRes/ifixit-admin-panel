@@ -220,7 +220,7 @@ const AllBranchStockList = () => {
     handleAutoComplete();
     setSparePartsIds({});
     setPage(0);
-    const newUrl = `/api/v1/sparePartVariation/all-branch-stock?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/productVariation/all-branch-stock?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -254,11 +254,11 @@ const AllBranchStockList = () => {
       let new_spare_parts_id = "";
       let new_spare_parts_variation_id = "";
 
-      if (sparePartsIds?.spare_parts_id) {
-        new_spare_parts_id = sparePartsIds?.spare_parts_id;
+      if (sparePartsIds?.product_id) {
+        new_spare_parts_id = sparePartsIds?.product_id;
       }
-      if (sparePartsIds?.spare_parts_variation_id) {
-        new_spare_parts_variation_id = sparePartsIds?.spare_parts_variation_id;
+      if (sparePartsIds?.product_variation_id) {
+        new_spare_parts_variation_id = sparePartsIds?.product_variation_id;
       }
       if (status === "None") {
         newStatus = "";
@@ -274,7 +274,7 @@ const AllBranchStockList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sparePartVariation/all-branch-stock?name=${name.trim()}&spare_parts_id=${new_spare_parts_id}&spare_parts_variation_id=${new_spare_parts_variation_id}&page=${
+      url = `/api/v1/productVariation/all-branch-stock?name=${name.trim()}&product_id=${new_spare_parts_id}&product_variation_id=${new_spare_parts_variation_id}&page=${
         newPageNO + 1
       }`;
     }
@@ -752,15 +752,15 @@ const AllBranchStockList = () => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
                         />
                       </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.sparepart_data
-                          ? row?.sparepart_data[0]?.name
+                        {row?.product_data
+                          ? row?.product_data[0]?.name
                           : "---------"}{" "}
                         &nbsp; {row?.name ? row?.name : "---------"}
                       </TableCell>
@@ -828,7 +828,7 @@ const AllBranchStockList = () => {
                         {row?.warranty ? row?.warranty : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
+                        {row?.product_id ? row?.product_id : "---------"}
                       </TableCell>
 
                       <TableCell sx={{ minWidth: "150px" }}>
@@ -895,7 +895,9 @@ const AllBranchStockList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={15} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>

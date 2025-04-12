@@ -484,11 +484,13 @@ const UpdateDevice = ({ clearFilter, row }) => {
               }}
             >
               <MenuItem value={"None"}>None</MenuItem>
-              {deviceList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
-                  {item?.name}
-                </MenuItem>
-              ))}
+              {deviceList
+                .filter((item) => item.name.toLowerCase().includes("series"))
+                ?.map((item) => (
+                  <MenuItem key={item} value={item?._id}>
+                    {item?.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
 

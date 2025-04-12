@@ -93,36 +93,14 @@ const AddPurchaseReturn = ({ clearFilter }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
   const [addDialog, setAddDialog] = useState(false);
-  const [supplierList, setSupplierList] = useState([]);
-  const [supplier, setSupplier] = useState("");
   const [branchList, setBranchList] = useState([]);
-  const [branch, setBranch] = useState("");
-  const [purchaseStatus, setPurchaseStatus] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
-  const [purchaseDate, setPurchaseDate] = useState(null);
-  const [shippingCharge, setShippingCharge] = useState("");
-  const [invoiceNo, setInvoiceNo] = useState("");
   const [searchProductText, setsearchProductText] = useState("");
   const [productList, setProductList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [purchaseBy, setPurchaseBy] = useState("");
-  const [userList, setUserList] = useState([]);
 
-  const [brandId, setBrandId] = useState([]);
-  const [categoryId, setCategoryId] = useState([]);
-
-  const [brandList, setBrandList] = useState([]);
-  const [categoryList, setCategoryList] = useState([]);
-
-  const [price, setPrice] = useState("");
-  const [file, setFile] = useState(null);
-  const [remarks, setRemarks] = useState("");
-
-  const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [message, setMessage] = useState("");
   const [details, setDetails] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
@@ -167,7 +145,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
     console.log("data", data);
 
     let response = await handlePostData(
-      "/api/v1/sparePartsStock/purchase-return",
+      "/api/v1/stock/purchase-return",
       data,
       false
     );
@@ -179,7 +157,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
     }
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
-      handleSnakbarOpen("Added successfully", "success");
+      handleSnakbarOpen("Return successfully", "success");
       setProductList([]);
     } else {
       setLoading(false);
@@ -217,106 +195,13 @@ const AddPurchaseReturn = ({ clearFilter }) => {
       },
     },
   };
-  const custopDatePickerFeild = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    background: "#ffffff",
-
-    "& .MuiInputBase-root": {
-      fontSize: "0.875rem", // Adjust font size for a smaller appearance
-      height: "2.5rem",
-    },
-
-    "& label.Mui-focused": {
-      color: "#E5E5E5",
-    },
-
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-
-    "& .MuiOutlinedInput-input": {
-      // padding: "10px 16px", (uncomment if needed)
-    },
-
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px", (uncomment if needed)
-      "& fieldset": {
-        borderColor: "#", // Update with a specific color if needed
-      },
-
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
-  };
-  const customeSelectFeild = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    background: "#ffffff",
-
-    "& label.Mui-focused": {
-      color: "#E5E5E5",
-    },
-
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-    "& .MuiOutlinedInput-input": {
-      // padding: "10px 16px",
-    },
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px",
-      "& fieldset": {
-        borderColor: "#",
-      },
-
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
-  };
-  const customeSelectFeildSmall = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    background: "#ffffff",
-
-    "& label.Mui-focused": {
-      color: "#E5E5E5",
-    },
-
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-    "& .MuiOutlinedInput-input": {
-      padding: "6px 16px",
-      fontSize: "14px",
-    },
-
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px",
-      "& fieldset": {
-        borderColor: "#",
-      },
-
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
-  };
 
   const getProducts = async (e) => {
     e.preventDefault();
     setSearchLoading(true);
     let url;
 
-    url = `/api/v1/sparePartsStock?sku_number=${parseInt(searchProductText)}`;
+    url = `/api/v1/stock?sku_number=${parseInt(searchProductText)}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -337,7 +222,18 @@ const AddPurchaseReturn = ({ clearFilter }) => {
         if (!isSkuPresent) {
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
-          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          } else if (
+            allData?.data?.data[0]?.purchase_branch_id !== myBranchId
+          ) {
+            handleSnakbarOpen(
+              `This product purchased by ${allData?.data?.data[0]?.purchase_branch_data[0]?.name}. So you can't return it`,
+              "error"
+            );
+          } else if (
+            allData?.data?.data[0]?.stock_status !== "Returned" &&
+            allData?.data?.data[0]?.stock_status !== "Attached" &&
+            allData?.data?.data[0]?.stock_status !== "Sold"
+          ) {
             console.log("*************************");
 
             setProductList([
@@ -346,7 +242,10 @@ const AddPurchaseReturn = ({ clearFilter }) => {
             ]);
             setsearchProductText("");
           } else {
-            handleSnakbarOpen("This product is already returned", "error");
+            handleSnakbarOpen(
+              `This product status is ${allData?.data?.data[0]?.stock_status}`,
+              "error"
+            );
           }
         } else {
           handleSnakbarOpen("This product is already in the list", "error");
@@ -375,8 +274,8 @@ const AddPurchaseReturn = ({ clearFilter }) => {
     //     ...selectedProducts,
     //     {
     //       ...item,
-    //       spare_parts_id: item.spare_parts_id,
-    //       spare_parts_variation_id: item._id,
+    //       product_id: item.product_id,
+    //       product_variation_id: item._id,
     //       purchase_product_status: "",
     //       quantity: "",
     //       unit_price: "",
@@ -405,7 +304,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
           component="div"
           sx={{ color: "#0F1624", fontWeight: 600 }}
         >
-          Add Purchase Return
+          Purchase Return
         </Typography>
       </Box>
 
@@ -478,8 +377,15 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                 startIcon={<SearchIcon />}
                 // onClick={() => getProducts()}
                 type="submit"
+                disabled={searchLoading}
               >
-                Search
+                <PulseLoader
+                  color={"#4B46E5"}
+                  loading={searchLoading}
+                  size={10}
+                  speedMultiplier={0.5}
+                />{" "}
+                {searchLoading === false && "Search"}
               </Button>
             </Grid>
 
@@ -515,7 +421,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                                       src={
                                         item?.images?.length > 0
                                           ? item?.images[0]?.url
-                                          : "/noImage.png"
+                                          : "/noImage.jpg"
                                       }
                                       alt=""
                                       width={30}
@@ -656,8 +562,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {!loading &&
-                  productList.length > 0 &&
+                {productList.length > 0 &&
                   productList.map((row, i) => (
                     <TableRow
                       key={i}
@@ -668,19 +573,19 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
                         />
                       </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.sparepart_data
-                          ? row?.sparepart_data[0]?.name
+                        {row?.product_data
+                          ? row?.product_data[0]?.name
                           : "---------"}{" "}
                         &nbsp;{" "}
-                        {row?.spare_parts_variation_data
-                          ? row?.spare_parts_variation_data[0]?.name
+                        {row?.product_variation_data
+                          ? row?.product_variation_data[0]?.name
                           : "---------"}
                       </TableCell>
 

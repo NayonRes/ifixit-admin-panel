@@ -237,7 +237,7 @@ const DeviceList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/device?name=${name}&parent_id=${newParentId}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/device?name=${name.trim()}&parent_id=${newParentId}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -443,11 +443,15 @@ const DeviceList = () => {
                       onChange={(e) => setParentId(e.target.value)}
                     >
                       <MenuItem value="None">None</MenuItem>
-                      {deviceList?.map((item) => (
-                        <MenuItem key={item} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
+                      {deviceList
+                        ?.filter((item) =>
+                          item.name.toLowerCase().includes("series")
+                        )
+                        ?.map((item) => (
+                          <MenuItem key={item} value={item?._id}>
+                            {item?.name}
+                          </MenuItem>
+                        ))}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -572,7 +576,7 @@ const DeviceList = () => {
                           src={
                             row?.icon?.url?.length > 0
                               ? row?.icon?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{
@@ -592,7 +596,7 @@ const DeviceList = () => {
                           src={
                             row?.image?.url?.length > 0
                               ? row?.image?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{

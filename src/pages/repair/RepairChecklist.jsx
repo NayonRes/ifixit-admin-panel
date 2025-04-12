@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import AddIcon from "@mui/icons-material/Add";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import { useSnackbar } from "notistack";
 import { allIssueCheckList } from "../../data";
 
@@ -49,10 +50,18 @@ const customeTextFeild = {
   },
 };
 
-const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
+const RepairChecklist = ({
+  repair_checklist,
+  set_repair_checklist,
+  steps,
+  setSteps,
+  deviceId,
+  showComponent,
+  setShowComponent,
+}) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [issueList, setIssueList] = useState(allIssueCheckList);
 
@@ -69,9 +78,8 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
   };
 
   const handleSave = () => {
-    const transformed = issueList
-      .filter((item) => item.status)
-      .map((item) => item.name);
+    const transformed = issueList.filter((item) => item.status != false);
+    // .map((item) => item.name);
 
     let data = {
       has_power,
@@ -83,9 +91,11 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
     set_repair_checklist(data);
   };
 
-  const handleCheckboxChange = (index) => {
+  const handleCheckboxChange = (index, clickStatus) => {
+    console.log("status", index, clickStatus, issueList);
+
     const updatedList = [...issueList];
-    updatedList[index].status = !updatedList[index].status;
+    updatedList[index].status = clickStatus;
     setIssueList(updatedList);
   };
 
@@ -107,7 +117,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
     }
 
     // Add new item if it doesn't exist
-    const newItem = { name: newName, status: true };
+    const newItem = { name: newName, status: false };
     setIssueList((prevList) => {
       const updatedList = [...prevList, newItem];
       console.log("Updated issueList:", updatedList);
@@ -137,34 +147,50 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
   // }, []);
 
   useEffect(() => {
-    console.log("all-----------", allIssueCheckList);
-    if (!repair_checklist?.checklist) {
-      const updatedCheckList = allIssueCheckList.map((item) => ({
-        ...item,
-        status: false,
-      }));
-      setIssueList(updatedCheckList);
-      return;
-    }
+    console.log("all-----------:", allIssueCheckList);
+    console.log("REAPAIR-----------:", repair_checklist?.checklist);
+    let preArr = repair_checklist?.checklist;
 
-    // Extract existing issue names
-    const existingNames = new Set(allIssueCheckList.map((item) => item.name));
+    const updatedAllArr = allIssueCheckList.map((item) => {
+      const match = preArr.find((preItem) => preItem.name === item.name);
+      return match ? { ...item, status: match.status } : item;
+    });
 
-    // Create updated list with existing items
-    const updatedIssueList = allIssueCheckList.map((item) => ({
-      ...item,
-      status: repair_checklist.checklist.includes(item.name),
-    }));
+    const newItems = preArr.filter(
+      (preItem) => !allIssueCheckList.some((item) => item.name === preItem.name)
+    );
 
-    // Find new checklist items that are not in allIssueCheckList
-    const newItems = repair_checklist.checklist
-      .filter((name) => !existingNames.has(name))
-      .map((name) => ({ name, status: true }));
+    const finalUpdatedAllArr = [...updatedAllArr, ...newItems];
 
-    // Merge updated list with new items
-    const finalIssueList = [...updatedIssueList, ...newItems];
+    console.log("updatedAllArr", finalUpdatedAllArr);
+    setIssueList(finalUpdatedAllArr);
+    // if (!repair_checklist?.checklist) {
+    //   const updatedCheckList = allIssueCheckList.map((item) => ({
+    //     ...item,
+    //     status: false,
+    //   }));
+    //   setIssueList(updatedCheckList);
+    //   return;
+    // }
 
-    setIssueList(finalIssueList);
+    // // Extract existing issue names
+    // const existingNames = new Set(allIssueCheckList.map((item) => {item.name, status: false}));
+
+    // // Create updated list with existing items
+    // const updatedIssueList = allIssueCheckList.map((item) => ({
+    //   ...item,
+    //   status: repair_checklist.checklist.includes(item.name),
+    // }));
+
+    // // Find new checklist items that are not in allIssueCheckList
+    // const newItems = repair_checklist.checklist
+    //   .filter((name) => !existingNames.has(name))
+    //   .map((name) => ({ name, status: true }));
+
+    // // Merge updated list with new items
+    // const finalIssueList = [...updatedIssueList, ...newItems];
+
+    // setIssueList(finalIssueList);
 
     // Set additional properties if available
     if (repair_checklist.has_power !== undefined) {
@@ -178,15 +204,36 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   setLoading(true);
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //   }, 2000);
-  // }, []);
-
   return (
     <div>
+      <Box sx={{ float: "right" }}>
+        <Button
+          variant="outlined"
+          disabled={!deviceId}
+          onClick={() => setOpen(true)}
+          sx={{ mr: 1 }}
+        >
+          Pre Repair Checklist
+        </Button>
+        {showComponent === "Model List" && (
+          <Button
+            variant="outlined"
+            disabled={!deviceId}
+            onClick={() => setShowComponent("Issue List")}
+          >
+            Issue List
+          </Button>
+        )}
+        {showComponent === "Issue List" && (
+          <Button
+            variant="outlined"
+            disabled={!deviceId}
+            onClick={() => setShowComponent("Model List")}
+          >
+            Model List
+          </Button>
+        )}
+      </Box>
       <Dialog
         open={open}
         onClose={handleDialogClose}
@@ -215,7 +262,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
           Pre Repair Checklist
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
-            disabled={issueList.filter((item) => item.status).length < 1}
+            // disabled={issueList.filter((item) => item.status).length < 1}
             onClick={() => setOpen(false)}
           >
             <svg
@@ -287,8 +334,21 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                     p: 1,
                     borderRadius: 2,
                     cursor: "pointer",
+                    userSelect: "none",
                   }}
-                  onClick={() => handleCheckboxChange(index)}
+                  onClick={() =>
+                    handleCheckboxChange(
+                      index,
+
+                      item.status === false
+                        ? "Functional"
+                        : item.status === "Functional"
+                        ? "Damaged"
+                        : item.status === "Damaged"
+                        ? false
+                        : ""
+                    )
+                  }
                 >
                   <Typography
                     variant="body1"
@@ -301,10 +361,27 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
                     // onClick={() => handleCheckboxChange(index)}
                     sx={{ display: "flex", alignItems: "center " }}
                   >
-                    {item.status ? (
-                      <img src="/check.png" alt="" style={{ width: "25px" }} />
+                    {item.status === "Functional" ? (
+                      <img
+                        src="/check.png"
+                        alt=""
+                        style={{ width: "25px" }}
+                        // onClick={() => handleCheckboxChange(index, "Damaged")}
+                      />
+                    ) : item.status === "Damaged" ? (
+                      <img
+                        src="/cross.png"
+                        alt=""
+                        style={{ width: "25px" }}
+                        // onClick={() => handleCheckboxChange(index, false)}
+                      />
                     ) : (
-                      <img src="/cross.png" alt="" style={{ width: "25px" }} />
+                      <CheckBoxOutlineBlankIcon
+                        sx={{ color: "#999", width: "26px", height: "26px" }}
+                        // onClick={() =>
+                        //   handleCheckboxChange(index, "Functional")
+                        // }
+                      />
                     )}
                   </Box>
                   {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}
@@ -392,7 +469,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
           <Button
             variant="outlined"
             onClick={handleDialogClose}
-            disabled={issueList.filter((item) => item.status).length < 1}
+            // disabled={issueList.filter((item) => item.status).length < 1}
             sx={{
               px: 2,
               py: 1.25,
@@ -406,7 +483,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
             Close
           </Button>
           <Button
-            disabled={issueList.filter((item) => item.status).length < 1}
+            // disabled={issueList.filter((item) => item.status).length < 1}
             variant="contained"
             // disabled={loading}
             // type="submit"
@@ -419,7 +496,7 @@ const RepairChecklist = ({ repair_checklist, set_repair_checklist }) => {
               minHeight: "44px",
             }}
             // style={{ minWidth: "180px", minHeight: "35px" }}
-            autoFocus
+
             disableElevation
             onClick={() => {
               handleSave();

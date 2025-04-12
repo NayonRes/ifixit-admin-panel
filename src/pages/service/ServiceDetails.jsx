@@ -363,7 +363,7 @@ const ServiceDetails = ({ clearFilter }) => {
                           src={
                             row?.repair_image
                               ? row?.repair_image?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
@@ -502,7 +502,7 @@ const ServiceDetails = ({ clearFilter }) => {
                           src={
                             row?.step_image
                               ? row?.step_image?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}

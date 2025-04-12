@@ -114,9 +114,12 @@ const AddStockLimit = ({ clearFilter }) => {
 
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
-
+  const [deviceId, setDeviceId] = useState([]);
+  const [modelId, setModelId] = useState([]);
   const [brandList, setBrandList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
+  const [deviceList, setDeviceList] = useState([]);
+  const [modelList, setModelList] = useState([]);
 
   const [price, setPrice] = useState("");
   const [file, setFile] = useState(null);
@@ -127,12 +130,15 @@ const AddStockLimit = ({ clearFilter }) => {
 
   const [message, setMessage] = useState("");
   const [details, setDetails] = useState("");
+  const [limitDataList, setLimitDataList] = useState();
+  const [limitDataLoading, setLimitDataLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setAddDialog(false);
+      setBranchList(branchList?.map((item) => ({ ...item, limit: "" })));
     }
   };
 
@@ -154,7 +160,7 @@ const AddStockLimit = ({ clearFilter }) => {
     try {
       // Create an array of promises
       // const promises = variationList.map((variation) =>
-      //   handlePostData("/api/v1/sparePartVariation/create", variation, true)
+      //   handlePostData("/api/v1/productVariation/create", variation, true)
       // );
 
       if (branchList.filter((branch) => branch?.limit).length < 1) {
@@ -165,8 +171,8 @@ const AddStockLimit = ({ clearFilter }) => {
         .filter((branch) => branch?.limit)
         .map((branch) => {
           let data = {
-            spare_parts_id: details.spare_parts_id,
-            spare_parts_variation_id: details._id,
+            product_id: details.product_id,
+            product_variation_id: details._id,
             branch_id: branch?._id,
             stock_limit: branch?.limit ? parseInt(branch?.limit) : 0,
           };
@@ -401,24 +407,110 @@ const AddStockLimit = ({ clearFilter }) => {
     setLoading2(false);
   };
 
-  const getProducts = async (searchText, catId, bId) => {
+  const getDeviceList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+  const getModelList = async (id) => {
+    setLoading2(true);
+
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    // let url = `/api/v1/model/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setModelList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+  const getBranchLimit = async (product_variation_id) => {
+    setLimitDataLoading(true);
+
+    // let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let url = `/api/v1/stockCounterAndLimit/branch-limit?product_variation_id=${product_variation_id}`;
+    let data = { product_variation_id };
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("getBranchLimit************************", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setLimitDataLoading(false);
+      // setModelList(allData?.data?.data);
+
+      let newBranchList = branchList?.map((item) => {
+        let newData = allData?.data?.data?.find(
+          (el) => el.branch_id === item?._id
+        );
+        return { ...item, limit: newData?.stock_limit || 0 }; // Defaults to 0 if stock_limit is undefined
+      });
+
+      setBranchList(newBranchList);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLimitDataLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
+
+  const getProducts = async (searchText, bId, dId, mId, catId) => {
     setSearchLoading(true);
     let url;
     let newSearchProductText = searchProductText;
-
-    let newCategoryId = categoryId;
     let newBrandId = brandId;
+    let newDeviceId = deviceId;
+    let newModelId = modelId;
+    let newCategoryId = categoryId;
     if (searchText) {
       newSearchProductText = searchText;
-    }
-    if (catId) {
-      newCategoryId = catId;
     }
     if (bId) {
       newBrandId = bId;
     }
+    if (dId) {
+      newDeviceId = dId;
+    }
+    if (mId) {
+      newModelId = mId;
+    }
+    if (catId) {
+      newCategoryId = catId;
+    }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -433,7 +525,7 @@ const AddStockLimit = ({ clearFilter }) => {
         setMessage("No data found");
       }
     } else {
-      setLoading2(false);
+      setSearchLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
     setSearchLoading(false);
@@ -441,6 +533,7 @@ const AddStockLimit = ({ clearFilter }) => {
   const handleSelectedProduct = (item) => {
     console.log("item", item);
     setDetails(item);
+    getBranchLimit(item?._id);
     setAddDialog(true);
 
     // if (selectedProducts.some((res) => res._id === item._id)) {
@@ -452,8 +545,8 @@ const AddStockLimit = ({ clearFilter }) => {
     //     ...selectedProducts,
     //     {
     //       ...item,
-    //       spare_parts_id: item.spare_parts_id,
-    //       spare_parts_variation_id: item._id,
+    //       product_id: item.product_id,
+    //       product_variation_id: item._id,
     //       purchase_product_status: "",
     //       quantity: "",
     //       unit_price: "",
@@ -471,6 +564,9 @@ const AddStockLimit = ({ clearFilter }) => {
     // getDropdownList();
     getCategoryList();
     getBrandList();
+    getDeviceList();
+    // getModelList();
+
     getBranchList();
   }, []);
   return (
@@ -497,7 +593,7 @@ const AddStockLimit = ({ clearFilter }) => {
         }}
       >
         <Grid container spacing={2}>
-          <Grid size={8}>
+          <Grid size={4}>
             <Typography
               variant="medium"
               color="text.main"
@@ -543,7 +639,253 @@ const AddStockLimit = ({ clearFilter }) => {
               }}
             />
           </Grid>
+
           <Grid size={2}>
+            <Typography
+              variant="medium"
+              color="text.main"
+              gutterBottom
+              sx={{ fontWeight: 500 }}
+            >
+              Brand
+            </Typography>
+
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{
+                ...customeSelectFeild,
+                "& label.Mui-focused": {
+                  color: "rgba(0,0,0,0)",
+                },
+
+                "& .MuiOutlinedInput-input img": {
+                  position: "relative",
+                  top: "2px",
+                },
+              }}
+            >
+              {brandId?.length < 1 && (
+                <InputLabel
+                  id="demo-simple-select-label"
+                  sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                >
+                  Select Brand
+                </InputLabel>
+              )}
+              <Select
+                labelId="demo-simple-select-label"
+                id="brandId"
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 250, // Set the max height here
+                    },
+                  },
+                }}
+                value={brandId}
+                // onChange={(e) => setBrandId(e.target.value)}
+
+                onChange={(e) => {
+                  setBrandId(e.target.value);
+                  getProducts(null, e.target.value);
+                }}
+              >
+                {brandList
+                  ?.filter((obj) => obj.name !== "Primary")
+                  ?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid size={2}>
+            <Typography
+              variant="medium"
+              color="text.main"
+              gutterBottom
+              sx={{ fontWeight: 500 }}
+            >
+              Device
+            </Typography>
+
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{
+                ...customeSelectFeild,
+                "& label.Mui-focused": {
+                  color: "rgba(0,0,0,0)",
+                },
+
+                "& .MuiOutlinedInput-input img": {
+                  position: "relative",
+                  top: "2px",
+                },
+              }}
+            >
+              {deviceId?.length < 1 && (
+                <InputLabel
+                  id="demo-simple-select-label"
+                  sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                >
+                  Select Device
+                </InputLabel>
+              )}
+              <Select
+                labelId="demo-simple-select-label"
+                id="deviceId"
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 250, // Set the max height here
+                    },
+                  },
+                }}
+                value={deviceId}
+                // onChange={(e) => setBrandId(e.target.value)}
+
+                onChange={(e) => {
+                  setDeviceId(e.target.value);
+                  getModelList(e.target.value);
+                  getProducts(null, null, e.target.value);
+                }}
+              >
+                {deviceList
+                  .filter((item) => !item.name.toLowerCase().includes("series"))
+                  ?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid size={2}>
+            <Typography
+              variant="medium"
+              color="text.main"
+              gutterBottom
+              sx={{ fontWeight: 500 }}
+            >
+              Model
+            </Typography>
+
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{
+                ...customeSelectFeild,
+                "& label.Mui-focused": {
+                  color: "rgba(0,0,0,0)",
+                },
+
+                "& .MuiOutlinedInput-input img": {
+                  position: "relative",
+                  top: "2px",
+                },
+              }}
+            >
+              {modelId?.length < 1 && (
+                <InputLabel
+                  id="demo-simple-select-label"
+                  sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                >
+                  Select Model
+                </InputLabel>
+              )}
+              <Select
+                labelId="demo-simple-select-label"
+                id="modelId"
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 250, // Set the max height here
+                    },
+                  },
+                }}
+                value={modelId}
+                // onChange={(e) => setCategoryId(e.target.value)}
+
+                onChange={(e) => {
+                  setModelId(e.target.value);
+                  getProducts(null, null, null, e.target.value);
+                }}
+              >
+                {modelList
+                  ?.filter((obj) => obj.name !== "Primary")
+                  ?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid size={2}>
+            <Typography
+              variant="medium"
+              color="text.main"
+              gutterBottom
+              sx={{ fontWeight: 500 }}
+            >
+              Category
+            </Typography>
+
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{
+                ...customeSelectFeild,
+                "& label.Mui-focused": {
+                  color: "rgba(0,0,0,0)",
+                },
+
+                "& .MuiOutlinedInput-input img": {
+                  position: "relative",
+                  top: "2px",
+                },
+              }}
+            >
+              {categoryId?.length < 1 && (
+                <InputLabel
+                  id="demo-simple-select-label"
+                  sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                >
+                  Select Category
+                </InputLabel>
+              )}
+              <Select
+                labelId="demo-simple-select-label"
+                id="categoryId"
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 250, // Set the max height here
+                    },
+                  },
+                }}
+                value={categoryId}
+                // onChange={(e) => setCategoryId(e.target.value)}
+
+                onChange={(e) => {
+                  setCategoryId(e.target.value);
+                  getProducts(null, null, null, null, e.target.value);
+                }}
+              >
+                {categoryList
+                  ?.filter((obj) => obj.name !== "Primary")
+                  ?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          {/* <Grid size={2}>
             <Typography
               variant="medium"
               color="text.main"
@@ -664,7 +1006,7 @@ const AddStockLimit = ({ clearFilter }) => {
                   ))}
               </Select>
             </FormControl>
-          </Grid>
+          </Grid> */}
           <Grid size={12}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
@@ -697,7 +1039,7 @@ const AddStockLimit = ({ clearFilter }) => {
                                     src={
                                       item?.images?.length > 0
                                         ? item?.images[0]?.url
-                                        : "/noImage.png"
+                                        : "/noImage.jpg"
                                     }
                                     alt=""
                                     width={30}
@@ -726,7 +1068,11 @@ const AddStockLimit = ({ clearFilter }) => {
                                         marginRight: 1, // Optional for spacing
                                       }}
                                     >
-                                      {item?.name}
+                                      {row?.name}
+                                      <br />
+                                      <span style={{ color: "#424949" }}>
+                                        {item?.name}
+                                      </span>
                                     </Typography>
                                     <Checkbox
                                       sx={{
@@ -829,7 +1175,12 @@ const AddStockLimit = ({ clearFilter }) => {
                   size="small"
                   fullWidth
                   id="branch"
-                  placeholder="Enter Alert Limit"
+                  disabled={limitDataLoading}
+                  placeholder={
+                    limitDataLoading
+                      ? "Checking Previous Alert Limit"
+                      : "Enter Alert Limit"
+                  }
                   variant="outlined"
                   sx={{ ...customeTextFeild }}
                   value={item?.limit}
@@ -870,7 +1221,7 @@ const AddStockLimit = ({ clearFilter }) => {
               minHeight: "44px",
             }}
             // style={{ minWidth: "180px", minHeight: "35px" }}
-            autoFocus
+
             disableElevation
           >
             <PulseLoader

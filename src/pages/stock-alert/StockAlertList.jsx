@@ -721,19 +721,19 @@ const StockAlertList = () => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
                         />
                       </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.sparepart_data
-                          ? row?.sparepart_data[0]?.name
+                        {row?.product_data
+                          ? row?.product_data[0]?.name
                           : "---------"}{" "}
                         &nbsp;{" "}
-                        {row?.spare_parts_variation_data
-                          ? row?.spare_parts_variation_data[0]?.name
+                        {row?.product_variation_data
+                          ? row?.product_variation_data[0]?.name
                           : "---------"}
                       </TableCell>
 
@@ -779,7 +779,7 @@ const StockAlertList = () => {
                         {row?.warranty ? row?.warranty : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.sparePart_id ? row?.sparePart_id : "---------"}
+                        {row?.product_id ? row?.product_id : "---------"}
                       </TableCell>
 
                       <TableCell sx={{ minWidth: "150px" }}>
@@ -846,7 +846,9 @@ const StockAlertList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={4} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>

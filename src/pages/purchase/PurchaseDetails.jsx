@@ -157,7 +157,7 @@ const PurchaseDetails = () => {
       newBrandId = bId;
     }
 
-    url = `/api/v1/sparePart?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -188,7 +188,7 @@ const PurchaseDetails = () => {
         ...selectedProducts,
         {
           ...item,
-          spare_parts_variation_id: row._id,
+          product_variation_id: row._id,
           quantity: "",
           price: "",
         },
@@ -202,8 +202,8 @@ const PurchaseDetails = () => {
 
     let data = {
       purchase_id: updateData.purchase_id,
-      spare_parts_id: updateData.spare_parts_id,
-      spare_parts_variation_id: updateData.spare_parts_variation_id,
+      product_id: updateData.product_id,
+      product_variation_id: updateData.product_variation_id,
       quantity: parseInt(updateData.quantity),
       unit_price: parseFloat(updateData.unit_price).toFixed(2),
       purchase_product_status: updateData.purchase_product_status,
@@ -233,7 +233,7 @@ const PurchaseDetails = () => {
     // }
   };
   const handleGenerateSKU = async (item) => {
-    console.log("spare_part_details", item?.spare_part_details);
+    console.log("product_details", item?.product_details);
 
     setGenerateSKULoading(true);
     setGenerateSKUDetails(item);
@@ -241,22 +241,19 @@ const PurchaseDetails = () => {
     let data = {
       purchase_id: item.purchase_id,
       purchase_product_id: item._id,
-      spare_parts_id: item.spare_parts_id,
-      spare_parts_variation_id: item.spare_parts_variation_id,
+      product_id: item.product_id,
+      product_variation_id: item.product_variation_id,
       supplier_id: tableDataList[0]?.supplier_id,
       branch_id: tableDataList[0]?.branch_id,
-      brand_id: item?.spare_part_details[0]?.brand_id,
-      category_id: item?.spare_part_details[0]?.category_id,
-      device_id: item?.spare_part_details[0]?.device_id,
-      model_id: item?.spare_part_details[0]?.model_id,
+      purchase_branch_id: tableDataList[0]?.branch_id,
+      brand_id: item?.product_details[0]?.brand_id,
+      category_id: item?.product_details[0]?.category_id,
+      device_id: item?.product_details[0]?.device_id,
+      model_id: item?.product_details[0]?.model_id,
       quantity: parseInt(item.quantity),
     };
 
-    let response = await handlePostData(
-      `/api/v1/sparePartsStock/create`,
-      data,
-      false
-    );
+    let response = await handlePostData(`/api/v1/stock/create`, data, false);
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -436,26 +433,33 @@ const PurchaseDetails = () => {
     setLoading(false);
   };
   const getSKU = async (item) => {
-    console.log("item", item?.spare_part_variation_details[0]?.name);
+    console.log("item", item?.product_variation_details[0]?.name);
 
     setGenerateSkuData(item);
-    setSkuProductName(item?.spare_part_variation_details[0]?.name);
+    setSkuProductName(item?.product_variation_details[0]?.name);
     setSkuLoading(true);
     setSkuList([]);
 
-    let url = `/api/v1/sparePartsStock/stock-skus-details?sku_number=${encodeURIComponent(
+    let url = `/api/v1/stock/stock-skus-details?sku_number=${encodeURIComponent(
       ""
-    )}&stock_status=${encodeURIComponent(
-      ""
-    )}&spare_parts_id=${encodeURIComponent(
-      item.spare_parts_id
-    )}&spare_parts_variation_id=${encodeURIComponent(
-      item.spare_parts_variation_id
-    )}&branch_id=${encodeURIComponent(
-      tableDataList[0]?.branch_id
+    )}&stock_status=${encodeURIComponent("")}&product_id=${encodeURIComponent(
+      item.product_id
+    )}&product_variation_id=${encodeURIComponent(
+      item.product_variation_id
     )}&purchase_id=${encodeURIComponent(
       item.purchase_id
     )}&purchase_product_id=${encodeURIComponent(item._id)}`;
+    // let url = `/api/v1/stock/stock-skus-details?sku_number=${encodeURIComponent(
+    //   ""
+    // )}&stock_status=${encodeURIComponent("")}&product_id=${encodeURIComponent(
+    //   item.product_id
+    // )}&product_variation_id=${encodeURIComponent(
+    //   item.product_variation_id
+    // )}&branch_id=${encodeURIComponent(
+    //   tableDataList[0]?.branch_id
+    // )}&purchase_id=${encodeURIComponent(
+    //   item.purchase_id
+    // )}&purchase_product_id=${encodeURIComponent(item._id)}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
     if (allData?.status === 401) {
@@ -618,8 +622,8 @@ const PurchaseDetails = () => {
                         : "---------"}
                     </TableCell>
                     <TableCell>
-                      {tableDataList?.sparePart_id
-                        ? tableDataList?.sparePart_id
+                      {tableDataList?.product_id
+                        ? tableDataList?.product_id
                         : "---------"}
                     </TableCell>
 
@@ -690,7 +694,7 @@ const PurchaseDetails = () => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
@@ -899,7 +903,9 @@ const PurchaseDetails = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={15} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
@@ -1148,7 +1154,7 @@ const PurchaseDetails = () => {
                                       src={
                                         item?.images?.length > 0
                                           ? item?.images[0]?.url
-                                          : "/noImage.png"
+                                          : "/noImage.jpg"
                                       }
                                       alt=""
                                       width={30}
@@ -1265,10 +1271,10 @@ const PurchaseDetails = () => {
                             >
                               <TableCell sx={{ minWidth: "130px" }}>
                                 {" "}
-                                {item?.spare_part_details[0]?.name}
+                                {item?.product_details[0]?.name}
                                 <br />
                                 <span style={{ color: "#424949" }}>
-                                  {item?.spare_part_variation_details[0]?.name}
+                                  {item?.product_variation_details[0]?.name}
                                 </span>
                               </TableCell>
                               <TableCell sx={{ minWidth: "130px" }}>
@@ -1635,12 +1641,7 @@ const PurchaseDetails = () => {
           marginTop: "20px",
         }}
       >
-        <Typography
-          variant="base"
-          gutterBottom
-          sx={{ fontWeight: 500 }}
-          onClick={() => console.log(updateData)}
-        >
+        <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
           SKU and Barcode &nbsp;
           {skuList?.length > 0 && `of ${skuProductName} (${skuList?.length})`}
         </Typography>

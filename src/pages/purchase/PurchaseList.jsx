@@ -62,6 +62,7 @@ import {
 import AddPurchase from "./AddPurchase";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import Chip from "@mui/material/Chip";
+import { jwtDecode } from "jwt-decode";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -473,34 +474,36 @@ const PurchaseList = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Branch
-                    </InputLabel>
-                    <Select
+                {jwtDecode(ifixit_admin_panel?.token)?.user?.is_main_branch && (
+                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                    <FormControl
+                      variant="outlined"
                       fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Branch"
-                      value={branch}
-                      onChange={(e) => setBranch(e.target.value)}
+                      size="small"
+                      // sx={{ ...customeTextFeild }}
+                      sx={{ ...customeTextFeild }}
                     >
-                      <MenuItem value="None">None</MenuItem>
-                      {branchList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
+                      <InputLabel id="demo-status-outlined-label">
+                        Branch
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        labelId="demo-status-outlined-label"
+                        id="demo-status-outlined"
+                        label="Branch"
+                        value={branch}
+                        onChange={(e) => setBranch(e.target.value)}
+                      >
+                        <MenuItem value="None">None</MenuItem>
+                        {branchList?.map((item) => (
+                          <MenuItem key={item?._id} value={item?._id}>
+                            {item?.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                )}
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -763,7 +766,7 @@ const PurchaseList = () => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
@@ -983,7 +986,9 @@ const PurchaseList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={13} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>

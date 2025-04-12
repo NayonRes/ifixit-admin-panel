@@ -208,7 +208,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
 
     const formData = new FormData();
 
-    formData.append("spare_parts_id", tableDataList?._id);
+    formData.append("product_id", tableDataList?._id);
     formData.append("name", name?.trim());
     formData.append("price", parseFloat(price).toFixed(2));
     {
@@ -216,7 +216,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
     }
 
     let response = await handlePostData(
-      "/api/v1/sparePartVariation/create",
+      "/api/v1/productVariation/create",
       formData,
       true
     );
@@ -337,7 +337,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading2(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -359,7 +359,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading2(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
@@ -380,7 +380,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading2(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }

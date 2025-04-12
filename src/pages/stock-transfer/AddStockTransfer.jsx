@@ -174,7 +174,7 @@ const AddStockTransfer = ({ clearFilter }) => {
     let data = {
       transfer_from: transferFrom,
       transfer_to: transferTo,
-      shipping_charge: parseInt(shippingCharge),
+      shipping_charge: shippingCharge ? parseInt(shippingCharge) : 0,
       remarks: note,
       transfer_stocks_sku: skus,
     };
@@ -335,7 +335,7 @@ const AddStockTransfer = ({ clearFilter }) => {
     setSearchLoading(true);
     let url;
 
-    url = `/api/v1/sparePartsStock?sku_number=${parseInt(searchProductText)}`;
+    url = `/api/v1/stock?sku_number=${parseInt(searchProductText)}`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -354,10 +354,13 @@ const AddStockTransfer = ({ clearFilter }) => {
         console.log("isSkuPresent", isSkuPresent);
 
         if (!isSkuPresent) {
-          
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
-          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          } else if (
+            allData?.data?.data[0]?.stock_status !== "Returned" &&
+            allData?.data?.data[0]?.stock_status !== "Attached" &&
+            allData?.data?.data[0]?.stock_status !== "Sold"
+          ) {
             console.log("*************************");
 
             setProductList([
@@ -366,7 +369,10 @@ const AddStockTransfer = ({ clearFilter }) => {
             ]);
             setsearchProductText("");
           } else {
-            handleSnakbarOpen("This product is already returned", "error");
+            handleSnakbarOpen(
+              `This product status is ${allData?.data?.data[0]?.stock_status}`,
+              "error"
+            );
           }
         } else {
           handleSnakbarOpen("This product is already in the list", "error");
@@ -395,8 +401,8 @@ const AddStockTransfer = ({ clearFilter }) => {
     //     ...selectedProducts,
     //     {
     //       ...item,
-    //       spare_parts_id: item.spare_parts_id,
-    //       spare_parts_variation_id: item._id,
+    //       product_id: item.product_id,
+    //       product_variation_id: item._id,
     //       purchase_product_status: "",
     //       quantity: "",
     //       unit_price: "",
@@ -502,7 +508,10 @@ const AddStockTransfer = ({ clearFilter }) => {
                   "& label.Mui-focused": {
                     color: "rgba(0,0,0,0)",
                   },
-
+                  "& .MuiOutlinedInput-input.Mui-disabled": {
+                    color: "#343E54", // Customize the text color when disabled
+                    WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
+                  },
                   "& .MuiOutlinedInput-input img": {
                     position: "relative",
                     top: "2px",
@@ -708,8 +717,15 @@ const AddStockTransfer = ({ clearFilter }) => {
                   startIcon={<SearchIcon />}
                   onClick={() => getProducts()}
                   // type="submit"
+                  disabled={searchLoading}
                 >
-                  Search
+                  <PulseLoader
+                    color={"#4B46E5"}
+                    loading={searchLoading}
+                    size={10}
+                    speedMultiplier={0.5}
+                  />{" "}
+                  {searchLoading === false && "Search"}
                 </Button>
               </Grid>
 
@@ -745,7 +761,7 @@ const AddStockTransfer = ({ clearFilter }) => {
                                         src={
                                           item?.images?.length > 0
                                             ? item?.images[0]?.url
-                                            : "/noImage.png"
+                                            : "/noImage.jpg"
                                         }
                                         alt=""
                                         width={30}
@@ -888,8 +904,7 @@ const AddStockTransfer = ({ clearFilter }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {!loading &&
-                    productList.length > 0 &&
+                  {productList.length > 0 &&
                     productList.map((row, i) => (
                       <TableRow
                         key={i}
@@ -900,19 +915,19 @@ const AddStockTransfer = ({ clearFilter }) => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
                         />
                       </TableCell> */}
                         <TableCell sx={{ minWidth: "130px" }}>
-                          {row?.sparepart_data
-                            ? row?.sparepart_data[0]?.name
+                          {row?.product_data
+                            ? row?.product_data[0]?.name
                             : "---------"}{" "}
                           &nbsp;{" "}
-                          {row?.spare_parts_variation_data
-                            ? row?.spare_parts_variation_data[0]?.name
+                          {row?.product_variation_data
+                            ? row?.product_variation_data[0]?.name
                             : "---------"}
                         </TableCell>
 

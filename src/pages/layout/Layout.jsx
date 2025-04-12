@@ -221,11 +221,6 @@ export default function Layout() {
     setSignOutLoading(false);
   };
 
-  console.log(
-    "ifixit_admin_panel?.permission",
-    ifixit_admin_panel?.user?.permission
-  );
-
   const checkPermission = (permissionName) => {
     return ifixit_admin_panel?.user?.permission?.includes(permissionName);
   };
@@ -1259,12 +1254,11 @@ export default function Layout() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   onClick={() => handleOpemMenu("")}
-                  // component={Link}
-                  // to="/live-chat"
-
+                  component={Link}
+                  to="/stock-adjustment"
                   sx={[
                     { ...listButtonStyle },
-                    pathname === "/live-chat" && { ...activeStyle },
+                    pathname === "/stock-adjustment" && { ...activeStyle },
                   ]}
                 >
                   <ListItemIcon

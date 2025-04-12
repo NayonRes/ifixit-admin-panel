@@ -252,7 +252,7 @@ const BranchList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/branch?name=${name}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/branch?name=${name.trim()}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -519,11 +519,12 @@ const BranchList = () => {
                         {row?.phone_no_1 ? row?.phone_no_1 : "----------"}
                       </TableCell>
                       <TableCell>
-                        {row?.off_day ? row?.off_day : "----------"}
-                      </TableCell>
-                      <TableCell>
                         {row?.address ? row?.address : "----------"}
                       </TableCell>
+                      <TableCell>
+                        {row?.off_day ? row?.off_day : "----------"}
+                      </TableCell>
+                
 
                       <TableCell>
                         {row?.status ? (
