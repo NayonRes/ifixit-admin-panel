@@ -519,11 +519,12 @@ const BranchList = () => {
                         {row?.phone_no_1 ? row?.phone_no_1 : "----------"}
                       </TableCell>
                       <TableCell>
-                        {row?.off_day ? row?.off_day : "----------"}
-                      </TableCell>
-                      <TableCell>
                         {row?.address ? row?.address : "----------"}
                       </TableCell>
+                      <TableCell>
+                        {row?.off_day ? row?.off_day : "----------"}
+                      </TableCell>
+                
 
                       <TableCell>
                         {row?.status ? (

@@ -41,6 +41,7 @@ const AddBranch = ({ clearFilter }) => {
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [mapUrl, setMapUrl] = useState("");
   const [number, setNumber] = useState("");
   const [offDay, setOffDay] = useState("");
   const [phoneNo, setPhoneNo] = useState();
@@ -77,6 +78,7 @@ const AddBranch = ({ clearFilter }) => {
     setNumber("");
     setFile(null);
     setOffDay("");
+    setMapUrl("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -88,6 +90,7 @@ const AddBranch = ({ clearFilter }) => {
     formdata.append("phone_no_1", number);
     formdata.append("address", address);
     formdata.append("off_day", offDay);
+    formdata.append("map_url", mapUrl);
 
     if (file) {
       formdata.append("image", file);
@@ -211,7 +214,7 @@ const AddBranch = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
         startIcon={
           <svg
@@ -485,6 +488,29 @@ const AddBranch = ({ clearFilter }) => {
                 value={address}
                 onChange={(e) => {
                   setAddress(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Map URL
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="mapUrl"
+                placeholder="Enter map url"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={mapUrl}
+                onChange={(e) => {
+                  setMapUrl(e.target.value);
                 }}
               />
             </Grid>
