@@ -268,3 +268,120 @@ export const days = [
   "Thursday",
   "Friday",
 ];
+
+export const iphoneModels = [
+  { name: "iPhone 6", order_no: 1 },
+  { name: "iPhone 6s", order_no: 2 },
+  { name: "iPhone 7", order_no: 3 },
+  { name: "iPhone 8", order_no: 4 },
+  { name: "iPhone X", order_no: 5 },
+  { name: "iPhone XR", order_no: 6 },
+  { name: "iPhone XS", order_no: 7 },
+  { name: "iPhone 11", order_no: 8 },
+  { name: "iPhone 11 Pro", order_no: 9 },
+  { name: "iPhone 11 Pro Max", order_no: 10 },
+  { name: "iPhone 12", order_no: 11 },
+  { name: "iPhone 12 Mini", order_no: 12 },
+  { name: "iPhone 12 Pro", order_no: 13 },
+  { name: "iPhone 12 Pro Max", order_no: 14 },
+  { name: "iPhone 13", order_no: 15 },
+  { name: "iPhone 13 Mini", order_no: 16 },
+  { name: "iPhone 13 Pro", order_no: 17 },
+  { name: "iPhone 13 Pro Max", order_no: 18 },
+  { name: "iPhone 14", order_no: 19 },
+  { name: "iPhone 14 Plus", order_no: 20 },
+  { name: "iPhone 14 Pro", order_no: 21 },
+  { name: "iPhone 14 Pro Max", order_no: 22 },
+  { name: "iPhone 15", order_no: 23 },
+  { name: "iPhone 15 Plus", order_no: 24 },
+  { name: "iPhone 15 Pro", order_no: 25 },
+  { name: "iPhone 15 Pro Max", order_no: 26 },
+  { name: "iPhone 16", order_no: 27 },
+  { name: "iPhone 16 Plus", order_no: 28 },
+  { name: "iPhone 16 Pro", order_no: 29 },
+  { name: "iPhone 16 Pro Max", order_no: 30 },
+];
+
+export const iPadModels = [
+  { name: "iPad (1st Gen)", order_no: 31 },
+  { name: "iPad 2", order_no: 32 },
+  { name: "iPad (3rd Gen)", order_no: 33 },
+  { name: "iPad (4th Gen)", order_no: 34 },
+  { name: "iPad (5th Gen)", order_no: 35 },
+  { name: "iPad (6th Gen)", order_no: 36 },
+  { name: "iPad (7th Gen)", order_no: 37 },
+  { name: "iPad (8th Gen)", order_no: 38 },
+  { name: "iPad (9th Gen)", order_no: 39 },
+  { name: "iPad (10th Gen)", order_no: 40 },
+];
+
+export const iPadMiniModels = [
+  { name: "iPad mini (1st Gen)", order_no: 41 },
+  { name: "iPad mini 2", order_no: 42 },
+  { name: "iPad mini 3", order_no: 43 },
+  { name: "iPad mini 4", order_no: 44 },
+  { name: "iPad mini (5th Gen)", order_no: 45 },
+  { name: "iPad mini (6th Gen)", order_no: 46 },
+];
+
+export const iPadAirModels = [
+  { name: "iPad Air (1st Gen)", order_no: 47 },
+  { name: "iPad Air 2", order_no: 48 },
+  { name: "iPad Air (3rd Gen)", order_no: 49 },
+  { name: "iPad Air (4th Gen)", order_no: 50 },
+  { name: "iPad Air (5th Gen)", order_no: 51 },
+  { name: "iPad Air (6th Gen)", order_no: 52 },
+];
+
+export const iPadProModels = [
+  { name: "iPad Pro 12.9-inch (1st Gen)", order_no: 53 },
+  { name: "iPad Pro 9.7-inch", order_no: 54 },
+  { name: "iPad Pro 12.9-inch (2nd Gen)", order_no: 55 },
+  { name: "iPad Pro 10.5-inch", order_no: 56 },
+  { name: "iPad Pro 11-inch (1st Gen)", order_no: 57 },
+  { name: "iPad Pro 12.9-inch (3rd Gen)", order_no: 58 },
+  { name: "iPad Pro 11-inch (2nd Gen)", order_no: 59 },
+  { name: "iPad Pro 12.9-inch (4th Gen)", order_no: 60 },
+  { name: "iPad Pro 11-inch (3rd Gen)", order_no: 61 },
+  { name: "iPad Pro 12.9-inch (5th Gen)", order_no: 62 },
+  { name: "iPad Pro 11-inch (4th Gen)", order_no: 63 },
+  { name: "iPad Pro 12.9-inch (6th Gen)", order_no: 64 },
+  { name: "iPad Pro 11-inch (M4)", order_no: 65 },
+  { name: "iPad Pro 13-inch (M4)", order_no: 66 },
+];
+
+export const macbookModels = [
+  { name: "MacBook (2006)", order_no: 67 },
+  { name: "MacBook (2008 Aluminum)", order_no: 68 },
+  { name: "MacBook (2009-2010)", order_no: 69 },
+  { name: "MacBook (Retina, 12-inch, 2015)", order_no: 70 },
+  { name: "MacBook (Retina, 12-inch, 2016)", order_no: 71 },
+  { name: "MacBook (Retina, 12-inch, 2017)", order_no: 72 },
+];
+export const macbookAirModels = [
+  { name: "MacBook Air (2008)", order_no: 73 },
+  { name: "MacBook Air (2010-2017)", order_no: 74 },
+  { name: "MacBook Air (Retina, 2018)", order_no: 75 },
+  { name: "MacBook Air (Retina, 2019)", order_no: 76 },
+  { name: "MacBook Air (2020, Intel)", order_no: 77 },
+  { name: "MacBook Air (2020, M1)", order_no: 78 },
+  { name: "MacBook Air (2022, M2)", order_no: 79 },
+  { name: "MacBook Air (2024, M3)", order_no: 80 },
+];
+export const macbookProModels = [
+  { name: "MacBook Pro (13-inch, 2009-2012)", order_no: 81 },
+  { name: "MacBook Pro (Retina, 13-inch, 2012-2015)", order_no: 82 },
+  { name: "MacBook Pro (13-inch, 2016-2020, Intel)", order_no: 83 },
+  { name: "MacBook Pro (13-inch, 2020, M1)", order_no: 84 },
+  { name: "MacBook Pro (13-inch, 2022, M2)", order_no: 85 },
+
+  { name: "MacBook Pro (14-inch, 2021, M1 Pro/Max)", order_no: 86 },
+  { name: "MacBook Pro (14-inch, 2023, M2 Pro/Max)", order_no: 87 },
+  { name: "MacBook Pro (14-inch, 2024, M3)", order_no: 88 },
+
+  { name: "MacBook Pro (15-inch, 2006-2019)", order_no: 89 },
+  { name: "MacBook Pro (16-inch, 2019, Intel)", order_no: 90 },
+  { name: "MacBook Pro (16-inch, 2021, M1 Pro/Max)", order_no: 91 },
+  { name: "MacBook Pro (16-inch, 2023, M2 Pro/Max)", order_no: 92 },
+  { name: "MacBook Pro (16-inch, 2024, M3 Pro/Max)", order_no: 93 },
+];

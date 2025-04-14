@@ -859,10 +859,10 @@ const ServiceList = () => {
 
                       {checkMultiplePermission([
                         "update_service",
-                        "view_service_details",
+                        // "view_service_details",
                       ]) && (
                         <TableCell align="right">
-                          {ifixit_admin_panel?.user?.permission?.includes(
+                          {/* {ifixit_admin_panel?.user?.permission?.includes(
                             "view_service_details"
                           ) && (
                             <>
@@ -878,7 +878,7 @@ const ServiceList = () => {
                               </Button>
                               &nbsp;&nbsp;
                             </>
-                          )}
+                          )} */}
 
                           {ifixit_admin_panel?.user?.permission?.includes(
                             "update_service"

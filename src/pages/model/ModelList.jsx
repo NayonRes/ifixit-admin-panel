@@ -48,11 +48,12 @@ const ModelList = () => {
   const [loading2, setLoading2] = useState(false);
   const [deleteData, setDeleteData] = useState({});
   const [name, setName] = useState("");
+  const [deviceId, setDeviceId] = useState("");
   const [status, setStatus] = useState("");
   const { enqueueSnackbar } = useSnackbar();
   const [startingTime, setStartingTime] = useState(null);
   const [endingTime, setEndingTime] = useState(null);
-
+  const [deviceList, setDeviceList] = useState([]);
   const [orderNo, setOrderNo] = useState();
   const [imageDialog, setImageDialog] = useState(false);
   const [images, setImages] = useState([]);
@@ -172,6 +173,7 @@ const ModelList = () => {
   const clearFilter = (event) => {
     setName("");
     setOrderNo("");
+    setDeviceId("");
     setStatus("");
 
     setPage(0);
@@ -215,7 +217,7 @@ const ModelList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/model?name=${name.trim()}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/model?name=${name.trim()}&device_id=${deviceId}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -252,8 +254,28 @@ const ModelList = () => {
 
     return 0;
   };
+
+  const getDeviceList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/device/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
   useEffect(() => {
     getData();
+    getDeviceList();
   }, []);
 
   return (
@@ -336,6 +358,46 @@ const ModelList = () => {
                     value={orderNo}
                     onChange={(e) => setOrderNo(e.target.value)}
                   />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Device
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 250, // Set the max height here
+                          },
+                        },
+                      }}
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Device"
+                      value={deviceId}
+                      onChange={(e) => setDeviceId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {deviceList
+                        ?.filter(
+                          (item) => !item.name.toLowerCase().includes("series")
+                        )
+                        ?.map((item) => (
+                          <MenuItem key={item} value={item?._id}>
+                            {item?.name}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
