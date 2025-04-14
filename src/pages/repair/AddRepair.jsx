@@ -29,7 +29,7 @@ import SerialHistory from "./SerialHistory";
 const AddRepair = () => {
   const navigate = useNavigate();
   const { rid } = useParams();
-  console.log("rid", rid);
+  // console.log("rid", rid);
 
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -132,18 +132,29 @@ const AddRepair = () => {
     let dueP = parseInt(due_amount || 0);
     let discount_amount_p = parseInt(discount_amount || 0);
 
-    if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
-      return handleSnakbarOpen("Total Amount and input are not same!", "error");
-    }
-
     // return console.log('ok')
 
+    if (!customer_id) {
+      return handleSnakbarOpen("Custommer is Required", "error");
+    }
     if (repairP == 0) {
       return handleSnakbarOpen("Repair list is empty", "error");
     }
-    // if (!serial) {
-    //   return handleSnakbarOpen("Serial is Required", "error");
-    // }
+    if (!brand_id) {
+      return handleSnakbarOpen("Brand is Required", "error");
+    }
+    if (allIssue.length < 1) {
+      return handleSnakbarOpen("Issue is Required", "error");
+    }
+    if (!repairStatus) {
+      return handleSnakbarOpen("Repair status is Required", "error");
+    }
+    if (!deliveryStatus) {
+      return handleSnakbarOpen("Delivery status is Required", "error");
+    }
+    if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
+      return handleSnakbarOpen("Total Amount and input are not same!", "error");
+    }
     // if (!passCode) {
     //   return handleSnakbarOpen("Pass Code is Required", "error");
     // }
@@ -213,7 +224,7 @@ const AddRepair = () => {
       response = await handlePostData("/api/v1/repair/create", data, false);
     }
 
-    console.log("response", response);
+    console.log("response add repair", response?.data?.data?._id);
 
     if (response?.status === 401) {
       logout();
@@ -224,7 +235,7 @@ const AddRepair = () => {
       setLoading(true);
       // set_repair_checklist({});
       handleSnakbarOpen("Added successfully", "success");
-      navigate("/repair");
+      navigate(`/repair/invoice/${response?.data?.data?._id}`);
 
       // clearFilter();
 
@@ -276,7 +287,7 @@ const AddRepair = () => {
         setLastUpdatedRepairStatus(data?.repair_status);
         setDeliveryStatus(data?.delivery_status);
         setBrand(data?.brand_id);
-        setBrandId(data?.brand_data?.[0]?._id);
+        setBrandId(data?.brand_id);
         setDevice(data?.model_data?.[0]?.name);
         setDeviceId(data?.model_data?.[0]?._id);
         setParentDevice(data?.model_data?.[0]?.device_id);

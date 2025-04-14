@@ -625,6 +625,42 @@ const RepairDetails = ({ clearFilter }) => {
                     </Typography>
                   ))
                 : "---------"}
+              {details?.due_amount && (
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                  style={{
+                    background: "#eee",
+                    marginRight: "10px",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    marginBottom: "5px",
+                    display: "inline-block",
+                  }}
+                >
+                  Due Amount : <b>{details?.due_amount}</b>
+                </Typography>
+              )}
+              {details?.discount_amount && (
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                  style={{
+                    background: "#eee",
+                    marginRight: "10px",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    marginBottom: "5px",
+                    display: "inline-block",
+                  }}
+                >
+                  Due Amount : <b>{details?.discount_amount}</b>
+                </Typography>
+              )}
             </Grid>
           </Grid>
         </Box>

@@ -135,7 +135,6 @@ const IssueList = ({
   const [searchLoading, setSearchLoading] = useState(false);
   const [checkedIssue, setCheckedIssue] = useState([]);
 
- 
   const [message, setMessage] = useState("");
 
   const handleSnakbarOpen = (msg, vrnt) => {
@@ -333,7 +332,10 @@ const IssueList = ({
           {!issueLoading &&
             issueArr.length > 0 &&
             issueArr.map((item, itemIndex) => (
-              <Grid key={itemIndex} item size={3}>
+              <Grid
+                key={itemIndex}
+                size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 4 }}
+              >
                 <Item
                   sx={{
                     border:
@@ -361,6 +363,7 @@ const IssueList = ({
                               flexDirection: "column",
                               gap: 1,
                               flex: 1,
+                              maxWidth: "80%",
                             }}
                           >
                             <Typography
@@ -368,9 +371,9 @@ const IssueList = ({
                               sx={{
                                 fontWeight: 500,
                                 color: "#344054",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
+                                // overflow: "hidden",
+                                // textOverflow: "ellipsis",
+                                // whiteSpace: "nowrap",
                               }}
                             >
                               {item.name}

@@ -150,6 +150,9 @@ const RepairChecklist = ({
     console.log("all-----------:", allIssueCheckList);
     console.log("REAPAIR-----------:", repair_checklist?.checklist);
     let preArr = repair_checklist?.checklist;
+    if (!preArr) {
+      preArr = [];
+    }
 
     const updatedAllArr = allIssueCheckList.map((item) => {
       const match = preArr.find((preItem) => preItem.name === item.name);
@@ -164,35 +167,7 @@ const RepairChecklist = ({
 
     console.log("updatedAllArr", finalUpdatedAllArr);
     setIssueList(finalUpdatedAllArr);
-    // if (!repair_checklist?.checklist) {
-    //   const updatedCheckList = allIssueCheckList.map((item) => ({
-    //     ...item,
-    //     status: false,
-    //   }));
-    //   setIssueList(updatedCheckList);
-    //   return;
-    // }
 
-    // // Extract existing issue names
-    // const existingNames = new Set(allIssueCheckList.map((item) => {item.name, status: false}));
-
-    // // Create updated list with existing items
-    // const updatedIssueList = allIssueCheckList.map((item) => ({
-    //   ...item,
-    //   status: repair_checklist.checklist.includes(item.name),
-    // }));
-
-    // // Find new checklist items that are not in allIssueCheckList
-    // const newItems = repair_checklist.checklist
-    //   .filter((name) => !existingNames.has(name))
-    //   .map((name) => ({ name, status: true }));
-
-    // // Merge updated list with new items
-    // const finalIssueList = [...updatedIssueList, ...newItems];
-
-    // setIssueList(finalIssueList);
-
-    // Set additional properties if available
     if (repair_checklist.has_power !== undefined) {
       set_has_power(repair_checklist.has_power);
     }

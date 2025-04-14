@@ -297,7 +297,7 @@ const SparePars = ({
                     <Grid
                       key={`row-${rowIndex}-item-${itemIndex}`}
                       item
-                      size={3}
+                      size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 4 }}
                     >
                       <Item
                         sx={{

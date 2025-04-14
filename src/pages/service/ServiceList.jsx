@@ -178,7 +178,7 @@ const ServiceList = () => {
   const pageLoading = () => {
     let content = [];
 
-    let loadingNumber = 6;
+    let loadingNumber = 7;
 
     if (checkMultiplePermission(["update_service", "view_service_details"])) {
       loadingNumber = loadingNumber + 1;
@@ -556,6 +556,13 @@ const ServiceList = () => {
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
                       label="Device"
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 250, // Set the max height here
+                          },
+                        },
+                      }}
                       value={deviceId}
                       onChange={handleDeviceSelect}
                     >
@@ -584,6 +591,13 @@ const ServiceList = () => {
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
                       label="Model"
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 250, // Set the max height here
+                          },
+                        },
+                      }}
                       value={modelId}
                       onChange={(e) => setModelId(e.target.value)}
                     >
@@ -612,6 +626,13 @@ const ServiceList = () => {
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
                       label="Category"
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 250, // Set the max height here
+                          },
+                        },
+                      }}
                       value={categoryId}
                       onChange={(e) => setCategoryId(e.target.value)}
                     >
@@ -730,6 +751,7 @@ const ServiceList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
+                  <TableCell style={{ maxWidth: "220px" }}>Title</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
 
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -776,6 +798,7 @@ const ServiceList = () => {
                         />
                       </TableCell> */}
 
+                      <TableCell>{row?.title}</TableCell>
                       <TableCell>
                         {row?.brand_data[0]?.name
                           ? row?.brand_data[0]?.name
