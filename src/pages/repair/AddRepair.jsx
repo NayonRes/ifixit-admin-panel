@@ -29,7 +29,7 @@ import SerialHistory from "./SerialHistory";
 const AddRepair = () => {
   const navigate = useNavigate();
   const { rid } = useParams();
-  console.log("rid", rid);
+  // console.log("rid", rid);
 
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -213,7 +213,7 @@ const AddRepair = () => {
       response = await handlePostData("/api/v1/repair/create", data, false);
     }
 
-    console.log("response", response);
+    console.log("response add repair", response?.data?.data?._id);
 
     if (response?.status === 401) {
       logout();
@@ -224,7 +224,7 @@ const AddRepair = () => {
       setLoading(true);
       // set_repair_checklist({});
       handleSnakbarOpen("Added successfully", "success");
-      navigate("/repair");
+      navigate(`/repair/invoice/${response?.data?.data?._id}`);
 
       // clearFilter();
 
