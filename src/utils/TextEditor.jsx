@@ -75,8 +75,8 @@ const TextEditor = ({
             "textAlign",
             "history",
             "colorPicker",
-            "image",
           ],
+
           // image: {
           //   uploadCallback: uploadImageCallback,
           //   previewImage: true,

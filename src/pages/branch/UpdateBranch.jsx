@@ -95,6 +95,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
+  const [mapUrl, setMapUrl] = useState("");
   const [number, setNumber] = useState("");
   const [offDay, setOffDay] = useState("");
   const [address, setAddress] = useState();
@@ -126,6 +127,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
     setNumber("");
     setFile(null);
     setOffDay("");
+    setMapUrl("");
     setStatus("");
   };
   const onSubmit = async (e) => {
@@ -150,6 +152,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
     formdata.append("phone_no_1", number);
     formdata.append("address", address);
     formdata.append("off_day", offDay);
+    formdata.append("map_url", mapUrl);
     formdata.append("status", status);
 
     if (file) {
@@ -266,6 +269,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
     setName(row?.name);
     setNumber(row?.phone_no_1);
     setOffDay(row?.off_day);
+    setMapUrl(row?.map_url);
     setAddress(row?.address);
     setStatus(row?.status);
   }, [updateDialog]);
@@ -303,7 +307,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -576,6 +580,30 @@ const UpdateBranch = ({ clearFilter, row }) => {
                 value={address}
                 onChange={(e) => {
                   setAddress(e.target.value);
+                }}
+              />
+            </Grid>
+
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Map URL
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="mapUrl"
+                placeholder="Enter map url"
+                variant="outlined"
+                sx={{ ...customeTextFeild }}
+                value={mapUrl}
+                onChange={(e) => {
+                  setMapUrl(e.target.value);
                 }}
               />
             </Grid>

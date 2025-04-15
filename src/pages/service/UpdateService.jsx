@@ -115,6 +115,8 @@ const UpdateService = ({ clearFilter }) => {
   const [name, setName] = useState("");
   const [convertedContent, setConvertedContent] = useState("");
 
+  const [title, setTitle] = useState();
+  const [image, setImage] = useState(null);
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
   const [deviceId, setDeviceId] = useState([]);
@@ -176,6 +178,7 @@ const UpdateService = ({ clearFilter }) => {
 
   const clearForm = () => {
     setName("");
+    setTitle("");
     setBrandId("");
     setCategoryId("");
     setDeviceId("");
@@ -184,6 +187,7 @@ const UpdateService = ({ clearFilter }) => {
     setPrice("");
     setDetails("");
     setFile(null);
+    setImage(null);
     setRemarks("");
   };
 
@@ -225,6 +229,8 @@ const UpdateService = ({ clearFilter }) => {
     console.log("newRepairServiceList", newRepairServiceList);
     console.log("newStepList", newStepList);
     let data = {
+      title: title,
+      image: image ? await fileToBase64(image) : null,
       model_id: modelId,
       device_id: deviceId,
       brand_id: brandId,
@@ -457,6 +463,7 @@ const UpdateService = ({ clearFilter }) => {
 
     if (allData.status >= 200 && allData.status < 300) {
       setDetailsForTextEditorShow(allData?.data?.data[0]?.description);
+      setTitle(allData?.data?.data[0]?.title);
       setDetails(allData?.data?.data[0]?.description);
       setModelId(allData?.data?.data[0]?.model_id);
       setDeviceId(allData?.data?.data[0]?.device_id);
@@ -771,7 +778,80 @@ const UpdateService = ({ clearFilter }) => {
                   </Select>
                 </FormControl>
               </Grid>
+              <Grid size={6}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  Service Image *
+                </Typography>
 
+                <Box sx={{ position: "relative" }}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    style={{
+                      position: "absolute",
+                      top: 8,
+                      left: 90,
+                    }}
+                  >
+                    <path
+                      d="M3.33333 13.5352C2.32834 12.8625 1.66666 11.7168 1.66666 10.4167C1.66666 8.46369 3.15959 6.85941 5.06645 6.68281C5.45651 4.31011 7.51687 2.5 10 2.5C12.4831 2.5 14.5435 4.31011 14.9335 6.68281C16.8404 6.85941 18.3333 8.46369 18.3333 10.4167C18.3333 11.7168 17.6717 12.8625 16.6667 13.5352M6.66666 13.3333L10 10M10 10L13.3333 13.3333M10 10V17.5"
+                      stroke="#344054"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <Box
+                    style={{
+                      border: "1px solid #cccccc",
+                      borderRadius: "4px",
+                      p: 4,
+                    }}
+                  >
+                    <input
+                      className="file_input2"
+                      id="fileInput"
+                      type="file"
+                      accept="image/png, image/jpg, image/jpeg"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        setImage(file);
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid size={6}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  Service Title *
+                </Typography>
+                <TextField
+                  required
+                  size="small"
+                  fullWidth
+                  id="name"
+                  placeholder="Service Title"
+                  variant="outlined"
+                  sx={{ ...customeTextFeild, mb: 2 }}
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                  }}
+                />
+              </Grid>
               <Grid size={12}>
                 <Typography
                   variant="medium"

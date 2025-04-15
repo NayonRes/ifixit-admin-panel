@@ -14,7 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Chip, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
@@ -236,17 +236,19 @@ const StockAdjustment = ({ clearFilter }) => {
           //     "error"
           //   );
           // }
-          else if (allData?.data?.data[0]?.stock_status !== "Returned") {
-            console.log("*************************");
+          // else if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          console.log("*************************");
 
-            setProductList([
-              { ...allData?.data?.data[0], note: "" },
-              ...productList,
-            ]);
-            setsearchProductText("");
-          } else {
-            handleSnakbarOpen("This product is already returned", "error");
-          }
+          setProductList([
+            { ...allData?.data?.data[0], note: "" },
+            ...productList,
+          ]);
+          setsearchProductText("");
+          // }
+
+          // else {
+          //   handleSnakbarOpen("This product is already returned", "error");
+          // }
         } else {
           handleSnakbarOpen("This product is already in the list", "error");
         }
@@ -442,7 +444,6 @@ const StockAdjustment = ({ clearFilter }) => {
             </Grid>
 
             <Grid size={12}>
-              
               <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
                   {!searchLoading &&
@@ -474,7 +475,7 @@ const StockAdjustment = ({ clearFilter }) => {
                                       src={
                                         item?.images?.length > 0
                                           ? item?.images[0]?.url
-                                          : "/noImage.png"
+                                          : "/noImage.jpg"
                                       }
                                       alt=""
                                       width={30}
@@ -591,6 +592,7 @@ const StockAdjustment = ({ clearFilter }) => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     SKU Number
                   </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
@@ -606,8 +608,7 @@ const StockAdjustment = ({ clearFilter }) => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Description
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>*/}
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>*/}
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
@@ -615,8 +616,7 @@ const StockAdjustment = ({ clearFilter }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {
-                  productList.length > 0 &&
+                {productList.length > 0 &&
                   productList.map((row, i) => (
                     <TableRow
                       key={i}
@@ -627,7 +627,7 @@ const StockAdjustment = ({ clearFilter }) => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
@@ -638,8 +638,8 @@ const StockAdjustment = ({ clearFilter }) => {
                           ? row?.product_data[0]?.name
                           : "---------"}{" "}
                         &nbsp;{" "}
-                        {row?.spare_parts_variation_data
-                          ? row?.spare_parts_variation_data[0]?.name
+                        {row?.product_variation_data
+                          ? row?.product_variation_data[0]?.name
                           : "---------"}
                       </TableCell>
 
@@ -659,6 +659,17 @@ const StockAdjustment = ({ clearFilter }) => {
                           : "---------"}
                       </TableCell>
                       <TableCell>{row?.sku_number}</TableCell>
+                      <TableCell>
+                        <Chip
+                          variant="outlined"
+                          color={
+                            row?.stock_status === "Available"
+                              ? "success"
+                              : "error"
+                          }
+                          label={row?.stock_status}
+                        />
+                      </TableCell>
                       <TableCell>
                         {" "}
                         <TextField

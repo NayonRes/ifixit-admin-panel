@@ -70,90 +70,19 @@ const SparePars = ({
   setAllSpareParts,
   getBranchId,
   partsDeviceId,
+  productList,
+  setProductList,
+  productLoading,
+  setProductLoading,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [addDialog, setAddDialog] = useState(false);
-  const [supplier, setSupplier] = useState("");
-  const [branchList, setBranchList] = useState([]);
-  const [branch, setBranch] = useState("");
-  const [purchaseStatus, setPurchaseStatus] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
-  const [paidAmount, setPaidAmount] = useState();
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [purchaseDate, setPurchaseDate] = useState(null);
-  const [shippingCharge, setShippingCharge] = useState("");
-  const [invoiceNo, setInvoiceNo] = useState("");
-  const [searchProductText, setsearchProductText] = useState("");
-  const [productList, setProductList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [purchaseBy, setPurchaseBy] = useState("");
-  const [userList, setUserList] = useState([]);
-
-  const [brandId, setBrandId] = useState([]);
-  const [categoryId, setCategoryId] = useState([]);
-
-  const [price, setPrice] = useState("");
-  const [file, setFile] = useState(null);
-  const [remarks, setRemarks] = useState("");
-
-  const [loading2, setLoading2] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const [message, setMessage] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleDialogClose = (event, reason) => {
-    if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
-      setAddDialog(false);
-    }
-    clearForm();
-  };
-
-  const dropzoneRef = useRef(null);
-
-  const onDrop = useCallback((acceptedFiles) => {
-    console.log("onDrop", acceptedFiles);
-
-    // if (!dropzoneRef.current) return;
-    const file = acceptedFiles[0];
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // setBase64String(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-  const onFileDialogCancel = useCallback(() => {
-    setFile(null);
-    console.log("File dialog was closed without selecting a file");
-    // setBase64String(""); // Update state to indicate dialog was cancelled
-  }, []);
-  const { acceptedFiles, isFocused, isDragAccept, isDragReject } = useDropzone({
-    onDrop,
-    onFileDialogCancel,
-    ref: dropzoneRef,
-    accept: { "image/*": [] },
-    maxFiles: 1,
-  });
-  const files = acceptedFiles.map((file) => (
-    <>
-      {file.path} - {file.size} bytes
-    </>
-  ));
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject]
-  );
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -167,182 +96,8 @@ const SparePars = ({
     });
   };
 
-  const clearForm = () => {
-    setSupplier("");
-    setPurchaseDate(null);
-    setPurchaseStatus("");
-    setPaymentStatus("");
-    setBrandId("");
-    setPaymentMethod("");
-    setPaidAmount("");
-    setCategoryId("");
-    setPrice("");
-    setShippingCharge("");
-    setBranch("");
-    setPurchaseBy("");
-    setsearchProductText("");
-    setProductList([]);
-    setSelectedProducts([]);
-    setRemarks("");
-  };
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-
-    setLoading(true);
-
-    if (!purchaseDate) {
-      handleSnakbarOpen("Please select a purchase date", "error");
-      setLoading(false);
-      return;
-    }
-    let newSelectedProduct = [];
-    if (selectedProducts?.length < 1) {
-      handleSnakbarOpen("Please select purchase product", "error");
-      setLoading(false);
-      return;
-    } else {
-      newSelectedProduct = selectedProducts?.map((item, i) => ({
-        product_id: item.product_id,
-        product_variation_id: item.product_variation_id,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        purchase_product_status: item.purchase_product_status,
-      }));
-    }
-
-    const formData = new FormData();
-    // const selectedDateWithTime = dayjs(purchaseDate).toDate();
-    formData.append("supplier_id", supplier);
-    formData.append("user_id", purchaseBy);
-    formData.append("purchase_date", dayjs(purchaseDate).toDate());
-    formData.append("purchase_status", purchaseStatus);
-    formData.append("payment_status", paymentStatus);
-    formData.append("branch_id", branch);
-    formData.append("payment_method", paymentMethod);
-    formData.append("paid_amount", paidAmount);
-    formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
-
-    formData.append("remarks", remarks);
-    formData.append("selectedProducts", JSON.stringify(selectedProducts));
-
-    let response = await handlePostData(
-      "/api/v1/purchase/create",
-      formData,
-      true
-    );
-
-    console.log("response", response?.data?.data?._id);
-    if (response?.status === 401) {
-      logout();
-      return;
-    }
-    if (response.status >= 200 && response.status < 300) {
-      // await handleCreateSpareParts(variationList, response?.data?.data?._id);
-      setLoading(false);
-      handleSnakbarOpen("Added successfully", "success");
-      // clearFilter();
-      clearForm();
-      handleDialogClose();
-      navigate("/purchase-list");
-    } else {
-      setLoading(false);
-      handleSnakbarOpen(response?.data?.message, "error");
-    }
-
-    // }
-  };
-
-  const customeTextFeild = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    // padding: "15px 20px",
-
-    // "& label.Mui-focused": {
-    //   color: "#A0AAB4",
-    // },
-
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-    "& .MuiOutlinedInput-input": {
-      // padding: "15px 24px 15px 0px",
-    },
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px",
-      "& fieldset": {
-        borderColor: "",
-      },
-
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
-  };
-
-  const customeSelectFeild = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    background: "#ffffff",
-
-    "& label.Mui-focused": {
-      color: "#E5E5E5",
-    },
-
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-    "& .MuiOutlinedInput-input": {
-      // padding: "10px 16px",
-    },
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px",
-      "& fieldset": {
-        borderColor: "#",
-      },
-
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
-  };
-  const customeSelectFeildSmall = {
-    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    background: "#ffffff",
-
-    "& label.Mui-focused": {
-      color: "#E5E5E5",
-    },
-
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#B2BAC2",
-    },
-    "& .MuiOutlinedInput-input": {
-      padding: "6px 16px",
-      fontSize: "14px",
-    },
-
-    "& .MuiOutlinedInput-root": {
-      // paddingLeft: "24px",
-      "& fieldset": {
-        borderColor: "#",
-      },
-
-      "&:hover fieldset": {
-        borderColor: "#969696",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#969696",
-      },
-    },
-  };
-
   const getProducts = async () => {
-    setLoading(true);
+    setProductLoading(true);
 
     let branch_id = getBranchId();
 
@@ -368,25 +123,24 @@ const SparePars = ({
         setMessage("No data found");
       }
     } else {
-      setLoading(false);
+      setProductLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
-    setLoading(false);
+    setProductLoading(false);
   };
-
   const handleSelectedProduct = (item, row) => {
     console.log("item:::", item);
-    if (selectedProducts.some((res) => res.product_id === item.product_id)) {
+    console.log("selectedProducts", selectedProducts);
+
+    if (selectedProducts.some((res) => res._id === item._id)) {
       setSelectedProducts(
-        selectedProducts.filter((res) => res.product_id !== item.product_id)
+        selectedProducts.filter((res) => res._id !== item._id)
       );
-      setAllSpareParts(
-        selectedProducts.filter((res) => res.product_id !== item.product_id)
-      );
+      setAllSpareParts(selectedProducts.filter((res) => res._id !== item._id));
     } else {
       // {
       //   ...item,
-      //   spare_parts_full_name: `${row?.name} - ${item?.name}`,
+      //   product_full_name: `${row?.name} - ${item?.name}`,
       //   product_id: item.product_id,
       //   product_variation_id: item._id,
       //   purchase_product_status: "",
@@ -400,7 +154,7 @@ const SparePars = ({
           id: item.product_id,
           name: `${row?.name} - ${item?.name}`,
           price: item.price,
-          spare_parts_full_name: `${row?.name} - ${item?.name}`,
+          product_full_name: `${row?.name} - ${item?.name}`,
           product_id: item.product_id,
           product_variation_id: item._id,
         },
@@ -413,7 +167,55 @@ const SparePars = ({
           id: item.product_id,
           name: `${row?.name} - ${item?.name}`,
           price: item.price,
-          spare_parts_full_name: `${row?.name} - ${item?.name}`,
+          product_full_name: `${row?.name} - ${item?.name}`,
+          product_id: item.product_id,
+          product_variation_id: item._id,
+        },
+      ]);
+    }
+
+    console.log("all selectedProducts", selectedProducts);
+  };
+  const handleSelectedProduct2 = (item, row) => {
+    console.log("item:::", item);
+    if (selectedProducts.some((res) => res.product_id === item.product_id)) {
+      setSelectedProducts(
+        selectedProducts.filter((res) => res.product_id !== item.product_id)
+      );
+      setAllSpareParts(
+        selectedProducts.filter((res) => res.product_id !== item.product_id)
+      );
+    } else {
+      // {
+      //   ...item,
+      //   product_full_name: `${row?.name} - ${item?.name}`,
+      //   product_id: item.product_id,
+      //   product_variation_id: item._id,
+      //   purchase_product_status: "",
+      //   quantity: "",
+      //   unit_price: "",
+      // },
+      setSelectedProducts([
+        ...selectedProducts,
+        {
+          ...item,
+          id: item.product_id,
+          name: `${row?.name} - ${item?.name}`,
+          price: item.price,
+          product_full_name: `${row?.name} - ${item?.name}`,
+          product_id: item.product_id,
+          product_variation_id: item._id,
+        },
+      ]);
+      setAllSpareParts([
+        ...selectedProducts,
+        {
+          ...item,
+
+          id: item.product_id,
+          name: `${row?.name} - ${item?.name}`,
+          price: item.price,
+          product_full_name: `${row?.name} - ${item?.name}`,
           product_id: item.product_id,
           product_variation_id: item._id,
         },
@@ -435,7 +237,7 @@ const SparePars = ({
   //       ...selectedProducts,
   //       {
   //         ...item,
-  //         spare_parts_full_name: `${row?.name} - ${item?.name}`,
+  //         product_full_name: `${row?.name} - ${item?.name}`,
   //         product_id: item.product_id,
   //         product_variation_id: item._id,
   //         purchase_product_status: "",
@@ -447,7 +249,7 @@ const SparePars = ({
   //       ...selectedProducts,
   //       {
   //         ...item,
-  //         spare_parts_full_name: `${row?.name} - ${item?.name}`,
+  //         product_full_name: `${row?.name} - ${item?.name}`,
   //         product_id: item.product_id,
   //         product_variation_id: item._id,
   //         purchase_product_status: "",
@@ -474,9 +276,9 @@ const SparePars = ({
     setSelectedProducts(allSpareParts);
   }, [allSpareParts]);
 
-  useEffect(() => {
-    getProducts();
-  }, []);
+  // useEffect(() => {
+  //   getProducts();
+  // }, []);
 
   return (
     <Grid container spacing={3}>
@@ -486,7 +288,7 @@ const SparePars = ({
         </Typography> */}
         <Box sx={{ flexGrow: 1, mt: 3 }}>
           <Grid container spacing={2}>
-            {!loading &&
+            {!productLoading &&
               productList.length > 0 &&
               productList.map(
                 (row, rowIndex) =>
@@ -495,7 +297,7 @@ const SparePars = ({
                     <Grid
                       key={`row-${rowIndex}-item-${itemIndex}`}
                       item
-                      size={3}
+                      size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 4 }}
                     >
                       <Item
                         sx={{
@@ -509,13 +311,13 @@ const SparePars = ({
                         {" "}
                         <Box sx={{ flexGrow: 1 }}>
                           <Grid container alignItems="center">
-                            <Grid size="auto" sx={{ width: "40px" }}>
+                            <Grid size="auto" sx={{ width: "40px", mr: 1 }}>
                               {" "}
                               <img
                                 src={
                                   item?.images?.length > 0
                                     ? item?.images[0]?.url
-                                    : "/noImage.png"
+                                    : "/noImage.jpg"
                                 }
                                 alt=""
                                 width={30}
@@ -524,7 +326,7 @@ const SparePars = ({
                             </Grid>
                             <Grid
                               size="auto"
-                              sx={{ width: "Calc(100% - 40px)" }}
+                              sx={{ width: "Calc(100% - 50px)" }}
                             >
                               <Box
                                 sx={{
@@ -555,8 +357,8 @@ const SparePars = ({
                                     }}
                                   >
                                     <Typography
-                                      variant="body2"
-                                      sx={{ color: "#424949" }}
+                                      variant="small"
+                                      sx={{ color: "#424949", fontWeight: 500 }}
                                     >
                                       {item?.name}
                                     </Typography>
@@ -580,8 +382,7 @@ const SparePars = ({
                                 <Checkbox
                                   sx={{
                                     display: selectedProducts.some(
-                                      (pro) =>
-                                        pro?.product_id === item?.product_id
+                                      (pro) => pro?._id === item?._id
                                     )
                                       ? "block"
                                       : "none",
@@ -600,7 +401,7 @@ const SparePars = ({
                     </Grid>
                   ))
               )}
-            {loading && (
+            {productLoading && (
               <Grid size={12}>
                 <Box
                   sx={{
@@ -609,10 +410,26 @@ const SparePars = ({
                     gap: 3,
                   }}
                 >
-                  <Skeleton height={200} sx={{ flex: 1 }} />
-                  <Skeleton height={200} sx={{ flex: 1 }} />
-                  <Skeleton height={200} sx={{ flex: 1 }} />
-                  <Skeleton height={200} sx={{ flex: 1 }} />
+                  <Skeleton
+                    variant="rectangular"
+                    height={120}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={120}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={120}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={120}
+                    sx={{ flex: 1 }}
+                  />
                 </Box>
               </Grid>
             )}

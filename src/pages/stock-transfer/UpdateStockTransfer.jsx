@@ -357,7 +357,11 @@ const UpdateStockTransfer = ({ clearFilter }) => {
         if (!isSkuPresent) {
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
-          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          } else if (
+            allData?.data?.data[0]?.stock_status !== "Returned" &&
+            allData?.data?.data[0]?.stock_status !== "Attached" &&
+            allData?.data?.data[0]?.stock_status !== "Sold"
+          ) {
             console.log("*************************");
 
             setProductList([
@@ -367,7 +371,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
 
                 spare_parts_name: allData?.data?.data[0]?.product_data[0].name,
                 spare_parts_variation_name:
-                  allData?.data?.data[0]?.spare_parts_variation_data[0].name,
+                  allData?.data?.data[0]?.product_variation_data[0].name,
                 purchase_date:
                   allData?.data?.data[0]?.purchase_data[0].purchase_date,
                 unit_price:
@@ -377,7 +381,10 @@ const UpdateStockTransfer = ({ clearFilter }) => {
             ]);
             setsearchProductText("");
           } else {
-            handleSnakbarOpen("This product is already returned", "error");
+            handleSnakbarOpen(
+              `This product status is ${allData?.data?.data[0]?.stock_status}`,
+              "error"
+            );
           }
         } else {
           handleSnakbarOpen("This product is already in the list", "error");
@@ -874,7 +881,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                                           src={
                                             item?.images?.length > 0
                                               ? item?.images[0]?.url
-                                              : "/noImage.png"
+                                              : "/noImage.jpg"
                                           }
                                           alt=""
                                           width={30}
@@ -1028,7 +1035,7 @@ const UpdateStockTransfer = ({ clearFilter }) => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}

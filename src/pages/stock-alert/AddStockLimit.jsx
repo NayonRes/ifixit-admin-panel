@@ -432,8 +432,8 @@ const AddStockLimit = ({ clearFilter }) => {
   const getModelList = async (id) => {
     setLoading2(true);
 
-    // let url = `/api/v1/model/device-model?deviceId=${id}`;
-    let url = `/api/v1/model/dropdownlist`;
+    let url = `/api/v1/model/device-model?deviceId=${id}`;
+    // let url = `/api/v1/model/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -565,7 +565,7 @@ const AddStockLimit = ({ clearFilter }) => {
     getCategoryList();
     getBrandList();
     getDeviceList();
-    getModelList();
+    // getModelList();
 
     getBranchList();
   }, []);
@@ -731,7 +731,7 @@ const AddStockLimit = ({ clearFilter }) => {
                   id="demo-simple-select-label"
                   sx={{ color: "#b3b3b3", fontWeight: 300 }}
                 >
-                  Select Brand
+                  Select Device
                 </InputLabel>
               )}
               <Select
@@ -749,11 +749,12 @@ const AddStockLimit = ({ clearFilter }) => {
 
                 onChange={(e) => {
                   setDeviceId(e.target.value);
+                  getModelList(e.target.value);
                   getProducts(null, null, e.target.value);
                 }}
               >
                 {deviceList
-                  ?.filter((obj) => obj.name !== "Primary")
+                  .filter((item) => !item.name.toLowerCase().includes("series"))
                   ?.map((item) => (
                     <MenuItem key={item?._id} value={item?._id}>
                       {item?.name}
@@ -1038,7 +1039,7 @@ const AddStockLimit = ({ clearFilter }) => {
                                     src={
                                       item?.images?.length > 0
                                         ? item?.images[0]?.url
-                                        : "/noImage.png"
+                                        : "/noImage.jpg"
                                     }
                                     alt=""
                                     width={30}

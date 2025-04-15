@@ -725,7 +725,7 @@ const PurchaseReturnList = () => {
                               src={
                                 row?.images?.length > 0
                                   ? row?.images[0]?.url
-                                  : "/noImage.png"
+                                  : "/noImage.jpg"
                               }
                               alt=""
                               width={40}
@@ -736,8 +736,8 @@ const PurchaseReturnList = () => {
                           ? row?.product_data[0]?.name
                           : "---------"}{" "}
                         &nbsp;{" "}
-                        {row?.spare_parts_variation_data
-                          ? row?.spare_parts_variation_data[0]?.name
+                        {row?.product_variation_data
+                          ? row?.product_variation_data[0]?.name
                           : "---------"}
                       </TableCell>
 

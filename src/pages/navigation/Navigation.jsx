@@ -23,7 +23,7 @@ import VariantList from "../variant/VariantList";
 import SparePartsList from "../spare-parts/SparePartsList";
 import SparePartsDetails from "../spare-parts/SparePartsDetails";
 import Repair from "../repair/Repair";
-import RepairSearch from "../repair/RepairSearch";
+import AddRepair from "../repair/AddRepair";
 import PurchaseList from "../purchase/PurchaseList";
 import PurchaseDetails from "../purchase/PurchaseDetails";
 import StockAlertList from "../stock-alert/StockAlertList";
@@ -43,6 +43,8 @@ import ServiceDetails from "../service/ServiceDetails";
 import UpdateService from "../service/UpdateService";
 import BranchStockList from "../stock-alert/BranchStockList";
 import StockAdjustment from "../stock-adjustment/StockAdjustment";
+import RepairDetails from "../repair/RepairDetails";
+import Invoice from "../repair/Invoice";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -354,10 +356,34 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
-          path="repair-search"
+          path="add-repair"
           element={
             <PrivateRoute>
-              <RepairSearch />
+              <AddRepair />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="update-repair/:rid"
+          element={
+            <PrivateRoute>
+              <AddRepair />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/details/:rid"
+          element={
+            <PrivateRoute>
+              <RepairDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/invoice/:rid"
+          element={
+            <PrivateRoute>
+              <Invoice />
             </PrivateRoute>
           }
         />

@@ -77,11 +77,16 @@ const TechnicianList = ({
   setTechnician,
   technicianName,
   setTechnicianName,
+
+  technicianLoading,
+  setTechnicianLoading,
+  technicianList,
+  setTechnicianList,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
   const { enqueueSnackbar } = useSnackbar();
-  const [technicianList, setTechnicianList] = useState([]);
+  // const [technicianList, setTechnicianList] = useState([]);
   const [branchList, setBranchList] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -172,12 +177,12 @@ const TechnicianList = ({
     setLoading(false);
   };
 
-  useEffect(() => {
-    getBranchData();
-  }, []);
-  useEffect(() => {
-    getTechnician();
-  }, [selectedBranch]);
+  // useEffect(() => {
+  //   getBranchData();
+  // }, []);
+  // useEffect(() => {
+  //   getTechnician();
+  // }, [selectedBranch]);
 
   return (
     <div>
@@ -207,7 +212,7 @@ const TechnicianList = ({
         </Grid> */}
       </Grid>
       <Grid container spacing={2} sx={{ mt: 3 }}>
-        {!loading &&
+        {!technicianLoading &&
           technicianList.length > 0 &&
           technicianList.map((item, index) => (
             <Grid size={3} key={index}>
@@ -220,13 +225,28 @@ const TechnicianList = ({
                 }}
               >
                 <Box>
-                  <img src="/userpic.png" alt="" />
+                  <img
+                    src={
+                      item?.image?.url?.length > 0
+                        ? item?.image?.url
+                        : "/userpic.png"
+                    }
+                    alt=""
+                    width="40px"
+                    height="40px"
+                    style={{
+                      display: "block",
+                      margin: "5px 0px",
+                      borderRadius: "100px",
+                      // border: "1px solid #d1d1d1",
+                    }}
+                  />
                 </Box>
 
                 <Box>
-                  <Typography variant="body1">{item.name}</Typography>
+                  <Typography variant="medium">{item.name}</Typography>
                   <Typography
-                    variant="body2"
+                    variant="small"
                     color="text.secondary"
                     sx={{ mt: "2px" }}
                   >
@@ -237,7 +257,7 @@ const TechnicianList = ({
             </Grid>
           ))}
 
-        {!loading && message && (
+        {!technicianLoading && message && (
           <Typography
             variant="h6"
             sx={{ textAlign: "center", mt: 4, width: "100%" }}
@@ -246,7 +266,7 @@ const TechnicianList = ({
           </Typography>
         )}
 
-        {loading && (
+        {technicianLoading && (
           <Grid size={12}>
             <Box
               sx={{
@@ -255,10 +275,10 @@ const TechnicianList = ({
                 gap: 3,
               }}
             >
-              <Skeleton height={200} sx={{ flex: 1 }} />
-              <Skeleton height={200} sx={{ flex: 1 }} />
-              <Skeleton height={200} sx={{ flex: 1 }} />
-              <Skeleton height={200} sx={{ flex: 1 }} />
+              <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+              <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+              <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+              <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
             </Box>
           </Grid>
         )}

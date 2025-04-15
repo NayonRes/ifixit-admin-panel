@@ -560,7 +560,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             />
           </Box>
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -574,7 +574,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
               setFile={setIconFile}
               dimension=" Dimensions (1 : 1)"
             />
-          </Box>
+          </Box> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>

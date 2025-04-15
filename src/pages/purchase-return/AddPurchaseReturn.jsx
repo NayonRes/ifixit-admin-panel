@@ -229,7 +229,11 @@ const AddPurchaseReturn = ({ clearFilter }) => {
               `This product purchased by ${allData?.data?.data[0]?.purchase_branch_data[0]?.name}. So you can't return it`,
               "error"
             );
-          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          } else if (
+            allData?.data?.data[0]?.stock_status !== "Returned" &&
+            allData?.data?.data[0]?.stock_status !== "Attached" &&
+            allData?.data?.data[0]?.stock_status !== "Sold"
+          ) {
             console.log("*************************");
 
             setProductList([
@@ -238,7 +242,10 @@ const AddPurchaseReturn = ({ clearFilter }) => {
             ]);
             setsearchProductText("");
           } else {
-            handleSnakbarOpen("This product is already returned", "error");
+            handleSnakbarOpen(
+              `This product status is ${allData?.data?.data[0]?.stock_status}`,
+              "error"
+            );
           }
         } else {
           handleSnakbarOpen("This product is already in the list", "error");
@@ -414,7 +421,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                                       src={
                                         item?.images?.length > 0
                                           ? item?.images[0]?.url
-                                          : "/noImage.png"
+                                          : "/noImage.jpg"
                                       }
                                       alt=""
                                       width={30}
@@ -566,7 +573,7 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
@@ -577,8 +584,8 @@ const AddPurchaseReturn = ({ clearFilter }) => {
                           ? row?.product_data[0]?.name
                           : "---------"}{" "}
                         &nbsp;{" "}
-                        {row?.spare_parts_variation_data
-                          ? row?.spare_parts_variation_data[0]?.name
+                        {row?.product_variation_data
+                          ? row?.product_variation_data[0]?.name
                           : "---------"}
                       </TableCell>
 

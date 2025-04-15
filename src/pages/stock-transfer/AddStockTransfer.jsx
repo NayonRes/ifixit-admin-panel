@@ -356,7 +356,11 @@ const AddStockTransfer = ({ clearFilter }) => {
         if (!isSkuPresent) {
           if (allData?.data?.data[0]?.branch_id !== myBranchId) {
             handleSnakbarOpen("This is not your branch product", "error");
-          } else if (allData?.data?.data[0]?.stock_status !== "Returned") {
+          } else if (
+            allData?.data?.data[0]?.stock_status !== "Returned" &&
+            allData?.data?.data[0]?.stock_status !== "Attached" &&
+            allData?.data?.data[0]?.stock_status !== "Sold"
+          ) {
             console.log("*************************");
 
             setProductList([
@@ -365,7 +369,10 @@ const AddStockTransfer = ({ clearFilter }) => {
             ]);
             setsearchProductText("");
           } else {
-            handleSnakbarOpen("This product is already returned", "error");
+            handleSnakbarOpen(
+              `This product status is ${allData?.data?.data[0]?.stock_status}`,
+              "error"
+            );
           }
         } else {
           handleSnakbarOpen("This product is already in the list", "error");
@@ -754,7 +761,7 @@ const AddStockTransfer = ({ clearFilter }) => {
                                         src={
                                           item?.images?.length > 0
                                             ? item?.images[0]?.url
-                                            : "/noImage.png"
+                                            : "/noImage.jpg"
                                         }
                                         alt=""
                                         width={30}
@@ -908,7 +915,7 @@ const AddStockTransfer = ({ clearFilter }) => {
                           src={
                             row?.images?.length > 0
                               ? row?.images[0]?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
@@ -919,8 +926,8 @@ const AddStockTransfer = ({ clearFilter }) => {
                             ? row?.product_data[0]?.name
                             : "---------"}{" "}
                           &nbsp;{" "}
-                          {row?.spare_parts_variation_data
-                            ? row?.spare_parts_variation_data[0]?.name
+                          {row?.product_variation_data
+                            ? row?.product_variation_data[0]?.name
                             : "---------"}
                         </TableCell>
 

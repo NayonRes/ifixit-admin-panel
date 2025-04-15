@@ -539,7 +539,7 @@ const DeviceList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell> */}
                   <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
                     Name
                   </TableCell>
@@ -571,12 +571,12 @@ const DeviceList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell sx={{ width: "30px", pr: 0 }}>
+                      {/* <TableCell sx={{ width: "30px", pr: 0 }}>
                         <img
                           src={
                             row?.icon?.url?.length > 0
                               ? row?.icon?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{
@@ -588,7 +588,7 @@ const DeviceList = () => {
                             // border: "1px solid #d1d1d1",
                           }}
                         />
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell sx={{ width: "30px", pr: 0 }}>
                         {/* {row?.image?.url?.length > 0 ? (
                                                 <> */}
@@ -596,7 +596,7 @@ const DeviceList = () => {
                           src={
                             row?.image?.url?.length > 0
                               ? row?.image?.url
-                              : "/noImage.png"
+                              : "/noImage.jpg"
                           }
                           alt=""
                           style={{
