@@ -379,11 +379,11 @@ const Invoice = () => {
         <Box sx={{ background: "#4DA1A9", height: "12px" }}></Box>
       </Box>
 
-      {/* <Box>
+      <Box>
         <Button onClick={handlePrint} variant="outline">
           Print Invoice!
         </Button>
-      </Box> */}
+      </Box>
     </Box>
   );
 };

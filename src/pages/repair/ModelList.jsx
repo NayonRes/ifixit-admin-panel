@@ -184,9 +184,9 @@ const ModelList = ({
     setModelList([]);
 
     // TODO: WORKING
-    if (items?.length < 1) {
-      handleChangeChild(device_id);
-    }
+    // if (items?.length < 1) {
+    handleChangeChild(device_id);
+    // }
   };
 
   const handleChangeChild = async (device_id) => {
@@ -330,11 +330,7 @@ const ModelList = ({
       />
       {showComponent === "Model List" && (
         <>
-          <Typography
-            variant="body1"
-            sx={{ fontWeight: 600, mb: 3 }}
-        
-          >
+          <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
             Select Model
           </Typography>
           {parentList?.length > 0 && (
