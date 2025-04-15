@@ -230,7 +230,7 @@ const UpdateService = ({ clearFilter }) => {
     console.log("newStepList", newStepList);
     let data = {
       title: title,
-      image: image ? await fileToBase64(image) : null,
+
       model_id: modelId,
       device_id: deviceId,
       brand_id: brandId,
@@ -241,6 +241,9 @@ const UpdateService = ({ clearFilter }) => {
       repair_info: newRepairServiceList,
       description: details,
     };
+    if (image) {
+      data.image = await fileToBase64(image);
+    }
     console.log("data", data);
 
     let response = await handlePutData(
