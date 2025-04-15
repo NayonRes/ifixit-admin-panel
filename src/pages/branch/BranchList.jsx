@@ -275,6 +275,13 @@ const BranchList = () => {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
   };
+  const getDetails = async (id) => {
+    let url;
+
+    url = `/api/v1/branch/${id}`;
+
+    let allData = await getDataWithToken(url);
+  };
 
   const sortByParentName = (a, b) => {
     const nameA = a.parent_name.toUpperCase();
@@ -514,7 +521,9 @@ const BranchList = () => {
                                                 "No Image"
                                               )} */}
                       </TableCell>
-                      <TableCell>{row?.name}</TableCell>
+                      <TableCell onClick={() => getDetails(row?._id)}>
+                        {row?.name}
+                      </TableCell>
                       <TableCell>
                         {row?.phone_no_1 ? row?.phone_no_1 : "----------"}
                       </TableCell>
