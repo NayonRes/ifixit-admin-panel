@@ -13,7 +13,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, TextField, Typography } from "@mui/material";
+import { Alert, Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
@@ -752,7 +752,7 @@ const AddService = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Service Image *
+                Service Image * (Dimension 4 : 3)
               </Typography>
 
               <Box sx={{ position: "relative" }}>
@@ -912,6 +912,11 @@ const AddService = ({ clearFilter }) => {
                             border: "2px solid #F9FAFB",
                           }}
                         >
+                          <Alert severity="info" sx={{ mb: 1 }}>
+                            {" "}
+                            For Single Service : Dimension 1 : 1 & For multiple
+                            Service : Dimension 2 : 1
+                          </Alert>
                           <Box sx={{ textAlign: "right", mb: 1 }}>
                             <Button
                               variant="contained"
@@ -1203,7 +1208,7 @@ const AddService = ({ clearFilter }) => {
                                 gutterBottom
                                 sx={{ fontWeight: 500 }}
                               >
-                                Service Step Image *
+                                Service Step Image * (Dimension 1 : 1)
                               </Typography>
 
                               <Box sx={{ position: "relative" }}>
