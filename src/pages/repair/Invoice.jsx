@@ -18,12 +18,11 @@ import dayjs from "dayjs";
 const Invoice = () => {
   const { rid } = useParams();
   const contentRef = useRef();
+  const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [details, setDetails] = useState("");
   const [repairCost, setRepairCost] = useState(0);
   const [spareParsCost, setSpareParsCost] = useState(0);
   const [loading, setLoading] = useState(false);
-
-  const { logout } = useContext(AuthContext);
 
   // const handlePrint = useReactToPrint({ contentRef });
   const handlePrint = useReactToPrint({
@@ -114,54 +113,61 @@ const Invoice = () => {
             alignItems: "center",
             background: "#4DA1A9",
             color: "#fff",
-            padding: "60px",
+            padding: "30px 30px",
           }}
         >
           <Box>
-            <img src="/logo.png" alt="" />
+            <img src="/logo.png" alt="" width={120} />
           </Box>
           <Box sx={{ textAlign: "right" }}>
             <Typography
-              variant="body1"
-              sx={{ fontWeight: 600, fontSize: "18px" }}
+              variant="small"
+              sx={{ fontWeight: 600, fontSize: "18px", mb: 1 }}
             >
-              iFixit
+              {ifixit_admin_panel?.user?.branchInfo?.name}
             </Typography>
-            <Typography variant="body1">Company Address</Typography>
-            <Typography variant="body1">Company Contact Number</Typography>
+            <Typography variant="small">
+              {" "}
+              {ifixit_admin_panel?.user?.branchInfo?.address}
+            </Typography>
+            <Typography variant="small">
+              {ifixit_admin_panel?.user?.branchInfo?.phone_no_1}
+            </Typography>
           </Box>
         </Box>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            padding: "60px",
+            padding: "20px 30px 20px",
           }}
         >
           <Box>
             <Typography
-              variant="body1"
+              variant="medium"
               sx={{
                 textTransform: "uppercase",
-                fontSize: "18px",
+                fontWeight: 600,
+                mb: 1,
               }}
             >
               Invoice to
             </Typography>
             <Typography
-              variant="body1"
+              variant="small"
               sx={{
                 textTransform: "uppercase",
-                padding: "15px 0",
+
                 fontWeight: 600,
+                mb: 1,
               }}
             >
               {details?.customer_data?.[0]?.name}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="small">
               {details?.customer_data?.[0]?.mobile}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="small">
               {details?.customer_data?.[0]?.email}
             </Typography>
           </Box>
@@ -172,12 +178,13 @@ const Invoice = () => {
                 textTransform: "uppercase",
                 fontWeight: 600,
                 color: "#4DA1A9",
+                mb: 1,
               }}
             >
               Invoice
             </Typography>
             <Typography
-              variant="body1"
+              variant="small"
               sx={{
                 textTransform: "uppercase",
 
@@ -186,29 +193,32 @@ const Invoice = () => {
             >
               Invoice No. {details?.repair_id}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="small">
               Date: {dayjs(details?.created_at).format("YYYY-MM-DD")}{" "}
             </Typography>
           </Box>
         </Box>
-        <Box sx={{ padding: "0px 60px 60px 60px" }}>
+        <Box sx={{ padding: "0px 30px 30px 30px" }}>
           <Box sx={{ minHeight: "600px" }}>
             {details?.issues?.length > 0 && (
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  Service
+                <Typography variant="small" sx={{ fontWeight: 600, mb: 1 }}>
+                  Service Info
                 </Typography>
-                <TableContainer component={Paper}>
-                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableContainer>
+                  <Table
+                    aria-label="simple table"
+                    sx={{ "& td, & th": { fontSize: "10px", py: 1 } }}
+                  >
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
+                        <TableCell sx={{ fontWeight: 600, fontSize: "10px" }}>
                           Service Name
                         </TableCell>
 
                         <TableCell
                           align="right"
-                          sx={{ fontWeight: 600, fontSize: "16px" }}
+                          sx={{ fontWeight: 600, fontSize: "10px" }}
                         >
                           Cost
                         </TableCell>
@@ -233,7 +243,12 @@ const Invoice = () => {
                           </TableRow>
                         ))}
 
-                      <TableRow sx={{ background: "#eee" }}>
+                      <TableRow
+                        sx={{
+                          background: "#eee",
+                          "& td, & th": { fontSize: "10px" },
+                        }}
+                      >
                         <TableCell>Total</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 600 }}>
                           {repairCost}
@@ -246,21 +261,24 @@ const Invoice = () => {
             )}
 
             {details?.product_details?.length > 0 && (
-              <Box sx={{ mt: 6 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  Spare Parts
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="small" sx={{ fontWeight: 600, mb: 1 }}>
+                  Spare Parts Info
                 </Typography>
-                <TableContainer component={Paper}>
-                  <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableContainer>
+                  <Table
+                    aria-label="simple table"
+                    sx={{ "& td, & th": { fontSize: "10px", py: 1 } }}
+                  >
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 600, fontSize: "16px" }}>
+                        <TableCell sx={{ fontWeight: 600, fontSize: "10px" }}>
                           Spare Parts Name
                         </TableCell>
 
                         <TableCell
                           align="right"
-                          sx={{ fontWeight: 600, fontSize: "16px" }}
+                          sx={{ fontWeight: 600, fontSize: "10px" }}
                         >
                           Cost
                         </TableCell>
@@ -283,10 +301,15 @@ const Invoice = () => {
                           </TableRow>
                         ))}
 
-                      <TableRow sx={{ background: "#eee" }}>
+                      <TableRow
+                        sx={{
+                          background: "#eee",
+                          "& td, & th": { fontSize: "10px" },
+                        }}
+                      >
                         <TableCell>Total</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 600 }}>
-                          {repairCost}
+                          {spareParsCost}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -295,9 +318,9 @@ const Invoice = () => {
               </Box>
             )}
 
-            <Box sx={{ display: "flex", gap: 4, mt: 6 }}>
+            <Box sx={{ display: "flex", gap: 4, mt: 2 }}>
               <Box sx={{ flex: 1 }}>
-                <Typography variant="body1" sx={{ mt: 6 }}>
+                <Typography variant="small" sx={{ mt: 6 }}>
                   Lorem ipsum dolor sit amet consectetur adipisicing elit.
                   Sapiente veritatis enim explicabo tempora suscipit, magni
                   obcaecati commodi cum libero laudantium recusandae officiis
@@ -305,18 +328,28 @@ const Invoice = () => {
                 </Typography>
               </Box>
               <Box sx={{ textAlign: "right", flex: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                <Typography variant="medium" sx={{ fontWeight: 600, mb: 2 }}>
                   Payment Info
                 </Typography>
                 <TableContainer
                   sx={{ display: "flex", justifyContent: "flex-end" }}
                 >
                   <Table
-                    sx={{ border: "1px solid #ddd" }}
+                    sx={{
+                      "& td, & th": { fontSize: "10px", py: 1 },
+                      border: "1px solid #ddd",
+                    }}
                     aria-label="simple table"
                   >
-                    <TableBody>
+                    <TableBody sx={{ "& td, & th": { fontSize: "10px" } }}>
                       <TableRow>
+                        <TableCell sx={{}}>Total Amount</TableCell>
+
+                        <TableCell align="right" sx={{}}>
+                          {repairCost + spareParsCost}
+                        </TableCell>
+                      </TableRow>
+                      {/* <TableRow>
                         <TableCell sx={{}}>Repair Subtotal</TableCell>
 
                         <TableCell align="right" sx={{}}>
@@ -329,29 +362,28 @@ const Invoice = () => {
                         <TableCell align="right" sx={{}}>
                           {spareParsCost}
                         </TableCell>
-                      </TableRow>
+                      </TableRow> */}
                       <TableRow>
                         <TableCell sx={{}}>Due Amount</TableCell>
 
                         <TableCell align="right" sx={{}}>
-                          {details?.due_amount}
+                        -  {details?.due_amount}
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell sx={{}}>Discount Amount</TableCell>
 
                         <TableCell align="right" sx={{}}>
-                          {details?.discount_amount}
+                        -  {details?.discount_amount}
                         </TableCell>
                       </TableRow>
                       <TableRow sx={{ background: "#eee" }}>
-                        <TableCell sx={{}}>Total Amount</TableCell>
+                        <TableCell sx={{}}>Total Paid Amount</TableCell>
 
                         <TableCell align="right">
                           {repairCost +
                             spareParsCost -
-                            details?.discount_amount -
-                            details?.due_amount}
+                            details?.discount_amount}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -371,12 +403,12 @@ const Invoice = () => {
                 borderTop: "3px solid #999",
               }}
             >
-              <Typography variant="body1">Approved by</Typography>
-              <Typography variant="body1">Date</Typography>
+              <Typography variant="small">Approved by</Typography>
+              <Typography variant="small">Date</Typography>
             </Box>
           </Box>
         </Box>
-        <Box sx={{ background: "#4DA1A9", height: "12px" }}></Box>
+        {/* <Box sx={{ background: "#4DA1A9", height: "10px" }}></Box> */}
       </Box>
 
       <Box>
