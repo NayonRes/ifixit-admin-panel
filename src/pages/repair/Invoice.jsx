@@ -14,6 +14,7 @@ import { enqueueSnackbar } from "notistack";
 import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import dayjs from "dayjs";
+import LocalPrintshopOutlinedIcon from "@mui/icons-material/LocalPrintshopOutlined";
 
 const Invoice = () => {
   const { rid } = useParams();
@@ -97,6 +98,17 @@ const Invoice = () => {
 
   return (
     <Box sx={{ padding: "30px" }}>
+      <Box sx={{ textAlign: "right", maxWidth: "900px", margin: "auto",mb:1 }}>
+        <Button
+          onClick={handlePrint}
+          variant="contained"
+          color="info"
+          size="large"
+          startIcon={<LocalPrintshopOutlinedIcon />}
+        >
+          Print Invoice
+        </Button>
+      </Box>
       <Box
         sx={{
           maxWidth: "900px",
@@ -199,7 +211,7 @@ const Invoice = () => {
           </Box>
         </Box>
         <Box sx={{ padding: "0px 30px 30px 30px" }}>
-          <Box sx={{ minHeight: "600px" }}>
+          <Box sx={{ minHeight: "735px" }}>
             {details?.issues?.length > 0 && (
               <Box>
                 <Typography variant="small" sx={{ fontWeight: 600, mb: 1 }}>
@@ -367,14 +379,14 @@ const Invoice = () => {
                         <TableCell sx={{}}>Due Amount</TableCell>
 
                         <TableCell align="right" sx={{}}>
-                        -  {details?.due_amount}
+                          - {details?.due_amount}
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell sx={{}}>Discount Amount</TableCell>
 
                         <TableCell align="right" sx={{}}>
-                        -  {details?.discount_amount}
+                          - {details?.discount_amount}
                         </TableCell>
                       </TableRow>
                       <TableRow sx={{ background: "#eee" }}>
@@ -396,25 +408,19 @@ const Invoice = () => {
             <Box
               sx={{
                 maxWidth: "70%",
-                margin: "90px auto 30px",
+                margin: "auto",
                 paddingTop: "10px",
                 display: "flex",
                 justifyContent: "space-between",
                 borderTop: "3px solid #999",
               }}
             >
-              <Typography variant="small">Approved by</Typography>
+              <Typography variant="small">Authorized Sign</Typography>
               <Typography variant="small">Date</Typography>
             </Box>
           </Box>
         </Box>
         {/* <Box sx={{ background: "#4DA1A9", height: "10px" }}></Box> */}
-      </Box>
-
-      <Box>
-        <Button onClick={handlePrint} variant="outline">
-          Print Invoice!
-        </Button>
       </Box>
     </Box>
   );

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import Grid from "@mui/material/Grid2";
 
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Button, Divider, TextField, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
@@ -15,6 +15,7 @@ import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 
 import { AuthContext } from "../../context/AuthContext";
+import LocalPrintshopOutlinedIcon from "@mui/icons-material/LocalPrintshopOutlined";
 
 const baseStyle = {
   flex: 1,
@@ -56,6 +57,8 @@ const RepairDetails = ({ clearFilter }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { rid } = useParams();
   const navigate = useNavigate();
+  const [repairCost, setRepairCost] = useState(0);
+  const [spareParsCost, setSpareParsCost] = useState(0);
 
   const [loading, setLoading] = useState(false);
 
@@ -75,7 +78,16 @@ const RepairDetails = ({ clearFilter }) => {
       autoHideDuration: duration,
     });
   };
-
+  const calculateTotalRepairCost = (services) => {
+    return services.reduce((total, service) => {
+      return total + service.repair_cost;
+    }, 0);
+  };
+  const calculateTotalSparePartsCost = (services) => {
+    return services.reduce((total, service) => {
+      return total + service.price;
+    }, 0);
+  };
   const getData = async () => {
     setLoading(true);
 
@@ -90,6 +102,15 @@ const RepairDetails = ({ clearFilter }) => {
 
     if (allData.status >= 200 && allData.status < 300) {
       setDetails(allData?.data?.data);
+      let totalRepairCost = calculateTotalRepairCost(
+        allData?.data?.data?.issues
+      );
+      let totalSpareCost = calculateTotalSparePartsCost(
+        allData?.data?.data?.product_details
+      );
+      // console.log('allData?.data?.data?.product_details',totalSpareCost)
+      setRepairCost(totalRepairCost);
+      setSpareParsCost(totalSpareCost);
 
       if (allData.data.data.length < 1) {
         // setMessage("No data found");
@@ -106,15 +127,31 @@ const RepairDetails = ({ clearFilter }) => {
   return (
     <>
       <Box container sx={{ padding: "24px 0" }}>
-        <Typography
-          variant="h6"
-          gutterBottom
-          component="div"
-          sx={{ color: "#0F1624", fontWeight: 600 }}
-        >
-          Repair Details
-        </Typography>
-        <Link to={`/repair/invoice/${rid}`}>Invoice</Link>
+        <Grid container alignItems="center">
+          <Grid size={6}>
+            {" "}
+            <Typography
+              variant="h6"
+              gutterBottom
+              component="div"
+              sx={{ color: "#0F1624", fontWeight: 600 }}
+            >
+              Repair Details
+            </Typography>
+          </Grid>
+          <Grid size={6} sx={{ textAlign: "right" }}>
+            {" "}
+            <Button
+              component={Link}
+              to={`/repair/invoice/${rid}`}
+              variant="outlined"
+              color="info"
+              startIcon={<LocalPrintshopOutlinedIcon />}
+            >
+              Repair Invoice
+            </Button>
+          </Grid>
+        </Grid>
       </Box>
 
       <div
@@ -588,6 +625,7 @@ const RepairDetails = ({ clearFilter }) => {
           // backgroundColor: "#F9FAFB",
           boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
           marginTop: 20,
+          marginBottom: 16,
         }}
       >
         <Box sx={{ padding: "12px", margin: "16px" }}>
@@ -658,7 +696,26 @@ const RepairDetails = ({ clearFilter }) => {
                     display: "inline-block",
                   }}
                 >
-                  Due Amount : <b>{details?.discount_amount}</b>
+                  Discount Amount : <b>{details?.discount_amount}</b>
+                </Typography>
+              )}
+              {details?.discount_amount && (
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                  style={{
+                    background: "#eee",
+                    marginRight: "10px",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    marginBottom: "5px",
+                    display: "inline-block",
+                  }}
+                >
+                  Total Paid Amount :{" "}
+                  <b>{repairCost + spareParsCost - details?.discount_amount}</b>
                 </Typography>
               )}
             </Grid>
