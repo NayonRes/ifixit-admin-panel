@@ -45,6 +45,8 @@ import BranchStockList from "../stock-alert/BranchStockList";
 import StockAdjustment from "../stock-adjustment/StockAdjustment";
 import RepairDetails from "../repair/RepairDetails";
 import Invoice from "../repair/Invoice";
+import BlogList from "../blog/BlogList";
+import AddBlog from "../blog/AddBlog";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -186,6 +188,22 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
 
+        <Route
+          path="blog-list"
+          element={
+            <PrivateRoute>
+              <BlogList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="add-blog"
+          element={
+            <PrivateRoute>
+              <AddBlog />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="service-list"
           element={

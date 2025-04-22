@@ -61,7 +61,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const ServiceList = () => {
+const BlogList = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
@@ -178,7 +178,7 @@ const ServiceList = () => {
   const pageLoading = () => {
     let content = [];
 
-    let loadingNumber = 8;
+    let loadingNumber = 7;
 
     if (checkMultiplePermission(["update_service", "view_service_details"])) {
       loadingNumber = loadingNumber + 1;
@@ -217,7 +217,7 @@ const ServiceList = () => {
     setStatus("");
 
     setPage(0);
-    const newUrl = `/api/v1/service?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/blog?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -273,7 +273,7 @@ const ServiceList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/service?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/blog?name=${name.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -425,17 +425,17 @@ const ServiceList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Service List
+            Blog List
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          {ifixit_admin_panel?.user?.permission?.includes("service_list") && (
+          {ifixit_admin_panel?.user?.permission?.includes("add_blog") && (
             <Button
               variant="contained"
               disableElevation
               sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
               component={Link}
-              to="/add-service"
+              to="/add-blog"
               // onClick={() => {
               //   setAddDialog(true);
               //   getCategoryList();
@@ -460,7 +460,7 @@ const ServiceList = () => {
                 </svg>
               }
             >
-              Add Service
+              Add Blog
             </Button>
           )}
           {/* <AddSpareParts clearFilter={clearFilter} /> */}
@@ -540,76 +540,7 @@ const ServiceList = () => {
                     }}
                   />
                 </Grid> */}
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Device
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Device"
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 250, // Set the max height here
-                          },
-                        },
-                      }}
-                      value={deviceId}
-                      onChange={handleDeviceSelect}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {deviceList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Model
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Model"
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 250, // Set the max height here
-                          },
-                        },
-                      }}
-                      value={modelId}
-                      onChange={(e) => setModelId(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {modelList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
+
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -751,21 +682,7 @@ const ServiceList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ maxWidth: "220px" }}>Title</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
-
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Category
-                  </TableCell> */}
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
-
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Branch Name
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Available Service no
-                  </TableCell>
+                  <TableCell colSpan={2}>Title</TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
                   {checkMultiplePermission([
@@ -786,55 +703,19 @@ const ServiceList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      {/* <TableCell sx={{ width: 50 }}>
+                      <TableCell sx={{ width: 50 }}>
                         <img
                           src={
-                            row?.images?.length > 0
-                              ? row?.images[0]?.url
+                            row?.image?.url?.length > 0
+                              ? row?.image?.url
                               : "/noImage.jpg"
                           }
                           alt=""
                           width={40}
                         />
-                      </TableCell> */}
+                      </TableCell>
 
                       <TableCell>{row?.title}</TableCell>
-                      <TableCell>
-                        {row?.brand_data[0]?.name
-                          ? row?.brand_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-
-                      {/* <TableCell>
-                        {row?.category_data[0]?.name
-                          ? row?.category_data[0]?.name
-                          : "---------"}
-                      </TableCell> */}
-                      <TableCell>
-                        {row?.device_data[0]?.name
-                          ? row?.device_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-                      <TableCell>
-                        {row?.model_data[0]?.name
-                          ? row?.model_data[0]?.name
-                          : "---------"}
-                      </TableCell>
-
-                      <TableCell
-                        sx={{ minWidth: "130px", whiteSpace: "norap" }}
-                      >
-                        {row?.branch_data?.length > 0 &&
-                          row?.branch_data?.map((item, i) => (
-                            <span>
-                              {item?.name}{" "}
-                              {row?.branch_data?.length !== i + 1 && ", "}
-                            </span>
-                          ))}
-                        {/* {row?.name} */}
-                      </TableCell>
-
-                      <TableCell>{row?.repair_info?.length}</TableCell>
 
                       <TableCell>
                         {row?.status ? (
@@ -881,7 +762,7 @@ const ServiceList = () => {
                       </TableCell> */}
 
                       {checkMultiplePermission([
-                        "update_service",
+                        "update_blog",
                         // "view_service_details",
                       ]) && (
                         <TableCell align="right">
@@ -895,7 +776,7 @@ const ServiceList = () => {
                                 color="info"
                                 startIcon={<ListAltOutlinedIcon />}
                                 component={Link}
-                                to={`/service/details/${row?._id}`}
+                                to={`/blog/details/${row?._id}`}
                               >
                                 Details
                               </Button>
@@ -904,7 +785,7 @@ const ServiceList = () => {
                           )} */}
 
                           {ifixit_admin_panel?.user?.permission?.includes(
-                            "update_service"
+                            "update_blog"
                           ) && (
                             <Button
                               size="small"
@@ -912,7 +793,7 @@ const ServiceList = () => {
                               color="text"
                               startIcon={<ListAltOutlinedIcon />}
                               component={Link}
-                              to={`/service/update/${row?._id}`}
+                              to={`/blog/update/${row?._id}`}
                             >
                               Update
                             </Button>
@@ -1013,4 +894,4 @@ const ServiceList = () => {
   );
 };
 
-export default ServiceList;
+export default BlogList;
