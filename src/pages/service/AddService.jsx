@@ -214,7 +214,10 @@ const AddService = ({ clearFilter }) => {
     const newStepList = await Promise.all(
       stepList?.map(async (item) => ({
         ...item,
-        step_image: await fileToBase64(item?.step_image),
+        step_image:
+          item?.step_image instanceof File
+            ? await fileToBase64(item.step_image)
+            : item.step_image,
       }))
     );
     console.log("newRepairServiceList", newRepairServiceList);
@@ -1240,7 +1243,6 @@ const AddService = ({ clearFilter }) => {
                                   }}
                                 >
                                   <input
-                                    required
                                     id="fileInput"
                                     type="file"
                                     accept="image/png, image/jpg, image/jpeg"
@@ -1268,7 +1270,6 @@ const AddService = ({ clearFilter }) => {
                                 Service Step Title *
                               </Typography>
                               <TextField
-                                required
                                 size="small"
                                 fullWidth
                                 id="title"

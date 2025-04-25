@@ -145,7 +145,6 @@ const UpdateService = ({ clearFilter }) => {
   const [message, setMessage] = useState("");
   const [refresh, setRefresh] = useState(false);
   const [allData, setAllData] = useState([]);
-  const [status, setStatus] = useState("");
 
   const handleBranchChange = (event) => {
     const {
@@ -190,7 +189,6 @@ const UpdateService = ({ clearFilter }) => {
     setFile(null);
     setImage(null);
     setRemarks("");
-    setStatus("");
   };
 
   function fileToBase64(file) {
@@ -232,7 +230,7 @@ const UpdateService = ({ clearFilter }) => {
     console.log("newStepList", newStepList);
     let data = {
       title: title,
-      status: status,
+
       model_id: modelId,
       device_id: deviceId,
       brand_id: brandId,
@@ -471,7 +469,6 @@ const UpdateService = ({ clearFilter }) => {
       setTitle(allData?.data?.data[0]?.title);
       setDetails(allData?.data?.data[0]?.description);
       setModelId(allData?.data?.data[0]?.model_id);
-      setStatus(allData?.data?.data[0]?.status);
       setDeviceId(allData?.data?.data[0]?.device_id);
       getModelList(allData?.data?.data[0]?.device_id);
       setBrandId(allData?.data?.data[0]?.brand_id);
@@ -851,55 +848,12 @@ const UpdateService = ({ clearFilter }) => {
                   id="name"
                   placeholder="Service Title"
                   variant="outlined"
-                  sx={{ ...customeTextFeild }}
+                  sx={{ ...customeTextFeild, mb: 2 }}
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
                   }}
                 />
-              </Grid>
-              <Grid size={6}>
-                <Typography
-                  variant="medium"
-                  color="text.main"
-                  gutterBottom
-                  sx={{ fontWeight: 500 }}
-                >
-                  Select Status
-                </Typography>
-                <FormControl
-                  fullWidth
-                  size="small"
-                  sx={{
-                    ...customeSelectFeild,
-                    "& label.Mui-focused": {
-                      color: "rgba(0,0,0,0)",
-                    },
-
-                    "& .MuiOutlinedInput-input img": {
-                      position: "relative",
-                      top: "2px",
-                    },
-                  }}
-                >
-                  <Select
-                    // required
-                    labelId="demo-simple-select-label"
-                    id="baseLanguage"
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          maxHeight: 250, // Set the max height here
-                        },
-                      },
-                    }}
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                  >
-                    <MenuItem value={true}>Active</MenuItem>
-                    <MenuItem value={false}>Inactive</MenuItem>
-                  </Select>
-                </FormControl>
               </Grid>
               <Grid size={12}>
                 <Typography
@@ -1359,6 +1313,7 @@ const UpdateService = ({ clearFilter }) => {
                                   Service Step Title *
                                 </Typography>
                                 <TextField
+                                  // required
                                   size="small"
                                   fullWidth
                                   id="title"

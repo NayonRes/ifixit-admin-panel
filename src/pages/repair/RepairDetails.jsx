@@ -16,6 +16,7 @@ import Paper from "@mui/material/Paper";
 
 import { AuthContext } from "../../context/AuthContext";
 import LocalPrintshopOutlinedIcon from "@mui/icons-material/LocalPrintshopOutlined";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 
 const baseStyle = {
   flex: 1,
@@ -537,6 +538,35 @@ const RepairDetails = ({ clearFilter }) => {
                       }}
                     >
                       {item?.name} : <b>{item?.status}</b>
+                      {item?.status === "Functional" ? (
+                        <>
+                          {" "}
+                          &nbsp;
+                          <CheckCircleOutlinedIcon
+                            color="success"
+                            sx={{
+                              fontSize: "22px",
+                              position: "relative",
+                              top: 5,
+                            }}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          {" "}
+                          &nbsp;
+                          <img
+                            src="/cross.png"
+                            alt=""
+                            style={{
+                              width: "20px",
+                              position: "relative",
+                              top: 5,
+                            }}
+                            // onClick={() => handleCheckboxChange(index, false)}
+                          />
+                        </>
+                      )}
                     </Typography>
                   ))
                 : "---------"}

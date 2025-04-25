@@ -613,11 +613,9 @@ const ContactForm = ({ contactData, setContactData }) => {
             Membership ID
           </Typography>
           <TextField
-            required
-            type="email"
+            type="text"
             size="small"
             fullWidth
-            id="email"
             placeholder="Enter Membership ID"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}

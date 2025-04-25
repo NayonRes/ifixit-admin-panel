@@ -25,6 +25,7 @@ import { useSnackbar } from "notistack";
 import { allIssueCheckList } from "../../data";
 
 import PulseLoader from "react-spinners/PulseLoader";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -266,12 +267,12 @@ const RepairChecklist = ({
             my: 1,
           }}
         >
-          <Grid container spacing={2}>
+          <Grid container spacing={1}>
             <Grid
               size={12}
               sx={{ display: "flex", gap: 3, alignItems: "center" }}
             >
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              <Typography variant="medium" sx={{ fontWeight: 600 }}>
                 Has Power
               </Typography>
               <FormControl>
@@ -284,12 +285,12 @@ const RepairChecklist = ({
                 >
                   <FormControlLabel
                     value={true}
-                    control={<Radio />}
+                    control={<Radio size="small" />}
                     label="Yes"
                   />
                   <FormControlLabel
                     value={false}
-                    control={<Radio />}
+                    control={<Radio size="small" />}
                     label="No"
                   />
                 </RadioGroup>
@@ -314,7 +315,6 @@ const RepairChecklist = ({
                   onClick={() =>
                     handleCheckboxChange(
                       index,
-
                       item.status === false
                         ? "Functional"
                         : item.status === "Functional"
@@ -326,7 +326,7 @@ const RepairChecklist = ({
                   }
                 >
                   <Typography
-                    variant="body1"
+                    variant="small"
                     color="text.secondary"
                     sx={{ fontWeight: 500 }}
                   >
@@ -337,22 +337,31 @@ const RepairChecklist = ({
                     sx={{ display: "flex", alignItems: "center " }}
                   >
                     {item.status === "Functional" ? (
-                      <img
+                      <>
+                        {/* <img
                         src="/check.png"
                         alt=""
                         style={{ width: "25px" }}
                         // onClick={() => handleCheckboxChange(index, "Damaged")}
-                      />
+                      /> */}
+                        <CheckCircleOutlinedIcon
+                          color="success"
+                          sx={{
+                            fontSize: "22px",
+                          
+                          }}
+                        />
+                      </>
                     ) : item.status === "Damaged" ? (
                       <img
                         src="/cross.png"
                         alt=""
-                        style={{ width: "25px" }}
+                        style={{ width: "20px" }}
                         // onClick={() => handleCheckboxChange(index, false)}
                       />
                     ) : (
                       <CheckBoxOutlineBlankIcon
-                        sx={{ color: "#999", width: "26px", height: "26px" }}
+                        sx={{ color: "#999", width: "20px", height: "20px" }}
                         // onClick={() =>
                         //   handleCheckboxChange(index, "Functional")
                         // }
@@ -368,14 +377,14 @@ const RepairChecklist = ({
               variant="medium"
               color="text.main"
               gutterBottom
-              sx={{ fontWeight: 500, mt: 3 }}
+              sx={{ fontWeight: 500, mt: 2 }}
             >
               Add New Checklist
             </Typography>
 
             <FormControl fullWidth variant="outlined">
               <OutlinedInput
-                sx={{ ...customeTextFeild, mb: 3 }}
+                sx={{ ...customeTextFeild, mb: 2 }}
                 placeholder="Enter additional checklist name "
                 size="small"
                 id="outlined-adornment-password"
@@ -412,7 +421,7 @@ const RepairChecklist = ({
                 id="battery_health"
                 placeholder="Enter Battery Health"
                 variant="outlined"
-                sx={{ ...customeTextFeild, mb: 3 }}
+                sx={{ ...customeTextFeild, mb: 0 }}
                 value={battery_health}
                 onChange={(e) => set_battery_health(e.target.value)}
               />
@@ -432,7 +441,7 @@ const RepairChecklist = ({
                 id="note"
                 placeholder="Additional Notes"
                 variant="outlined"
-                sx={{ ...customeTextFeild, mb: 3 }}
+                sx={{ ...customeTextFeild, mb: 0 }}
                 value={note}
                 onChange={(e) => set_note(e.target.value)}
               />
