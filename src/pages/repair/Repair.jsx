@@ -170,6 +170,7 @@ const Repair = () => {
     console.log("clearFilter");
     setOrderID("");
     setRepairNo("");
+    setNumber("");
     setModelId("");
     setBranch("");
     setStatus("");
@@ -227,7 +228,7 @@ const Repair = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/repair?repair_id=${repairNo.trim()}&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/repair?repair_id=${repairNo.trim()}&customerNo=${number}&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -421,7 +422,18 @@ const Repair = () => {
                     onChange={(e) => setRepairNo(e.target.value)}
                   />
                 </Grid>
-
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                  <TextField
+                    sx={{ ...customeTextFeild }}
+                    id="number"
+                    fullWidth
+                    size="small"
+                    variant="outlined"
+                    label="number"
+                    value={number}
+                    onChange={(e) => setNumber(e.target.value)}
+                  />
+                </Grid>
                 {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"

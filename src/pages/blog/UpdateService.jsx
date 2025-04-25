@@ -953,11 +953,11 @@ const UpdateService = ({ clearFilter }) => {
                               border: "2px solid #F9FAFB",
                             }}
                           >
-                             <Alert severity="info" sx={{ mb: 1 }}>
-                                                        {" "}
-                                                        For Single Service : Dimension 1 : 1 & For multiple
-                                                        Service : Dimension 2 : 1
-                                                      </Alert>
+                            <Alert severity="info" sx={{ mb: 1 }}>
+                              {" "}
+                              For Single Service : Dimension 1 : 1 & For
+                              multiple Service : Dimension 2 : 1
+                            </Alert>
                             <Box sx={{ textAlign: "right", mb: 1 }}>
                               <Button
                                 variant="contained"
@@ -1313,7 +1313,7 @@ const UpdateService = ({ clearFilter }) => {
                                   Service Step Title *
                                 </Typography>
                                 <TextField
-                                  required
+                                  // required
                                   size="small"
                                   fullWidth
                                   id="title"

@@ -178,7 +178,7 @@ const ServiceList = () => {
   const pageLoading = () => {
     let content = [];
 
-    let loadingNumber = 8;
+    let loadingNumber = 7;
 
     if (checkMultiplePermission(["update_service", "view_service_details"])) {
       loadingNumber = loadingNumber + 1;
@@ -186,7 +186,7 @@ const ServiceList = () => {
     for (let i = 0; i < 10; i++) {
       content.push(
         <TableRow key={i}>
-          {[...Array(7).keys()].map((e, i) => (
+          {[...Array(loadingNumber).keys()].map((e, i) => (
             <TableCell key={i}>
               <Skeleton></Skeleton>
             </TableCell>

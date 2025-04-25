@@ -1359,7 +1359,6 @@ const UpdateService = ({ clearFilter }) => {
                                   Service Step Title *
                                 </Typography>
                                 <TextField
-                                  required
                                   size="small"
                                   fullWidth
                                   id="title"
