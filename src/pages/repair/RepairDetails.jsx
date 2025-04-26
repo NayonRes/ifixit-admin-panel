@@ -348,12 +348,24 @@ const RepairDetails = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Product :{" "}
-                <b>
-                  {details?.product_details?.length > 0
-                    ? details?.product_details[0]?.name
-                    : "---------"}
-                </b>
+                Spareparts:{" "}
+                {details?.product_details?.length > 0
+                  ? details?.product_details?.map((item, index) => (
+                      <b
+                        key={index}
+                        style={{
+                          background: "#eee",
+                          marginRight: "10px",
+                          padding: "5px 10px",
+                          borderRadius: "5px",
+                          marginBottom: "3px",
+                          display: "inline-block",
+                        }}
+                      >
+                        {item?.name} - ({item?.price} TK)
+                      </b>
+                    ))
+                  : "---------"}
               </Typography>
             </Grid>
             <Grid size={4}>
@@ -405,34 +417,7 @@ const RepairDetails = ({ clearFilter }) => {
                           display: "inline-block",
                         }}
                       >
-                        {item?.name}
-                      </b>
-                    ))
-                  : "---------"}
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Spareparts:{" "}
-                {details?.product_details?.length > 0
-                  ? details?.product_details?.map((item, index) => (
-                      <b
-                        key={index}
-                        style={{
-                          background: "#eee",
-                          marginRight: "10px",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                          marginBottom: "3px",
-                          display: "inline-block",
-                        }}
-                      >
-                        {item?.name}
+                        {item?.name} - ({item?.repair_cost} TK)
                       </b>
                     ))
                   : "---------"}

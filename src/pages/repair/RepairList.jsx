@@ -23,7 +23,6 @@ import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import AddRepairProductSKU from "./AddRepairProductSKU";
 import WarrantyProductSKU from "./WarrantyProductSKU";
 
-
 const RepairList = ({
   loading,
   pageLoading,
@@ -164,7 +163,7 @@ const RepairList = ({
                           {row?.issues?.map((item, index) => (
                             <Chip
                               size="small"
-                              label={item.name}
+                              label={`${item.name} - (${item?.repair_cost} TK)`}
                               variant="outlined"
                               sx={{
                                 mr: 1,
@@ -184,7 +183,7 @@ const RepairList = ({
                           {row?.product_details?.map((item, index) => (
                             <Chip
                               size="small"
-                              label={item.name}
+                              label={`${item.name} - (${item?.price} TK)`}
                               variant="outlined"
                               sx={{
                                 mr: 1,
