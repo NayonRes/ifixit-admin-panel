@@ -183,6 +183,7 @@ const IssueList = ({
           id: item._id,
           name: item.name,
           repair_cost: item.repair_cost,
+          service_id: item._id,
         },
       ]);
     }
@@ -277,6 +278,14 @@ const IssueList = ({
         setSteps={setSteps}
         deviceId={deviceId}
       /> */}
+      <Button
+        onClick={() => {
+          console.log("allIssue", allIssue);
+          console.log("selectedProducts", selectedProducts);
+        }}
+      >
+        Check
+      </Button>
       <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
         Select Issue
       </Typography>
@@ -339,7 +348,7 @@ const IssueList = ({
                 <Item
                   sx={{
                     border:
-                      allIssue.some((pro) => pro?._id === item?._id) &&
+                      allIssue.some((pro) => pro?.service_id === item?._id) &&
                       "1px solid #818FF8",
                   }}
                   onClick={() => handleSelectedProduct(item)}
@@ -396,7 +405,7 @@ const IssueList = ({
                           <Checkbox
                             sx={{
                               display: allIssue.some(
-                                (pro) => pro?._id === item?._id
+                                (pro) => pro?.service_id === item?._id
                               )
                                 ? "block"
                                 : "none",

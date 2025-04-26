@@ -374,6 +374,7 @@ const CustomerList = () => {
                     size="small"
                     variant="outlined"
                     label="number"
+                    inputProps={{ maxLength: 11 }}
                     value={number}
                     onChange={(e) => setNumber(e.target.value)}
                   />
@@ -570,7 +571,9 @@ const CustomerList = () => {
                   ))}
 
                 {!loading && tableDataList?.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={8} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>

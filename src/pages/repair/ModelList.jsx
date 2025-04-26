@@ -316,6 +316,13 @@ const ModelList = ({
     }
   }, []);
 
+  useEffect(() => {
+    if (location.pathname.includes("/update-repair")) {
+      getServices(deviceId);
+      getProducts(deviceId);
+    }
+  }, []);
+
   return (
     <div className="">
       {/* <Button onClick={() => setSteps("repair_list")}>Repair List</Button> */}

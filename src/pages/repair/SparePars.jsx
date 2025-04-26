@@ -12,7 +12,14 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, Divider, Skeleton, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Skeleton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useSnackbar } from "notistack";
 import { Link, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
@@ -282,6 +289,14 @@ const SparePars = ({
 
   return (
     <Grid container spacing={3}>
+      {/* <Button
+        onClick={() => {
+          console.log("allSpareParts", allSpareParts);
+          console.log("selectedProducts", selectedProducts);
+        }}
+      >
+        Check
+      </Button> */}
       <Grid size={12}>
         {/* <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
           All Product
@@ -303,7 +318,7 @@ const SparePars = ({
                         sx={{
                           border:
                             selectedProducts.some(
-                              (pro) => pro?.product_id === item?.product_id
+                              (pro) => pro?.product_variation_id === item?._id
                             ) && "1px solid #818FF8",
                         }}
                         onClick={() => handleSelectedProduct(item, row)}
@@ -382,7 +397,8 @@ const SparePars = ({
                                 <Checkbox
                                   sx={{
                                     display: selectedProducts.some(
-                                      (pro) => pro?._id === item?._id
+                                      (pro) =>
+                                        pro?.product_variation_id === item?._id
                                     )
                                       ? "block"
                                       : "none",

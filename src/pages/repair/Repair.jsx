@@ -430,6 +430,7 @@ const Repair = () => {
                     size="small"
                     variant="outlined"
                     label="number"
+                    inputProps={{ maxLength: 11 }}
                     value={number}
                     onChange={(e) => setNumber(e.target.value)}
                   />

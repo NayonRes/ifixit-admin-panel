@@ -359,7 +359,7 @@ const SearchForm = ({
   };
 
   const removeItem = (id) => {
-    setAllIssue(allIssue.filter((item) => item.id !== id));
+    setAllIssue(allIssue.filter((item) => item.service_id !== id));
   };
 
   const removeSpareParts = (id) => {
@@ -759,7 +759,7 @@ const SearchForm = ({
                 {item.name} | ৳ {item.repair_cost}
                 <Box
                   role="button"
-                  onClick={() => removeItem(item._id)}
+                  onClick={() => removeItem(item.service_id)}
                   className="issue_list_btn"
                   sx={{ mt: "4px" }}
                 >
