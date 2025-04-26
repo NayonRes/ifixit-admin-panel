@@ -375,6 +375,7 @@ const SupplierList = () => {
                     size="small"
                     variant="outlined"
                     label="Supplier Number"
+                    inputProps={{ maxLength: 11 }}
                     value={number}
                     onChange={(e) => setNumber(e.target.value)}
                   />
@@ -578,7 +579,9 @@ const SupplierList = () => {
                   ))}
 
                 {!loading && tableDataList.length < 1 ? (
-                  <TableRow  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
                     <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
