@@ -215,46 +215,59 @@ const TechnicianList = ({
         {!technicianLoading &&
           technicianList.length > 0 &&
           technicianList.map((item, index) => (
-            <Grid size={3} key={index}>
-              <Box
-                sx={technician === item._id ? style.cardActive : style.card}
-                role="button"
-                onClick={() => {
-                  setTechnician(item._id);
-                  setTechnicianName(item.name);
-                }}
+            <>
+              <Typography
+                variant="base"
+                sx={{ width: "100%", fontWeight: 600 }}
               >
-                <Box>
-                  <img
-                    src={
-                      item?.image?.url?.length > 0
-                        ? item?.image?.url
-                        : "/userpic.png"
-                    }
-                    alt=""
-                    width="40px"
-                    height="40px"
-                    style={{
-                      display: "block",
-                      margin: "5px 0px",
-                      borderRadius: "100px",
-                      // border: "1px solid #d1d1d1",
-                    }}
-                  />
-                </Box>
+                {item?.branch_data?.name}
+              </Typography>
+              {item?.users?.length > 0 &&
+                item?.users?.map((item, i) => (
+                  <Grid size={3} key={i}>
+                    <Box
+                      sx={
+                        technician === item._id ? style.cardActive : style.card
+                      }
+                      role="button"
+                      onClick={() => {
+                        setTechnician(item._id);
+                        setTechnicianName(item.name);
+                      }}
+                    >
+                      <Box>
+                        <img
+                          src={
+                            item?.image?.url?.length > 0
+                              ? item?.image?.url
+                              : "/userpic.png"
+                          }
+                          alt=""
+                          width="40px"
+                          height="40px"
+                          style={{
+                            display: "block",
+                            margin: "5px 0px",
+                            borderRadius: "100px",
+                            // border: "1px solid #d1d1d1",
+                          }}
+                        />
+                      </Box>
 
-                <Box>
-                  <Typography variant="medium">{item.name}</Typography>
-                  <Typography
-                    variant="small"
-                    color="text.secondary"
-                    sx={{ mt: "2px" }}
-                  >
-                    {item.designation}
-                  </Typography>
-                </Box>
-              </Box>
-            </Grid>
+                      <Box>
+                        <Typography variant="medium">{item.name}</Typography>
+                        <Typography
+                          variant="small"
+                          color="text.secondary"
+                          sx={{ mt: "2px" }}
+                        >
+                          {item.designation}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                ))}
+            </>
           ))}
 
         {!technicianLoading && message && (

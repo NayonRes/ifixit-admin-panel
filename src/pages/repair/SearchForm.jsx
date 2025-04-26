@@ -390,7 +390,8 @@ const SearchForm = ({
     //   newBranchId = branch_id;
     // }
 
-    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
+    // let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
+    let url = `/api/v1/user/dropdownlist?designation=Technician`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -400,7 +401,30 @@ const SearchForm = ({
 
     if (allData.status >= 200 && allData.status < 300) {
       setTechnicianLoading(false);
-      setTechnicianList(allData?.data.data);
+
+      const groupedData = {};
+
+      allData?.data.data.forEach((user) => {
+        user.branch_data.forEach((branch) => {
+          if (!groupedData[branch._id]) {
+            groupedData[branch._id] = {
+              branch_data: {
+                _id: branch._id,
+                name: branch.name,
+              },
+              users: [],
+            };
+          }
+          groupedData[branch._id].users.push(user);
+        });
+      });
+
+      const finalArray = Object.values(groupedData);
+
+      console.log("finalArray*********************", finalArray);
+
+      setTechnicianList(finalArray);
+      // setTechnicianList(allData?.data.data);
 
       let name = allData?.data.data.filter((i) => i._id === technician);
       setTechnicianName(name[0]?.name);
