@@ -89,7 +89,7 @@ const Item = styled(Paper)(({ theme }) => ({
   border: "1px solid #EAECF0",
   cursor: "pointer",
 }));
-const ServiceDetails = ({ clearFilter }) => {
+const BlogDetails = ({ clearFilter }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -550,4 +550,4 @@ const ServiceDetails = ({ clearFilter }) => {
   );
 };
 
-export default ServiceDetails;
+export default BlogDetails;

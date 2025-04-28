@@ -443,7 +443,7 @@ const AddBlog = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Blog Description
+                Blog Description *
               </Typography>
 
               <TextEditor

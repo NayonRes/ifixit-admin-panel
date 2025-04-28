@@ -491,9 +491,7 @@ const UpdateService = ({ clearFilter }) => {
       );
 
       setAllData(allData?.data?.data);
-      // setTimeout(() => {
-      //   setRefresh(!refresh);
-      // }, 500);
+      
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
