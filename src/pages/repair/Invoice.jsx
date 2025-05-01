@@ -121,8 +121,8 @@ const Invoice = () => {
           maxWidth: "900px",
           background: "#fff",
           margin: "auto",
-          border: "1px solid #eee",
-          padding: "60px 90px 10px 90px",
+          // border: "1px solid #eee",
+          padding: "60px 90px 60px 90px",
         }}
         ref={contentRef}
       >
@@ -188,16 +188,16 @@ const Invoice = () => {
           container
           justifyContent="space-between"
           spacing={3}
-          sx={{ background: "#ddd", p: 0.5 }}
+          sx={{ background: "#ddd", p: 0.5, border: "1px solid #c5c5c5" }}
         >
-          <Grid size="auto" sx={{ fontSize: "16px" }}>
+          <Grid size="auto" sx={{ fontSize: "14px" }}>
             INVOICE NO: {details?.repair_id}
           </Grid>
           <Grid size="auto" sx={{ fontSize: "16px", fontWeight: 500 }}>
             REPAIR INVOICE
           </Grid>
 
-          <Grid size="auto" sx={{ fontSize: "16px" }}>
+          <Grid size="auto" sx={{ fontSize: "14px" }}>
             DATE:{dayjs(details?.created_at).format("YYYY-MM-DD")}{" "}
           </Grid>
         </Grid>
@@ -221,7 +221,10 @@ const Invoice = () => {
               </Grid>
 
               <Grid size={8}>
-                <Typography variant="small" sx={{ background: "#ddd", p: 0.5 }}>
+                <Typography
+                  variant="small"
+                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
+                >
                   {details?.customer_data?.[0]?.name}
                 </Typography>
               </Grid>
@@ -232,7 +235,10 @@ const Invoice = () => {
               </Grid>
 
               <Grid size={8}>
-                <Typography variant="small" sx={{ background: "#ddd", p: 0.5 }}>
+                <Typography
+                  variant="small"
+                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
+                >
                   {details?.customer_data?.[0]?.mobile}
                 </Typography>
               </Grid>
@@ -243,7 +249,10 @@ const Invoice = () => {
               </Grid>
 
               <Grid size={8}>
-                <Typography variant="small" sx={{ background: "#ddd", p: 0.5 }}>
+                <Typography
+                  variant="small"
+                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
+                >
                   {details?.brand_data?.length > 0
                     ? details?.brand_data[0]?.name
                     : "---------"}
@@ -256,7 +265,10 @@ const Invoice = () => {
               </Grid>
 
               <Grid size={8}>
-                <Typography variant="small" sx={{ background: "#ddd", p: 0.5 }}>
+                <Typography
+                  variant="small"
+                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
+                >
                   {details?.model_data?.length > 0
                     ? details?.model_data[0]?.name
                     : "---------"}
@@ -269,7 +281,10 @@ const Invoice = () => {
               </Grid>
 
               <Grid size={8}>
-                <Typography variant="small" sx={{ background: "#ddd", p: 0.5 }}>
+                <Typography
+                  variant="small"
+                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
+                >
                   {details?.serial?.length > 0 ? details?.serial : "---------"}
                 </Typography>
               </Grid>
@@ -280,7 +295,10 @@ const Invoice = () => {
               </Grid>
 
               <Grid size={8}>
-                <Typography variant="small" sx={{ background: "#ddd", p: 0.5 }}>
+                <Typography
+                  variant="small"
+                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
+                >
                   {details?.pass_code?.length > 0
                     ? details?.pass_code
                     : "---------"}
@@ -414,215 +432,137 @@ const Invoice = () => {
               </Grid>
             </Grid>
           </Grid>
-          <Grid size={6} sx={{}}></Grid>
-        </Grid>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "20px 0px",
-          }}
-        >
-          <Box>
-            <Typography
-              variant="medium"
-              sx={{
-                textTransform: "uppercase",
-                fontWeight: 600,
-                mb: 1,
-              }}
+          <Grid size={6} sx={{ pl: 1 }}>
+            <Grid
+              container
+              justifyContent="space-between"
+              direction="column"
+              spacing={1}
+              sx={{ height: "100%" }}
             >
-              Invoice to
-            </Typography>
-            <Typography
-              variant="small"
-              sx={{
-                textTransform: "uppercase",
-
-                fontWeight: 600,
-                mb: 1,
-              }}
-            >
-              {details?.customer_data?.[0]?.name}
-            </Typography>
-            <Typography variant="small">
-              {details?.customer_data?.[0]?.mobile}
-            </Typography>
-            <Typography variant="small">
-              {details?.customer_data?.[0]?.email}
-            </Typography>
-          </Box>
-          <Box sx={{ textAlign: "right" }}>
-            <Typography
-              variant="h4"
-              sx={{
-                textTransform: "uppercase",
-                fontWeight: 600,
-                color: "#4DA1A9",
-                mb: 1,
-              }}
-            >
-              Invoice
-            </Typography>
-            <Typography
-              variant="small"
-              sx={{
-                textTransform: "uppercase",
-
-                fontWeight: 600,
-              }}
-            >
-              Invoice No. {details?.repair_id}
-            </Typography>
-            <Typography variant="small">
-              Date: {dayjs(details?.created_at).format("YYYY-MM-DD")}{" "}
-            </Typography>
-          </Box>
-        </Box>
-        <Box sx={{ padding: "0px 0px 0px 30px" }}>
-          <Box sx={{ minHeight: "735px" }}>
-            {details?.issues?.length > 0 && (
-              <Box>
-                <Typography variant="small" sx={{ fontWeight: 600, mb: 1 }}>
-                  Service Info
-                </Typography>
-                <TableContainer>
-                  <Table
-                    aria-label="simple table"
-                    sx={{ "& td, & th": { fontSize: "10px", py: 1 } }}
-                  >
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ fontWeight: 600, fontSize: "10px" }}>
-                          Service Name
-                        </TableCell>
-
-                        <TableCell
-                          align="right"
-                          sx={{ fontWeight: 600, fontSize: "10px" }}
-                        >
-                          Cost
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {details?.issues?.length > 0 &&
-                        details?.issues?.map((item) => (
-                          <TableRow
-                            key={item.name}
-                            sx={{
-                              "&:last-child td, &:last-child th": { border: 0 },
-                            }}
-                          >
-                            <TableCell component="th" scope="row">
-                              {item.name}
-                            </TableCell>
-
-                            <TableCell align="right">
-                              {item.repair_cost}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-
-                      <TableRow
+              <Box sx={{}}>
+                {details?.issues?.length > 0 && (
+                  <Box>
+                    {/* <Typography variant="small" sx={{ fontWeight: 600, mb: 1 }}>
+                      Service Info
+                    </Typography> */}
+                    <TableContainer>
+                      <Table
+                        aria-label="simple table"
                         sx={{
-                          background: "#eee",
-                          "& td, & th": { fontSize: "10px" },
+                          "& td, & th": { fontSize: "12px", py: 0.5, px: 0 },
                         }}
                       >
-                        <TableCell>Total</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600 }}>
-                          {repairCost}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Box>
-            )}
-
-            {details?.product_details?.length > 0 && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="small" sx={{ fontWeight: 600, mb: 1 }}>
-                  Spare Parts Info
-                </Typography>
-                <TableContainer>
-                  <Table
-                    aria-label="simple table"
-                    sx={{ "& td, & th": { fontSize: "10px", py: 1 } }}
-                  >
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ fontWeight: 600, fontSize: "10px" }}>
-                          Spare Parts Name
-                        </TableCell>
-
-                        <TableCell
-                          align="right"
-                          sx={{ fontWeight: 600, fontSize: "10px" }}
-                        >
-                          Cost
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {details?.product_details?.length > 0 &&
-                        details?.product_details?.map((item) => (
-                          <TableRow
-                            key={item.name}
-                            sx={{
-                              "&:last-child td, &:last-child th": { border: 0 },
-                            }}
-                          >
-                            <TableCell component="th" scope="row">
-                              {item.name}
+                        {/* <TableHead>
+                          <TableRow>
+                            <TableCell
+                              sx={{ fontWeight: 600, fontSize: "10px" }}
+                            >
+                              Service Name
                             </TableCell>
 
-                            <TableCell align="right">{item.price}</TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ fontWeight: 600, fontSize: "10px" }}
+                            >
+                              Cost
+                            </TableCell>
                           </TableRow>
-                        ))}
+                        </TableHead> */}
+                        <TableBody>
+                          {details?.issues?.length > 0 &&
+                            details?.issues?.map((item) => (
+                              <TableRow
+                                key={item.name}
+                                sx={{
+                                  "& td, & th": {
+                                    border: 0,
+                                  },
+                                }}
+                              >
+                                <TableCell component="th" scope="row">
+                                  {item.name}
+                                </TableCell>
 
-                      <TableRow
-                        sx={{
-                          background: "#eee",
-                          "& td, & th": { fontSize: "10px" },
-                        }}
-                      >
-                        <TableCell>Total</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600 }}>
-                          {spareParsCost}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Box>
-            )}
+                                <TableCell
+                                  align="right"
+                                  // sx={{ background: "#ddd" }}
+                                >
+                                  <Box
+                                    sx={{
+                                      background: "#ddd",
+                                      py: 0.5,
+                                      px: 1,
+                                      borderRadius: "4px",
+                                    }}
+                                  >
+                                    {item.repair_cost}
+                                  </Box>
+                                </TableCell>
+                              </TableRow>
+                            ))}
 
-            <Box sx={{ display: "flex", gap: 4, mt: 2 }}>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="small" sx={{ mt: 6 }}>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Sapiente veritatis enim explicabo tempora suscipit, magni
-                  obcaecati commodi cum libero laudantium recusandae officiis
-                  labore optio. Necessitatibus officia omnis quas totam earum!
-                </Typography>
+                          {details?.product_details?.length > 0 &&
+                            details?.product_details?.map((item) => (
+                              <TableRow
+                                key={item.name}
+                                sx={{
+                                  "& td, & th": {
+                                    border: 0,
+                                  },
+                                }}
+                              >
+                                <TableCell component="th" scope="row">
+                                  {item.name}
+                                </TableCell>
+
+                                <TableCell
+                                  align="right"
+                                  // sx={{ background: "#ddd" }}
+                                >
+                                  <Box
+                                    sx={{
+                                      background: "#ddd",
+                                      py: 0.5,
+                                      px: 1,
+                                      borderRadius: "4px",
+                                    }}
+                                  >
+                                    {item.price}
+                                  </Box>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+
+                          {/* <TableRow
+                            sx={{
+                              background: "#eee",
+                              "& td, & th": { fontSize: "10px" },
+                            }}
+                          >
+                            <TableCell>Total</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 600 }}>
+                              {repairCost}
+                            </TableCell>
+                          </TableRow> */}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Box>
+                )}
               </Box>
-              <Box sx={{ textAlign: "right", flex: 1 }}>
-                <Typography variant="medium" sx={{ fontWeight: 600, mb: 2 }}>
-                  Payment Info
-                </Typography>
+              <Box sx={{}}>
                 <TableContainer
                   sx={{ display: "flex", justifyContent: "flex-end" }}
                 >
                   <Table
                     sx={{
-                      "& td, & th": { fontSize: "10px", py: 1 },
+                      "& td, & th": { fontSize: "12px", py: 1 },
                       border: "1px solid #ddd",
                     }}
                     aria-label="simple table"
                   >
-                    <TableBody sx={{ "& td, & th": { fontSize: "10px" } }}>
+                    <TableBody sx={{ "& td, & th": { fontSize: "12px" } }}>
                       <TableRow>
                         <TableCell sx={{}}>Total Amount</TableCell>
 
@@ -671,25 +611,45 @@ const Invoice = () => {
                   </Table>
                 </TableContainer>
               </Box>
-            </Box>
-          </Box>
-          <Box>
-            <Box
-              sx={{
-                maxWidth: "70%",
-                margin: "auto",
-                paddingTop: "10px",
-                display: "flex",
-                justifyContent: "space-between",
-                borderTop: "3px solid #999",
-              }}
+            </Grid>
+          </Grid>
+        </Grid>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
+            <span style={{ color: "red" }}>30-day service warranty:</span> If
+            your device encounters the same issues within 30 days of the
+            repair,we will fix the issue at our own cost without any question.
+          </Typography>
+          <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
+            <span style={{ color: "red" }}> Service disclaimers:</span> Be sure
+            to collect your item within 2 months of servicing.Otherwise,we will
+            not be liable if your item is lost,damaged or stolen.
+          </Typography>
+          <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
+            <span style={{ color: "red" }}> Service disclaimers:</span> Be sure
+            to collect your item within 2 months of servicing.Otherwise,we will
+            not be liable if your item is lost,damaged or stolen.
+          </Typography>
+          <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
+            <span style={{ color: "red" }}> Terms and conditions:</span> Please
+            also be aware that we can only service your gadgets at your own
+            risk. Even though we do our best in 'IFiXIT' to make things better.
+            However,in worst case scenario,your gadget may be damaged during
+            repairs. We will not be liable if such things happen. Visit:{" "}
+            <a
+              target="_blank"
+              href="https://ifixit.com.bd/warranty-policy"
+              style={{ textDecoration: "none", color: "inherit" }}
             >
-              <Typography variant="small">Authorized Sign</Typography>
-              <Typography variant="small">Date</Typography>
-            </Box>
-          </Box>
+              https://ifixit.com.bd/warranty-policy
+            </a>{" "}
+            [Recommended]
+          </Typography>
+          <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
+            ** Warrnaty for display replacement will be void if color line /
+            black screen / dead pixel appears in screen.
+          </Typography>
         </Box>
-        {/* <Box sx={{ background: "#4DA1A9", height: "10px" }}></Box> */}
       </Box>
     </Box>
   );
