@@ -204,8 +204,8 @@ const AddBlog = ({ clearFilter }) => {
 
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
+      handleSnakbarOpen("Added successfully", "success");
       navigate("/blog-list");
-      // handleSnakbarOpen("Added successfully", "success");
       // clearFilter();
 
       // clearForm();
@@ -418,7 +418,7 @@ const AddBlog = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Order No
+                Order No *
               </Typography>
               <TextField
                 required
@@ -443,7 +443,7 @@ const AddBlog = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Blog Description
+                Blog Description *
               </Typography>
 
               <TextEditor

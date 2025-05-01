@@ -76,7 +76,10 @@ const TextEditor = ({
             "history",
             "colorPicker",
           ],
-
+          blockType: {
+            inDropdown: true,
+            options: ["Normal", "H3"],
+          },
           // image: {
           //   uploadCallback: uploadImageCallback,
           //   previewImage: true,

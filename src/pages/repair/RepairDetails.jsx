@@ -475,7 +475,7 @@ const RepairDetails = ({ clearFilter }) => {
                 Battery health :{" "}
                 <b>
                   {details?.repair_checklist?.battery_health
-                    ? details?.repair_checklist?.battery_health
+                    ? details?.repair_checklist?.battery_health + "%"
                     : "-------"}
                 </b>
               </Typography>

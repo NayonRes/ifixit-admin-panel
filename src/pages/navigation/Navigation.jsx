@@ -47,6 +47,7 @@ import RepairDetails from "../repair/RepairDetails";
 import Invoice from "../repair/Invoice";
 import BlogList from "../blog/BlogList";
 import AddBlog from "../blog/AddBlog";
+import UpdateBlog from "../blog/UpdateBlog";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -201,6 +202,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <AddBlog />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="blog/update/:id"
+          element={
+            <PrivateRoute>
+              <UpdateBlog />
             </PrivateRoute>
           }
         />
