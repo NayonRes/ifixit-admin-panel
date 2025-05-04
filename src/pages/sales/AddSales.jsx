@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import { Box, Button, Divider, IconButton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import React, { useContext, useEffect, useState } from "react";
 import SearchForm from "./SearchForm";
@@ -25,6 +25,7 @@ import { handlePutData } from "../../services/PutDataService";
 import { PulseLoader } from "react-spinners";
 import RepairHistory from "./RepairHistory";
 import SerialHistory from "./SerialHistory";
+import Products from "./Products";
 
 const AddSales = () => {
   const navigate = useNavigate();
@@ -329,7 +330,7 @@ const AddSales = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-          Add Sales
+            Add Sales
             {/* {name} */}
           </Typography>
         </Grid>
@@ -455,144 +456,27 @@ const AddSales = () => {
               ) : (
                 ""
               )}
+              <br />
+              <Divider />
+              <Products />
+              <br />
+              <Divider />
+              <br />
+              <PaymentList
+                paymentStatus={paymentStatus}
+                setPaymentStatus={setPaymentStatus}
+                payment_info={payment_info}
+                set_payment_info={set_payment_info}
+                due_amount={due_amount}
+                set_due_amount={set_due_amount}
+                discount_amount={discount_amount}
+                set_discount_amount={set_discount_amount}
+                allIssue={allIssue}
+                allSpareParts={allSpareParts}
+              />
             </Box>
           )}
 
-          {steps == "serial_history" && (
-            <SerialHistory
-              contactData={contactData}
-              serial={serial}
-              serialLoading={serialLoading}
-              setSerialLoading={setSerialLoading}
-              serialHistoryList={serialHistoryList}
-              setSerialHistoryList={setSerialHistoryList}
-            />
-          )}
-
-          {steps == "device" && (
-            <ModelList
-              id={id}
-              device={device}
-              setDevice={setDevice}
-              brand={brand}
-              brand_id={brand_id}
-              parentList={parentList}
-              setParentList={setParentList}
-              deviceId={deviceId}
-              setDeviceId={setDeviceId}
-              steps={steps}
-              setSteps={setSteps}
-              repair_checklist={repair_checklist}
-              set_repair_checklist={set_repair_checklist}
-              issue={issue}
-              setIssue={setIssue}
-              allIssue={allIssue}
-              setAllIssue={setAllIssue}
-              allSpareParts={allSpareParts}
-              setAllSpareParts={setAllSpareParts}
-              allIssueUpdate={allIssueUpdate}
-              subChildDeviceList={subChildDeviceList}
-              setSubChildDeviceList={setSubChildDeviceList}
-              parentDevice={parentDevice}
-              setParentDevice={setParentDevice}
-              childDevice={childDevice}
-              setChildDevice={setChildDevice}
-              modelList={modelList}
-              setModelList={setModelList}
-              issueArr={issueArr}
-              setIssueArr={setIssueArr}
-              issueLoading={issueLoading}
-              setIssueLoading={setIssueLoading}
-              productList={productList}
-              setProductList={setProductList}
-              productLoading={productLoading}
-              setProductLoading={setProductLoading}
-              apiCallForUpdate={apiCallForUpdate}
-              previousRepairData={previousRepairData}
-              setPreviousRepairData={setPreviousRepairData}
-            />
-            // <div>Model list</div>
-          )}
-          {/* {steps == "repair_list" && (
-            <IssueList
-              issue={issue}
-              setIssue={setIssue}
-              allIssue={allIssue}
-              setAllIssue={setAllIssue}
-              allSpareParts={allSpareParts}
-              setAllSpareParts={setAllSpareParts}
-              allIssueUpdate={allIssueUpdate}
-              brand_id={brand_id}
-              deviceId={deviceId}
-              repair_checklist={repair_checklist}
-              set_repair_checklist={set_repair_checklist}
-              steps={steps}
-              setSteps={setSteps}
-              issueArr={issueArr}
-              setIssueArr={setIssueArr}
-            />
-          )} */}
-          {steps == "repair_by" && (
-            <TechnicianList
-              technician={technician}
-              setTechnician={setTechnician}
-              technicianName={technicianName}
-              setTechnicianName={setTechnicianName}
-              technicianLoading={technicianLoading}
-              setTechnicianLoading={setTechnicianLoading}
-              technicianList={technicianList}
-              setTechnicianList={setTechnicianList}
-            />
-          )}
-          {steps == "repair_status" && (
-            <RepairStatusList
-              repairStatus={repairStatus}
-              setRepairStatus={setRepairStatus}
-              setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
-              deliveryStatus={deliveryStatus}
-              setDeliveryStatus={setDeliveryStatus}
-              repair_status_history_data={repair_status_history_data}
-              technicianLoading={technicianLoading}
-              setTechnicianLoading={setTechnicianLoading}
-              technicianList={technicianList}
-              setTechnicianList={setTechnicianList}
-              technician={technician}
-              setTechnician={setTechnician}
-            />
-          )}
-          {steps == "payment" && (
-            <PaymentList
-              paymentStatus={paymentStatus}
-              setPaymentStatus={setPaymentStatus}
-              payment_info={payment_info}
-              set_payment_info={set_payment_info}
-              due_amount={due_amount}
-              set_due_amount={set_due_amount}
-              discount_amount={discount_amount}
-              set_discount_amount={set_discount_amount}
-              allIssue={allIssue}
-              allSpareParts={allSpareParts}
-            />
-          )}
-          {/* {screenType == "add_contact" && (
-            <Box
-              sx={{
-                borderTop: "1px solid #EAECF1",
-                pt: 2,
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 2,
-              }}
-            >
-              <Button
-                variant="contained"
-                onClick={() => setSteps(steps + 1)}
-                sx={buttonStyle}
-              >
-                Add Contact
-              </Button>
-            </Box>
-          )} */}
           <Box
             sx={{
               borderTop: "1px solid #EAECF1",
@@ -602,33 +486,21 @@ const AddSales = () => {
               gap: 2,
             }}
           >
-            {/* <Button
-                variant="outlined"
-                onClick={() => setSteps(steps - 1)}
-                sx={buttonStyle}
-              >
-                Back
-              </Button> */}
-
-            {steps == "payment" && (
-              <>
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                  // onClick={checkSum}
-                  sx={buttonStyle}
-                  disabled={loading}
-                >
-                  {rid ? "Update" : "Submit"}
-                  <PulseLoader
-                    color={"#4B46E5"}
-                    loading={loading}
-                    size={10}
-                    speedMultiplier={0.5}
-                  />
-                </Button>
-              </>
-            )}
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              // onClick={checkSum}
+              sx={buttonStyle}
+              disabled={loading}
+            >
+              {rid ? "Update" : "Submit"}
+              <PulseLoader
+                color={"#4B46E5"}
+                loading={loading}
+                size={10}
+                speedMultiplier={0.5}
+              />
+            </Button>
           </Box>
         </Grid>
       </Grid>

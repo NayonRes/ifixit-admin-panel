@@ -166,15 +166,9 @@ const PaymentList = ({
         <Grid size={12}>
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
-              Payment Status
+              Payment
             </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontWeight: 600, mb: 3 }}
-            >
-              Payment Received Time: 15/04/2024 12:35:38
-            </Typography>
+         
           </Box>
         </Grid>
       </Grid>
