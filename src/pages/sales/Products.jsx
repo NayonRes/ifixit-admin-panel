@@ -94,7 +94,7 @@ const Item = styled(Paper)(({ theme }) => ({
   border: "1px solid #EAECF0",
   cursor: "pointer",
 }));
-const Products = ({ clearFilter }) => {
+const Products = ({ selectedProducts, setSelectedProducts }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
@@ -115,7 +115,7 @@ const Products = ({ clearFilter }) => {
   const [invoiceNo, setInvoiceNo] = useState("");
   const [searchProductText, setsearchProductText] = useState("");
   const [productList, setProductList] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  // const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [purchaseBy, setPurchaseBy] = useState("");
   const [userList, setUserList] = useState([]);
@@ -251,7 +251,7 @@ const Products = ({ clearFilter }) => {
         product_id: item.product_id,
         product_variation_id: item.product_variation_id,
         quantity: item.quantity,
-        unit_price: item.unit_price,
+        price: item.price,
         purchase_product_status: item.purchase_product_status,
       }));
     }
@@ -576,8 +576,8 @@ const Products = ({ clearFilter }) => {
 
     let url = `/api/v1/purchaseProduct/last-purchase?product_variation_id=${id}`;
     let allData = await getDataWithToken(url);
-    console.log("last purchase item", allData?.data?.data[0]?.unit_price);
-    let last_purchase_price = allData?.data?.data[0]?.unit_price;
+    console.log("last purchase item", allData?.data?.data[0]?.price);
+    let last_purchase_price = allData?.data?.data[0]?.price;
     if (allData?.status === 401) {
       logout();
       return;
@@ -585,7 +585,7 @@ const Products = ({ clearFilter }) => {
 
     if (allData.status >= 200 && allData.status < 300) {
       // setModelList(allData?.data?.data);
-      // return allData?.data?.data[0]?.unit_price;
+      // return allData?.data?.data[0]?.price;
       // if (allData.data.data.length < 1) {
       //   setMessage("No data found");
       // }
@@ -653,25 +653,24 @@ const Products = ({ clearFilter }) => {
     // product_id: element._id,
     //     product_variation_id: element.product_variation_id,
     //     quantity: element.quantity,
-    //     unit_price: element.unit_price,
+    //     price: element.price,
     //     purchase_product_status: element.purchase_product_status,
     if (selectedProducts.some((res) => res._id === item._id)) {
       setSelectedProducts(
         selectedProducts.filter((res) => res._id !== item._id)
       );
     } else {
-      const lastPurchasePrice = await getLastPurchaseItem(item._id);
       setSelectedProducts([
         ...selectedProducts,
         {
           ...item,
-          spare_parts_name: row.name,
+          product_name:
+            row?.model_data[0]?.name + " " + row.name + " " + item.name,
           product_id: item.product_id,
           product_variation_id: item._id,
           purchase_product_status: "",
           quantity: "",
-          unit_price: "",
-          last_purchase_price: lastPurchasePrice,
+          price: "",
         },
       ]);
     }
@@ -1233,17 +1232,12 @@ const Products = ({ clearFilter }) => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Product Name
                         </TableCell>
-                        <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Status
-                        </TableCell>
+
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Quantity
                         </TableCell>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Price
-                        </TableCell>
-                        <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Last Purchase Price
                         </TableCell>
 
                         <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -1269,84 +1263,13 @@ const Products = ({ clearFilter }) => {
                           >
                             <TableCell sx={{ minWidth: "200px" }}>
                               {" "}
-                              {item?.spare_parts_name}
-                              <br />
+                              {item?.product_name}
+                              {/* <br />
                               <span style={{ color: "#424949" }}>
                                 {item.name}
-                              </span>
+                              </span> */}
                             </TableCell>
-                            <TableCell sx={{ minWidth: "180px" }}>
-                              <FormControl
-                                fullWidth
-                                size="small"
-                                sx={{
-                                  ...customeSelectFeildSmall,
-                                  "& label.Mui-focused": {
-                                    color: "rgba(0,0,0,0)",
-                                  },
 
-                                  "& .MuiOutlinedInput-input img": {
-                                    position: "relative",
-                                    top: "2px",
-                                  },
-                                }}
-                              >
-                                {item.purchase_product_status?.length < 1 && (
-                                  <InputLabel
-                                    id="demo-simple-select-label"
-                                    sx={{
-                                      color: "#b3b3b3",
-                                      fontWeight: 300,
-                                      fontSize: "14px",
-                                    }}
-                                  >
-                                    Select Status
-                                  </InputLabel>
-                                )}
-                                <Select
-                                  required
-                                  labelId="demo-simple-select-label"
-                                  id="purchaseStatus"
-                                  MenuProps={{
-                                    PaperProps: {
-                                      sx: {
-                                        maxHeight: 250, // Set the max height here
-
-                                        "& .MuiMenuItem-root": {
-                                          fontSize: "14px",
-                                        },
-                                      },
-                                    },
-                                  }}
-                                  // value={purchaseStatus}
-                                  // onChange={(e) =>
-                                  //   setPurchaseStatus(e.target.value)
-                                  // }
-
-                                  value={item.purchase_product_status || ""} // Assuming 'value' is the key for the number field
-                                  onChange={(e) => {
-                                    const updatedValue = e.target.value;
-                                    setSelectedProducts((prevList) =>
-                                      prevList.map((obj, index) =>
-                                        index === i
-                                          ? {
-                                              ...obj,
-                                              purchase_product_status:
-                                                updatedValue,
-                                            }
-                                          : obj
-                                      )
-                                    );
-                                  }}
-                                >
-                                  {purchaseStatusList?.map((item) => (
-                                    <MenuItem key={item?._id} value={item}>
-                                      {item}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                              </FormControl>
-                            </TableCell>
                             <TableCell sx={{ minWidth: "130px" }}>
                               <TextField
                                 required
@@ -1393,13 +1316,13 @@ const Products = ({ clearFilter }) => {
                                   },
                                   minWidth: "150px",
                                 }}
-                                value={item.unit_price || ""} // Assuming 'value' is the key for the number field
+                                value={item.price || ""} // Assuming 'value' is the key for the number field
                                 onChange={(e) => {
                                   const updatedValue = e.target.value;
                                   setSelectedProducts((prevList) =>
                                     prevList.map((obj, index) =>
                                       index === i
-                                        ? { ...obj, unit_price: updatedValue }
+                                        ? { ...obj, price: updatedValue }
                                         : obj
                                     )
                                   );
@@ -1407,24 +1330,11 @@ const Products = ({ clearFilter }) => {
                                 onWheel={(e) => e.target.blur()}
                               />
                             </TableCell>
+
                             <TableCell sx={{ minWidth: "130px" }}>
-                              <Chip
-                                label={
-                                  item?.last_purchase_price
-                                    ? item?.last_purchase_price
-                                    : "N/A"
-                                }
-                                sx={{
-                                  background: "#FDE8E8",
-                                  color: "#E02424",
-                                  px: 2,
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ minWidth: "130px" }}>
-                              {item?.quantity && item?.unit_price
+                              {item?.quantity && item?.price
                                 ? parseInt(item?.quantity) *
-                                  parseFloat(item?.unit_price).toFixed(2)
+                                  parseFloat(item?.price).toFixed(2)
                                 : 0}
                             </TableCell>
 
@@ -1479,52 +1389,6 @@ const Products = ({ clearFilter }) => {
               </Box>
             </Grid>
           </Grid>
-
-          <Box
-            sx={{ p: 2, marginTop: "1px solid #EAECF0", textAlign: "right" }}
-          >
-            <Button
-              variant="outlined"
-              sx={{
-                mr: 2,
-                px: 2,
-                py: 1.25,
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "#344054",
-                border: "1px solid #D0D5DD",
-                boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-              }}
-              component={Link}
-              to="/purchase-list"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              disabled={loading}
-              type="submit"
-              sx={{
-                px: 2,
-                py: 1.25,
-                fontSize: "14px",
-                fontWeight: 600,
-                minWidth: "127px",
-                minHeight: "44px",
-              }}
-              // style={{ minWidth: "180px", minHeight: "35px" }}
-
-              disableElevation
-            >
-              <PulseLoader
-                color={"#4B46E5"}
-                loading={loading}
-                size={10}
-                speedMultiplier={0.5}
-              />{" "}
-              {loading === false && "Save changes"}
-            </Button>
-          </Box>
         </form>
       </div>
     </>

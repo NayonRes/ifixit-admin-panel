@@ -51,7 +51,7 @@ export default function RepairHistory({ contactData, serial }) {
   const getData = async () => {
     setLoading(true);
 
-    let url = `/api/v1/repair?customer_id=${contactData?._id}&limit=100&page=1`;
+    let url = `/api/v1/sale?customer_id=${contactData?._id}&limit=100&page=1`;
     // let url = `/api/v1/repair?serial=${serial}&limit=100&page=1`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data::::::", allData?.data?.data);
@@ -92,13 +92,13 @@ export default function RepairHistory({ contactData, serial }) {
           <TableHead>
             <TableHead>
               <Typography variant="body1" sx={{ fontWeight: 600, p: 2 }}>
-                Repair History
+                History
               </Typography>
             </TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
-              <TableCell>Model</TableCell>
-              <TableCell sx={{ whiteSpace: "nowrap" }}>Repair Status</TableCell>
+              <TableCell sx={{ whiteSpace: "nowrap" }}>Sale Id</TableCell>
+
               <TableCell>Branch</TableCell>
             </TableRow>
           </TableHead>
@@ -113,12 +113,8 @@ export default function RepairHistory({ contactData, serial }) {
                   <TableCell>
                     {moment(item?.created_at).format("DD MMM YYYY")}
                   </TableCell>
-                  <TableCell>
-                    {item?.model_data?.map((item, index) => item?.name)}
-                  </TableCell>
-                  <TableCell sx={{ color: getColor(item?.repair_status) }}>
-                    {item?.repair_status}
-                  </TableCell>
+                  <TableCell>{item?.sale_id}</TableCell>
+
                   <TableCell>
                     {item?.branch_data?.length > 0 &&
                       item?.branch_data[0]?.name}

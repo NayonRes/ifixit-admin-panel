@@ -563,14 +563,6 @@ const SearchForm = ({
           //   setName(e.target.value);
           // }}
         />
-
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => setSteps("payment")}
-        >
-          Payment
-        </Button>
       </div>
     </div>
   );

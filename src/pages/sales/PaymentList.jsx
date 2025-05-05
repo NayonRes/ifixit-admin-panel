@@ -127,6 +127,7 @@ const PaymentList = ({
   set_due_amount,
   discount_amount,
   set_discount_amount,
+  selectedProducts,
   allIssue,
   allSpareParts,
 }) => {
@@ -168,7 +169,6 @@ const PaymentList = ({
             <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
               Payment
             </Typography>
-         
           </Box>
         </Grid>
       </Grid>
@@ -370,10 +370,10 @@ const PaymentList = ({
                 fullWidth
                 variant="outlined"
                 sx={{ mb: 0, background: "#fff", borderRadius: 1 }}
-                value={
-                  allIssue.reduce((sum, item) => sum + item.repair_cost, 0) +
-                  allSpareParts.reduce((sum, item) => sum + item.price, 0)
-                }
+                value={selectedProducts.reduce(
+                  (sum, item) => sum + item.price * item.quantity,
+                  0
+                )}
                 // value={membershipId}
                 // onChange={(e) => {
                 //   setMembershipId(e.target.value);

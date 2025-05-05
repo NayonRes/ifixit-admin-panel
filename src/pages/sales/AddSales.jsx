@@ -29,8 +29,8 @@ import Products from "./Products";
 
 const AddSales = () => {
   const navigate = useNavigate();
-  const { rid } = useParams();
-  // console.log("rid", rid);
+  const { sid } = useParams();
+  // console.log("sid", sid);
 
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -94,6 +94,8 @@ const AddSales = () => {
   const [productLoading, setProductLoading] = useState(false);
   const [apiCallForUpdate, setApiCallForUpdate] = useState(false);
   const [previousRepairData, setPreviousRepairData] = useState({});
+
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
     let decodedToken = jwtDecode(token);
@@ -113,47 +115,54 @@ const AddSales = () => {
     });
   };
 
-  const checkSum = () => {
-    // let issuePrice =
-    //   allIssue.reduce((sum, item) => sum + item.price, 0) +
-    //   allSpareParts.reduce((sum, item) => sum + item.price, 0);
-    // let paymentPrice = payment_info.reduce((sum, item) => sum + item.amount, 0);
-    // console.log("payemnt info", issuePrice, paymentPrice);
-    // if (issuePrice === paymentPrice) {
-    //   console.log("equal");
-    // } else {
-    //   console.log("not equal");
-    // }
-  };
-
   const handleSubmit = async () => {
-    let repairP = allIssue.reduce((sum, item) => sum + item.repair_cost, 0);
-    let parsP = allSpareParts.reduce((sum, item) => sum + item.price, 0);
-    let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
-    let dueP = parseInt(due_amount || 0);
-    let discount_amount_p = parseInt(discount_amount || 0);
-
     // return console.log('ok')
 
     if (!customer_id) {
       return handleSnakbarOpen("Custommer is Required", "error");
     }
-    if (repairP == 0) {
-      return handleSnakbarOpen("Repair list is empty", "error");
+
+    let newSelectedProduct = [];
+    if (selectedProducts?.length < 1) {
+      handleSnakbarOpen("Please select purchase product", "error");
+      setLoading(false);
+      return;
+    } else {
+      const hasInvalidProduct = selectedProducts.some(
+        (item) =>
+          !item.price ||
+          item.price === "" ||
+          item.price === 0 ||
+          !item.quantity ||
+          item.quantity === "" ||
+          item.quantity === 0
+      );
+
+      if (hasInvalidProduct) {
+        handleSnakbarOpen(
+          "Please enter valid price and quantity for all products",
+          "error"
+        );
+        setLoading(false);
+        return;
+      }
+
+      newSelectedProduct = selectedProducts?.map((item, i) => ({
+        product_id: item.product_id,
+        product_variation_id: item.product_variation_id,
+        quantity: item.quantity,
+        price: item.price,
+        product_name: item.product_name,
+      }));
     }
-    if (!brand_id) {
-      return handleSnakbarOpen("Brand is Required", "error");
-    }
-    if (allIssue.length < 1) {
-      return handleSnakbarOpen("Issue is Required", "error");
-    }
-    if (!repairStatus) {
-      return handleSnakbarOpen("Repair status is Required", "error");
-    }
-    if (!deliveryStatus) {
-      return handleSnakbarOpen("Delivery status is Required", "error");
-    }
-    if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
+    let totalPrice = selectedProducts.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
+    let dueP = parseInt(due_amount || 0);
+    let discount_amount_p = parseInt(discount_amount || 0);
+    if (totalPrice !== dueP + paymentP + discount_amount_p) {
       return handleSnakbarOpen("Total Amount and input are not same!", "error");
     }
     // if (!passCode) {
@@ -162,67 +171,28 @@ const AddSales = () => {
     let token = ifixit_admin_panel.token;
     const decodedToken = jwtDecode(token);
     // console.log('fdfdf',decodedToken?.user?.branch_id)
-    let allIssueModified = allIssue.map((item) => {
-      let d = {
-        service_id: item?.service_id,
-        name: item.name,
-        repair_cost: item.repair_cost,
-      };
-      return d;
-    });
-    let allSparePartsModified = allSpareParts.map((item) => {
-      let d = {
-        id: item.product_id,
-        name: item.name,
-        price: item.price,
-        product_full_name: item.name,
-        product_id: item.product_id,
-        product_variation_id: item.product_variation_id,
-      };
-      return d;
-    });
-    console.log("allIssueModified", allIssueModified);
-    console.log("allSpareParts", allSpareParts);
-    console.log("allSparePartsModified", allSparePartsModified);
+
+    console.log("newSelectedProduct", newSelectedProduct);
+
     setLoading(true);
     let data = {
       customer_id: customer_id || contactData?._id,
       branch_id: decodedToken?.user?.branch_id,
-      pass_code: passCode,
-      brand_id: brand_id,
-      delivery_status: deliveryStatus,
+
       due_amount: due_amount,
       discount_amount: discount_amount,
-      repair_by: technician,
-      repair_status: repairStatus,
-      issues: allIssueModified,
-      product_details: allSparePartsModified,
-      repair_checklist: repair_checklist,
+
+      product_details: newSelectedProduct,
+
       payment_info: payment_info,
-      serial: serial,
-
-      model_id: deviceId,
     };
-
-    if (location.pathname.includes("/update-repair")) {
-      data = {
-        ...data,
-        repair_status: lastUpdatedRepairStatus,
-      };
-    }
-
-    console.log("final data", data);
 
     let response;
 
-    if (rid) {
-      response = await handlePutData(
-        `/api/v1/repair/update/${rid}`,
-        data,
-        false
-      );
+    if (sid) {
+      response = await handlePutData(`/api/v1/sale/update/${sid}`, data, false);
     } else {
-      response = await handlePostData("/api/v1/repair/create", data, false);
+      response = await handlePostData("/api/v1/sale/create", data, false);
     }
 
     console.log("response ", response?.data?.data?._id);
@@ -236,7 +206,7 @@ const AddSales = () => {
       setLoading(true);
       // set_repair_checklist({});
       handleSnakbarOpen("Added successfully", "success");
-      navigate(`/repair/invoice/${response?.data?.data?._id}`);
+      navigate(`/sales/invoice/${response?.data?.data?._id}`);
 
       // clearFilter();
 
@@ -249,11 +219,11 @@ const AddSales = () => {
     setLoading(false);
   };
 
-  const initState = async (rid) => {
-    if (rid) {
+  const initState = async (sid) => {
+    if (sid) {
       // setLoading2(true);
 
-      let url = `/api/v1/repair/${rid}`;
+      let url = `/api/v1/sales/${sid}`;
       let allData = await getDataWithToken(url);
 
       if (allData.status >= 200 && allData.status < 300) {
@@ -315,8 +285,8 @@ const AddSales = () => {
   };
 
   useEffect(() => {
-    if (rid) {
-      initState(rid);
+    if (sid) {
+      initState(sid);
     }
   }, []);
 
@@ -340,7 +310,7 @@ const AddSales = () => {
             disableElevation
             // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
             sx={buttonStyle}
-            onClick={() => navigate("/repair")}
+            onClick={() => navigate("/sales-list")}
             startIcon={
               <svg
                 width="15"
@@ -358,7 +328,7 @@ const AddSales = () => {
               </svg>
             }
           >
-            Repair List
+            Sales List
           </Button> */}
         </Grid>
       </Grid>
@@ -458,7 +428,10 @@ const AddSales = () => {
               )}
               <br />
               <Divider />
-              <Products />
+              <Products
+                selectedProducts={selectedProducts}
+                setSelectedProducts={setSelectedProducts}
+              />
               <br />
               <Divider />
               <br />
@@ -471,6 +444,7 @@ const AddSales = () => {
                 set_due_amount={set_due_amount}
                 discount_amount={discount_amount}
                 set_discount_amount={set_discount_amount}
+                selectedProducts={selectedProducts}
                 allIssue={allIssue}
                 allSpareParts={allSpareParts}
               />
@@ -493,7 +467,7 @@ const AddSales = () => {
               sx={buttonStyle}
               disabled={loading}
             >
-              {rid ? "Update" : "Submit"}
+              {sid ? "Update" : "Submit"}
               <PulseLoader
                 color={"#4B46E5"}
                 loading={loading}

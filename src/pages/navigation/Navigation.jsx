@@ -433,7 +433,7 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
-          path="update-sales/:rid"
+          path="update-sales/:sid"
           element={
             <PrivateRoute>
               <AddSales />
@@ -441,7 +441,7 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
-          path="sales/details/:rid"
+          path="sales/details/:sid"
           element={
             <PrivateRoute>
               <RepairDetails />
@@ -449,7 +449,7 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
-          path="sales/invoice/:rid"
+          path="sales/invoice/:sid"
           element={
             <PrivateRoute>
               <Invoice />
