@@ -167,10 +167,9 @@ const SearchForm = ({
     return branch_id;
   };
 
-  const { rid } = useParams();
+  const { sid } = useParams();
 
-  const [brandList, setBrandList] = useState([]);
-  const [deviceList, setDeviceList] = useState([]);
+  
 
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -212,9 +211,9 @@ const SearchForm = ({
     if (allData.status >= 200 && allData.status < 300) {
       setSerialLoading(false);
 
-      if (rid) {
+      if (sid) {
         setSerialHistoryList(
-          allData?.data?.data.filter((res) => res._id !== rid)
+          allData?.data?.data.filter((res) => res._id !== sid)
         );
       } else {
         setSerialHistoryList(allData?.data?.data);
@@ -241,82 +240,17 @@ const SearchForm = ({
     }
   };
 
-  const getBrandList = async () => {
-    let url = `/api/v1/deviceBrand/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    console.log("primary list", allData?.data.data);
-    let p = allData?.data?.data;
+ 
 
-    if (allData?.status >= 200 && allData?.status < 300) {
-      setBrandList(p);
-      if (allData?.data?.data?.length > 0) {
-        // setBrand(p[0]?._id);
-        // getDeviceList(p[0]?._id);
-      }
-      // setParentList(p);
-      // let items = p.filter((item) => item.parent_name == "Primary");
-      // let newItems = items[0].items.filter(
-      //   (device) => device.name !== "Primary"
-      // );
-      // console.log("hello", newItems);
-      // setBrandList(newItems);
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
+ 
 
-  const getModel = async () => {
-    let url = `/api/v1/brand`;
-    let allData = await getDataWithToken(url);
+  
 
-    if (allData.status >= 200 && allData.status < 300) {
-      setBrandList(allData?.data.data);
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      getUser();
-    }
-  };
-
-  const handleSearch = (e) => {
-    let searchValue = e.target.value;
-
-    if (searchValue.length < 11) {
-      set_customer_id("");
-      setContactData({ name: "" });
-      setName("");
-      setSerial("");
-      setPassCode("");
-      setBrandId("");
-      setDevice("");
-      setAllIssue([]);
-      setAllSpareParts([]);
-      setTechnicianName("");
-      setRepairStatus("");
-      setDeliveryStatus("");
-      navigate("/add-repair");
-      setSearchPrams(searchValue);
-    }
-    if (searchValue.length === 11) {
-      setSearchPrams(searchValue);
-      set_customer_id("");
-      setContactData(null);
-      setName("");
-      getUser(searchValue);
-    }
-  };
+  
 
   const handleSearch2 = (e) => {
     let searchValue = e.target.value;
-    if (rid) {
+    if (sid) {
       navigate("/add-repair");
     }
     if (searchValue.length < 11) {
@@ -358,115 +292,17 @@ const SearchForm = ({
     }
   };
 
-  const removeItem = (id) => {
-    setAllIssue(allIssue.filter((item) => item.service_id !== id));
-  };
+  
 
-  const removeSpareParts = (id) => {
-    setAllSpareParts(allSpareParts.filter((item) => item._id !== id));
-  };
-
-  const handleBranchClick = () => {
-    if (!serial) {
-      document.getElementById("serial").focus();
-      handleSnakbarOpen("Enter Serial Please", "error");
-      return;
-    }
-    if (!passCode) {
-      document.getElementById("passcode").focus();
-      handleSnakbarOpen("Enter Pass Code Please", "error");
-      return;
-    }
-  };
-  const getTechnician = async () => {
-    setTechnicianLoading(true);
-
-    let branch_id = getBranchId();
-    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let newBranchId;
-    // if (ifixit_admin_panel?.user?.is_main_branch) {
-    //   newBranchId = selectedBranch;
-    // } else {
-    //   newBranchId = branch_id;
-    // }
-
-    // let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${branch_id}`;
-    let url = `/api/v1/user/dropdownlist?designation=Technician`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    console.log("technician list", allData?.data.data);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setTechnicianLoading(false);
-
-      const groupedData = {};
-
-      allData?.data.data.forEach((user) => {
-        user.branch_data.forEach((branch) => {
-          if (!groupedData[branch._id]) {
-            groupedData[branch._id] = {
-              branch_data: {
-                _id: branch._id,
-                name: branch.name,
-              },
-              users: [],
-            };
-          }
-          groupedData[branch._id].users.push(user);
-        });
-      });
-
-      const finalArray = Object.values(groupedData);
-
-      console.log("finalArray*********************", finalArray);
-
-      setTechnicianList(finalArray);
-      // setTechnicianList(allData?.data.data);
-
-      let name = allData?.data.data.filter((i) => i._id === technician);
-      setTechnicianName(name[0]?.name);
-
-      // if (allData.data.data.length < 1) {
-      //   setMessage("No Data found");
-      // } else {
-      //   setMessage("");
-      // }
-    } else {
-      setTechnicianLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
-  const getDevice = async () => {
-    let url = `/api/v1/device`;
-    let allData = await getDataWithToken(url);
-
-    if (allData?.status >= 200 && allData?.status < 300) {
-      setDeviceList(allData?.data.data);
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
-  const getDeviceList = async (id) => {
-    let url = `/api/v1/device/dropdownlist?device_brand_id=${id}`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setParentList(allData?.data.data);
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
+  
+  
+   
+ 
   useEffect(() => {
-    // getBrand();
-    getBrandList();
-    getDevice();
-    getTechnician();
-    if (previousRepairData) {
-      getDeviceList(brand);
-    }
+   
+   
+    
+   
 
     if (location.pathname.includes("/update-repair")) {
       getSerialHistory();
@@ -491,7 +327,7 @@ const SearchForm = ({
       >
         {/* {JSON.stringify(allIssue)} */}
         {/* <button onClick={() => setSteps(1)}>Steps: {steps}</button> */}
-        {!rid && (
+        {!sid && (
           <TextField
             type="number"
             required

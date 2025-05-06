@@ -119,8 +119,6 @@ let statusList = [
   { name: "Bkash", color: "#EBE9FE", icon: bkash },
 ];
 const PaymentList = ({
-  paymentStatus,
-  setPaymentStatus,
   payment_info,
   set_payment_info,
   due_amount,
@@ -128,11 +126,12 @@ const PaymentList = ({
   discount_amount,
   set_discount_amount,
   selectedProducts,
-  allIssue,
-  allSpareParts,
+
+  amounts,
+  setAmounts,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const [amounts, setAmounts] = useState([]);
+  // const [amounts, setAmounts] = useState([]);
 
   const handleChange = (name, value) => {
     const updatedAmounts = [...amounts];
@@ -156,6 +155,8 @@ const PaymentList = ({
   };
 
   useEffect(() => {
+    console.log("payment_info", payment_info);
+
     if (payment_info && payment_info.length > 0) {
       setAmounts(payment_info);
     }

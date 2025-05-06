@@ -89,13 +89,12 @@ const AddSales = () => {
 
   const [screenType, setScreenType] = useState("add_contact");
   const [loading, setLoading] = useState(false);
-  const [issueLoading, setIssueLoading] = useState(false);
-  const [productList, setProductList] = useState([]);
-  const [productLoading, setProductLoading] = useState(false);
+
   const [apiCallForUpdate, setApiCallForUpdate] = useState(false);
   const [previousRepairData, setPreviousRepairData] = useState({});
 
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [amounts, setAmounts] = useState([]);
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
     let decodedToken = jwtDecode(token);
@@ -223,7 +222,7 @@ const AddSales = () => {
     if (sid) {
       // setLoading2(true);
 
-      let url = `/api/v1/sales/${sid}`;
+      let url = `/api/v1/sale/${sid}`;
       let allData = await getDataWithToken(url);
 
       if (allData.status >= 200 && allData.status < 300) {
@@ -233,7 +232,10 @@ const AddSales = () => {
         // setSteps(0);
         let data = allData?.data?.data;
         setPreviousRepairData(data);
-        console.log("edit data", data);
+        console.log(
+          "edit data **********************************************",
+          data
+        );
         setId(data?._id);
         setName(data?.customer_data[0]?.name);
         setContactData({
@@ -247,22 +249,16 @@ const AddSales = () => {
           remarks: data?.customer_data[0]?.remarks,
         });
         set_customer_id(data?.customer_data[0]?._id);
-        setSerial(data?.serial);
-        setPassCode(data?.pass_code);
+
         setAllIssueUpdate(data?.issues);
         setAllIssue(data?.issues);
         setAllSpareParts(data?.product_details);
+        setSelectedProducts(data?.product_details);
 
-        setTechnician(data?.repair_by);
-        setRepairStatus(data?.repair_status);
         setLastUpdatedRepairStatus(data?.repair_status);
-        setDeliveryStatus(data?.delivery_status);
-        setBrand(data?.brand_id);
-        setBrandId(data?.brand_id);
-        setDevice(data?.model_data?.[0]?.name);
-        setDeviceId(data?.model_data?.[0]?._id);
-        setParentDevice(data?.model_data?.[0]?.device_id);
+
         set_payment_info(data?.payment_info);
+        setAmounts(data?.payment_info);
         set_due_amount(data?.due_amount);
         set_repair_checklist(data?.repair_checklist);
         setRepairBy(data?.repair_by);
@@ -447,6 +443,8 @@ const AddSales = () => {
                 selectedProducts={selectedProducts}
                 allIssue={allIssue}
                 allSpareParts={allSpareParts}
+                amounts={amounts}
+                setAmounts={setAmounts}
               />
             </Box>
           )}

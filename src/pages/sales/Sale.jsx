@@ -31,7 +31,7 @@ import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
 import ClearIcon from "@mui/icons-material/Clear";
 import { designationList, roleList } from "../../data";
-import RepairList from "./RepairList";
+import SalesList from "./SalesList";
 
 const Sale = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -562,7 +562,7 @@ const Sale = () => {
             </Box>
           </Grid>
         </Grid>
-        <RepairList
+        <SalesList
           loading={loading}
           pageLoading={pageLoading}
           tableDataList={tableDataList}

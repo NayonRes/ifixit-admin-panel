@@ -23,7 +23,7 @@ import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import AddRepairProductSKU from "./AddRepairProductSKU";
 import WarrantyProductSKU from "./WarrantyProductSKU";
 
-const RepairList = ({
+const SalesList = ({
   loading,
   pageLoading,
   tableDataList,
@@ -258,7 +258,7 @@ const RepairList = ({
                             color="info"
                             startIcon={<ListAltOutlinedIcon />}
                             component={Link}
-                            to={`/repair/details/${row?._id}`}
+                            to={`/sales/details/${row?._id}`}
                           >
                             Details
                           </Button>
@@ -299,7 +299,7 @@ const RepairList = ({
                               </svg>
                             }
                             component={Link}
-                            to={`/update-repair/${row?._id}`}
+                            to={`/update-sales/${row?._id}`}
                             state={{ row }}
                           >
                             Update
@@ -343,4 +343,4 @@ const RepairList = ({
   );
 };
 
-export default RepairList;
+export default SalesList;
