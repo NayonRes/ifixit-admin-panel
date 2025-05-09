@@ -50,6 +50,8 @@ import AddBlog from "../blog/AddBlog";
 import UpdateBlog from "../blog/UpdateBlog";
 import Sale from "../sales/Sale";
 import AddSales from "../sales/AddSales";
+import SaleDetails from "../sales/SaleDetails";
+import SalesInvoice from "../sales/SalesInvoice";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -444,7 +446,7 @@ const Navigation = ({ notificationCartName }) => {
           path="sales/details/:sid"
           element={
             <PrivateRoute>
-              <RepairDetails />
+              <SaleDetails />
             </PrivateRoute>
           }
         />
@@ -452,7 +454,7 @@ const Navigation = ({ notificationCartName }) => {
           path="sales/invoice/:sid"
           element={
             <PrivateRoute>
-              <Invoice />
+              <SalesInvoice />
             </PrivateRoute>
           }
         />

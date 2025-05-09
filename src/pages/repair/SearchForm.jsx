@@ -544,7 +544,7 @@ const SearchForm = ({
           size="small"
           fullWidth
           id="name"
-          placeholder="Enter Full Name"
+          // placeholder="Enter Full Name"
           variant="outlined"
           sx={{
             ...customeTextFeild,

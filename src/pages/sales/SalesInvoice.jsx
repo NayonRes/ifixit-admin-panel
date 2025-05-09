@@ -21,8 +21,8 @@ import { allIssueCheckList } from "../../data";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 
-const Invoice = () => {
-  const { rid } = useParams();
+const SalesInvoice = () => {
+  const { sid } = useParams();
   const contentRef = useRef();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [details, setDetails] = useState("");
@@ -63,21 +63,28 @@ const Invoice = () => {
       return total + service.price;
     }, 0);
   };
+  const calculateTotalAmount = (data) => {
+    let totalCost = data?.product_details?.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
 
+    return totalCost;
+  };
   const getData = async () => {
     setLoading(true);
 
-    let url = `/api/v1/repair/${encodeURIComponent(rid.trim())}`;
+    let url = `/api/v1/sale/${encodeURIComponent(sid.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
 
-    let totalRepairCost = calculateTotalRepairCost(allData?.data?.data?.issues);
-    let totalSpareCost = calculateTotalSparePartsCost(
-      allData?.data?.data?.product_details
-    );
-    // console.log('allData?.data?.data?.product_details',totalSpareCost)
-    setRepairCost(totalRepairCost);
-    setSpareParsCost(totalSpareCost);
+    // let totalRepairCost = calculateTotalRepairCost(allData?.data?.data?.issues);
+    // let totalSpareCost = calculateTotalSparePartsCost(
+    //   allData?.data?.data?.product_details
+    // );
+    // // console.log('allData?.data?.data?.product_details',totalSpareCost)
+    // setRepairCost(totalRepairCost);
+    // setSpareParsCost(totalSpareCost);
     setDetails(allData?.data?.data);
 
     if (allData?.status === 401) {
@@ -242,194 +249,6 @@ const Invoice = () => {
                   {details?.customer_data?.[0]?.mobile}
                 </Typography>
               </Grid>
-              <Grid size={4}>
-                <Typography variant="small" sx={{}}>
-                  Brand:
-                </Typography>
-              </Grid>
-
-              <Grid size={8}>
-                <Typography
-                  variant="small"
-                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
-                >
-                  {details?.brand_data?.length > 0
-                    ? details?.brand_data[0]?.name
-                    : "---------"}
-                </Typography>
-              </Grid>
-              <Grid size={4}>
-                <Typography variant="small" sx={{}}>
-                  Model:
-                </Typography>
-              </Grid>
-
-              <Grid size={8}>
-                <Typography
-                  variant="small"
-                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
-                >
-                  {details?.model_data?.length > 0
-                    ? details?.model_data[0]?.name
-                    : "---------"}
-                </Typography>
-              </Grid>
-              <Grid size={4}>
-                <Typography variant="small" sx={{}}>
-                  Serial:
-                </Typography>
-              </Grid>
-
-              <Grid size={8}>
-                <Typography
-                  variant="small"
-                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
-                >
-                  {details?.serial?.length > 0 ? details?.serial : "---------"}
-                </Typography>
-              </Grid>
-              <Grid size={4}>
-                <Typography variant="small" sx={{}}>
-                  User Pass:
-                </Typography>
-              </Grid>
-
-              <Grid size={8}>
-                <Typography
-                  variant="small"
-                  sx={{ background: "#ddd", p: 0.5, borderRadius: "4px" }}
-                >
-                  {details?.pass_code?.length > 0
-                    ? details?.pass_code
-                    : "---------"}
-                </Typography>
-              </Grid>
-
-              <Grid size={12}>
-                <Typography variant="medium" sx={{}}>
-                  Pre Status
-                </Typography>
-              </Grid>
-              <Grid size={12}>
-                <Grid container spacing={1}>
-                  {allIssueCheckList.map((item, index) => {
-                    let newstatus = details?.repair_checklist?.checklist.find(
-                      (res) => res?.name === item?.name
-                    )?.status;
-                    console.log("details newstatus", newstatus);
-
-                    return (
-                      <Grid
-                        key={index}
-                        size={6}
-                        sx={{
-                          display: "flex",
-
-                          alignItems: "center",
-                          gap: 1,
-                          // backgroundColor: "#F8F9FA",
-                          // p: 1,
-                          borderRadius: 2,
-
-                          userSelect: "none",
-                        }}
-                      >
-                        <Box
-                          // onClick={() => handleCheckboxChange(index)}
-                          sx={{ display: "flex", alignItems: "center " }}
-                        >
-                          {newstatus === "Functional" ? (
-                            <>
-                              {/* <img
-                        src="/check.png"
-                        alt=""
-                        style={{ width: "25px" }}
-                        // onClick={() => handleCheckboxChange(index, "Damaged")}
-                      /> */}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="17"
-                                height="17"
-                                viewBox="0 0 20 20"
-                                style={{ position: "relative", left: -2 }}
-                              >
-                                <path
-                                  fill="currentColor"
-                                  d="m10.6 15.508l6.396-6.396l-.707-.708l-5.689 5.688l-2.85-2.85l-.708.708zM5.616 20q-.691 0-1.153-.462T4 18.384V5.616q0-.691.463-1.153T5.616 4h12.769q.69 0 1.153.463T20 5.616v12.769q0 .69-.462 1.153T18.384 20zm0-1h12.769q.23 0 .423-.192t.192-.424V5.616q0-.231-.192-.424T18.384 5H5.616q-.231 0-.424.192T5 5.616v12.769q0 .23.192.423t.423.192M5 5v14z"
-                                  stroke-width="1"
-                                  stroke="#35b522"
-                                />
-                              </svg>
-                            </>
-                          ) : newstatus === "Damaged" ? (
-                            <img
-                              src="/cross.png"
-                              alt=""
-                              style={{ width: "16px" }}
-                              // onClick={() => handleCheckboxChange(index, false)}
-                            />
-                          ) : (
-                            <CheckBoxOutlineBlankIcon
-                              sx={{
-                                color: "#999",
-                                width: "16px",
-                                height: "16px",
-                              }}
-                              // onClick={() =>
-                              //   handleCheckboxChange(index, "Functional")
-                              // }
-                            />
-                          )}
-                        </Box>
-                        <Typography
-                          variant="small"
-                          color="text.secondary"
-                          sx={{ fontWeight: 500 }}
-                        >
-                          {item.name}
-                        </Typography>
-
-                        {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}
-                      </Grid>
-                    );
-                  })}
-                  <Grid
-                    size={6}
-                    sx={{
-                      display: "flex",
-
-                      alignItems: "center",
-                      gap: 1,
-                      // backgroundColor: "#F8F9FA",
-                      // p: 1,
-                      borderRadius: 2,
-
-                      userSelect: "none",
-                    }}
-                  >
-                    <Typography
-                      variant="small"
-                      color="text.secondary"
-                      sx={{ fontWeight: 500 }}
-                    >
-                      BATTERY HEALTH&nbsp;
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center ",
-                        fontSize: "12px",
-                      }}
-                    >
-                      <b>
-                        {details?.repair_checklist?.battery_health
-                          ? details?.repair_checklist?.battery_health + "%"
-                          : "-------"}
-                      </b>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Grid>
             </Grid>
           </Grid>
           <Grid size={6} sx={{ pl: 1 }}>
@@ -441,115 +260,50 @@ const Invoice = () => {
               sx={{ height: "100%" }}
             >
               <Box sx={{}}>
-                {details?.issues?.length > 0 && (
-                  <Box>
-                    {/* <Typography variant="small" sx={{ fontWeight: 600, mb: 1 }}>
-                      Service Info
-                    </Typography> */}
-                    <TableContainer>
-                      <Table
-                        aria-label="simple table"
-                        sx={{
-                          "& td, & th": { fontSize: "12px", py: 0.5, px: 0 },
-                        }}
-                      >
-                        {/* <TableHead>
-                          <TableRow>
-                            <TableCell
-                              sx={{ fontWeight: 600, fontSize: "10px" }}
-                            >
-                              Service Name
-                            </TableCell>
+                <Table aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      {/* <TableCell
+                style={{ whiteSpace: "nowrap" }}
+                colSpan={2}
+              ></TableCell> */}
 
-                            <TableCell
-                              align="right"
-                              sx={{ fontWeight: 600, fontSize: "10px" }}
-                            >
-                              Cost
+                      <TableCell style={{ whiteSpace: "nowrap" }}>
+                        Product Name
+                      </TableCell>
+                      <TableCell style={{ whiteSpace: "nowrap" }}>
+                        Quantity
+                      </TableCell>
+                      <TableCell style={{ whiteSpace: "nowrap" }}>
+                        Price
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {!loading &&
+                      details?.product_details?.length > 0 &&
+                      details?.product_details?.map((row, i) => (
+                        <>
+                          <TableRow
+                            key={row?.user_id}
+                            // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                          >
+                            <TableCell>
+                              {row?.product_name
+                                ? row?.product_name
+                                : "-------"}
+                            </TableCell>
+                            <TableCell>
+                              {row?.quantity ? row?.quantity : "-------"}
+                            </TableCell>
+                            <TableCell>
+                              {row?.price ? row?.price : "-------"}
                             </TableCell>
                           </TableRow>
-                        </TableHead> */}
-                        <TableBody>
-                          {details?.issues?.length > 0 &&
-                            details?.issues?.map((item) => (
-                              <TableRow
-                                key={item.name}
-                                sx={{
-                                  "& td, & th": {
-                                    border: 0,
-                                  },
-                                }}
-                              >
-                                <TableCell component="th" scope="row">
-                                  {item.name}
-                                </TableCell>
-
-                                <TableCell
-                                  align="right"
-                                  // sx={{ background: "#ddd" }}
-                                >
-                                  <Box
-                                    sx={{
-                                      background: "#ddd",
-                                      py: 0.5,
-                                      px: 1,
-                                      borderRadius: "4px",
-                                    }}
-                                  >
-                                    {item.repair_cost}
-                                  </Box>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-
-                          {details?.product_details?.length > 0 &&
-                            details?.product_details?.map((item) => (
-                              <TableRow
-                                key={item.name}
-                                sx={{
-                                  "& td, & th": {
-                                    border: 0,
-                                  },
-                                }}
-                              >
-                                <TableCell component="th" scope="row">
-                                  {item.name}
-                                </TableCell>
-
-                                <TableCell
-                                  align="right"
-                                  // sx={{ background: "#ddd" }}
-                                >
-                                  <Box
-                                    sx={{
-                                      background: "#ddd",
-                                      py: 0.5,
-                                      px: 1,
-                                      borderRadius: "4px",
-                                    }}
-                                  >
-                                    {item.price}
-                                  </Box>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-
-                          {/* <TableRow
-                            sx={{
-                              background: "#eee",
-                              "& td, & th": { fontSize: "10px" },
-                            }}
-                          >
-                            <TableCell>Total</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 600 }}>
-                              {repairCost}
-                            </TableCell>
-                          </TableRow> */}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Box>
-                )}
+                        </>
+                      ))}
+                  </TableBody>
+                </Table>
               </Box>
               <Box sx={{}}>
                 <TableContainer
@@ -567,7 +321,7 @@ const Invoice = () => {
                         <TableCell sx={{}}>Total Amount</TableCell>
 
                         <TableCell align="right" sx={{}}>
-                          {repairCost + spareParsCost}
+                    {calculateTotalAmount(details)}
                         </TableCell>
                       </TableRow>
                       {/* <TableRow>
@@ -602,9 +356,10 @@ const Invoice = () => {
                         <TableCell sx={{}}>Total Paid Amount</TableCell>
 
                         <TableCell align="right">
-                          {repairCost +
-                            spareParsCost -
-                            details?.discount_amount}
+                          <b>
+                            {calculateTotalAmount(details) -
+                              (Number(details?.discount_amount) || 0)}
+                          </b>
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -617,8 +372,8 @@ const Invoice = () => {
         <Box sx={{ mt: 2 }}>
           <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
             <span style={{ color: "red" }}>30-day service warranty:</span> If
-            your device encounters the same issues within 30 days of the
-            repair,we will fix the issue at our own cost without any question.
+            your device encounters any issues within 30 days of the sale,we will
+            fix the issue at our own cost without any question.
           </Typography>
           <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
             <span style={{ color: "red" }}> Service disclaimers:</span> Be sure
@@ -655,4 +410,4 @@ const Invoice = () => {
   );
 };
 
-export default Invoice;
+export default SalesInvoice;

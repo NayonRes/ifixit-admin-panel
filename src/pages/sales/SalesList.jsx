@@ -42,15 +42,12 @@ const SalesList = ({
     statusList?.find((el) => el.name === "Rework")?.color
   );
   const calculateTotalAmount = (data) => {
-    const issueTotal = data?.issues?.length
-      ? data.issues.reduce((acc, issue) => acc + (issue.repair_cost || 0), 0)
-      : 0;
+   
 
-    const sparePartsTotal = data?.product_details?.length
-      ? data.product_details.reduce((acc, part) => acc + (part.price || 0), 0)
-      : 0;
-
-    const totalCost = issueTotal + sparePartsTotal;
+    let totalCost = data?.product_details?.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
 
     return totalCost;
   };
@@ -81,13 +78,9 @@ const SalesList = ({
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Name / Number
               </TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>
-                Job / Invoice No
-              </TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>Issues</TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>
-                Spare Parts
-              </TableCell>
+              <TableCell style={{ whiteSpace: "nowrap" }}>Sales No</TableCell>
+
+              <TableCell style={{ whiteSpace: "nowrap" }}>Sale Items</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Paid Amount
               </TableCell>
@@ -115,27 +108,6 @@ const SalesList = ({
                     key={row?.user_id}
                     // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    {/* <TableCell sx={{ width: "30px", pr: 0 }}>
-                 
-                      <img
-                        src={
-                          row?.image?.url?.length > 0
-                            ? row?.image?.url
-                            : "/userpic.png"
-                        }
-                        alt=""
-                        width="30px"
-                        height="30px"
-                        style={{
-                          display: "block",
-                          margin: "5px 0px",
-                          borderRadius: "100px",
-                          // border: "1px solid #d1d1d1",
-                        }}
-                      />
-
-                  
-                    </TableCell> */}
                     <TableCell>
                       {" "}
                       {moment(row?.created_at).format("DD/MM/YYYY")}
@@ -154,36 +126,16 @@ const SalesList = ({
                     </TableCell>
 
                     <TableCell>
-                      {row?.repair_id ? row?.repair_id : "-------"}
+                      {row?.sale_id ? row?.sale_id : "-------"}
                     </TableCell>
 
-                    <TableCell>
-                      {row?.issues?.length > 0 ? (
-                        <>
-                          {row?.issues?.map((item, index) => (
-                            <Chip
-                              size="small"
-                              label={`${item.name} - (${item?.repair_cost} TK)`}
-                              variant="outlined"
-                              sx={{
-                                mr: 1,
-                                px: 1,
-                                my: 0.5,
-                              }}
-                            />
-                          ))}
-                        </>
-                      ) : (
-                        "----------"
-                      )}
-                    </TableCell>
                     <TableCell>
                       {row?.product_details?.length > 0 ? (
                         <>
                           {row?.product_details?.map((item, index) => (
                             <Chip
                               size="small"
-                              label={`${item.name} - (${item?.price} TK)`}
+                              label={`${item.product_name} - (${item?.quantity} PCS) - (${item?.price} TK)`}
                               variant="outlined"
                               sx={{
                                 mr: 1,
@@ -214,31 +166,44 @@ const SalesList = ({
                     </TableCell>
                     <TableCell>{calculateTotalAmount(row)}</TableCell>
 
-                    <TableCell>
-                      {row?.repair_status_history_data?.length > 0
-                        ? (() => {
-                            const lastStatus =
-                              row.repair_status_history_data[
-                                row.repair_status_history_data.length - 1
-                              ];
-                            const statusColor =
-                              statusList.find(
-                                (el) =>
-                                  el.name === lastStatus.repair_status_name
-                              )?.color || "";
-
-                            return (
-                              <Chip
-                                label={lastStatus.repair_status_name}
-                                variant="outlined"
-                                sx={{
-                                  border: "0px",
-                                  backgroundColor: statusColor,
-                                }}
-                              />
-                            );
-                          })()
-                        : "----------"}
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
+                      {row?.status ? (
+                        <>
+                          <TaskAltOutlinedIcon
+                            style={{
+                              color: "#10ac84",
+                              height: "16px",
+                              position: "relative",
+                              top: "4px",
+                            }}
+                          />{" "}
+                          <span
+                            style={{
+                              color: "#10ac84",
+                            }}
+                          >
+                            Active &nbsp;
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <HighlightOffOutlinedIcon
+                            style={{
+                              color: "#ee5253",
+                              height: "16px",
+                              position: "relative",
+                              top: "4px",
+                            }}
+                          />
+                          <span
+                            style={{
+                              color: "#ee5253",
+                            }}
+                          >
+                            Inactive
+                          </span>
+                        </>
+                      )}
                     </TableCell>
 
                     {/* <TableCell align="center" style={{ minWidth: "130px" }}>

@@ -14,8 +14,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-import { getDataWithToken } from "../../services/GetDataService";
-import IssueList from "./IssueList";
+import { getDataWithToken } from "../../services/GetDataService"; 
 import { useSnackbar } from "notistack";
 import { AuthContext } from "../../context/AuthContext";
 import {
@@ -110,7 +109,7 @@ const styles = {
   // },
 };
 
-const SearchForm = ({
+const SaleSearchForm = ({
   contactData,
   setContactData,
   searchPrams,
@@ -380,7 +379,7 @@ const SearchForm = ({
           size="small"
           fullWidth
           id="name"
-          placeholder="Enter Full Name"
+          // placeholder="Enter Full Name"
           variant="outlined"
           sx={{
             ...customeTextFeild,
@@ -404,4 +403,4 @@ const SearchForm = ({
   );
 };
 
-export default SearchForm;
+export default SaleSearchForm;

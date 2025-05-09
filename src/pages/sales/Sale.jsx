@@ -46,7 +46,7 @@ const Sale = () => {
   const [loading2, setLoading2] = useState(false);
   const [deleteData, setDeleteData] = useState({});
   const [orderID, setOrderID] = useState("");
-  const [repairNo, setRepairNo] = useState("");
+  const [salesNo, setSalesNo] = useState("");
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
   const [designation, setDesignation] = useState("");
@@ -169,7 +169,7 @@ const Sale = () => {
   const clearFilter = (event) => {
     console.log("clearFilter");
     setOrderID("");
-    setRepairNo("");
+    setSalesNo("");
     setNumber("");
     setModelId("");
     setBranch("");
@@ -228,7 +228,7 @@ const Sale = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/sale?repair_id=${repairNo.trim()}&customerNo=${number}&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/sale?sale_id=${salesNo.trim()}&customerNo=${number}&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -417,9 +417,9 @@ const Sale = () => {
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="Job / Invoice No"
-                    value={repairNo}
-                    onChange={(e) => setRepairNo(e.target.value)}
+                    label="Sales No"
+                    value={salesNo}
+                    onChange={(e) => setSalesNo(e.target.value)}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>

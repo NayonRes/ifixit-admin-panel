@@ -167,10 +167,20 @@ const UpdateCustomer = ({ clearFilter, row, setContactData }) => {
 
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
-      if (location.pathname?.includes("/add-repair")) {
+      if (
+        location.pathname &&
+        ["/add-repair", "/add-sales"].some((path) =>
+          location.pathname.includes(path)
+        )
+      ) {
         setContactData(response?.data?.data);
       }
-      if (!location.pathname?.includes("/add-repair")) {
+      if (
+        location.pathname &&
+        !["/add-repair", "/add-sales"].some((path) =>
+          location.pathname.includes(path)
+        )
+      ) {
         clearFilter();
       }
       clearForm();

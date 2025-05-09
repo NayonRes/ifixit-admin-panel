@@ -1,19 +1,15 @@
 import { Box, Button, Divider, IconButton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import React, { useContext, useEffect, useState } from "react";
-import SearchForm from "./SearchForm";
-import AddContact from "./AddContact";
-import EditContact from "./EditContact";
-import ModelList from "./ModelList";
+import SaleSearchForm from "./SaleSearchForm";
+import AddContact from "../repair/AddContact";
+import EditContact from "../repair/EditContact"; 
 import {
   useLocation,
   useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import IssueList from "./IssueList";
-import TechnicianList from "./TechnicianList";
-import RepairStatusList from "./RepairStatusList";
 import PaymentList from "./PaymentList";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
@@ -23,8 +19,6 @@ import { all } from "axios";
 import { getDataWithToken } from "../../services/GetDataService";
 import { handlePutData } from "../../services/PutDataService";
 import { PulseLoader } from "react-spinners";
-import RepairHistory from "./RepairHistory";
-import SerialHistory from "./SerialHistory";
 import Products from "./Products";
 
 const AddSales = () => {
@@ -232,10 +226,7 @@ const AddSales = () => {
         // setSteps(0);
         let data = allData?.data?.data;
         setPreviousRepairData(data);
-        console.log(
-          "edit data **********************************************",
-          data
-        );
+     
         setId(data?._id);
         setName(data?.customer_data[0]?.name);
         setContactData({
@@ -338,7 +329,7 @@ const AddSales = () => {
             overflow: "auto",
           }}
         >
-          <SearchForm
+          <SaleSearchForm
             contactData={contactData}
             setContactData={setContactData}
             searchPrams={searchPrams}
@@ -408,8 +399,8 @@ const AddSales = () => {
                     contactData={contactData}
                     setContactData={setContactData}
                   />
-                  <br />
-                  <RepairHistory contactData={contactData} serial={serial} />
+                  {/* <br />
+                  <RepairHistory contactData={contactData} serial={serial} /> */}
                 </>
               ) : !contactData?._id ? (
                 <>
