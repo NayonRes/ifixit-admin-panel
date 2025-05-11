@@ -556,7 +556,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              dimension=" Dimensions (2 : 1)"
+            dimension="Size: (400 : 260)"
             />
           </Box>
 

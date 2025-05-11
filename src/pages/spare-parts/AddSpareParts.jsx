@@ -95,11 +95,14 @@ const form = {
 
 const variationObject = {
   name: "",
+  quality: "",
   price: 0,
+  base_price: 0,
   file: null,
 };
 const AddSpareParts = ({ clearFilter }) => {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
@@ -125,8 +128,6 @@ const AddSpareParts = ({ clearFilter }) => {
   const [variationList, setVariationList] = useState([]);
 
   const [message, setMessage] = useState("");
-
-  const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
@@ -227,7 +228,12 @@ const AddSpareParts = ({ clearFilter }) => {
         const formData = new FormData();
         formData.append("product_id", product_id);
         formData.append("name", variation?.name?.trim());
+        formData.append("quality", variation?.quality?.trim());
         formData.append("price", parseFloat(variation?.price).toFixed(2));
+        formData.append(
+          "base_price",
+          parseFloat(variation?.base_price).toFixed(2)
+        );
         {
           variation?.file !== null &&
             variation?.file !== undefined &&
@@ -289,17 +295,6 @@ const AddSpareParts = ({ clearFilter }) => {
     formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
-    // formData.append("variationList", variationList);
-    // formData.append("variationList", JSON.stringify(variationList));
-
-    // Append each object in variationList
-    // variationList.forEach((variation, index) => {
-    //   formData.append(`variationList[${index}][key1]`, variation.name); // Append other keys
-    //   formData.append(`variationList[${index}][key2]`, variation.price); // Example key
-    //   if (variation.file) {
-    //     formData.append(`variationList[${index}][image]`, variation.file); // Append file
-    //   }
-    // });
 
     let response = await handlePostData(
       "/api/v1/product/create",
@@ -926,14 +921,20 @@ const AddSpareParts = ({ clearFilter }) => {
                     <TableHead>
                       <TableRow>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Value
+                          Name
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Quality
                         </TableCell>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           Sell Price
                         </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Base Price
+                        </TableCell>
 
                         <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Variation Image
+                          Variation Image (Size 100 : 100)
                         </TableCell>
 
                         <TableCell
@@ -982,6 +983,35 @@ const AddSpareParts = ({ clearFilter }) => {
                               />
                             </TableCell>
                             <TableCell sx={{ minWidth: "130px" }}>
+                              {" "}
+                              <TextField
+                                // required
+                                size="small"
+                                id="quality"
+                                placeholder="Variation quality"
+                                variant="outlined"
+                                sx={{
+                                  ...customeTextFeild,
+                                  "& .MuiOutlinedInput-input": {
+                                    padding: "6.5px 12px",
+                                    fontSize: "14px",
+                                  },
+                                  minWidth: "150px",
+                                }}
+                                value={item.quality || ""}
+                                onChange={(e) => {
+                                  const updatedValue = e.target.value;
+                                  setVariationList((prevList) =>
+                                    prevList.map((obj, index) =>
+                                      index === i
+                                        ? { ...obj, quality: updatedValue }
+                                        : obj
+                                    )
+                                  );
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "130px" }}>
                               <TextField
                                 required
                                 type="number"
@@ -1004,6 +1034,36 @@ const AddSpareParts = ({ clearFilter }) => {
                                     prevList.map((obj, index) =>
                                       index === i
                                         ? { ...obj, price: updatedValue }
+                                        : obj
+                                    )
+                                  );
+                                }}
+                                onWheel={(e) => e.target.blur()}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              <TextField
+                                required
+                                type="number"
+                                size="small"
+                                id="base_price"
+                                placeholder="base_price"
+                                variant="outlined"
+                                sx={{
+                                  ...customeTextFeild,
+                                  "& .MuiOutlinedInput-input": {
+                                    padding: "6.5px 12px",
+                                    fontSize: "14px",
+                                  },
+                                  minWidth: "150px",
+                                }}
+                                value={item.base_price || ""} // Assuming 'value' is the key for the number field
+                                onChange={(e) => {
+                                  const updatedValue = e.target.value;
+                                  setVariationList((prevList) =>
+                                    prevList.map((obj, index) =>
+                                      index === i
+                                        ? { ...obj, base_price: updatedValue }
                                         : obj
                                     )
                                   );
@@ -1037,7 +1097,7 @@ const AddSpareParts = ({ clearFilter }) => {
                                 <input
                                   id="fileInput"
                                   type="file"
-                                  accept="image/png, image/jpg, image/jpeg"
+                                  accept="image/png, image/jpg, image/jpeg, image/webp"
                                   onChange={(e) => {
                                     const file = e.target.files[0];
                                     setVariationList((prevList) =>
@@ -1089,7 +1149,7 @@ const AddSpareParts = ({ clearFilter }) => {
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
                         >
-                          <TableCell colSpan={4} align="center">
+                          <TableCell colSpan={6} align="center">
                             No variation added
                           </TableCell>
                         </TableRow>

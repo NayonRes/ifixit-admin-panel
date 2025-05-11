@@ -72,7 +72,7 @@ const ImageUpload = ({ file, setFile, dimension }) => {
     onDrop,
     onFileDialogCancel,
     ref: dropzoneRef,
-    accept: { "image/png": [], "image/jpeg": [] },
+    accept: { "image/png": [], "image/jpeg": [], "image/webp": [] },
     maxFiles: 1,
     maxSize: 2 * 1024 * 1024, // 2MB file size limit
   });

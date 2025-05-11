@@ -104,7 +104,12 @@ const SparePartsDetails = () => {
     const formData = new FormData();
 
     formData.append("name", updateData?.name.trim());
+    formData.append("quality", updateData?.quality.trim());
     formData.append("price", parseFloat(updateData?.price).toFixed(2));
+    formData.append(
+      "base_price",
+      parseFloat(updateData?.base_price).toFixed(2)
+    );
 
     {
       updateData?.file !== null &&
@@ -539,8 +544,12 @@ const SparePartsDetails = () => {
               <TableRow>
                 <TableCell style={{ whiteSpace: "nowrap" }}>Image</TableCell>
                 <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>Quality</TableCell>
                 <TableCell style={{ whiteSpace: "nowrap" }}>
                   Sell Price
+                </TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>
+                  Base Price
                 </TableCell>
 
                 <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
@@ -583,7 +592,7 @@ const SparePartsDetails = () => {
                           <input
                             id="fileInput"
                             type="file"
-                            accept="image/png, image/jpg, image/jpeg"
+                            accept="image/png, image/jpg, image/jpeg, image/webp"
                             onChange={handleFileChange} // Handle file input changes
                           />
                         </Box>
@@ -626,6 +635,29 @@ const SparePartsDetails = () => {
                       {updateData._id === item._id ? (
                         <TextField
                           required
+                          size="small"
+                          id="quality"
+                          placeholder="Variation quality"
+                          variant="outlined"
+                          sx={{
+                            ...customeTextFeild,
+                            "& .MuiOutlinedInput-input": {
+                              padding: "6.5px 12px",
+                              fontSize: "14px",
+                            },
+                            minWidth: "150px",
+                          }}
+                          value={updateData?.quality || ""}
+                          onChange={handleInputChange} // Attach the onChange handler
+                        />
+                      ) : (
+                        <>{item?.quality}</>
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ minWidth: "130px" }}>
+                      {updateData._id === item._id ? (
+                        <TextField
+                          required
                           type="number"
                           size="small"
                           id="price"
@@ -645,6 +677,31 @@ const SparePartsDetails = () => {
                         />
                       ) : (
                         item?.price
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ minWidth: "130px" }}>
+                      {updateData._id === item._id ? (
+                        <TextField
+                          required
+                          type="number"
+                          size="small"
+                          id="base_price"
+                          placeholder="Base Price"
+                          variant="outlined"
+                          sx={{
+                            ...customeTextFeild,
+                            "& .MuiOutlinedInput-input": {
+                              padding: "6.5px 12px",
+                              fontSize: "14px",
+                            },
+                            minWidth: "150px",
+                          }}
+                          value={updateData.base_price || ""} // Assuming 'value' is the key for the number field
+                          onChange={handleInputChange} // Attach the onChange handler
+                          onWheel={(e) => e.target.blur()}
+                        />
+                      ) : (
+                        item?.base_price
                       )}
                     </TableCell>
 

@@ -178,7 +178,7 @@ const ServiceList = () => {
   const pageLoading = () => {
     let content = [];
 
-    let loadingNumber = 7;
+    let loadingNumber = 8;
 
     if (checkMultiplePermission(["update_service", "view_service_details"])) {
       loadingNumber = loadingNumber + 1;
@@ -752,6 +752,9 @@ const ServiceList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell style={{ maxWidth: "220px" }}>Title</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Order No
+                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
 
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -799,6 +802,7 @@ const ServiceList = () => {
                       </TableCell> */}
 
                       <TableCell>{row?.title}</TableCell>
+                      <TableCell>{row?.order_no}</TableCell>
                       <TableCell>
                         {row?.brand_data[0]?.name
                           ? row?.brand_data[0]?.name

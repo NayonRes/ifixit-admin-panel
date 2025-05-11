@@ -57,6 +57,7 @@ import { handlePostData } from "../../services/PostDataService";
 import { useTheme } from "@mui/material/styles";
 import Chip from "@mui/material/Chip";
 import { handlePutData } from "../../services/PutDataService";
+import Products from "./Products";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -76,6 +77,7 @@ const serviceObject = {
   guaranty: "",
   warranty: "",
   repair_image: null,
+  selectedProducts: [],
 };
 const stepObject = {
   title: "",
@@ -146,6 +148,7 @@ const UpdateService = ({ clearFilter }) => {
   const [refresh, setRefresh] = useState(false);
   const [allData, setAllData] = useState([]);
   const [status, setStatus] = useState("");
+  const [orderNo, setOrderNo] = useState();
 
   const handleBranchChange = (event) => {
     const {
@@ -180,6 +183,7 @@ const UpdateService = ({ clearFilter }) => {
   const clearForm = () => {
     setName("");
     setTitle("");
+    setOrderNo();
     setBrandId("");
     setCategoryId("");
     setDeviceId("");
@@ -216,6 +220,12 @@ const UpdateService = ({ clearFilter }) => {
           item?.repair_image instanceof File
             ? await fileToBase64(item?.repair_image)
             : item?.repair_image,
+        ...(item.selectedProducts?.length > 0
+          ? {
+              product_id: item.selectedProducts[0].product_id,
+              product_variation_id: item.selectedProducts[0]._id,
+            }
+          : {}),
       }))
     );
 
@@ -232,6 +242,7 @@ const UpdateService = ({ clearFilter }) => {
     console.log("newStepList", newStepList);
     let data = {
       title: title,
+      order_no: orderNo,
       status: status,
       model_id: modelId,
       device_id: deviceId,
@@ -469,6 +480,7 @@ const UpdateService = ({ clearFilter }) => {
     if (allData.status >= 200 && allData.status < 300) {
       setDetailsForTextEditorShow(allData?.data?.data[0]?.description);
       setTitle(allData?.data?.data[0]?.title);
+      setOrderNo(allData?.data?.data[0]?.order_no);
       setDetails(allData?.data?.data[0]?.description);
       setModelId(allData?.data?.data[0]?.model_id);
       setStatus(allData?.data?.data[0]?.status);
@@ -491,7 +503,6 @@ const UpdateService = ({ clearFilter }) => {
       );
 
       setAllData(allData?.data?.data);
-      
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -789,7 +800,7 @@ const UpdateService = ({ clearFilter }) => {
                   gutterBottom
                   sx={{ fontWeight: 500 }}
                 >
-                  Service Image * (Dimension 4 : 3)
+                  Service Image * (Size 400 : 300)
                 </Typography>
 
                 <Box sx={{ position: "relative" }}>
@@ -824,7 +835,7 @@ const UpdateService = ({ clearFilter }) => {
                       className="file_input2"
                       id="fileInput"
                       type="file"
-                      accept="image/png, image/jpg, image/jpeg"
+                      accept="image/png, image/jpg, image/jpeg, image/webp"
                       onChange={(e) => {
                         const file = e.target.files[0];
                         setImage(file);
@@ -853,6 +864,30 @@ const UpdateService = ({ clearFilter }) => {
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
+                  }}
+                />
+              </Grid>
+              <Grid size={6}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  Order No
+                </Typography>
+                <TextField
+                  required
+                  type="number"
+                  size="small"
+                  fullWidth
+                  id="orderNo"
+                  placeholder="Enter Order No"
+                  variant="outlined"
+                  sx={{ ...customeTextFeild, mb: 2 }}
+                  value={orderNo}
+                  onChange={(e) => {
+                    setOrderNo(e.target.value);
                   }}
                 />
               </Grid>
@@ -999,8 +1034,8 @@ const UpdateService = ({ clearFilter }) => {
                           >
                             <Alert severity="info" sx={{ mb: 1 }}>
                               {" "}
-                              For Single Service : Dimension 1 : 1 & For
-                              multiple Service : Dimension 2 : 1
+                              For Single Service : Image Size 100 : 100 & For
+                              multiple Service : Image Size 200 : 100
                             </Alert>
                             <Box sx={{ textAlign: "right", mb: 1 }}>
                               <Button
@@ -1085,7 +1120,7 @@ const UpdateService = ({ clearFilter }) => {
                                       // required
                                       id="fileInput"
                                       type="file"
-                                      accept="image/png, image/jpg, image/jpeg"
+                                      accept="image/png, image/jpg, image/jpeg, image/webp"
                                       onChange={(e) => {
                                         const file = e.target.files[0];
                                         setRepairServiceList((prevList) =>
@@ -1240,6 +1275,21 @@ const UpdateService = ({ clearFilter }) => {
                                 />
                               </Grid>
                             </Grid>
+                            <Products
+                              selectedProducts={item.selectedProducts}
+                              setSelectedProducts={(newProducts) => {
+                                setRepairServiceList((prevList) =>
+                                  prevList.map((obj, index) =>
+                                    index === i
+                                      ? {
+                                          ...obj,
+                                          selectedProducts: newProducts,
+                                        }
+                                      : obj
+                                  )
+                                );
+                              }}
+                            />
                           </Box>
                         </>
                       ))}
@@ -1297,7 +1347,7 @@ const UpdateService = ({ clearFilter }) => {
                                   gutterBottom
                                   sx={{ fontWeight: 500 }}
                                 >
-                                  Service Step Image * (Dimension 1 : 1)
+                                  Service Step Image * (Size 100 : 100)
                                 </Typography>
 
                                 <Box sx={{ position: "relative" }}>
@@ -1332,7 +1382,7 @@ const UpdateService = ({ clearFilter }) => {
                                       // required
                                       id="fileInput"
                                       type="file"
-                                      accept="image/png, image/jpg, image/jpeg"
+                                      accept="image/png, image/jpg, image/jpeg, image/webp"
                                       onChange={(e) => {
                                         const file = e.target.files[0];
                                         setStepList((prevList) =>

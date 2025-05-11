@@ -48,7 +48,7 @@ import Invoice from "../repair/Invoice";
 import BlogList from "../blog/BlogList";
 import AddBlog from "../blog/AddBlog";
 import UpdateBlog from "../blog/UpdateBlog";
-import Sale from "../sales/Sale";
+import Sales from "../sales/Sales";
 import AddSales from "../sales/AddSales";
 import SaleDetails from "../sales/SaleDetails";
 import SalesInvoice from "../sales/SalesInvoice";
@@ -422,7 +422,7 @@ const Navigation = ({ notificationCartName }) => {
           path="sales-list"
           element={
             <PrivateRoute>
-              <Sale />
+              <Sales />
             </PrivateRoute>
           }
         />

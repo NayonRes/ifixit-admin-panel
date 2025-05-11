@@ -33,7 +33,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { designationList, roleList } from "../../data";
 import SalesList from "./SalesList";
 
-const Sale = () => {
+const Sales = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [tableDataList, setTableDataList] = useState([]);
@@ -637,4 +637,4 @@ const Sale = () => {
   );
 };
 
-export default Sale;
+export default Sales;

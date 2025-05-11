@@ -48,7 +48,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment";
 import dayjs from "dayjs";
 
-const AddRepairProductSKU = ({ row }) => {
+const AddSalesProductSKU = ({ row }) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -143,14 +143,14 @@ const AddRepairProductSKU = ({ row }) => {
     }
     setLoading(true);
     let data = {
-      repair_id: row?._id,
+      sale_id: row?._id,
       is_warranty_claimed_sku: false,
       sku_numbers: productList?.map((item) => item.sku_number),
     };
     console.log("data", data);
 
     let response = await handlePostData(
-      "/api/v1/repairAttachedSpareparts/create",
+      "/api/v1/saleAttachedProduct/create",
       data,
       false
     );
@@ -184,7 +184,7 @@ const AddRepairProductSKU = ({ row }) => {
     console.log("data", data);
 
     let response = await handlePostData(
-      "/api/v1/repairAttachedSpareparts/remove-stock-adjustment",
+      "/api/v1/saleAttachedProduct/remove-stock-adjustment",
       data,
       false
     );
@@ -338,7 +338,7 @@ const AddRepairProductSKU = ({ row }) => {
   const getData = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/repairAttachedSpareparts?repair_id=${row?._id}&is_warranty_claimed_sku=false&status=true`;
+    let url = `/api/v1/saleAttachedProduct?sale_id=${row?._id}&is_warranty_claimed_sku=false&status=true`;
 
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
@@ -380,7 +380,7 @@ const AddRepairProductSKU = ({ row }) => {
         }}
         startIcon={<AddOutlinedIcon />}
       >
-        Attached Spareparts
+        Attached Products
       </Button>
 
       <Dialog
@@ -409,7 +409,7 @@ const AddRepairProductSKU = ({ row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Repair Spareparts
+          Sales Products
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={handleDialogClose}
@@ -460,8 +460,8 @@ const AddRepairProductSKU = ({ row }) => {
                     gutterBottom
                     sx={{ fontWeight: 500 }}
                   >
-                    Job / Invoice No :{" "}
-                    <b>{row?.repair_id ? row?.repair_id : "---------"}</b>
+                    Sales No :{" "}
+                    <b>{row?.sale_id ? row?.sale_id : "---------"}</b>
                   </Typography>
                   <Typography
                     variant="medium"
@@ -469,7 +469,7 @@ const AddRepairProductSKU = ({ row }) => {
                     gutterBottom
                     sx={{ fontWeight: 500 }}
                   >
-                    Job / Invoice Date :{" "}
+                    Sales Date :{" "}
                     <b>{dayjs(row?.created_at).format("DD MMM YYYY")}</b>
                   </Typography>
                 </Grid>
@@ -1225,4 +1225,4 @@ const AddRepairProductSKU = ({ row }) => {
   );
 };
 
-export default AddRepairProductSKU;
+export default AddSalesProductSKU;

@@ -20,7 +20,7 @@ import { statusList } from "../../data";
 import { AuthContext } from "../../context/AuthContext";
 
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
-import AddRepairProductSKU from "./AddRepairProductSKU";
+import AddSalesProductSKU from "./AddSalesProductSKU";
 import WarrantyProductSKU from "./WarrantyProductSKU";
 
 const SalesList = ({
@@ -215,7 +215,7 @@ const SalesList = ({
                         "update_repair"
                       ) && (
                         <>
-                          <AddRepairProductSKU row={row} /> &nbsp; &nbsp;
+                          <AddSalesProductSKU row={row} /> &nbsp; &nbsp;
                           <WarrantyProductSKU row={row} /> &nbsp; &nbsp;
                           <Button
                             size="small"
