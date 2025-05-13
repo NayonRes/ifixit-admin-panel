@@ -175,7 +175,7 @@ const AddSalesProductSKU = ({ row }) => {
 
     setRemoveLoading(true);
     let data = {
-      repair_attached_stock_id: removeSkuDetails?._id,
+      sale_attached_stock_id: removeSkuDetails?._id,
 
       sku_number: removeSkuDetails?.sku_number,
       remarks: stockRemarks,
@@ -1070,7 +1070,7 @@ const AddSalesProductSKU = ({ row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Remove Spareparts
+          Remove Sale Product
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={handleRemoveSKUDialogClose}

@@ -22,18 +22,20 @@ const BarcodeGenerate = ({ list }) => {
           >
             <Box ref={contentRef}>
               {list?.length > 0 &&
-                list?.map((item, i) => {
-                  return (
-                    <span style={{ margin: "0px 10px" }}>
-                      <Barcode
-                        key={i}
-                        value={item?.sku_number}
-                        width={2}
-                        height={30}
-                      />
-                    </span>
-                  );
-                })}
+                list
+                  ?.sort((a, b) => a.sku_number - b.sku_number)
+                  ?.map((item, i) => {
+                    return (
+                      <span style={{ margin: "0px 10px" }}>
+                        <Barcode
+                          key={i}
+                          value={item?.sku_number}
+                          width={2}
+                          height={30}
+                        />
+                      </span>
+                    );
+                  })}
             </Box>
           </Box>
           <Box sx={{ py: 2, textAlign: "right" }}>
