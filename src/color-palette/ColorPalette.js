@@ -24,8 +24,8 @@ let ColorPalette = {
       contrastText: "#fff",
     },
     warning: {
-      main: "#FFF4CC",
-      light: "#FFF9E6",
+      main: "#e7bb1d",
+      light: "#eee3bf",
       contrastText: "#fff",
     },
     error: {

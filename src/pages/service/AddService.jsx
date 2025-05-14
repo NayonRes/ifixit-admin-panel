@@ -145,7 +145,6 @@ const AddService = ({ clearFilter }) => {
 
   const [message, setMessage] = useState("");
   const [orderNo, setOrderNo] = useState();
-   
 
   const handleBranchChange = (event) => {
     const {
@@ -1092,7 +1091,7 @@ const AddService = ({ clearFilter }) => {
                                 gutterBottom
                                 sx={{ fontWeight: 500 }}
                               >
-                                Service Cost *
+                                Service Cost / Assemble cost *
                               </Typography>
                               <TextField
                                 required

@@ -14,7 +14,14 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, Chip, Divider, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Chip,
+  Divider,
+  TextField,
+  Typography,
+} from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
@@ -94,7 +101,9 @@ const Item = styled(Paper)(({ theme }) => ({
   border: "1px solid #EAECF0",
   cursor: "pointer",
 }));
-const Products = ({ selectedProducts, setSelectedProducts }) => {
+const Products = ({ previousData, selectedProducts, setSelectedProducts }) => {
+  console.log("previousData", previousData);
+
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
@@ -698,6 +707,18 @@ const Products = ({ selectedProducts, setSelectedProducts }) => {
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}></Grid>
       </Grid>
+      <Alert
+        severity={previousData?.product_data?.name ? "success" : "warning"}
+        sx={{ mb: 1 }}
+      >
+        {" "}
+        Previous Product:{" "}
+        {previousData?.product_data?.name
+          ? `${previousData.product_data.name} ${
+              previousData?.product_variation_data?.name || ""
+            }`
+          : "No product selected"}
+      </Alert>
       <div
         style={{
           // borderRadius: "12px",

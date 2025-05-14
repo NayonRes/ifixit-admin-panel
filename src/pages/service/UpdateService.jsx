@@ -492,8 +492,22 @@ const UpdateService = ({ clearFilter }) => {
         allData?.data?.data[0]?.description
       );
 
-      setRepairServiceList(allData?.data?.data[0]?.repair_info);
       setStepList(allData?.data?.data[0]?.steps);
+      // setRepairServiceList(allData?.data?.data[0]?.repair_info);
+      if (
+        Array.isArray(allData?.data?.data[0]?.repair_info) &&
+        allData.data.data[0].repair_info.length > 0
+      ) {
+        const updatedRepairInfo = allData.data.data[0].repair_info.map(
+          (item) => ({
+            ...item,
+            selectedProducts: [],
+          })
+        );
+        setRepairServiceList(updatedRepairInfo);
+      } else {
+        setRepairServiceList([]); // or keep it as-is if you want to retain an empty state
+      }
 
       // setStepList(allData?.data?.data[0]?.steps);
 
@@ -1172,7 +1186,7 @@ const UpdateService = ({ clearFilter }) => {
                                   gutterBottom
                                   sx={{ fontWeight: 500 }}
                                 >
-                                  Service Cost *
+                                  Service Cost / Assemble cost *
                                 </Typography>
                                 <TextField
                                   required
@@ -1276,6 +1290,7 @@ const UpdateService = ({ clearFilter }) => {
                               </Grid>
                             </Grid>
                             <Products
+                              previousData={item}
                               selectedProducts={item.selectedProducts}
                               setSelectedProducts={(newProducts) => {
                                 setRepairServiceList((prevList) =>
