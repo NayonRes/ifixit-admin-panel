@@ -17,7 +17,7 @@ import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
 import axios from "axios";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
@@ -108,7 +108,7 @@ function getStyles(name, branchName, theme) {
 const UpdateService = ({ clearFilter }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
   const { enqueueSnackbar } = useSnackbar();
 
   const theme = useTheme();

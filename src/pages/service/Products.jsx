@@ -25,7 +25,7 @@ import {
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
@@ -105,6 +105,7 @@ const Products = ({ previousData, selectedProducts, setSelectedProducts }) => {
   console.log("previousData", previousData);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
   const [value, setValue] = useState(null);
@@ -707,18 +708,20 @@ const Products = ({ previousData, selectedProducts, setSelectedProducts }) => {
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}></Grid>
       </Grid>
-      <Alert
-        severity={previousData?.product_data?.name ? "success" : "warning"}
-        sx={{ mb: 1 }}
-      >
-        {" "}
-        Previous Product:{" "}
-        {previousData?.product_data?.name
-          ? `${previousData.product_data.name} ${
-              previousData?.product_variation_data?.name || ""
-            }`
-          : "No product selected"}
-      </Alert>
+      {location.pathname?.includes("/service/update/") && (
+        <Alert
+          severity={previousData?.product_data?.name ? "success" : "warning"}
+          sx={{ mb: 1 }}
+        >
+          {" "}
+          Previous Product:{" "}
+          {previousData?.product_data?.name
+            ? `${previousData.product_data.name} ${
+                previousData?.product_variation_data?.name || ""
+              }`
+            : "No product selected"}
+        </Alert>
+      )}
       <div
         style={{
           // borderRadius: "12px",
