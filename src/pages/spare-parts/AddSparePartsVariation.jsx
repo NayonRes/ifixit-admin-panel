@@ -93,17 +93,14 @@ const form = {
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
 
-const variationObject = {
-  name: "",
-  price: 0,
-  file: null,
-};
 const AddSparePartsVariation = ({ getData, tableDataList }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
+  const [quality, setQuality] = useState("");
   const [price, setPrice] = useState("");
+  const [base_price, setBase_price] = useState("");
   const [file, setFile] = useState(null);
   const [convertedContent, setConvertedContent] = useState("");
 
@@ -199,7 +196,9 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
 
   const clearForm = () => {
     setName("");
+    setQuality("");
     setPrice("");
+    setBase_price("");
     setFile(null);
   };
 
@@ -210,6 +209,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
 
     formData.append("product_id", tableDataList?._id);
     formData.append("name", name?.trim());
+    formData.append("quality", quality?.trim());
     formData.append("price", parseFloat(price).toFixed(2));
     {
       file !== null && file !== undefined && formData.append("image", file);
@@ -483,8 +483,8 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
         </DialogTitle>
         <DialogContent
           sx={{
-            maxWidth: "500px",
-            minWidth: "500px",
+            maxWidth: "650px",
+            minWidth: "650px",
             px: 2,
             borderBottom: "1px solid #EAECF1",
             my: 1,
@@ -505,7 +505,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 size="small"
                 fullWidth
                 id="name"
-                placeholder="Full Name"
+                placeholder="Enter Name"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={name}
@@ -514,7 +514,6 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 }}
               />
             </Grid>
-
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -522,7 +521,30 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Price
+                Variation Quality
+              </Typography>
+              <TextField
+                // required
+                size="small"
+                fullWidth
+                id="Quality"
+                placeholder="Enter Quality"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={quality}
+                onChange={(e) => {
+                  setQuality(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+              Sell  Price
               </Typography>
               <TextField
                 required
@@ -530,12 +552,37 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 type="number"
                 fullWidth
                 id="price"
-                placeholder="Price"
+                placeholder="Enter Sell Price"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}
                 value={price}
                 onChange={(e) => {
                   setPrice(e.target.value);
+                }}
+                onWheel={(e) => e.target.blur()}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                base_price
+              </Typography>
+              <TextField
+                required
+                size="small"
+                type="number"
+                fullWidth
+                id="base_price"
+                placeholder="Enter Base Price"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={base_price}
+                onChange={(e) => {
+                  setBase_price(e.target.value);
                 }}
                 onWheel={(e) => e.target.blur()}
               />
@@ -548,7 +595,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Image
+                Image (Size 100 : 100)
               </Typography>
 
               <Box
@@ -583,7 +630,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 <input
                   id="fileInput"
                   type="file"
-                  accept="image/png, image/jpg, image/jpeg"
+                  accept="image/png, image/jpg, image/jpeg, image/webp"
                   onChange={(e) => {
                     const file = e.target.files[0];
                     setFile(file);

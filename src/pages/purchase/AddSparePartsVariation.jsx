@@ -544,7 +544,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Image
+                Image (Size 100 : 100)
               </Typography>
 
               <Box
@@ -579,7 +579,7 @@ const AddSparePartsVariation = ({ getData, tableDataList }) => {
                 <input
                   id="fileInput"
                   type="file"
-                  accept="image/png, image/jpg, image/jpeg"
+                accept="image/png, image/jpg, image/jpeg, image/webp"
                   onChange={(e) => {
                     const file = e.target.files[0];
                     setFile(file);

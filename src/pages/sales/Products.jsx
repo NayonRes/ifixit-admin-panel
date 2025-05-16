@@ -14,29 +14,19 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-import { Box, TextField, Typography } from "@mui/material";
+import { Box, Chip, Divider, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
+
 import Checkbox from "@mui/material/Checkbox";
-import EmailIcon from "@mui/icons-material/Email";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -49,13 +39,24 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { TableContainer } from "@mui/material";
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { styled } from "@mui/material/styles";
+import Paper from "@mui/material/Paper";
 import {
   customerTypeList,
   designationList,
+  paymentMethodList,
+  paymentStatusList,
+  purchaseStatusList,
   ratingList,
   roleList,
 } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import { jwtDecode } from "jwt-decode";
 
 const baseStyle = {
   flex: 1,
@@ -85,28 +86,39 @@ const acceptStyle = {
 const rejectStyle = {
   borderColor: "#ff1744",
 };
-const form = {
-  padding: "50px",
-  background: "#fff",
-  borderRadius: "10px",
-  width: "800px",
-  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-};
 
-const variationObject = {
-  name: "",
-  quality: "",
-  price: 0,
-  base_price: 0,
-  file: null,
-};
-const AddSpareParts = ({ clearFilter }) => {
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#F9FAFB",
+  padding: "16px 12px",
+  borderRadius: "8px !important",
+  border: "1px solid #EAECF0",
+  cursor: "pointer",
+}));
+const Products = ({ selectedProducts, setSelectedProducts }) => {
   const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
+  const myBranchId = jwtDecode(ifixit_admin_panel?.token)?.user?.branch_id;
+  const [value, setValue] = useState(null);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
+  const [supplierList, setSupplierList] = useState([]);
+  const [supplier, setSupplier] = useState("");
+  const [branchList, setBranchList] = useState([]);
+  const [branch, setBranch] = useState(myBranchId);
   const [convertedContent, setConvertedContent] = useState("");
+  const [purchaseStatus, setPurchaseStatus] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [paidAmount, setPaidAmount] = useState();
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [purchaseDate, setPurchaseDate] = useState(null);
+  const [shippingCharge, setShippingCharge] = useState("");
+  const [invoiceNo, setInvoiceNo] = useState("");
+  const [searchProductText, setsearchProductText] = useState("");
+  const [productList, setProductList] = useState([]);
+  // const [selectedProducts, setSelectedProducts] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [purchaseBy, setPurchaseBy] = useState("");
+  const [userList, setUserList] = useState([]);
 
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
@@ -128,6 +140,8 @@ const AddSpareParts = ({ clearFilter }) => {
   const [variationList, setVariationList] = useState([]);
 
   const [message, setMessage] = useState("");
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
@@ -199,105 +213,66 @@ const AddSpareParts = ({ clearFilter }) => {
   };
 
   const clearForm = () => {
-    setName("");
+    setSupplier("");
+    setPurchaseDate(null);
+    setPurchaseStatus("");
+    setPaymentStatus("");
     setBrandId("");
+    setPaymentMethod("");
+    setPaidAmount("");
     setCategoryId("");
-    setDeviceId("");
-    setModelId("");
-    setWarranty("");
     setPrice("");
-    setDetails("");
-    setFile(null);
-    setVariationList([]);
+    setShippingCharge("");
+    setBranch("");
+    setPurchaseBy("");
+    setsearchProductText("");
+    setProductList([]);
+    setSelectedProducts([]);
     setRemarks("");
   };
 
-  const handleCreateSpareParts = async (variationList, product_id) => {
-    try {
-      // Create an array of promises
-      // const promises = variationList.map((variation) =>
-      //   handlePostData("/api/v1/productVariation/create", variation, true)
-      // );
-
-      const promises = variationList.map((variation) => {
-        // Prepare FormData
-
-        // name: "",
-        // price: 0,
-        // file: null,
-        const formData = new FormData();
-        formData.append("product_id", product_id);
-        formData.append("name", variation?.name?.trim());
-        formData.append("quality", variation?.quality?.trim());
-        formData.append("price", parseFloat(variation?.price).toFixed(2));
-        formData.append(
-          "base_price",
-          parseFloat(variation?.base_price).toFixed(2)
-        );
-        {
-          variation?.file !== null &&
-            variation?.file !== undefined &&
-            formData.append("image", variation?.file);
-        }
-
-        // Call handlePostData for this FormData
-        return handlePostData(
-          "/api/v1/productVariation/create",
-          formData,
-          true
-        );
-      });
-
-      // Wait for all promises to resolve
-      const responses = await Promise.all(promises);
-
-      // Handle all responses
-      if (responses?.status === 401) {
-        logout();
-        return;
-      }
-      const allVariationAddedSuccessfully = responses.every(
-        (item) => item.data.status >= 200 && item.data.status < 300
-      );
-
-      if (allVariationAddedSuccessfully) {
-        handleSnakbarOpen("Added successfully", "success");
-        clearFilter();
-
-        clearForm();
-        handleDialogClose();
-      } else {
-        handleSnakbarOpen("Something went wrong", "error");
-      }
-      console.log("All spare parts created successfully:", responses);
-    } catch (error) {
-      console.error("Error creating spare parts:", error);
-    }
-  };
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
-
-    // formdata.append("parent_id", parent_id);
+    if (!purchaseDate) {
+      handleSnakbarOpen("Please select a purchase date", "error");
+      setLoading(false);
+      return;
+    }
+    let newSelectedProduct = [];
+    if (selectedProducts?.length < 1) {
+      handleSnakbarOpen("Please select purchase product", "error");
+      setLoading(false);
+      return;
+    } else {
+      newSelectedProduct = selectedProducts?.map((item, i) => ({
+        product_id: item.product_id,
+        product_variation_id: item.product_variation_id,
+        quantity: item.quantity,
+        price: item.price,
+        purchase_product_status: item.purchase_product_status,
+      }));
+    }
 
     const formData = new FormData();
+    // const selectedDateWithTime = dayjs(purchaseDate).toDate();
+    formData.append("supplier_id", supplier);
+    formData.append("user_id", purchaseBy);
+    formData.append("purchase_date", dayjs(purchaseDate).toDate());
+    formData.append("purchase_status", purchaseStatus);
+    formData.append("payment_status", paymentStatus);
+    formData.append("branch_id", branch);
+    formData.append("payment_method", paymentMethod);
+    formData.append("paid_amount", paidAmount ? paidAmount : 0);
+    formData.append("shipping_charge", parseFloat(shippingCharge).toFixed(2));
 
-    formData.append("name", name.trim());
-    formData.append("brand_id", brandId);
-    formData.append("category_id", categoryId);
-    formData.append("device_id", deviceId);
-    formData.append("model_id", modelId);
-    formData.append("warranty", warranty);
-    formData.append("price", price);
-    formData.append("description", details.trim());
-    formData.append("remarks", remarks.trim());
+    formData.append("remarks", remarks);
+    formData.append("selectedProducts", JSON.stringify(selectedProducts));
 
     let response = await handlePostData(
-      "/api/v1/product/create",
+      "/api/v1/purchase/create",
       formData,
       true
     );
@@ -308,14 +283,13 @@ const AddSpareParts = ({ clearFilter }) => {
       return;
     }
     if (response.status >= 200 && response.status < 300) {
-      await handleCreateSpareParts(variationList, response?.data?.data?._id);
+      // await handleCreateSpareParts(variationList, response?.data?.data?._id);
       setLoading(false);
-      navigate("/spare-parts-list");
-      // handleSnakbarOpen("Added successfully", "success");
+      handleSnakbarOpen("Added successfully", "success");
       // clearFilter();
-
-      // clearForm();
-      // handleDialogClose();
+      clearForm();
+      handleDialogClose();
+      navigate("/purchase-list");
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -352,7 +326,41 @@ const AddSpareParts = ({ clearFilter }) => {
       },
     },
   };
+  const custopDatePickerFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
 
+    "& .MuiInputBase-root": {
+      fontSize: "0.875rem", // Adjust font size for a smaller appearance
+      height: "2.5rem",
+    },
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+
+    "& .MuiOutlinedInput-input": {
+      // padding: "10px 16px", (uncomment if needed)
+    },
+
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px", (uncomment if needed)
+      "& fieldset": {
+        borderColor: "#", // Update with a specific color if needed
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
   const customeSelectFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     background: "#ffffff",
@@ -367,6 +375,36 @@ const AddSpareParts = ({ clearFilter }) => {
     "& .MuiOutlinedInput-input": {
       // padding: "10px 16px",
     },
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px",
+      "& fieldset": {
+        borderColor: "#",
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
+  const customeSelectFeildSmall = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+    "& .MuiOutlinedInput-input": {
+      padding: "6px 16px",
+      fontSize: "14px",
+    },
+
     "& .MuiOutlinedInput-root": {
       // paddingLeft: "24px",
       "& fieldset": {
@@ -404,6 +442,70 @@ const AddSpareParts = ({ clearFilter }) => {
     setLoading2(false);
   };
 
+  const getSupplierList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/supplier/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setSupplierList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+  const getBranchList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+  const getUserList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/user/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setUserList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+
   const getCategoryList = async () => {
     setLoading2(true);
 
@@ -428,7 +530,7 @@ const AddSpareParts = ({ clearFilter }) => {
   const getDeviceList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/leaf-dropdown`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
     if (allData?.status === 401) {
@@ -451,6 +553,7 @@ const AddSpareParts = ({ clearFilter }) => {
     setLoading2(true);
 
     let url = `/api/v1/model/device-model?deviceId=${id}`;
+    // let url = `/api/v1/model/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -468,16 +571,120 @@ const AddSpareParts = ({ clearFilter }) => {
     }
     setLoading2(false);
   };
+  const getLastPurchaseItem = async (id) => {
+    setLoading2(true);
+
+    let url = `/api/v1/purchaseProduct/last-purchase?product_variation_id=${id}`;
+    let allData = await getDataWithToken(url);
+    console.log("last purchase item", allData?.data?.data[0]?.price);
+    let last_purchase_price = allData?.data?.data[0]?.price;
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      // setModelList(allData?.data?.data);
+      // return allData?.data?.data[0]?.price;
+      // if (allData.data.data.length < 1) {
+      //   setMessage("No data found");
+      // }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+    return last_purchase_price;
+  };
 
   const handleDeviceSelect = (e) => {
     setDeviceId(e.target.value);
     setModelId("");
-    getModelList(e.target.value);
+    // getModelList(e.target.value);
+  };
+
+  const getProducts = async (searchText, bId, dId, mId, catId) => {
+    setSearchLoading(true);
+    let url;
+    let newSearchProductText = searchProductText;
+    let newBrandId = brandId;
+    let newDeviceId = deviceId;
+    let newModelId = modelId;
+    let newCategoryId = categoryId;
+    if (searchText) {
+      newSearchProductText = searchText;
+    }
+    if (bId) {
+      newBrandId = bId;
+    }
+    if (dId) {
+      newDeviceId = dId;
+    }
+    if (mId) {
+      newModelId = mId;
+    }
+    if (catId) {
+      newCategoryId = catId;
+    }
+
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+
+    let allData = await getDataWithToken(url);
+    console.log("(allData?.data?.data products", allData?.data?.data);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setProductList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setSearchLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setSearchLoading(false);
+  };
+  const handleSelectedProduct = async (item, row) => {
+    console.log("item", item);
+
+    // product_id: element._id,
+    //     product_variation_id: element.product_variation_id,
+    //     quantity: element.quantity,
+    //     price: element.price,
+    //     purchase_product_status: element.purchase_product_status,
+    if (selectedProducts.some((res) => res._id === item._id)) {
+      setSelectedProducts(
+        selectedProducts.filter((res) => res._id !== item._id)
+      );
+    } else {
+      setSelectedProducts([
+        ...selectedProducts,
+        {
+          ...item,
+          product_name:
+            row?.model_data[0]?.name + " " + row.name + " " + item.name,
+          product_id: item.product_id,
+          product_variation_id: item._id,
+          purchase_product_status: "",
+          quantity: "",
+          price: "",
+        },
+      ]);
+    }
   };
   useEffect(() => {
+    getSupplierList();
     getCategoryList();
+    getBranchList();
     getBrandList();
+    getUserList();
+    // getBrandList();
     getDeviceList();
+    // getModelList();
+    // getDropdownList();
   }, []);
   return (
     <>
@@ -489,48 +696,21 @@ const AddSpareParts = ({ clearFilter }) => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Add Spare Parts
+            Search Product
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}></Grid>
       </Grid>
-
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #EAECF1",
-          borderRadius: "12px",
+          // borderRadius: "12px",
           overflow: "hidden",
-          padding: "16px",
-          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
         }}
       >
         <form onSubmit={onSubmit}>
           <Grid container spacing={2}>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Spare Parts Name
-              </Typography>
-              <TextField
-                required
-                size="small"
-                fullWidth
-                id="name"
-                placeholder="Full Name"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={6}>
+            <Grid size={12}></Grid>
+            <Grid size={2}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -564,7 +744,6 @@ const AddSpareParts = ({ clearFilter }) => {
                   </InputLabel>
                 )}
                 <Select
-                  required
                   labelId="demo-simple-select-label"
                   id="brandId"
                   MenuProps={{
@@ -575,7 +754,12 @@ const AddSpareParts = ({ clearFilter }) => {
                     },
                   }}
                   value={brandId}
-                  onChange={(e) => setBrandId(e.target.value)}
+                  // onChange={(e) => setBrandId(e.target.value)}
+
+                  onChange={(e) => {
+                    setBrandId(e.target.value);
+                    getProducts(null, e.target.value);
+                  }}
                 >
                   {brandList
                     ?.filter((obj) => obj.name !== "Primary")
@@ -587,7 +771,132 @@ const AddSpareParts = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={6}>
+            <Grid size={2}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Device
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {deviceId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Device
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="deviceId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={deviceId}
+                  // onChange={(e) => setBrandId(e.target.value)}
+
+                  onChange={(e) => {
+                    setDeviceId(e.target.value);
+                    getModelList(e.target.value);
+                    getProducts(null, null, e.target.value);
+                  }}
+                >
+                  {deviceList
+                    .filter(
+                      (item) => !item.name.toLowerCase().includes("series")
+                    )
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={2}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Model
+              </Typography>
+
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {modelId?.length < 1 && (
+                  <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Model
+                  </InputLabel>
+                )}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="modelId"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={modelId}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setModelId(e.target.value);
+                    getProducts(null, null, null, e.target.value);
+                  }}
+                >
+                  {modelList
+                    ?.filter((obj) => obj.name !== "Primary")
+                    ?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={2}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -621,7 +930,6 @@ const AddSpareParts = ({ clearFilter }) => {
                   </InputLabel>
                 )}
                 <Select
-                  required
                   labelId="demo-simple-select-label"
                   id="categoryId"
                   MenuProps={{
@@ -632,7 +940,12 @@ const AddSpareParts = ({ clearFilter }) => {
                     },
                   }}
                   value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
+                  // onChange={(e) => setCategoryId(e.target.value)}
+
+                  onChange={(e) => {
+                    setCategoryId(e.target.value);
+                    getProducts(null, null, null, null, e.target.value);
+                  }}
                 >
                   {categoryList
                     ?.filter((obj) => obj.name !== "Primary")
@@ -644,7 +957,152 @@ const AddSpareParts = ({ clearFilter }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={6}>
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Search Product *
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                id="searchProductText"
+                placeholder="Search Product"
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z"
+                            stroke="#85888E"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{ ...customeTextFeild }}
+                value={searchProductText}
+                onChange={(e) => {
+                  setsearchProductText(e.target.value);
+                  getProducts(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={12}>
+              <Typography variant="base" gutterBottom sx={{ fontWeight: 500 }}>
+                All Product
+              </Typography>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={2}>
+                  {!searchLoading &&
+                    productList.length > 0 &&
+                    productList.map(
+                      (row, rowIndex) =>
+                        row?.variation_data?.length > 0 &&
+                        row.variation_data.map((item, itemIndex) => (
+                          <Grid
+                            key={`row-${rowIndex}-item-${itemIndex}`}
+                            item
+                            size={3}
+                          >
+                            <Item
+                              sx={{
+                                border:
+                                  selectedProducts.some(
+                                    (pro) => pro?._id === item?._id
+                                  ) && "1px solid #818FF8",
+                              }}
+                              onClick={() => handleSelectedProduct(item, row)}
+                            >
+                              {" "}
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Grid container alignItems="center">
+                                  <Grid size="auto" sx={{ width: "40px" }}>
+                                    {" "}
+                                    <img
+                                      src={
+                                        item?.images?.length > 0
+                                          ? item?.images[0]?.url
+                                          : "/noImage.jpg"
+                                      }
+                                      alt=""
+                                      width={30}
+                                      height={40}
+                                    />
+                                  </Grid>
+                                  <Grid
+                                    size="auto"
+                                    sx={{ width: "Calc(100% - 40px)" }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="medium"
+                                        sx={{
+                                          fontWeight: 500,
+                                          color: "#344054",
+                                          overflow: "hidden",
+                                          textOverflow: "ellipsis",
+                                          whiteSpace: "nowrap",
+                                          marginRight: 1, // Optional for spacing
+                                        }}
+                                      >
+                                        {" "}
+                                        {row?.name}
+                                        <br />
+                                        <span style={{ color: "#424949" }}>
+                                          {item?.name}
+                                        </span>
+                                      </Typography>
+                                      <Checkbox
+                                        sx={{
+                                          display: selectedProducts.some(
+                                            (pro) => pro?._id === item?._id
+                                          )
+                                            ? "block"
+                                            : "none",
+                                        }}
+                                        size="small"
+                                        checked={true}
+                                        inputProps={{
+                                          "aria-label": "controlled",
+                                        }}
+                                      />
+                                    </Box>
+                                  </Grid>
+                                </Grid>
+                              </Box>
+                            </Item>
+                          </Grid>
+                        ))
+                    )}
+                </Grid>
+              </Box>
+            </Grid>
+            <Grid size={12}>
+              <Divider />
+            </Grid>
+            {/* <Grid size={3}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -691,17 +1149,15 @@ const AddSpareParts = ({ clearFilter }) => {
                   value={deviceId}
                   onChange={handleDeviceSelect}
                 >
-                  {deviceList
-                    ?.filter((obj) => obj.name !== "Primary")
-                    ?.map((item) => (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.name}
-                      </MenuItem>
-                    ))}
+                  {deviceList?.map((item) => (
+                    <MenuItem key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid size={6}>
+            </Grid> */}
+            {/* <Grid size={3}>
               <Typography
                 variant="medium"
                 color="text.main"
@@ -756,185 +1212,36 @@ const AddSpareParts = ({ clearFilter }) => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid size={6}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Warranty (in months)
-              </Typography>
-              <TextField
-                size="small"
-                type="number"
-                fullWidth
-                id="warranty"
-                placeholder="Warranty"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={warranty}
-                onChange={(e) => {
-                  setWarranty(e.target.value);
-                }}
-                onWheel={(e) => e.target.blur()}
-              />
-            </Grid>
-            {/* <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Price
-              </Typography>
-              <TextField
-                required
-                size="small"
-                type="number"
-                fullWidth
-                id="price"
-                placeholder="Price"
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
-                value={price}
-                onChange={(e) => {
-                  setPrice(e.target.value);
-                }}
-              />
             </Grid> */}
-
             <Grid size={12}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Description
-              </Typography>
-              {/* <TextField
-                multiline
-                rows={2}
-                size="small"
-                fullWidth
-                id="membershipId"
-                placeholder="Add Note"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={details}
-                onChange={(e) => {
-                  setDetails(e.target.value);
-                }}
-              /> */}
-              <TextEditor
-                convertedContent={details}
-                setConvertedContent={setDetails}
-              />
-            </Grid>
-            <Grid size={12}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Add Note
-              </Typography>
-              <TextField
-                multiline
-                rows={2}
-                size="small"
-                fullWidth
-                id="membershipId"
-                placeholder="Add Note"
-                variant="outlined"
-                sx={{ ...customeTextFeild }}
-                value={remarks}
-                onChange={(e) => {
-                  setRemarks(e.target.value);
-                }}
-              />
-            </Grid>
-            <Grid size={12}>
-              <div
-                style={{
-                  background: "#fff",
-                  border: "1px solid #EAECF1",
+              <Box
+                sx={{
+                  background: "#F9FAFB",
+                  border: "1px solid #EAECF0",
                   borderRadius: "12px",
                   overflow: "hidden",
                   padding: "16px 0",
                   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+                  p: 1.5,
                 }}
               >
-                <Grid
-                  container
-                  justifyContent="space-between"
-                  alignItems="center"
-                  sx={{ px: 1.5, mb: 1.75 }}
-                >
-                  <Grid size={{ xs: 6 }}>
-                    <Typography
-                      variant="h6"
-                      gutterBottom
-                      component="div"
-                      sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-                    >
-                      Variations
-                    </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 6 }} sx={{ textAlign: "right" }}>
-                    <Button
-                      color="text"
-                      size="small"
-                      sx={{ border: "1px solid #F2F3F7", px: 2 }}
-                      startIcon={
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M10 4.16699V15.8337M4.16669 10.0003H15.8334"
-                            stroke="black"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      }
-                      onClick={() =>
-                        setVariationList([...variationList, variationObject])
-                      }
-                    >
-                      Add Variation
-                    </Button>
-                  </Grid>
-                </Grid>
-
                 <TableContainer>
                   <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                       <TableRow>
                         <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Name
-                        </TableCell>
-                        <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Quality
-                        </TableCell>
-                        <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Sell Price
-                        </TableCell>
-                        <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Base Price
+                          Product Name
                         </TableCell>
 
                         <TableCell style={{ whiteSpace: "nowrap" }}>
-                          Variation Image (Size 100 : 100)
+                          Quantity
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Price
+                        </TableCell>
+
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Subtotal
                         </TableCell>
 
                         <TableCell
@@ -946,20 +1253,30 @@ const AddSpareParts = ({ clearFilter }) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {variationList?.length > 0 ? (
-                        variationList?.map((item, i) => (
+                      {selectedProducts?.length > 0 ? (
+                        selectedProducts?.map((item, i) => (
                           <TableRow
                             sx={{
+                              background: "#fff",
                               "&:last-child td, &:last-child th": { border: 0 },
                             }}
                           >
-                            <TableCell sx={{ minWidth: "130px" }}>
+                            <TableCell sx={{ minWidth: "200px" }}>
                               {" "}
+                              {item?.product_name}
+                              {/* <br />
+                              <span style={{ color: "#424949" }}>
+                                {item.name}
+                              </span> */}
+                            </TableCell>
+
+                            <TableCell sx={{ minWidth: "130px" }}>
                               <TextField
                                 required
+                                type="number"
                                 size="small"
-                                id="name"
-                                placeholder="Variation Name"
+                                id="quantity"
+                                placeholder="Quantity"
                                 variant="outlined"
                                 sx={{
                                   ...customeTextFeild,
@@ -969,46 +1286,18 @@ const AddSpareParts = ({ clearFilter }) => {
                                   },
                                   minWidth: "150px",
                                 }}
-                                value={item.name || ""}
+                                value={item.quantity || ""} // Assuming 'value' is the key for the number field
                                 onChange={(e) => {
                                   const updatedValue = e.target.value;
-                                  setVariationList((prevList) =>
+                                  setSelectedProducts((prevList) =>
                                     prevList.map((obj, index) =>
                                       index === i
-                                        ? { ...obj, name: updatedValue }
+                                        ? { ...obj, quantity: updatedValue }
                                         : obj
                                     )
                                   );
                                 }}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ minWidth: "130px" }}>
-                              {" "}
-                              <TextField
-                                // required
-                                size="small"
-                                id="quality"
-                                placeholder="Variation quality"
-                                variant="outlined"
-                                sx={{
-                                  ...customeTextFeild,
-                                  "& .MuiOutlinedInput-input": {
-                                    padding: "6.5px 12px",
-                                    fontSize: "14px",
-                                  },
-                                  minWidth: "150px",
-                                }}
-                                value={item.quality || ""}
-                                onChange={(e) => {
-                                  const updatedValue = e.target.value;
-                                  setVariationList((prevList) =>
-                                    prevList.map((obj, index) =>
-                                      index === i
-                                        ? { ...obj, quality: updatedValue }
-                                        : obj
-                                    )
-                                  );
-                                }}
+                                onWheel={(e) => e.target.blur()}
                               />
                             </TableCell>
                             <TableCell sx={{ minWidth: "130px" }}>
@@ -1030,7 +1319,7 @@ const AddSpareParts = ({ clearFilter }) => {
                                 value={item.price || ""} // Assuming 'value' is the key for the number field
                                 onChange={(e) => {
                                   const updatedValue = e.target.value;
-                                  setVariationList((prevList) =>
+                                  setSelectedProducts((prevList) =>
                                     prevList.map((obj, index) =>
                                       index === i
                                         ? { ...obj, price: updatedValue }
@@ -1041,74 +1330,14 @@ const AddSpareParts = ({ clearFilter }) => {
                                 onWheel={(e) => e.target.blur()}
                               />
                             </TableCell>
-                            <TableCell sx={{ minWidth: "130px" }}>
-                              <TextField
-                                required
-                                type="number"
-                                size="small"
-                                id="base_price"
-                                placeholder="base_price"
-                                variant="outlined"
-                                sx={{
-                                  ...customeTextFeild,
-                                  "& .MuiOutlinedInput-input": {
-                                    padding: "6.5px 12px",
-                                    fontSize: "14px",
-                                  },
-                                  minWidth: "150px",
-                                }}
-                                value={item.base_price || ""} // Assuming 'value' is the key for the number field
-                                onChange={(e) => {
-                                  const updatedValue = e.target.value;
-                                  setVariationList((prevList) =>
-                                    prevList.map((obj, index) =>
-                                      index === i
-                                        ? { ...obj, base_price: updatedValue }
-                                        : obj
-                                    )
-                                  );
-                                }}
-                                onWheel={(e) => e.target.blur()}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ minWidth: "130px" }}>
-                              <Box sx={{ position: "relative" }}>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="20"
-                                  height="20"
-                                  viewBox="0 0 20 20"
-                                  fill="none"
-                                  style={{
-                                    position: "absolute",
-                                    top: 8,
-                                    left: 90,
-                                  }}
-                                >
-                                  <path
-                                    d="M3.33333 13.5352C2.32834 12.8625 1.66666 11.7168 1.66666 10.4167C1.66666 8.46369 3.15959 6.85941 5.06645 6.68281C5.45651 4.31011 7.51687 2.5 10 2.5C12.4831 2.5 14.5435 4.31011 14.9335 6.68281C16.8404 6.85941 18.3333 8.46369 18.3333 10.4167C18.3333 11.7168 17.6717 12.8625 16.6667 13.5352M6.66666 13.3333L10 10M10 10L13.3333 13.3333M10 10V17.5"
-                                    stroke="#344054"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
 
-                                <input
-                                  id="fileInput"
-                                  type="file"
-                                  accept="image/png, image/jpg, image/jpeg, image/webp"
-                                  onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    setVariationList((prevList) =>
-                                      prevList.map((obj, index) =>
-                                        index === i ? { ...obj, file } : obj
-                                      )
-                                    );
-                                  }}
-                                />
-                              </Box>
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              {item?.quantity && item?.price
+                                ? parseInt(item?.quantity) *
+                                  parseFloat(item?.price).toFixed(2)
+                                : 0}
                             </TableCell>
+
                             <TableCell
                               sx={{ minWidth: "130px", textAlign: "right" }}
                             >
@@ -1117,7 +1346,7 @@ const AddSpareParts = ({ clearFilter }) => {
                                 // color="success"
                                 disableElevation
                                 onClick={() => {
-                                  setVariationList((prevList) =>
+                                  setSelectedProducts((prevList) =>
                                     prevList.filter((_, index) => index !== i)
                                   );
                                 }}
@@ -1150,66 +1379,20 @@ const AddSpareParts = ({ clearFilter }) => {
                           }}
                         >
                           <TableCell colSpan={6} align="center">
-                            No variation added
+                            No Product selected
                           </TableCell>
                         </TableRow>
                       )}
                     </TableBody>
                   </Table>
                 </TableContainer>
-              </div>
+              </Box>
             </Grid>
           </Grid>
-          <Box
-            sx={{ p: 2, marginTop: "1px solid #EAECF0", textAlign: "right" }}
-          >
-            <Button
-              variant="outlined"
-              onClick={handleDialogClose}
-              sx={{
-                mr: 2,
-                px: 2,
-                py: 1.25,
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "#344054",
-                border: "1px solid #D0D5DD",
-                boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-              }}
-              component={Link}
-              to="/spare-parts-list"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              disabled={loading}
-              type="submit"
-              sx={{
-                px: 2,
-                py: 1.25,
-                fontSize: "14px",
-                fontWeight: 600,
-                minWidth: "127px",
-                minHeight: "44px",
-              }}
-              // style={{ minWidth: "180px", minHeight: "35px" }}
-
-              disableElevation
-            >
-              <PulseLoader
-                color={"#4B46E5"}
-                loading={loading}
-                size={10}
-                speedMultiplier={0.5}
-              />{" "}
-              {loading === false && "Save changes"}
-            </Button>
-          </Box>
         </form>
       </div>
     </>
   );
 };
 
-export default AddSpareParts;
+export default Products;

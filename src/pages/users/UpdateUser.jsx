@@ -644,7 +644,7 @@ const UpdateUser = ({ clearFilter, row }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              dimension="Dimensions (1 * 1)"
+              dimension="Size: (100 : 100)"
             />
           </Box>
         </DialogContent>

@@ -278,14 +278,14 @@ const IssueList = ({
         setSteps={setSteps}
         deviceId={deviceId}
       /> */}
-      <Button
+      {/* <Button
         onClick={() => {
           console.log("allIssue", allIssue);
           console.log("selectedProducts", selectedProducts);
         }}
       >
         Check
-      </Button>
+      </Button> */}
       <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
         Select Issue
       </Typography>

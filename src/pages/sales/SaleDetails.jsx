@@ -1,7 +1,14 @@
 import React, { useEffect, useState, useContext } from "react";
 import Grid from "@mui/material/Grid2";
 
-import { Box, Button, Divider, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  Divider,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useSnackbar } from "notistack";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
@@ -54,9 +61,9 @@ const Item = styled(Paper)(({ theme }) => ({
   border: "1px solid #EAECF0",
   cursor: "pointer",
 }));
-const RepairDetails = ({ clearFilter }) => {
+const SaleDetails = ({ clearFilter }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const { rid } = useParams();
+  const { sid } = useParams();
   const navigate = useNavigate();
   const [repairCost, setRepairCost] = useState(0);
   const [spareParsCost, setSpareParsCost] = useState(0);
@@ -80,19 +87,28 @@ const RepairDetails = ({ clearFilter }) => {
     });
   };
   const calculateTotalRepairCost = (services) => {
-    return services.reduce((total, service) => {
+    return services?.reduce((total, service) => {
       return total + service.repair_cost;
     }, 0);
   };
   const calculateTotalSparePartsCost = (services) => {
-    return services.reduce((total, service) => {
+    return services?.reduce((total, service) => {
       return total + service.price;
     }, 0);
+  };
+
+  const calculateTotalAmount = (data) => {
+    let totalCost = data?.product_details?.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    return totalCost;
   };
   const getData = async () => {
     setLoading(true);
 
-    let url = `/api/v1/repair/${encodeURIComponent(rid.trim())}`;
+    let url = `/api/v1/sale/${encodeURIComponent(sid.trim())}`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data", allData?.data?.data);
 
@@ -103,15 +119,15 @@ const RepairDetails = ({ clearFilter }) => {
 
     if (allData.status >= 200 && allData.status < 300) {
       setDetails(allData?.data?.data);
-      let totalRepairCost = calculateTotalRepairCost(
-        allData?.data?.data?.issues
-      );
-      let totalSpareCost = calculateTotalSparePartsCost(
-        allData?.data?.data?.product_details
-      );
-      // console.log('allData?.data?.data?.product_details',totalSpareCost)
-      setRepairCost(totalRepairCost);
-      setSpareParsCost(totalSpareCost);
+      // let totalRepairCost = calculateTotalRepairCost(
+      //   allData?.data?.data?.issues
+      // );
+      // let totalSpareCost = calculateTotalSparePartsCost(
+      //   allData?.data?.data?.product_details
+      // );
+      // // console.log('allData?.data?.data?.product_details',totalSpareCost)
+      // setRepairCost(totalRepairCost);
+      // setSpareParsCost(totalSpareCost);
 
       if (allData.data.data.length < 1) {
         // setMessage("No data found");
@@ -137,19 +153,19 @@ const RepairDetails = ({ clearFilter }) => {
               component="div"
               sx={{ color: "#0F1624", fontWeight: 600 }}
             >
-              Repair Details
+              Sale Details
             </Typography>
           </Grid>
           <Grid size={6} sx={{ textAlign: "right" }}>
             {" "}
             <Button
               component={Link}
-              to={`/repair/invoice/${rid}`}
+              to={`/sales/invoice/${sid}`}
               variant="outlined"
               color="info"
               startIcon={<LocalPrintshopOutlinedIcon />}
             >
-              Repair Invoice
+              Sales Invoice
             </Button>
           </Grid>
         </Grid>
@@ -298,339 +314,60 @@ const RepairDetails = ({ clearFilter }) => {
         }}
       >
         <Box sx={{ padding: "12px", margin: "16px" }}>
-          <Grid container spacing={2}>
-            <Grid size={12}>
-              <Typography
-                variant="h6"
-                gutterBottom
-                component="div"
-                sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-              >
-                Device Info
-              </Typography>
-            </Grid>
+          <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+          >
+            Sale Items
+          </Typography>
 
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Brand :{" "}
-                <b>
-                  {details?.brand_data?.length > 0
-                    ? details?.brand_data[0]?.name
-                    : "---------"}
-                </b>
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Model :{" "}
-                <b>
-                  {details?.model_data?.length > 0
-                    ? details?.model_data[0]?.name
-                    : "---------"}
-                </b>
-              </Typography>
-            </Grid>
+          <>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  {/* <TableCell
+                style={{ whiteSpace: "nowrap" }}
+                colSpan={2}
+              ></TableCell> */}
 
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Spareparts:{" "}
-                {details?.product_details?.length > 0
-                  ? details?.product_details?.map((item, index) => (
-                      <b
-                        key={index}
-                        style={{
-                          background: "#eee",
-                          marginRight: "10px",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                          marginBottom: "3px",
-                          display: "inline-block",
-                        }}
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Product Name
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Quantity
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {!loading &&
+                  details?.product_details?.length > 0 &&
+                  details?.product_details?.map((row, i) => (
+                    <>
+                      <TableRow
+                        key={row?.user_id}
+                        // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                       >
-                        {item?.name} - ({item?.price} TK)
-                      </b>
-                    ))
-                  : "---------"}
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Serial :{" "}
-                <b>
-                  {details?.serial?.length > 0 ? details?.serial : "---------"}
-                </b>
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Pass code :{" "}
-                <b>
-                  {details?.pass_code?.length > 0
-                    ? details?.pass_code
-                    : "---------"}
-                </b>
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Issue:{" "}
-                {details?.issues?.length > 0
-                  ? details?.issues?.map((item, index) => (
-                      <b
-                        key={index}
-                        style={{
-                          background: "#eee",
-                          marginRight: "10px",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                          marginBottom: "3px",
-                          display: "inline-block",
-                        }}
-                      >
-                        {item?.name} - ({item?.repair_cost} TK)
-                      </b>
-                    ))
-                  : "---------"}
-              </Typography>
-            </Grid>
-          </Grid>
+                        <TableCell>
+                          {row?.product_name ? row?.product_name : "-------"}
+                        </TableCell>
+                        <TableCell>
+                          {row?.quantity ? row?.quantity : "-------"}
+                        </TableCell>
+                        <TableCell>
+                          {row?.price ? row?.price : "-------"}
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  ))}
+              </TableBody>
+            </Table>
+          </>
         </Box>
       </div>
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #EAECF1",
-          borderRadius: "12px",
-          overflow: "hidden",
-          // backgroundColor: "#F9FAFB",
-          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-          marginTop: 20,
-        }}
-      >
-        <Box sx={{ padding: "12px", margin: "16px" }}>
-          <Grid container spacing={2}>
-            <Grid size={12}>
-              <Typography
-                variant="h6"
-                gutterBottom
-                component="div"
-                sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-              >
-                Repair Checklist
-              </Typography>
-            </Grid>
 
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Power :{" "}
-                <b>
-                  {details?.repair_checklist?.has_power
-                    ? "Has power"
-                    : "No power"}
-                </b>
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Battery health :{" "}
-                <b>
-                  {details?.repair_checklist?.battery_health
-                    ? details?.repair_checklist?.battery_health + "%"
-                    : "-------"}
-                </b>
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Note :{" "}
-                <b>
-                  {details?.repair_checklist?.note?.length > 0
-                    ? details?.repair_checklist?.note
-                    : "-------"}
-                </b>
-              </Typography>
-            </Grid>
-            <Grid size={12}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500, fontSize: "18px", mb: 2 }}
-              >
-                Check list :{" "}
-              </Typography>
-
-              {details?.repair_checklist?.checklist?.length > 0
-                ? details?.repair_checklist?.checklist?.map((item, index) => (
-                    <Typography
-                      key={index}
-                      variant="medium"
-                      color="text.main"
-                      gutterBottom
-                      sx={{ fontWeight: 500 }}
-                      style={{
-                        background: "#eee",
-                        marginRight: "10px",
-                        padding: "5px 10px",
-                        borderRadius: "5px",
-                        marginBottom: "5px",
-                        display: "inline-block",
-                      }}
-                    >
-                      {item?.name} : <b>{item?.status}</b>
-                      {item?.status === "Functional" ? (
-                        <>
-                          {" "}
-                          &nbsp;
-                          <CheckCircleOutlinedIcon
-                            color="success"
-                            sx={{
-                              fontSize: "22px",
-                              position: "relative",
-                              top: 5,
-                            }}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          {" "}
-                          &nbsp;
-                          <img
-                            src="/cross.png"
-                            alt=""
-                            style={{
-                              width: "20px",
-                              position: "relative",
-                              top: 5,
-                            }}
-                            // onClick={() => handleCheckboxChange(index, false)}
-                          />
-                        </>
-                      )}
-                    </Typography>
-                  ))
-                : "---------"}
-            </Grid>
-          </Grid>
-        </Box>
-      </div>
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #EAECF1",
-          borderRadius: "12px",
-          overflow: "hidden",
-          // backgroundColor: "#F9FAFB",
-          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-          marginTop: 20,
-        }}
-      >
-        <Box sx={{ padding: "12px", margin: "16px" }}>
-          <Grid container spacing={2}>
-            <Grid size={12}>
-              <Typography
-                variant="h6"
-                gutterBottom
-                component="div"
-                sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-              >
-                Repair & Delivery Info
-              </Typography>
-            </Grid>
-
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Repair By :{" "}
-                <b>
-                  {details?.repair_by_data?.length > 0
-                    ? details?.repair_by_data[0]?.name
-                    : "---------"}
-                </b>
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Repair Status :{" "}
-                <b>
-                  {details?.repair_status?.length > 0
-                    ? details?.repair_status
-                    : "---------"}
-                </b>
-              </Typography>
-            </Grid>
-            <Grid size={4}>
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-              >
-                Delivery Status :{" "}
-                <b>
-                  {details?.delivery_status?.length > 0
-                    ? details?.delivery_status
-                    : "---------"}
-                </b>
-              </Typography>
-            </Grid>
-          </Grid>
-        </Box>
-      </div>
       <div
         style={{
           background: "#fff",
@@ -731,8 +468,7 @@ const RepairDetails = ({ clearFilter }) => {
               >
                 Total Paid Amount :{" "}
                 <b>
-                  {repairCost +
-                    spareParsCost -
+                  {calculateTotalAmount(details) -
                     (Number(details?.discount_amount) || 0)}
                 </b>
               </Typography>
@@ -744,4 +480,4 @@ const RepairDetails = ({ clearFilter }) => {
   );
 };
 
-export default RepairDetails;
+export default SaleDetails;

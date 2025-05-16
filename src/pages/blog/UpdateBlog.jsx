@@ -407,7 +407,7 @@ const AddBlog = ({ clearFilter }) => {
                       className="file_input2"
                       id="fileInput"
                       type="file"
-                      accept="image/png, image/jpg, image/jpeg"
+                      accept="image/png, image/jpg, image/jpeg, image/webp"
                       onChange={(e) => {
                         const file = e.target.files[0];
                         setImage(file);
@@ -703,7 +703,7 @@ const AddBlog = ({ clearFilter }) => {
                                       className="file_input2"
                                       id="fileInput"
                                       type="file"
-                                      accept="image/png, image/jpg, image/jpeg"
+                                      accept="image/png, image/jpg, image/jpeg, image/webp"
                                       onChange={(e) => {
                                         const file = e.target.files[0];
                                         setBlogBodyInfoList((prevList) =>

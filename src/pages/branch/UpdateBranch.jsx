@@ -671,7 +671,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
                 <ImageUpload
                   file={file}
                   setFile={setFile}
-                  dimension=" Dimensions (2 : 1)"
+                 dimension="Size: (200 : 100)"
                 />
               </Box>
             </Grid>

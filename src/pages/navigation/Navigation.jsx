@@ -48,6 +48,10 @@ import Invoice from "../repair/Invoice";
 import BlogList from "../blog/BlogList";
 import AddBlog from "../blog/AddBlog";
 import UpdateBlog from "../blog/UpdateBlog";
+import Sales from "../sales/Sales";
+import AddSales from "../sales/AddSales";
+import SaleDetails from "../sales/SaleDetails";
+import SalesInvoice from "../sales/SalesInvoice";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -411,6 +415,46 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <Invoice />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="sales-list"
+          element={
+            <PrivateRoute>
+              <Sales />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="add-sales"
+          element={
+            <PrivateRoute>
+              <AddSales />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="update-sales/:sid"
+          element={
+            <PrivateRoute>
+              <AddSales />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="sales/details/:sid"
+          element={
+            <PrivateRoute>
+              <SaleDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="sales/invoice/:sid"
+          element={
+            <PrivateRoute>
+              <SalesInvoice />
             </PrivateRoute>
           }
         />

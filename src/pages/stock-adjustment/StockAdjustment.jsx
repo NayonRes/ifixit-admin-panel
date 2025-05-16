@@ -101,7 +101,7 @@ const StockAdjustment = ({ clearFilter }) => {
       return handleSnakbarOpen("Please select stock status", "error");
     }
     if (productList.length < 1) {
-      return handleSnakbarOpen("Please enter return product", "error");
+      return handleSnakbarOpen("Please enter adjustment product", "error");
     }
     setLoading(true);
 

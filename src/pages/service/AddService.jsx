@@ -58,6 +58,7 @@ import {
 import { handlePostData } from "../../services/PostDataService";
 import { useTheme } from "@mui/material/styles";
 import Chip from "@mui/material/Chip";
+import Products from "./Products";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -77,6 +78,7 @@ const serviceObject = {
   guaranty: "",
   warranty: "",
   repair_image: null,
+  selectedProducts: [],
 };
 const stepObject = {
   title: "",
@@ -142,6 +144,7 @@ const AddService = ({ clearFilter }) => {
   const [stepList, setStepList] = useState([stepObject]);
 
   const [message, setMessage] = useState("");
+  const [orderNo, setOrderNo] = useState();
 
   const handleBranchChange = (event) => {
     const {
@@ -176,6 +179,7 @@ const AddService = ({ clearFilter }) => {
   const clearForm = () => {
     setName("");
     setTitle("");
+    setOrderNo();
     setBrandId("");
     setCategoryId("");
     setDeviceId("");
@@ -207,7 +211,15 @@ const AddService = ({ clearFilter }) => {
     const newRepairServiceList = await Promise.all(
       repairServiceList?.map(async (item) => ({
         ...item,
+
         repair_image: await fileToBase64(item?.repair_image),
+        ...(item.selectedProducts?.length > 0
+          ? {
+              product_id: item.selectedProducts[0].product_id,
+              product_variation_id:
+                item.selectedProducts[0].product_variation_id,
+            }
+          : {}),
       }))
     );
 
@@ -224,6 +236,7 @@ const AddService = ({ clearFilter }) => {
     console.log("newStepList", newStepList);
     let data = {
       title: title,
+      order_no: orderNo,
       image: await fileToBase64(image),
       model_id: modelId,
       device_id: deviceId,
@@ -755,7 +768,7 @@ const AddService = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Service Image * (Dimension 4 : 3)
+                Service Image * (Size 400 : 300)
               </Typography>
 
               <Box sx={{ position: "relative" }}>
@@ -791,7 +804,7 @@ const AddService = ({ clearFilter }) => {
                     required
                     id="fileInput"
                     type="file"
-                    accept="image/png, image/jpg, image/jpeg"
+                    accept="image/png, image/jpg, image/jpeg, image/webp"
                     onChange={(e) => {
                       const file = e.target.files[0];
                       setImage(file);
@@ -824,6 +837,30 @@ const AddService = ({ clearFilter }) => {
               />
             </Grid>
 
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Order No
+              </Typography>
+              <TextField
+                required
+                type="number"
+                size="small"
+                fullWidth
+                id="orderNo"
+                placeholder="Enter Order No"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={orderNo}
+                onChange={(e) => {
+                  setOrderNo(e.target.value);
+                }}
+              />
+            </Grid>
             <Grid size={12}>
               <Typography
                 variant="medium"
@@ -917,8 +954,8 @@ const AddService = ({ clearFilter }) => {
                         >
                           <Alert severity="info" sx={{ mb: 1 }}>
                             {" "}
-                            For Single Service : Dimension 1 : 1 & For multiple
-                            Service : Dimension 2 : 1
+                            For Single Service : Image Size 100 : 100 & For
+                            multiple Service : Image Size 200 : 100
                           </Alert>
                           <Box sx={{ textAlign: "right", mb: 1 }}>
                             <Button
@@ -1003,7 +1040,7 @@ const AddService = ({ clearFilter }) => {
                                     required
                                     id="fileInput"
                                     type="file"
-                                    accept="image/png, image/jpg, image/jpeg"
+                                    accept="image/png, image/jpg, image/jpeg, image/webp"
                                     onChange={(e) => {
                                       const file = e.target.files[0];
                                       setRepairServiceList((prevList) =>
@@ -1055,7 +1092,7 @@ const AddService = ({ clearFilter }) => {
                                 gutterBottom
                                 sx={{ fontWeight: 500 }}
                               >
-                                Service Cost *
+                                Service Cost / Assemble cost *
                               </Typography>
                               <TextField
                                 required
@@ -1154,6 +1191,18 @@ const AddService = ({ clearFilter }) => {
                               />
                             </Grid>
                           </Grid>
+                          <Products
+                            selectedProducts={item.selectedProducts}
+                            setSelectedProducts={(newProducts) => {
+                              setRepairServiceList((prevList) =>
+                                prevList.map((obj, index) =>
+                                  index === i
+                                    ? { ...obj, selectedProducts: newProducts }
+                                    : obj
+                                )
+                              );
+                            }}
+                          />
                         </Box>
                       </>
                     ))}
@@ -1211,7 +1260,7 @@ const AddService = ({ clearFilter }) => {
                                 gutterBottom
                                 sx={{ fontWeight: 500 }}
                               >
-                                Service Step Image * (Dimension 1 : 1)
+                                Service Step Image * (Size 100 : 100)
                               </Typography>
 
                               <Box sx={{ position: "relative" }}>
@@ -1245,7 +1294,7 @@ const AddService = ({ clearFilter }) => {
                                   <input
                                     id="fileInput"
                                     type="file"
-                                    accept="image/png, image/jpg, image/jpeg"
+                                    accept="image/png, image/jpg, image/jpeg, image/webp"
                                     onChange={(e) => {
                                       const file = e.target.files[0];
                                       setStepList((prevList) =>
