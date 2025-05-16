@@ -216,7 +216,8 @@ const AddService = ({ clearFilter }) => {
         ...(item.selectedProducts?.length > 0
           ? {
               product_id: item.selectedProducts[0].product_id,
-              product_variation_id: item.selectedProducts[0]._id,
+              product_variation_id:
+                item.selectedProducts[0].product_variation_id,
             }
           : {}),
       }))

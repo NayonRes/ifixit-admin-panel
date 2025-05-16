@@ -223,7 +223,8 @@ const UpdateService = ({ clearFilter }) => {
         ...(item.selectedProducts?.length > 0
           ? {
               product_id: item.selectedProducts[0].product_id,
-              product_variation_id: item.selectedProducts[0]._id,
+              product_variation_id:
+                item.selectedProducts[0].product_variation_id,
             }
           : {}),
       }))
@@ -501,10 +502,21 @@ const UpdateService = ({ clearFilter }) => {
         const updatedRepairInfo = allData.data.data[0].repair_info.map(
           (item) => ({
             ...item,
-            selectedProducts: [],
+            selectedProducts: [
+              {
+                product_id: item?.product_id,
+                product_variation_id: item?.product_variation_id,
+
+                brand_id: item?.product_data?.brand_id,
+                device_id: item?.product_data?.device_id,
+                model_id: item?.product_data?.model_id,
+                category_id: item?.product_data?.category_id,
+              },
+            ],
           })
         );
         setRepairServiceList(updatedRepairInfo);
+        console.log("updatedRepairInfo", updatedRepairInfo);
       } else {
         setRepairServiceList([]); // or keep it as-is if you want to retain an empty state
       }
