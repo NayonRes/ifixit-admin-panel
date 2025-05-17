@@ -1197,7 +1197,6 @@ export default function Layout() {
                       </svg>
                     </ListItemIcon>
                     <ListItemText primary="Sales List" />
-                    {/* &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; 5 */}
                   </ListItemButton>
                 </ListItem>
               )}
@@ -1330,12 +1329,11 @@ export default function Layout() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   onClick={() => handleOpemMenu("")}
-                  // component={Link}
-                  // to="/live-chat"
-
+                  component={Link}
+                  to="/reports"
                   sx={[
                     { ...listButtonStyle },
-                    pathname === "/live-chat" && { ...activeStyle },
+                    pathname === "/reports" && { ...activeStyle },
                   ]}
                 >
                   <ListItemIcon
@@ -1397,7 +1395,6 @@ export default function Layout() {
                         stroke-linejoin="round"
                       />
                     </svg>
-                 
                   </ListItemIcon>
                   <ListItemText primary="Blog" />
                   {/* &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; 5 */}
