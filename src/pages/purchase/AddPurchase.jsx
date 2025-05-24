@@ -1071,6 +1071,7 @@ const AddPurchase = ({ clearFilter }) => {
                 required
                 size="small"
                 type="number"
+                onWheel={(e) => e.target.blur()}
                 fullWidth
                 id="shippingCharge"
                 placeholder="Shipping Charges"
@@ -1080,7 +1081,7 @@ const AddPurchase = ({ clearFilter }) => {
                 onChange={(e) => {
                   setShippingCharge(e.target.value);
                 }}
-                onWheel={(e) => e.target.blur()}
+              
               />
             </Grid>
             {/* <Grid size={4}>

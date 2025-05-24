@@ -474,6 +474,7 @@ const AddBlog = ({ clearFilter }) => {
                 <TextField
                   required
                   type="number"
+                  onWheel={(e) => e.target.blur()}
                   size="small"
                   fullWidth
                   id="name"

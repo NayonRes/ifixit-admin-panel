@@ -54,6 +54,8 @@ const customeTextFeild = {
 const RepairChecklist = ({
   repair_checklist,
   set_repair_checklist,
+  issueList,
+  setIssueList,
   steps,
   setSteps,
   deviceId,
@@ -64,7 +66,7 @@ const RepairChecklist = ({
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [issueList, setIssueList] = useState(allIssueCheckList);
+  // const [issueList, setIssueList] = useState(allIssueCheckList);
 
   const [has_power, set_has_power] = useState(false);
   const [battery_health, set_battery_health] = useState("");
@@ -102,7 +104,13 @@ const RepairChecklist = ({
 
   const handleAdd = () => {
     const newName = newCheckList.trim();
-
+    if (!newCheckList.trim()) {
+      enqueueSnackbar("Please enter checklist name", {
+        variant: "error",
+        autoHideDuration: 3000,
+      });
+      return;
+    }
     // Check if the name already exists in the issueList
     const isDuplicate = issueList.some(
       (item) => item.name.toLowerCase() === newName.toLowerCase()
@@ -348,7 +356,6 @@ const RepairChecklist = ({
                           color="success"
                           sx={{
                             fontSize: "22px",
-                          
                           }}
                         />
                       </>
@@ -416,6 +423,8 @@ const RepairChecklist = ({
                 Battery Health
               </Typography>
               <TextField
+              type="number"
+              onWheel={(e) => e.target.blur()}
                 size="small"
                 fullWidth
                 id="battery_health"

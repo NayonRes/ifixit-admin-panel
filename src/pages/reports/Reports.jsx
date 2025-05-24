@@ -3,6 +3,11 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   Paper,
   Skeleton,
   Typography,
@@ -14,7 +19,11 @@ import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 
+import ClearIcon from "@mui/icons-material/Clear";
+
 import { useSnackbar } from "notistack";
+import dayjs from "dayjs";
+import Repair from "./Repair";
 
 const style = {
   nav: {
@@ -94,6 +103,13 @@ const Reports = ({
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [message, setMessage] = useState("");
+  const [repairList, setRepairList] = useState([]);
+  const [repairListDialog, setRepairListDialog] = useState(false);
+  const [createdBy, setCreatedBy] = useState(null);
+  const handleRepairListDialogClose = () => {
+    setRepairListDialog(false);
+    setCreatedBy(null);
+  };
 
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
@@ -151,14 +167,15 @@ const Reports = ({
     }
     setLoading(false);
   };
-  const getTechnician = async () => {
+  const getUsers = async () => {
     setLoading2(true);
 
     let branch_id = getBranchId();
 
     let newBranchId;
 
-    let url = `/api/v1/user/dropdownlist?designation=Manager`;
+    // let url = `/api/v1/user/dropdownlist?designation=Manager`;
+    let url = `/api/v1/user/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
@@ -188,7 +205,7 @@ const Reports = ({
 
       const finalArray = Object.values(groupedData);
 
-      console.log("finalArray*********************", finalArray);
+      // console.log("finalArray*********************", finalArray);
 
       setTechnicianList(finalArray);
       // setTechnicianList(allData?.data.data);
@@ -237,8 +254,92 @@ const Reports = ({
   // useEffect(() => {
   //   getBranchData();
   // }, []);
+  const getReports = async () => {
+    setLoading(true);
+
+    let url = `/api/v1/repair?startDate=${dayjs().format(
+      "YYYY-MM-DD"
+    )}&status=true&limit=1000&page=1`;
+
+    let allData = await getDataWithToken(url);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData?.status >= 200 && allData?.status < 300) {
+      setRepairList(allData?.data?.data);
+
+      if (allData?.data?.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading(false);
+  };
+  const calculateTotalAmount = (data) => {
+    console.log("data ================", data?.due_amount);
+
+    const issueTotal = data?.issues?.length
+      ? data.issues.reduce((acc, issue) => acc + (issue.repair_cost || 0), 0)
+      : 0;
+
+    const sparePartsTotal = data?.product_details?.length
+      ? data.product_details.reduce((acc, part) => acc + (part.price || 0), 0)
+      : 0;
+    const dueAmount =
+      typeof data?.due_amount === "number" ? data.due_amount : 0;
+    const totalCost = issueTotal + sparePartsTotal;
+
+    return totalCost;
+  };
+  const userReportData = (id) => {
+    console.log("repairList", repairList);
+
+    let allData = repairList?.filter(
+      (item) => item?.created_by_info[0]?._id === id
+    );
+
+    let totalPayableAmount = 0;
+    let totalAmount = 0;
+    if (allData?.length > 0) {
+      totalPayableAmount = allData.reduce((total, row) => {
+        const paymentTotal = row?.payment_info?.length
+          ? row.payment_info.reduce((sum, item) => sum + item.amount, 0)
+          : 0;
+
+        const dueAmount =
+          typeof row?.due_amount === "number" ? row.due_amount : 0;
+
+        return total + paymentTotal + dueAmount;
+      }, 0);
+      console.log(
+        "totalPayableAmount ********************",
+        totalPayableAmount
+      );
+
+      totalAmount = allData?.reduce((total, item) => {
+        return total + calculateTotalAmount(item);
+      }, 0);
+
+      console.log("totalAmount", totalAmount);
+    }
+    // console.log("totalPayableAmount", totalPayableAmount);
+
+    // console.log("allData", allData);
+    return {
+      length: allData?.length > 0 ? allData?.length : 0,
+
+      totalPayableAmount: totalPayableAmount,
+      totalAmount: totalAmount,
+    };
+  };
   useEffect(() => {
-    getTechnician();
+    getUsers();
+    getReports();
   }, []);
 
   return (
@@ -298,58 +399,153 @@ const Reports = ({
             technicianList.map((item, index) => (
               <>
                 <Typography
-                  variant="base"
+                  variant="h6"
                   sx={{ width: "100%", fontWeight: 600 }}
                 >
                   {item?.branch_data?.name}
                 </Typography>
                 {item?.users?.length > 0 &&
-                  item?.users?.map((item, i) => (
-                    <Grid size={3} key={i}>
-                      <Box
-                        sx={
-                          technician === item._id
-                            ? style.cardActive
-                            : style.card
-                        }
-                        role="button"
-                        onClick={() => {
-                          // setTechnician(item._id);
-                          // setTechnicianName(item.name);
-                        }}
-                      >
-                        <Box>
-                          <img
-                            src={
-                              item?.image?.url?.length > 0
-                                ? item?.image?.url
-                                : "/userpic.png"
-                            }
-                            alt=""
-                            width="40px"
-                            height="40px"
-                            style={{
-                              display: "block",
-                              margin: "5px 0px",
-                              borderRadius: "100px",
-                              // border: "1px solid #d1d1d1",
-                            }}
-                          />
-                        </Box>
+                  item?.users?.map((item, i) => {
+                    const report = userReportData(item?._id);
+                    return (
+                      <Grid size={3} key={i}>
+                        <Box
+                          // sx={
+                          //   technician === item._id
+                          //     ? style.cardActive
+                          //     : style.card
+                          // }
 
-                        <Box>
-                          <Typography variant="medium">{item.name}</Typography>
-                          <Typography
-                            variant="small"
-                            color="text.secondary"
-                            sx={{ mt: "2px" }}
+                          sx={{
+                            borderRadius: "20px",
+
+                            border: "1px solid #ebebeb",
+                            cursor: "pointer",
+                            "&:hover": {
+                              boxShadow:
+                                "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",
+                            },
+                            // p: 2,
+                          }}
+                          role="button"
+                          onClick={() => {
+                            setCreatedBy(item?.email);
+                            setRepairListDialog(true);
+                          }}
+                        >
+                          <Grid
+                            container
+                            alignItems="center"
+                            columnSpacing={5}
+                            rowSpacing={2}
+                            sx={{
+                              background: "#ECFDFF",
+                              p: 2,
+                              borderRadius: " 20px 20px 0 0",
+                            }}
                           >
-                            {item.designation}
-                          </Typography>
+                            <Grid size={9}>
+                              <Grid container alignItems="center" spacing={2}>
+                                <Grid size="auto">
+                                  {" "}
+                                  <img
+                                    src={
+                                      item?.image?.url?.length > 0
+                                        ? item?.image?.url
+                                        : "/userpic.png"
+                                    }
+                                    alt=""
+                                    width="40px"
+                                    height="40px"
+                                    style={{
+                                      display: "block",
+                                      margin: "5px 0px",
+                                      borderRadius: "100px",
+                                      // border: "1px solid #d1d1d1",
+                                    }}
+                                  />
+                                </Grid>
+                                <Grid size="auto">
+                                  <Typography
+                                    variant="base"
+                                    sx={{ fontWeight: 600 }}
+                                  >
+                                    {item.name}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                            <Grid size={3} sx={{ textAlign: "right" }}>
+                              <Chip
+                                label={report?.length}
+                                color="success"
+                                sx={{ px: 1.5 }}
+                              />
+                            </Grid>
+                            <Grid size={6} sx={{}}>
+                              <Typography
+                                variant="medium"
+                                color="text.light"
+                                sx={{ fontWeight: 400 }}
+                              >
+                                Total Amount
+                              </Typography>
+                              <Typography
+                                variant="base"
+                                sx={{ fontWeight: 600 }}
+                              >
+                                ৳ {report?.totalAmount}
+                              </Typography>
+                            </Grid>
+                            <Grid size={6} sx={{ textAlign: "right" }}>
+                              <Typography
+                                variant="medium"
+                                color="text.light"
+                                sx={{ fontWeight: 400 }}
+                              >
+                                Total Payable Amount
+                              </Typography>
+                              <Typography
+                                variant="base"
+                                sx={{ fontWeight: 600 }}
+                              >
+                                ৳ {report?.totalPayableAmount}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+
+                          <Grid
+                            container
+                            alignItems="center"
+                            rowSpacing={2}
+                            justifyContent="space-between"
+                            sx={{
+                              background: "#fff",
+                              p: 2,
+                              borderRadius: "0 0 20px 20px",
+                            }}
+                          >
+                            <Grid size="auto">See Details</Grid>
+                            <Grid size="auto">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="28"
+                                height="28"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                              >
+                                <path
+                                  d="M7.53329 12.8659C7.41107 12.7437 7.34707 12.5881 7.34129 12.3992C7.33596 12.2103 7.3944 12.0548 7.51663 11.9326L10.7833 8.66589H3.33329C3.1444 8.66589 2.98596 8.60189 2.85796 8.47389C2.7304 8.34633 2.66663 8.18811 2.66663 7.99922C2.66663 7.81033 2.7304 7.65189 2.85796 7.52389C2.98596 7.39633 3.1444 7.33255 3.33329 7.33255H10.7833L7.51663 4.06589C7.3944 3.94366 7.33596 3.78811 7.34129 3.59922C7.34707 3.41033 7.41107 3.25477 7.53329 3.13255C7.65551 3.01033 7.81107 2.94922 7.99996 2.94922C8.18885 2.94922 8.3444 3.01033 8.46663 3.13255L12.8666 7.53255C12.9333 7.58811 12.9806 7.65744 13.0086 7.74055C13.0362 7.82411 13.05 7.91033 13.05 7.99922C13.05 8.08811 13.0362 8.17144 13.0086 8.24922C12.9806 8.327 12.9333 8.39922 12.8666 8.46589L8.46663 12.8659C8.3444 12.9881 8.18885 13.0492 7.99996 13.0492C7.81107 13.0492 7.65551 12.9881 7.53329 12.8659Z"
+                                  fill="#1D2433"
+                                  fill-opacity="0.65"
+                                />
+                              </svg>
+                            </Grid>
+                          </Grid>
                         </Box>
-                      </Box>
-                    </Grid>
-                  ))}
+                      </Grid>
+                    );
+                  })}
               </>
             ))}
 
@@ -380,6 +576,37 @@ const Reports = ({
           )}
         </Grid>
       </Paper>
+      <Dialog
+        open={repairListDialog}
+        onClose={handleRepairListDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        maxWidth="xl"
+        fullWidth={true}
+      >
+        {/* <div style={{ padding: "10px", minWidth: "300px" }}> */}
+        <DialogTitle id="alert-dialog-title">
+          {" "}
+          <Grid container>
+            <Grid size={6}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {" "}
+                Repair List
+              </Typography>
+            </Grid>
+            <Grid size={6} style={{ textAlign: "right" }}>
+              <IconButton onClick={handleRepairListDialogClose}>
+                <ClearIcon style={{ color: "#205295" }} />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </DialogTitle>
+        <DialogContent>
+          {createdBy && <Repair created_by={createdBy} />}
+        </DialogContent>
+
+        {/* </div> */}
+      </Dialog>
     </div>
   );
 };
