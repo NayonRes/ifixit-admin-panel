@@ -136,28 +136,10 @@ const RepairChecklist = ({
     setNewCheckList("");
   };
 
-  // useEffect(() => {
-  //   if (repair_checklist?.checklist?.length > 0) {
-  //     const updatedIssueList = allIssueCheckList.map((item) => ({
-  //       ...item,
-  //       status: repair_checklist?.checklist.includes(item.name), // Set status to true if name is in preValue
-  //     }));
-  //     setIssueList(updatedIssueList);
-  //   }
-  //   if (repair_checklist?.has_power) {
-  //     set_has_power(repair_checklist?.has_power);
-  //   }
-  //   if (repair_checklist?.battery_health) {
-  //     set_battery_health(repair_checklist?.battery_health);
-  //   }
-  //   if (repair_checklist?.note) {
-  //     set_note(repair_checklist?.note);
-  //   }
-  // }, []);
 
   useEffect(() => {
     console.log("all-----------:", allIssueCheckList);
-    console.log("REAPAIR-----------:", repair_checklist?.checklist);
+  
     let preArr = repair_checklist?.checklist;
     if (!preArr) {
       preArr = [];
@@ -242,6 +224,7 @@ const RepairChecklist = ({
             px: 2,
             borderBottom: "1px solid #EAECF1",
           }}
+          onClick={() => console.log("issueList", issueList)}
         >
           Pre Repair Checklist
           <IconButton
@@ -423,8 +406,8 @@ const RepairChecklist = ({
                 Battery Health
               </Typography>
               <TextField
-              type="number"
-              onWheel={(e) => e.target.blur()}
+                type="number"
+                onWheel={(e) => e.target.blur()}
                 size="small"
                 fullWidth
                 id="battery_health"

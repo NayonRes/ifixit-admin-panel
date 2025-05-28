@@ -94,7 +94,10 @@ const AddRepair = () => {
   const [productLoading, setProductLoading] = useState(false);
   const [apiCallForUpdate, setApiCallForUpdate] = useState(false);
   const [previousRepairData, setPreviousRepairData] = useState({});
-  const [issueList, setIssueList] = useState(allIssueCheckList);
+  const [issueList, setIssueList] = useState(
+    JSON.parse(JSON.stringify(allIssueCheckList))
+  );
+  const [mainIssueList, setMainIssueList] = useState(allIssueCheckList); // using this for only keep  allIssueCheckList array
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
     let decodedToken = jwtDecode(token);
@@ -237,7 +240,7 @@ const AddRepair = () => {
       setLoading(true);
       set_repair_checklist({});
 
-      setIssueList([...allIssueCheckList]);
+      setIssueList(allIssueCheckList);
       handleSnakbarOpen("Added successfully", "success");
 
       navigate(`/repair/invoice/${response?.data?.data?._id}`);

@@ -23,7 +23,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 
 import { useSnackbar } from "notistack";
 import dayjs from "dayjs";
-import Repair from "./Repair";
+import ReportRepair from "./ReportRepair";
 
 const style = {
   nav: {
@@ -479,7 +479,14 @@ const Reports = ({
                               <Chip
                                 label={report?.length}
                                 color="success"
-                                sx={{ px: 1.5 }}
+                                sx={{
+                                  px: 1.5,
+                                  minWidth: "auto",
+                                  maxWidth: "none",
+                                  whiteSpace: "nowrap",
+                                  overflow: "visible",
+                                  textOverflow: "clip",
+                                }}
                               />
                             </Grid>
                             <Grid size={6} sx={{}}>
@@ -602,7 +609,7 @@ const Reports = ({
           </Grid>
         </DialogTitle>
         <DialogContent>
-          {createdBy && <Repair created_by={createdBy} />}
+          {createdBy && <ReportRepair created_by={createdBy} />}
         </DialogContent>
 
         {/* </div> */}

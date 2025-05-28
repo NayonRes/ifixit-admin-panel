@@ -20,7 +20,7 @@ import { AuthContext } from "../../context/AuthContext";
 
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 
-const RepairList = ({
+const ReportRepairList = ({
   loading,
   pageLoading,
   tableDataList,
@@ -81,8 +81,7 @@ const RepairList = ({
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Job / Invoice No
               </TableCell>
-         
-            
+
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Paid Amount
               </TableCell>
@@ -94,6 +93,9 @@ const RepairList = ({
                 Total Amount
               </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+              <TableCell align="center" style={{ whiteSpace: "nowrap" }}>
+                View Details
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -147,9 +149,6 @@ const RepairList = ({
                       {row?.repair_id ? row?.repair_id : "-------"}
                     </TableCell>
 
-                
-                
-
                     <TableCell>
                       {row?.payment_info?.length > 0
                         ? row?.payment_info.reduce(
@@ -193,9 +192,18 @@ const RepairList = ({
                         : "----------"}
                     </TableCell>
 
-                    {/* <TableCell align="center" style={{ minWidth: "130px" }}>
-                        <Invoice data={row} />
-                      </TableCell> */}
+                    <TableCell align="center" style={{ minWidth: "130px" }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="info"
+                        startIcon={<ListAltOutlinedIcon />}
+                        component={Link}
+                        to={`/repair/details/${row?._id}`}
+                      >
+                        Details
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 </>
               ))}
@@ -232,4 +240,4 @@ const RepairList = ({
   );
 };
 
-export default RepairList;
+export default ReportRepairList;

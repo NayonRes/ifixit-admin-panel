@@ -33,7 +33,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { designationList, roleList } from "../../data";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import RepairList from "../reports/RepairList";
+import RepairList from "./RepairList";
 
 const Repair = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);

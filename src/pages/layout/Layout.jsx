@@ -1162,7 +1162,7 @@ export default function Layout() {
                   </ListItemButton>
                 </ListItem>
               )}
-              {checkPermission("repair_list") && (
+              {/*  {checkPermission("repair_list") && (
                 <ListItem disablePadding sx={{ display: "block" }}>
                   <ListItemButton
                     onClick={() => handleOpemMenu("")}
@@ -1199,7 +1199,7 @@ export default function Layout() {
                     <ListItemText primary="Sales List" />
                   </ListItemButton>
                 </ListItem>
-              )}
+              )} */}
               {checkPermission("service_list") && (
                 <ListItem disablePadding sx={{ display: "block" }}>
                   <ListItemButton

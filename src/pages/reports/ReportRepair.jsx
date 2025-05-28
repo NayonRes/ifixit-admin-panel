@@ -31,11 +31,11 @@ import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
 import ClearIcon from "@mui/icons-material/Clear";
 import { designationList, roleList } from "../../data";
-import RepairList from "./RepairList";
+import ReportRepairList from "./ReportRepairList";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-const Repair = ({ created_by }) => {
+const ReportRepair = ({ created_by }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [tableDataList, setTableDataList] = useState([]);
@@ -57,7 +57,7 @@ const Repair = ({ created_by }) => {
   const [status, setStatus] = useState("");
   const [category, SetCategory] = useState("");
   const { enqueueSnackbar } = useSnackbar();
-  const [startingTime, setStartingTime] = useState(null);
+  const [startingTime, setStartingTime] = useState(dayjs());
   const [endingTime, setEndingTime] = useState(null);
 
   const [imageDialog, setImageDialog] = useState(false);
@@ -143,7 +143,7 @@ const Repair = ({ created_by }) => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 7;
+    let loadingNumber = 8;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_repair")) {
       loadingNumber = loadingNumber + 1;
@@ -256,10 +256,8 @@ const Repair = ({ created_by }) => {
     setLoading(false);
   };
 
- 
   useEffect(() => {
     getData();
-  
   }, []);
 
   return (
@@ -484,7 +482,7 @@ const Repair = ({ created_by }) => {
             </Box>
           </Grid>
         </Grid>
-        <RepairList
+        <ReportRepairList
           loading={loading}
           pageLoading={pageLoading}
           tableDataList={tableDataList}
@@ -559,4 +557,4 @@ const Repair = ({ created_by }) => {
   );
 };
 
-export default Repair;
+export default ReportRepair;
