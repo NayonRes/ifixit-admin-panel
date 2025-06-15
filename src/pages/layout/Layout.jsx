@@ -1588,6 +1588,105 @@ export default function Layout() {
                   </Collapse>
                 </>
               )}
+              {checkMultiplePermission([
+                "expense_category_list",
+                "expense_list",
+              ]) && (
+                <>
+                  <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      // component={Link}
+                      // to="/carts"
+                      sx={[
+                        { ...listButtonStyle },
+                        // pathname === "/carts" && { ...activeStyle },
+                      ]}
+                      onClick={() => handleOpemMenu("Expense")}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: 1.5,
+                          justifyContent: "center",
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                        >
+                          <path
+                            d="M3.33334 5C3.33334 6.38083 6.31834 7.5 10 7.5C13.6817 7.5 16.6667 6.38083 16.6667 5M3.33334 5C3.33334 3.61917 6.31834 2.5 10 2.5C13.6817 2.5 16.6667 3.61917 16.6667 5M3.33334 5V10M16.6667 5V8.33333M3.33334 10C3.33334 11.3808 6.31834 12.5 10 12.5C10.3458 12.5 10.685 12.49 11.0167 12.4708M3.33334 10V15C3.33334 16.3808 6.31834 17.5 10 17.5C10.2933 17.5 10.5817 17.4925 10.8642 17.4792M17.5 12.5H15.4167C15.0852 12.5 14.7672 12.6317 14.5328 12.8661C14.2984 13.1005 14.1667 13.4185 14.1667 13.75C14.1667 14.0815 14.2984 14.3995 14.5328 14.6339C14.7672 14.8683 15.0852 15 15.4167 15H16.25C16.5815 15 16.8995 15.1317 17.1339 15.3661C17.3683 15.6005 17.5 15.9185 17.5 16.25C17.5 16.5815 17.3683 16.8995 17.1339 17.1339C16.8995 17.3683 16.5815 17.5 16.25 17.5H14.1667M15.8333 17.5V18.3333M15.8333 11.6667V12.5"
+                            stroke="#656E81"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </ListItemIcon>
+                      <ListItemText primary="Expense" />
+
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        style={{
+                          rotate: openMenu === "Expense" ? "180deg" : "0deg",
+                        }}
+                      >
+                        <path
+                          d="M4 6L8 10L12 6"
+                          stroke="#656E81"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </ListItemButton>
+                  </ListItem>
+
+                  <Collapse in={openMenu === "Expense"}>
+                    <List sx={{ pl: 4, pt: 0 }}>
+                      {checkPermission("expense_category_list") && (
+                        <ListItem disablePadding sx={{ display: "block" }}>
+                          <ListItemButton
+                            component={Link}
+                            to="/expense-category-list"
+                            sx={[
+                              { ...listButtonStyle },
+                              pathname === "/expense-category-list" && {
+                                ...activeStyle,
+                              },
+                            ]}
+                          >
+                            <ListItemText primary="Expense Category" />
+                          </ListItemButton>
+                        </ListItem>
+                      )}
+                      {checkPermission("expense_list") && (
+                        <ListItem disablePadding sx={{ display: "block" }}>
+                          <ListItemButton
+                            component={Link}
+                            to="/expense-list"
+                            sx={[
+                              { ...listButtonStyle },
+                              pathname === "/expense-list" && {
+                                ...activeStyle,
+                              },
+                            ]}
+                          >
+                            <ListItemText primary="Expense" />
+                          </ListItemButton>
+                        </ListItem>
+                      )}
+                    </List>
+                  </Collapse>
+                </>
+              )}
             </Box>
           </List>
 
