@@ -44,6 +44,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import { handlePutData } from "../../services/PutDataService";
 
 const baseStyle = {
   flex: 1,
@@ -80,23 +81,22 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddCategory = ({ clearFilter }) => {
+const ExpenseUpdateCategory = ({ clearFilter, row }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const [addDialog, setAddDialog] = useState(false);
+  const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
+  const [status, setStatus] = useState("");
   const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [message, setMessage] = useState("");
-
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
-      setAddDialog(false);
+      setUpdateDialog(false);
     }
   };
 
@@ -116,6 +116,7 @@ const AddCategory = ({ clearFilter }) => {
   const clearForm = () => {
     setName("");
     setParent_id("");
+    setStatus("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -129,13 +130,17 @@ const AddCategory = ({ clearFilter }) => {
 
     let data = {
       name: name.trim(),
+
       // parent_name: "Primary",
       // parent_name: parent_id.trim(),
-
-      // parent_id: parent_id?.length > 0 ? parent_id : null,
+      status: status,
     };
 
-    let response = await handlePostData("/api/v1/category/create", data, false);
+    let response = await handlePutData(
+      `/api/v1/expenseCategory/update/${row?._id}`,
+      data,
+      false
+    );
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -143,12 +148,12 @@ const AddCategory = ({ clearFilter }) => {
       return;
     }
     if (response.status >= 200 && response.status < 300) {
-      handleSnakbarOpen("Added successfully", "success");
+      handleSnakbarOpen("Updated successfully", "success");
       clearFilter(); // this is for get the table list again
-
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
@@ -236,18 +241,17 @@ const AddCategory = ({ clearFilter }) => {
     setLoading2(false);
   };
   useEffect(() => {
-    // getDropdownList();
-  }, []);
+    setName(row?.name);
+    setStatus(row?.status);
+    setParent_id(row?.parent_name === null ? "" : row?.parent_name);
+  }, [updateDialog]);
   return (
     <>
-      <Button
+      {/* <Button
         variant="contained"
         disableElevation
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-        onClick={() => {
-          setAddDialog(true);
-          // getDropdownList();
-        }}
+        onClick={() => setUpdateDialog(true)}
         startIcon={
           <svg
             width="20"
@@ -266,11 +270,39 @@ const AddCategory = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Category
-      </Button>
+        Update Category
+      </Button> */}
+
+      <IconButton
+        variant="contained"
+        // color="success"
+        disableElevation
+        onClick={() => {
+          setUpdateDialog(true);
+          // getDropdownList();
+        }}
+      >
+        {/* <EditOutlinedIcon /> */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          id="Outline"
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+        >
+          <path
+            d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+            fill="#787878"
+          />
+          <path
+            d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+            fill="#787878"
+          />
+        </svg>
+      </IconButton>
 
       <Dialog
-        open={addDialog}
+        open={updateDialog}
         onClose={handleDialogClose}
         sx={{
           "& .MuiPaper-root": {
@@ -294,10 +326,10 @@ const AddCategory = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Category
+          Update Expense Category
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => setAddDialog(false)}
+            onClick={() => setUpdateDialog(false)}
           >
             <svg
               width="46"
@@ -340,7 +372,7 @@ const AddCategory = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
+            sx={{ ...customeTextFeild, mb: 3 }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
@@ -355,6 +387,7 @@ const AddCategory = ({ clearFilter }) => {
           >
             Parent Category
           </Typography>
+
           <FormControl
             fullWidth
             size="small"
@@ -368,6 +401,7 @@ const AddCategory = ({ clearFilter }) => {
                 position: "relative",
                 top: "2px",
               },
+              mb: 3,
             }}
           >
             {parent_id?.length < 1 && (
@@ -399,6 +433,55 @@ const AddCategory = ({ clearFilter }) => {
               ))}
             </Select>
           </FormControl> */}
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Status
+          </Typography>
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {/* {parent_id?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Status
+              </InputLabel>
+            )} */}
+            <Select
+              // required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <MenuItem value={true}>Active</MenuItem>
+              <MenuItem value={false}>Inactive</MenuItem>
+            </Select>
+          </FormControl>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -447,4 +530,4 @@ const AddCategory = ({ clearFilter }) => {
   );
 };
 
-export default AddCategory;
+export default ExpenseUpdateCategory;

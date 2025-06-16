@@ -53,6 +53,8 @@ import AddSales from "../sales/AddSales";
 import SaleDetails from "../sales/SaleDetails";
 import SalesInvoice from "../sales/SalesInvoice";
 import Reports from "../reports/Reports";
+import ExpenseCategoryList from "../expense-category/ExpenseCategoryList";
+import ExpenseList from "../expense/ExpenseList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -140,6 +142,22 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <CategoryList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="expense-category-list"
+          element={
+            <PrivateRoute>
+              <ExpenseCategoryList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="expense-list"
+          element={
+            <PrivateRoute>
+              <ExpenseList />
             </PrivateRoute>
           }
         />

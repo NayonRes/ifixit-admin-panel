@@ -44,6 +44,14 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import { handlePutData } from "../../services/PutDataService";
+
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { jwtDecode } from "jwt-decode";
 
 const baseStyle = {
   flex: 1,
@@ -80,23 +88,64 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddCategory = ({ clearFilter }) => {
+const UpdateExpense = ({ clearFilter, row }) => {
+  console.log("row", row);
+
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const [addDialog, setAddDialog] = useState(false);
+  const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
+  const [status, setStatus] = useState("");
   const [branchList, setBranchList] = useState([]);
+
+  const [amount, setAmount] = useState("");
+  const [expenseCategoryId, setExpenseCategoryId] = useState("");
+  const [expenseCategoryList, setExpenseCategoryList] = useState([]);
+  const [remarks, setRemarks] = useState("");
+  const [expenseDate, setExpenseDate] = useState(null);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [message, setMessage] = useState("");
-
   const { enqueueSnackbar } = useSnackbar();
+  const custopDatePickerFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
 
+    "& .MuiInputBase-root": {
+      fontSize: "0.875rem", // Adjust font size for a smaller appearance
+      height: "2.5rem",
+    },
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+
+    "& .MuiOutlinedInput-input": {
+      // padding: "10px 16px", (uncomment if needed)
+    },
+
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px", (uncomment if needed)
+      "& fieldset": {
+        borderColor: "#", // Update with a specific color if needed
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
-      setAddDialog(false);
+      setUpdateDialog(false);
     }
   };
 
@@ -116,26 +165,30 @@ const AddCategory = ({ clearFilter }) => {
   const clearForm = () => {
     setName("");
     setParent_id("");
+    setStatus("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
-
-    // formdata.append("parent_id", parent_id);
+    let token = ifixit_admin_panel.token;
+    const decodedToken = jwtDecode(token);
 
     let data = {
-      name: name.trim(),
-      // parent_name: "Primary",
-      // parent_name: parent_id.trim(),
-
-      // parent_id: parent_id?.length > 0 ? parent_id : null,
+      expense_category_id: expenseCategoryId.trim(),
+      branch_id: decodedToken?.user?.branch_id,
+      amount: amount,
+      expense_date: dayjs(expenseDate).toDate(),
+      remarks: remarks,
+      status: status,
     };
 
-    let response = await handlePostData("/api/v1/category/create", data, false);
+    let response = await handlePutData(
+      `/api/v1/expense/update/${row?._id}`,
+      data,
+      false
+    );
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -143,19 +196,39 @@ const AddCategory = ({ clearFilter }) => {
       return;
     }
     if (response.status >= 200 && response.status < 300) {
-      handleSnakbarOpen("Added successfully", "success");
+      handleSnakbarOpen("Updated successfully", "success");
       clearFilter(); // this is for get the table list again
-
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
     setLoading(false);
     // }
   };
+  const getDropdownList = async () => {
+    setLoading2(true);
 
+    let url = `/api/v1/expenseCategory/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setExpenseCategoryList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
   const customeTextFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     // padding: "15px 20px",
@@ -214,40 +287,23 @@ const AddCategory = ({ clearFilter }) => {
     },
   };
 
-  const getDropdownList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/category/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
   useEffect(() => {
-    // getDropdownList();
-  }, []);
+    setAmount(row?.amount);
+    setRemarks(row?.remarks);
+    setExpenseCategoryId(row?.expense_category_id);
+
+    setStatus(row?.status);
+    if (row?.expense_date) {
+      setExpenseDate(dayjs(row?.expense_date));
+    }
+  }, [updateDialog]);
   return (
     <>
-      <Button
+      {/* <Button
         variant="contained"
         disableElevation
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-        onClick={() => {
-          setAddDialog(true);
-          // getDropdownList();
-        }}
+        onClick={() => setUpdateDialog(true)}
         startIcon={
           <svg
             width="20"
@@ -266,11 +322,39 @@ const AddCategory = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Category
-      </Button>
+        Update Category
+      </Button> */}
+
+      <IconButton
+        variant="contained"
+        // color="success"
+        disableElevation
+        onClick={() => {
+          setUpdateDialog(true);
+          getDropdownList();
+        }}
+      >
+        {/* <EditOutlinedIcon /> */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          id="Outline"
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+        >
+          <path
+            d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+            fill="#787878"
+          />
+          <path
+            d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+            fill="#787878"
+          />
+        </svg>
+      </IconButton>
 
       <Dialog
-        open={addDialog}
+        open={updateDialog}
         onClose={handleDialogClose}
         sx={{
           "& .MuiPaper-root": {
@@ -294,10 +378,10 @@ const AddCategory = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Category
+          Update Expense
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => setAddDialog(false)}
+            onClick={() => setUpdateDialog(false)}
           >
             <svg
               width="46"
@@ -325,7 +409,7 @@ const AddCategory = ({ clearFilter }) => {
             my: 1,
           }}
         >
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
@@ -340,20 +424,146 @@ const AddCategory = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
+            sx={{ ...customeTextFeild, mb: 3 }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
-          />
+          /> */}
 
-          {/* <Typography
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Category
+            Expense Date
+          </Typography>
+
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              id="expenseDate"
+              sx={{
+                width: "100%",
+                ...custopDatePickerFeild,
+                mb: 3,
+              }}
+              // label="Controlled picker"
+              format="DD/MM/YYYY"
+              maxDate={dayjs()}
+              value={expenseDate}
+              onChange={(newValue) => {
+                setExpenseDate(newValue);
+              }}
+            />
+          </LocalizationProvider>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Expense
+          </Typography>
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              ...customeSelectFeild,
+              mb: 3,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {expenseCategoryId?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Expense
+              </InputLabel>
+            )}
+            <Select
+              required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={expenseCategoryId}
+              onChange={(e) => setExpenseCategoryId(e.target.value)}
+            >
+              {expenseCategoryList?.map((item) => (
+                <MenuItem key={item} value={item?._id}>
+                  {item?.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Amount
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            id="amount"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={amount}
+            onChange={(e) => {
+              setAmount(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Note
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            multiline
+            rows={3}
+            id="remarks"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={remarks}
+            onChange={(e) => {
+              setRemarks(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Status
           </Typography>
           <FormControl
             fullWidth
@@ -370,16 +580,16 @@ const AddCategory = ({ clearFilter }) => {
               },
             }}
           >
-            {parent_id?.length < 1 && (
+            {/* {parent_id?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Category
+                Select Status
               </InputLabel>
-            )}
+            )} */}
             <Select
-              required
+              // required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -389,16 +599,13 @@ const AddCategory = ({ clearFilter }) => {
                   },
                 },
               }}
-              value={parent_id}
-              onChange={(e) => setParent_id(e.target.value)}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
             >
-              {branchList?.map((item) => (
-                <MenuItem key={item} value={item?.name}>
-                  {item?.name}
-                </MenuItem>
-              ))}
+              <MenuItem value={true}>Active</MenuItem>
+              <MenuItem value={false}>Inactive</MenuItem>
             </Select>
-          </FormControl> */}
+          </FormControl>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -447,4 +654,4 @@ const AddCategory = ({ clearFilter }) => {
   );
 };
 
-export default AddCategory;
+export default UpdateExpense;

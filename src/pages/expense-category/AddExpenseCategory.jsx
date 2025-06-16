@@ -80,7 +80,7 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddCategory = ({ clearFilter }) => {
+const AddExpenseCategory = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
@@ -135,7 +135,11 @@ const AddCategory = ({ clearFilter }) => {
       // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData("/api/v1/category/create", data, false);
+    let response = await handlePostData(
+      "/api/v1/expenseCategory/create",
+      data,
+      false
+    );
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -246,7 +250,6 @@ const AddCategory = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          // getDropdownList();
         }}
         startIcon={
           <svg
@@ -266,7 +269,7 @@ const AddCategory = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Category
+        Add Expense Category
       </Button>
 
       <Dialog
@@ -294,7 +297,7 @@ const AddCategory = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Category
+          Add Expense Category
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddDialog(false)}
@@ -331,7 +334,7 @@ const AddCategory = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Category Name
+            Expense Category Name
           </Typography>
           <TextField
             required
@@ -447,4 +450,4 @@ const AddCategory = ({ clearFilter }) => {
   );
 };
 
-export default AddCategory;
+export default AddExpenseCategory;

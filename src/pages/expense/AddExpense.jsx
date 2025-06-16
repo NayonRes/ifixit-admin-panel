@@ -44,6 +44,13 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
+import { jwtDecode } from "jwt-decode";
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { styled } from "@mui/material/styles";
 
 const baseStyle = {
   flex: 1,
@@ -80,20 +87,57 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddCategory = ({ clearFilter }) => {
+const AddExpense = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
-  const [parent_id, setParent_id] = useState("");
-  const [branchList, setBranchList] = useState([]);
+  const [amount, setAmount] = useState("");
+  const [expenseCategoryId, setExpenseCategoryId] = useState("");
+  const [expenseCategoryList, setExpenseCategoryList] = useState([]);
+  const [remarks, setRemarks] = useState("");
+  const [expenseDate, setExpenseDate] = useState(null);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [message, setMessage] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
+  const custopDatePickerFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
 
+    "& .MuiInputBase-root": {
+      fontSize: "0.875rem", // Adjust font size for a smaller appearance
+      height: "2.5rem",
+    },
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+
+    "& .MuiOutlinedInput-input": {
+      // padding: "10px 16px", (uncomment if needed)
+    },
+
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px", (uncomment if needed)
+      "& fieldset": {
+        borderColor: "#", // Update with a specific color if needed
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setAddDialog(false);
@@ -115,27 +159,33 @@ const AddCategory = ({ clearFilter }) => {
 
   const clearForm = () => {
     setName("");
-    setParent_id("");
+    setAmount("");
+    setRemarks("");
+    setExpenseDate(null);
+    setExpenseCategoryId("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-
+    if (!expenseDate) {
+      handleSnakbarOpen("Please select a expense date", "error");
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
-    // var formdata = new FormData();
-    // formdata.append("name", name);
-
-    // formdata.append("parent_id", parent_id);
-
+  
+    let token = ifixit_admin_panel.token;
+    const decodedToken = jwtDecode(token);
     let data = {
-      name: name.trim(),
-      // parent_name: "Primary",
-      // parent_name: parent_id.trim(),
-
-      // parent_id: parent_id?.length > 0 ? parent_id : null,
+      // name: name.trim(),
+      expense_category_id: expenseCategoryId.trim(),
+      branch_id: decodedToken?.user?.branch_id,
+      amount: amount,
+      expense_date: dayjs(expenseDate).toDate(),
+      remarks: remarks,
     };
 
-    let response = await handlePostData("/api/v1/category/create", data, false);
+    let response = await handlePostData("/api/v1/expense/create", data, false);
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -217,14 +267,14 @@ const AddCategory = ({ clearFilter }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/category/dropdownlist`;
+    let url = `/api/v1/expenseCategory/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
       return;
     }
     if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
+      setExpenseCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -246,7 +296,7 @@ const AddCategory = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          // getDropdownList();
+          getDropdownList();
         }}
         startIcon={
           <svg
@@ -266,7 +316,7 @@ const AddCategory = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Category
+        Add Expense
       </Button>
 
       <Dialog
@@ -294,7 +344,7 @@ const AddCategory = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Category
+          Add Expense
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddDialog(false)}
@@ -325,13 +375,13 @@ const AddCategory = ({ clearFilter }) => {
             my: 1,
           }}
         >
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Category Name
+            Expense Category Name
           </Typography>
           <TextField
             required
@@ -340,26 +390,52 @@ const AddCategory = ({ clearFilter }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
+            sx={{ ...customeTextFeild, mb: 3 }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
-          />
-
-          {/* <Typography
+          /> */}
+          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Category
+            Expense Date
+          </Typography>
+
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              id="expenseDate"
+              sx={{
+                width: "100%",
+                ...custopDatePickerFeild,
+                mb: 3,
+              }}
+              // label="Controlled picker"
+              format="DD/MM/YYYY"
+              maxDate={dayjs()}
+              value={expenseDate}
+              onChange={(newValue) => {
+                setExpenseDate(newValue);
+              }}
+            />
+          </LocalizationProvider>
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Expense
           </Typography>
           <FormControl
             fullWidth
             size="small"
             sx={{
               ...customeSelectFeild,
+              mb: 3,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
               },
@@ -370,12 +446,12 @@ const AddCategory = ({ clearFilter }) => {
               },
             }}
           >
-            {parent_id?.length < 1 && (
+            {expenseCategoryId?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Category
+                Select Expense
               </InputLabel>
             )}
             <Select
@@ -389,16 +465,63 @@ const AddCategory = ({ clearFilter }) => {
                   },
                 },
               }}
-              value={parent_id}
-              onChange={(e) => setParent_id(e.target.value)}
+              value={expenseCategoryId}
+              onChange={(e) => setExpenseCategoryId(e.target.value)}
             >
-              {branchList?.map((item) => (
-                <MenuItem key={item} value={item?.name}>
+              {expenseCategoryList?.map((item) => (
+                <MenuItem key={item} value={item?._id}>
                   {item?.name}
                 </MenuItem>
               ))}
             </Select>
-          </FormControl> */}
+          </FormControl>
+
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Amount
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            id="amount"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={amount}
+            onChange={(e) => {
+              setAmount(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Note
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            multiline
+            rows={3}
+            id="remarks"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild }}
+            value={remarks}
+            onChange={(e) => {
+              setRemarks(e.target.value);
+            }}
+          />
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -447,4 +570,4 @@ const AddCategory = ({ clearFilter }) => {
   );
 };
 
-export default AddCategory;
+export default AddExpense;

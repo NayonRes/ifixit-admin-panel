@@ -801,7 +801,7 @@ const AddPurchase = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Purchase date*
+                Purchase Date*
               </Typography>
 
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1081,7 +1081,6 @@ const AddPurchase = ({ clearFilter }) => {
                 onChange={(e) => {
                   setShippingCharge(e.target.value);
                 }}
-              
               />
             </Grid>
             {/* <Grid size={4}>
