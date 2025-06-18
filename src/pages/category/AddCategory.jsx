@@ -246,7 +246,7 @@ const AddCategory = ({ clearFilter }) => {
         sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          getDropdownList();
+          // getDropdownList();
         }}
         startIcon={
           <svg

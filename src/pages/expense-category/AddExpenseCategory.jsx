@@ -44,29 +44,59 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
-import { handlePutData } from "../../services/PutDataService";
-import ImageUpload from "../../utils/ImageUpload";
 
- 
-const UpdateModel = ({ clearFilter, row }) => {
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "16px 24px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#EAECF0",
+  borderStyle: "dashed",
+  backgroundColor: "#fff",
+  // color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+  borderRadius: "12px",
+};
+
+const focusedStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
+const form = {
+  padding: "50px",
+  background: "#fff",
+  borderRadius: "10px",
+  width: "400px",
+  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+};
+const AddExpenseCategory = ({ clearFilter }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const [updateDialog, setUpdateDialog] = useState(false);
+  const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
-  const [status, setStatus] = useState("");
-  const [deviceList, setDeviceList] = useState([]);
+  const [branchList, setBranchList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const [message, setMessage] = useState("");
-  const [orderNo, setOrderNo] = useState();
-  const [file, setFile] = useState(null);
-  const dropzoneRef = useRef(null);
+
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
-      setUpdateDialog(false);
+      setAddDialog(false);
     }
   };
 
@@ -85,36 +115,30 @@ const UpdateModel = ({ clearFilter, row }) => {
 
   const clearForm = () => {
     setName("");
-    setOrderNo();
     setParent_id("");
-    setStatus("");
-    setFile(null);
   };
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    let formdata = new FormData();
-    formdata.append("name", name.trim());
-    formdata.append("order_no", orderNo);
-    formdata.append("device_id", parent_id.trim());
-    formdata.append("status", status);
-    if (file) {
-      formdata.append("image", file);
-    }
+    // var formdata = new FormData();
+    // formdata.append("name", name);
 
-    // let data = {
-    //   name: name.trim(),
+    // formdata.append("parent_id", parent_id);
 
-    //   device_id: parent_id?.length > 0 ? parent_id : null,
-    //   status: status,
-    // };
+    let data = {
+      name: name.trim(),
+      // parent_name: "Primary",
+      // parent_name: parent_id.trim(),
 
-    let response = await handlePutData(
-      `/api/v1/model/update/${row?._id}`,
-      formdata,
-      true
+      // parent_id: parent_id?.length > 0 ? parent_id : null,
+    };
+
+    let response = await handlePostData(
+      "/api/v1/expenseCategory/create",
+      data,
+      false
     );
 
     console.log("response", response);
@@ -123,12 +147,12 @@ const UpdateModel = ({ clearFilter, row }) => {
       return;
     }
     if (response.status >= 200 && response.status < 300) {
-      handleSnakbarOpen("Updated successfully", "success");
-      clearFilter();
+      handleSnakbarOpen("Added successfully", "success");
+      clearFilter(); // this is for get the table list again
+
       clearForm();
       handleDialogClose();
     } else {
-      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
@@ -136,9 +160,6 @@ const UpdateModel = ({ clearFilter, row }) => {
     // }
   };
 
-  
-
-  
   const customeTextFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     // padding: "15px 20px",
@@ -200,14 +221,14 @@ const UpdateModel = ({ clearFilter, row }) => {
   const getDropdownList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/leaf-dropdown`;
+    let url = `/api/v1/category/dropdownlist`;
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
       logout();
       return;
     }
     if (allData.status >= 200 && allData.status < 300) {
-      setDeviceList(allData?.data?.data);
+      setBranchList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -219,43 +240,40 @@ const UpdateModel = ({ clearFilter, row }) => {
     setLoading2(false);
   };
   useEffect(() => {
-    setName(row?.name);
-    setOrderNo(row?.order_no);
-    setStatus(row?.status);
-    setParent_id(row?.device_id === null ? "" : row?.device_id);
-  }, [updateDialog]);
+    // getDropdownList();
+  }, []);
   return (
     <>
-      <IconButton
+      <Button
         variant="contained"
-        // color="success"
         disableElevation
+        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
-          setUpdateDialog(true);
-          getDropdownList();
+          setAddDialog(true);
         }}
+        startIcon={
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        }
       >
-        {/* <EditOutlinedIcon /> */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          id="Outline"
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-        >
-          <path
-            d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
-            fill="#787878"
-          />
-          <path
-            d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
-            fill="#787878"
-          />
-        </svg>
-      </IconButton>
+        Add Expense Category
+      </Button>
 
       <Dialog
-        open={updateDialog}
+        open={addDialog}
         onClose={handleDialogClose}
         sx={{
           "& .MuiPaper-root": {
@@ -279,10 +297,10 @@ const UpdateModel = ({ clearFilter, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Update Model
+          Add Expense Category
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => setUpdateDialog(false)}
+            onClick={() => setAddDialog(false)}
           >
             <svg
               width="46"
@@ -316,7 +334,7 @@ const UpdateModel = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Model Name
+            Expense Category Name
           </Typography>
           <TextField
             required
@@ -325,45 +343,21 @@ const UpdateModel = ({ clearFilter, row }) => {
             id="name"
             placeholder="Full Name"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 3 }}
+            sx={{ ...customeTextFeild }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No
+            Parent Category
           </Typography>
-          <TextField
-            required
-            type="number"
-            onWheel={(e) => e.target.blur()}
-            size="small"
-            fullWidth
-            id="name"
-            placeholder="Enter Order No"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={orderNo}
-            onChange={(e) => {
-              setOrderNo(e.target.value);
-            }}
-          />
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Select Device
-          </Typography>
-
           <FormControl
             fullWidth
             size="small"
@@ -377,7 +371,6 @@ const UpdateModel = ({ clearFilter, row }) => {
                 position: "relative",
                 top: "2px",
               },
-              mb: 3,
             }}
           >
             {parent_id?.length < 1 && (
@@ -385,11 +378,11 @@ const UpdateModel = ({ clearFilter, row }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Device
+                Select Category
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -402,72 +395,13 @@ const UpdateModel = ({ clearFilter, row }) => {
               value={parent_id}
               onChange={(e) => setParent_id(e.target.value)}
             >
-              {deviceList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
+              {branchList?.map((item) => (
+                <MenuItem key={item} value={item?.name}>
                   {item?.name}
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
-
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Select Status
-          </Typography>
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{
-              mb: 3,
-              ...customeSelectFeild,
-              "& label.Mui-focused": {
-                color: "rgba(0,0,0,0)",
-              },
-
-              "& .MuiOutlinedInput-input img": {
-                position: "relative",
-                top: "2px",
-              },
-            }}
-          >
-            {/* {parent_id?.length < 1 && (
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ color: "#b3b3b3", fontWeight: 300 }}
-              >
-                Select Status
-              </InputLabel>
-            )} */}
-            <Select
-              // required
-              labelId="demo-simple-select-label"
-              id="baseLanguage"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 250, // Set the max height here
-                  },
-                },
-              }}
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <MenuItem value={true}>Active</MenuItem>
-              <MenuItem value={false}>Inactive</MenuItem>
-            </Select>
-          </FormControl>
-
-          <Box>
-            <ImageUpload
-              file={file}
-              setFile={setFile}
-             dimension="Size: (100 : 100)"
-            />
-          </Box>
+          </FormControl> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -516,4 +450,4 @@ const UpdateModel = ({ clearFilter, row }) => {
   );
 };
 
-export default UpdateModel;
+export default AddExpenseCategory;

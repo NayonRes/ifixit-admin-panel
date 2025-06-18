@@ -395,7 +395,7 @@ const ContactForm = ({ contactData, setContactData }) => {
             Email
           </Typography>
           <TextField
-            required
+            // required
             type="email"
             size="small"
             fullWidth
@@ -420,7 +420,7 @@ const ContactForm = ({ contactData, setContactData }) => {
             Remark
           </Typography>
           <TextField
-            required
+            // required
             size="small"
             fullWidth
             id="remark"
@@ -469,7 +469,7 @@ const ContactForm = ({ contactData, setContactData }) => {
               </InputLabel>
             )}
             <Select
-              required
+              // required
               labelId="demo-simple-select-label"
               id="type"
               inputProps={{

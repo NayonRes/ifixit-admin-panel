@@ -447,6 +447,7 @@ const UpdateUser = ({ clearFilter, row }) => {
             fullWidth
             id="number"
             type="number"
+            onWheel={(e) => e.target.blur()}
             placeholder="Enter Number"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}
@@ -469,6 +470,7 @@ const UpdateUser = ({ clearFilter, row }) => {
           <TextField
             required
             type="number"
+            
             size="small"
             fullWidth
             id="salary"

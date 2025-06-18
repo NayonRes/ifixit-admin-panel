@@ -104,6 +104,8 @@ const ModelList = ({
   setSteps,
   repair_checklist,
   set_repair_checklist,
+  issueList,
+  setIssueList,
   issue,
   setIssue,
   allIssue,
@@ -329,6 +331,8 @@ const ModelList = ({
       <RepairChecklist
         set_repair_checklist={set_repair_checklist}
         repair_checklist={repair_checklist}
+        issueList={issueList}
+        setIssueList={setIssueList}
         steps={steps}
         setSteps={setSteps}
         deviceId={deviceId}
@@ -470,6 +474,8 @@ const ModelList = ({
           deviceId={deviceId}
           repair_checklist={repair_checklist}
           set_repair_checklist={set_repair_checklist}
+          issueList={issueList}
+          setIssueList={setIssueList}
           steps={steps}
           setSteps={setSteps}
           issueArr={issueArr}

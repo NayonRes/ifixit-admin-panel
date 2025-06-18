@@ -396,6 +396,7 @@ const UpdateSupplier = ({ clearFilter, row }) => {
                 fullWidth
                 id="number"
                 type="number"
+                onWheel={(e) => e.target.blur()}
                 placeholder="Mobile Number"
                 variant="outlined"
                 sx={{ ...customeTextFeild, mb: 2 }}

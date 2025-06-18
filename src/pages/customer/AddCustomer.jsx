@@ -380,6 +380,7 @@ const AddCustomer = ({ clearFilter }) => {
                 size="small"
                 fullWidth
                 type="number"
+                onWheel={(e) => e.target.blur()}
                 id="number"
                 placeholder="Mobile Number"
                 variant="outlined"

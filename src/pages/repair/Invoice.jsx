@@ -393,6 +393,84 @@ const Invoice = () => {
                       </Grid>
                     );
                   })}
+
+                  {details?.repair_checklist?.checklist
+                    ?.filter(
+                      (item) =>
+                        !allIssueCheckList.some(
+                          (check) => check.name === item.name
+                        )
+                    )
+                    .map((item, index) => {
+                      return (
+                        <Grid
+                          key={index}
+                          size={6}
+                          sx={{
+                            display: "flex",
+
+                            alignItems: "center",
+                            gap: 1,
+                            // backgroundColor: "#F8F9FA",
+                            // p: 1,
+                            borderRadius: 2,
+
+                            userSelect: "none",
+                          }}
+                        >
+                          <Box
+                            // onClick={() => handleCheckboxChange(index)}
+                            sx={{ display: "flex", alignItems: "center " }}
+                          >
+                            {item?.status === "Functional" ? (
+                              <>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="17"
+                                  height="17"
+                                  viewBox="0 0 20 20"
+                                  style={{ position: "relative", left: -2 }}
+                                >
+                                  <path
+                                    fill="currentColor"
+                                    d="m10.6 15.508l6.396-6.396l-.707-.708l-5.689 5.688l-2.85-2.85l-.708.708zM5.616 20q-.691 0-1.153-.462T4 18.384V5.616q0-.691.463-1.153T5.616 4h12.769q.69 0 1.153.463T20 5.616v12.769q0 .69-.462 1.153T18.384 20zm0-1h12.769q.23 0 .423-.192t.192-.424V5.616q0-.231-.192-.424T18.384 5H5.616q-.231 0-.424.192T5 5.616v12.769q0 .23.192.423t.423.192M5 5v14z"
+                                    stroke-width="1"
+                                    stroke="#35b522"
+                                  />
+                                </svg>
+                              </>
+                            ) : item?.status === "Damaged" ? (
+                              <img
+                                src="/cross.png"
+                                alt=""
+                                style={{ width: "16px" }}
+                                // onClick={() => handleCheckboxChange(index, false)}
+                              />
+                            ) : (
+                              <CheckBoxOutlineBlankIcon
+                                sx={{
+                                  color: "#999",
+                                  width: "16px",
+                                  height: "16px",
+                                }}
+                                // onClick={() =>
+                                //   handleCheckboxChange(index, "Functional")
+                                // }
+                              />
+                            )}
+                          </Box>
+                          <Typography
+                            variant="small"
+                            color="text.secondary"
+                            sx={{ fontWeight: 500 }}
+                          >
+                            {item.name}
+                          </Typography>
+
+                          {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}
+                        </Grid>
+                      );
+                    })}
                   <Grid
                     size={6}
                     sx={{

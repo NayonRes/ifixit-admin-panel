@@ -31,6 +31,8 @@ import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
 import ClearIcon from "@mui/icons-material/Clear";
 import { designationList, roleList } from "../../data";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import RepairList from "./RepairList";
 
 const Repair = () => {
@@ -421,6 +423,40 @@ const Repair = () => {
                     value={repairNo}
                     onChange={(e) => setRepairNo(e.target.value)}
                   />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="From Date"
+                      value={startingTime}
+                      onChange={(newValue) => setStartingTime(newValue)}
+                      format="DD/MM/YYYY"
+                      maxDate={dayjs()}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          sx: { ...customeTextFeild },
+                        }, // ✅ this is the correct way
+                      }}
+                    />
+                  </LocalizationProvider>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To Date"
+                      value={endingTime}
+                      onChange={(newValue) => setEndingTime(newValue)}
+                      format="DD/MM/YYYY"
+                      maxDate={dayjs()}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          sx: { ...customeTextFeild },
+                        }, // ✅ this is the correct way
+                      }}
+                    />
+                  </LocalizationProvider>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <TextField

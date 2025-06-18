@@ -480,6 +480,7 @@ const UpdateBranch = ({ clearFilter, row }) => {
                 fullWidth
                 id="number"
                 type="number"
+                onWheel={(e) => e.target.blur()}
                 placeholder="Full Number"
                 variant="outlined"
                 sx={{ ...customeTextFeild }}

@@ -366,6 +366,7 @@ const DeviceBrandList = () => {
                     sx={{ ...customeTextFeild }}
                     id="orderNo"
                     type="number"
+                    onWheel={(e) => e.target.blur()}
                     fullWidth
                     size="small"
                     variant="outlined"

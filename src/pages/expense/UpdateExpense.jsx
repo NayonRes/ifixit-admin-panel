@@ -45,25 +45,104 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
-import ImageUpload from "../../utils/ImageUpload";
 
- 
-const UpdateModel = ({ clearFilter, row }) => {
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { jwtDecode } from "jwt-decode";
+
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "16px 24px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#EAECF0",
+  borderStyle: "dashed",
+  backgroundColor: "#fff",
+  // color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+  borderRadius: "12px",
+};
+
+const focusedStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
+const form = {
+  padding: "50px",
+  background: "#fff",
+  borderRadius: "10px",
+  width: "400px",
+  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+};
+const UpdateExpense = ({ clearFilter, row }) => {
+  console.log("row", row);
+
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
   const [name, setName] = useState("");
   const [parent_id, setParent_id] = useState("");
   const [status, setStatus] = useState("");
-  const [deviceList, setDeviceList] = useState([]);
+  const [branchList, setBranchList] = useState([]);
+
+  const [amount, setAmount] = useState("");
+  const [expenseCategoryId, setExpenseCategoryId] = useState("");
+  const [expenseCategoryList, setExpenseCategoryList] = useState([]);
+  const [remarks, setRemarks] = useState("");
+  const [expenseDate, setExpenseDate] = useState(null);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [orderNo, setOrderNo] = useState();
-  const [file, setFile] = useState(null);
-  const dropzoneRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
+  const custopDatePickerFeild = {
+    boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+    background: "#ffffff",
 
+    "& .MuiInputBase-root": {
+      fontSize: "0.875rem", // Adjust font size for a smaller appearance
+      height: "2.5rem",
+    },
+
+    "& label.Mui-focused": {
+      color: "#E5E5E5",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+
+    "& .MuiOutlinedInput-input": {
+      // padding: "10px 16px", (uncomment if needed)
+    },
+
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px", (uncomment if needed)
+      "& fieldset": {
+        borderColor: "#", // Update with a specific color if needed
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setUpdateDialog(false);
@@ -85,36 +164,30 @@ const UpdateModel = ({ clearFilter, row }) => {
 
   const clearForm = () => {
     setName("");
-    setOrderNo();
     setParent_id("");
     setStatus("");
-    setFile(null);
   };
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    let formdata = new FormData();
-    formdata.append("name", name.trim());
-    formdata.append("order_no", orderNo);
-    formdata.append("device_id", parent_id.trim());
-    formdata.append("status", status);
-    if (file) {
-      formdata.append("image", file);
-    }
+    let token = ifixit_admin_panel.token;
+    const decodedToken = jwtDecode(token);
 
-    // let data = {
-    //   name: name.trim(),
-
-    //   device_id: parent_id?.length > 0 ? parent_id : null,
-    //   status: status,
-    // };
+    let data = {
+      expense_category_id: expenseCategoryId.trim(),
+      branch_id: decodedToken?.user?.branch_id,
+      amount: amount,
+      expense_date: dayjs(expenseDate).toDate(),
+      remarks: remarks,
+      status: status,
+    };
 
     let response = await handlePutData(
-      `/api/v1/model/update/${row?._id}`,
-      formdata,
-      true
+      `/api/v1/expense/update/${row?._id}`,
+      data,
+      false
     );
 
     console.log("response", response);
@@ -124,7 +197,7 @@ const UpdateModel = ({ clearFilter, row }) => {
     }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Updated successfully", "success");
-      clearFilter();
+      clearFilter(); // this is for get the table list again
       clearForm();
       handleDialogClose();
     } else {
@@ -135,10 +208,27 @@ const UpdateModel = ({ clearFilter, row }) => {
     setLoading(false);
     // }
   };
+  const getDropdownList = async () => {
+    setLoading2(true);
 
-  
+    let url = `/api/v1/expenseCategory/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setExpenseCategoryList(allData?.data?.data);
 
-  
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
   const customeTextFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     // padding: "15px 20px",
@@ -197,35 +287,44 @@ const UpdateModel = ({ clearFilter, row }) => {
     },
   };
 
-  const getDropdownList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/device/leaf-dropdown`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      setDeviceList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
   useEffect(() => {
-    setName(row?.name);
-    setOrderNo(row?.order_no);
+    setAmount(row?.amount);
+    setRemarks(row?.remarks);
+    setExpenseCategoryId(row?.expense_category_id);
+
     setStatus(row?.status);
-    setParent_id(row?.device_id === null ? "" : row?.device_id);
+    if (row?.expense_date) {
+      setExpenseDate(dayjs(row?.expense_date));
+    }
   }, [updateDialog]);
   return (
     <>
+      {/* <Button
+        variant="contained"
+        disableElevation
+        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+        onClick={() => setUpdateDialog(true)}
+        startIcon={
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        }
+      >
+        Update Category
+      </Button> */}
+
       <IconButton
         variant="contained"
         // color="success"
@@ -279,7 +378,7 @@ const UpdateModel = ({ clearFilter, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Update Model
+          Update Expense
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setUpdateDialog(false)}
@@ -310,13 +409,13 @@ const UpdateModel = ({ clearFilter, row }) => {
             my: 1,
           }}
         >
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Model Name
+            Category Name
           </Typography>
           <TextField
             required
@@ -330,7 +429,7 @@ const UpdateModel = ({ clearFilter, row }) => {
             onChange={(e) => {
               setName(e.target.value);
             }}
-          />
+          /> */}
 
           <Typography
             variant="medium"
@@ -338,37 +437,40 @@ const UpdateModel = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No
+            Expense Date
           </Typography>
-          <TextField
-            required
-            type="number"
-            onWheel={(e) => e.target.blur()}
-            size="small"
-            fullWidth
-            id="name"
-            placeholder="Enter Order No"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={orderNo}
-            onChange={(e) => {
-              setOrderNo(e.target.value);
-            }}
-          />
+
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              id="expenseDate"
+              sx={{
+                width: "100%",
+                ...custopDatePickerFeild,
+                mb: 3,
+              }}
+              // label="Controlled picker"
+              format="DD/MM/YYYY"
+              maxDate={dayjs()}
+              value={expenseDate}
+              onChange={(newValue) => {
+                setExpenseDate(newValue);
+              }}
+            />
+          </LocalizationProvider>
           <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Select Device
+            Select Expense
           </Typography>
-
           <FormControl
             fullWidth
             size="small"
             sx={{
               ...customeSelectFeild,
+              mb: 3,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
               },
@@ -377,19 +479,18 @@ const UpdateModel = ({ clearFilter, row }) => {
                 position: "relative",
                 top: "2px",
               },
-              mb: 3,
             }}
           >
-            {parent_id?.length < 1 && (
+            {expenseCategoryId?.length < 1 && (
               <InputLabel
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Device
+                Select Expense
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -399,10 +500,10 @@ const UpdateModel = ({ clearFilter, row }) => {
                   },
                 },
               }}
-              value={parent_id}
-              onChange={(e) => setParent_id(e.target.value)}
+              value={expenseCategoryId}
+              onChange={(e) => setExpenseCategoryId(e.target.value)}
             >
-              {deviceList?.map((item) => (
+              {expenseCategoryList?.map((item) => (
                 <MenuItem key={item} value={item?._id}>
                   {item?.name}
                 </MenuItem>
@@ -416,13 +517,58 @@ const UpdateModel = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
+            Amount
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            id="amount"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={amount}
+            onChange={(e) => {
+              setAmount(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Note
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            multiline
+            rows={3}
+            id="remarks"
+            placeholder="Full Name"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={remarks}
+            onChange={(e) => {
+              setRemarks(e.target.value);
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
             Select Status
           </Typography>
           <FormControl
             fullWidth
             size="small"
             sx={{
-              mb: 3,
               ...customeSelectFeild,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
@@ -460,14 +606,6 @@ const UpdateModel = ({ clearFilter, row }) => {
               <MenuItem value={false}>Inactive</MenuItem>
             </Select>
           </FormControl>
-
-          <Box>
-            <ImageUpload
-              file={file}
-              setFile={setFile}
-             dimension="Size: (100 : 100)"
-            />
-          </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -516,4 +654,4 @@ const UpdateModel = ({ clearFilter, row }) => {
   );
 };
 
-export default UpdateModel;
+export default UpdateExpense;

@@ -471,7 +471,7 @@ const UserManagement = () => {
       <Grid container>
         <Grid
           sx={{
-            width: "264px",
+            width: "270px",
             pr: 5,
             boxSizing: "border-box",
           }}
@@ -494,6 +494,7 @@ const UserManagement = () => {
               userList?.length > 0 &&
               userList?.map((item, i) => (
                 <Box
+                  key={i}
                   sx={{
                     mb: 1,
                     px: 1,
@@ -551,7 +552,7 @@ const UserManagement = () => {
               ))}
           </Box>
         </Grid>
-        <Grid sx={{ width: "calc(100% - 264px)" }}>
+        <Grid sx={{ width: "calc(100% - 270px)" }}>
           <div
             style={{
               background: "#fff",
@@ -644,6 +645,7 @@ const UserManagement = () => {
                 permissionList.length > 0 &&
                 permissionList.map((row, i) => (
                   <Grid
+                   key={i}
                     container
                     sx={{
                       borderBottom: "1px solid #EAECF1",

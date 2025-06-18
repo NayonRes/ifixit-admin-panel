@@ -54,13 +54,14 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
-import AddDevice from "./AddDevice";
-import UpdateDevice from "./UpdateDevice";
+import AddExpense from "./AddExpense";
+import UpdateExpense from "./UpdateExpense";
+import { jwtDecode } from "jwt-decode";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const DeviceList = () => {
+const ExpenseList = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
@@ -70,16 +71,17 @@ const DeviceList = () => {
   const [filterLoading, setFilterLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [deleteDialog, setDeleteDialog] = useState(false);
-  const [deviceList, setDeviceList] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [deleteData, setDeleteData] = useState({});
   const [orderID, setOrderID] = useState("");
   const [name, setName] = useState("");
-  const [orderNo, setOrderNo] = useState();
-  const [parentName, setParentName] = useState("");
-
+  const [email, setEmail] = useState("");
+  const [number, setNumber] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [minPrice, setMinPrice] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(null);
   const [status, setStatus] = useState("");
-  const [parentId, setParentId] = useState("");
+  const [category, SetCategory] = useState("");
 
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -91,6 +93,10 @@ const DeviceList = () => {
   const [images, setImages] = useState([]);
   const [detailDialog, setDetailDialog] = useState(false);
   const [details, setDetails] = useState([]);
+  const [branchList, setBranchList] = useState([]);
+  const [branch, setBranch] = useState("");
+  const [expenseCategoryId, setExpenseCategoryId] = useState("");
+  const [expenseCategoryList, setExpenseCategoryList] = useState([]);
 
   const handleDetailClose = () => {
     setDetails({});
@@ -160,9 +166,9 @@ const DeviceList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 7;
+    let loadingNumber = 6;
 
-    if (ifixit_admin_panel?.user?.permission?.includes("update_device")) {
+    if (ifixit_admin_panel?.user?.permission?.includes("update_expense")) {
       loadingNumber = loadingNumber + 1;
     }
     for (let i = 0; i < 10; i++) {
@@ -187,13 +193,13 @@ const DeviceList = () => {
 
   const clearFilter = (event) => {
     setName("");
-    setParentName("");
-    setOrderNo("");
+
     setStatus("");
-    setParentId("");
+    setBranch("");
+    setExpenseCategoryId("");
 
     setPage(0);
-    const newUrl = `/api/v1/device?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/expense?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -218,18 +224,21 @@ const DeviceList = () => {
     if (newUrl) {
       url = newUrl;
     } else {
+      let newExpenseCategoryId = expenseCategoryId;
+      let newBranch = branch;
       let newStatus = status;
-      let newParentId = parentId;
 
       let newStartingTime = "";
       let newEndingTime = "";
       if (status === "None") {
         newStatus = "";
       }
-      if (parentId === "None") {
-        newParentId = "";
+      if (expenseCategoryId === "None") {
+        newExpenseCategoryId = "";
       }
-
+      if (branch === "None") {
+        newBranch = "";
+      }
       if (startingTime !== null) {
         newStartingTime = dayjs(startingTime).format("YYYY-MM-DD");
       }
@@ -237,7 +246,7 @@ const DeviceList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/device?name=${name.trim()}&parent_id=${newParentId}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/expense?expense_category_id=${newExpenseCategoryId.trim()}&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -274,14 +283,40 @@ const DeviceList = () => {
 
     return 0;
   };
-  const getDeviceList = async () => {
+
+  const getBranchList = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/device/dropdownlist`;
+    let url = `/api/v1/branch/dropdownlist`;
     let allData = await getDataWithToken(url);
-
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
     if (allData.status >= 200 && allData.status < 300) {
-      setDeviceList(allData?.data?.data);
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+
+  const getExpenseCategoryList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/expenseCategory/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      setExpenseCategoryList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -294,7 +329,8 @@ const DeviceList = () => {
   };
   useEffect(() => {
     getData();
-    getDeviceList();
+    getBranchList();
+    getExpenseCategoryList();
     // getCategoryList();
   }, []);
 
@@ -308,12 +344,12 @@ const DeviceList = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Device List
+            Expense List
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          {ifixit_admin_panel?.user?.permission?.includes("add_device") && (
-            <AddDevice clearFilter={clearFilter} />
+          {ifixit_admin_panel?.user?.permission?.includes("add_expense") && (
+            <AddExpense clearFilter={clearFilter} />
           )}
 
           {/* <IconButton
@@ -388,35 +424,7 @@ const DeviceList = () => {
                     onChange={(e) => setName(e.target.value)}
                   />
                 </Grid>
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="parentName"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="Parent Device"
-                    value={parentName}
-                    onChange={(e) => setParentName(e.target.value)}
-                  />
-                </Grid> */}
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="orderNo"
-                    type="number"
-                    onWheel={(e) => e.target.blur()}
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="Order No"
-                    InputLabelProps={{
-                      shrink: !!orderNo, // Shrink label only when there's a value
-                    }}
-                    value={orderNo}
-                    onChange={(e) => setOrderNo(e.target.value)}
-                  />
-                </Grid>
+
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -426,36 +434,56 @@ const DeviceList = () => {
                     sx={{ ...customeTextFeild }}
                   >
                     <InputLabel id="demo-status-outlined-label">
-                      Parent Device
+                      Expense Name
                     </InputLabel>
                     <Select
                       fullWidth
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 250, // Set the max height here
-                          },
-                        },
-                      }}
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
-                      label="Parent Device"
-                      value={parentId}
-                      onChange={(e) => setParentId(e.target.value)}
+                      label="Expense Name"
+                      value={expenseCategoryId}
+                      onChange={(e) => setExpenseCategoryId(e.target.value)}
                     >
                       <MenuItem value="None">None</MenuItem>
-                      {deviceList
-                        ?.filter((item) =>
-                          item.name.toLowerCase().includes("series")
-                        )
-                        ?.map((item) => (
-                          <MenuItem key={item} value={item?._id}>
-                            {item?.name}
-                          </MenuItem>
-                        ))}
+                      {expenseCategoryList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
+
+                {jwtDecode(ifixit_admin_panel?.token)?.user?.is_main_branch && (
+                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
+                    <FormControl
+                      variant="outlined"
+                      fullWidth
+                      size="small"
+                      // sx={{ ...customeTextFeild }}
+                      sx={{ ...customeTextFeild }}
+                    >
+                      <InputLabel id="demo-status-outlined-label">
+                        Branch
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        labelId="demo-status-outlined-label"
+                        id="demo-status-outlined"
+                        label="Branch"
+                        value={branch}
+                        onChange={(e) => setBranch(e.target.value)}
+                      >
+                        <MenuItem value="None">None</MenuItem>
+                        {branchList?.map((item) => (
+                          <MenuItem key={item?._id} value={item?._id}>
+                            {item?.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                )}
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -469,13 +497,6 @@ const DeviceList = () => {
                     </InputLabel>
                     <Select
                       fullWidth
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 250, // Set the max height here
-                          },
-                        },
-                      }}
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
                       label="Status"
@@ -540,23 +561,23 @@ const DeviceList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Icon</TableCell> */}
-                  <TableCell style={{ whiteSpace: "nowrap" }} colSpan={2}>
-                    Name
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Expense Date
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Branch Name
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Expense Name
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Amount</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Remarks
                   </TableCell>
 
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Parent Device
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Device Brand
-                  </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Order No
-                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
                   {ifixit_admin_panel?.user?.permission?.includes(
-                    "update_device"
+                    "update_expense"
                   ) && (
                     <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                       Actions
@@ -572,61 +593,23 @@ const DeviceList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      {/* <TableCell sx={{ width: "30px", pr: 0 }}>
-                        <img
-                          src={
-                            row?.icon?.url?.length > 0
-                              ? row?.icon?.url
-                              : "/noImage.jpg"
-                          }
-                          alt=""
-                          style={{
-                            display: "block",
-                            margin: "5px 0px",
-                            // borderRadius: "6px",
-                            width: "20px",
-                            maxHeight: "40px",
-                            // border: "1px solid #d1d1d1",
-                          }}
-                        />
-                      </TableCell> */}
-                      <TableCell sx={{ width: "30px", pr: 0 }}>
-                        {/* {row?.image?.url?.length > 0 ? (
-                                                <> */}
-                        <img
-                          src={
-                            row?.image?.url?.length > 0
-                              ? row?.image?.url
-                              : "/noImage.jpg"
-                          }
-                          alt=""
-                          style={{
-                            display: "block",
-                            margin: "5px 0px",
-                            // borderRadius: "6px",
-                            width: "20px",
-                            maxHeight: "40px",
-                            // border: "1px solid #d1d1d1",
-                          }}
-                        />
-
-                        {/* </>
-                                              ) : (
-                                                "No Image"
-                                              )} */}
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.expense_category_data[0]?.name
+                          ? row?.expense_category_data[0]?.name
+                          : "---------"}
                       </TableCell>
-                      <TableCell>{row?.name}</TableCell>
-                      <TableCell>
-                        {row?.parent_data?.length > 0
-                          ? row?.parent_data[0]?.name
-                          : "----------"}
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.branch_data[0]?.name
+                          ? row?.branch_data[0]?.name
+                          : "---------"}
                       </TableCell>
-                      <TableCell>
-                        {row?.device_brand_data?.length > 0 &&
-                          row?.device_brand_data[0]?.name}
+                      <TableCell sx={{}}>
+                        {moment(row?.expense_date).format("DD MMM, YYYY")}
                       </TableCell>
-                      <TableCell>{row?.order_no}</TableCell>
-                      {/* <TableCell>{row?.parent_name}</TableCell> */}
+                      <TableCell sx={{}}>{row?.amount}</TableCell>
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.remarks ? row?.remarks : "----------"}
+                      </TableCell>
 
                       <TableCell>
                         {row?.status ? (
@@ -671,11 +654,15 @@ const DeviceList = () => {
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
+
                       {ifixit_admin_panel?.user?.permission?.includes(
-                        "update_device"
+                        "update_expense"
                       ) && (
                         <TableCell align="right">
-                          <UpdateDevice clearFilter={clearFilter} row={row} />
+                          <UpdateExpense
+                            clearFilter={clearFilter}
+                            row={row}
+                          />
 
                           {/* <IconButton
                           variant="contained"
@@ -713,7 +700,7 @@ const DeviceList = () => {
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       <strong> {message}</strong>
                     </TableCell>
                   </TableRow>
@@ -800,4 +787,4 @@ const DeviceList = () => {
   );
 };
 
-export default DeviceList;
+export default ExpenseList;
