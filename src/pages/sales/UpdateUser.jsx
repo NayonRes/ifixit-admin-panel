@@ -355,10 +355,10 @@ const UpdateUser = ({ clearFilter, row }) => {
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
-    }else {
+    } else {
       setLoading2(false);
       handleSnakbarOpen(allData?.data?.message, "error");
-    } 
+    }
     setLoading2(false);
   };
   useEffect(() => {
@@ -692,7 +692,7 @@ const UpdateUser = ({ clearFilter, row }) => {
                 or drag and drop
               </Typography>
               <Typography variant="medium" color="text.fade">
-                PNG, JPG (max. 400x400px)
+                PNG, JPG, JPEG, WEBP (max. 400x400px)
               </Typography>
               {file?.path?.length > 0 && (
                 <Typography variant="medium" color="text.light" sx={{ mt: 1 }}>

@@ -470,7 +470,6 @@ const UpdateUser = ({ clearFilter, row }) => {
           <TextField
             required
             type="number"
-            
             size="small"
             fullWidth
             id="salary"
@@ -646,7 +645,7 @@ const UpdateUser = ({ clearFilter, row }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              dimension="Size: (100 : 100)"
+              dimension="Size: (200 : 200)"
             />
           </Box>
         </DialogContent>

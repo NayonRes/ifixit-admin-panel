@@ -48,6 +48,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { PulseLoader, SyncLoader } from "react-spinners";
+import { useSnackbar } from "notistack";
 
 // import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 // const useStyles = makeStyles((theme) => ({
@@ -63,6 +64,7 @@ import { PulseLoader, SyncLoader } from "react-spinners";
 const Dashboard = ({ toggleTheme }) => {
   const theme = useTheme();
   // const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [storeListMessage, setStoreListMessage] = useState("");
   const [storeListLoading, setStoreListLoading] = useState(false);
@@ -81,7 +83,24 @@ const Dashboard = ({ toggleTheme }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [display, setDisplay] = useState(false);
   const [months, setMonths] = React.useState(12);
-
+  const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
+  const [branchList, setBranchList] = useState([]);
+  const [stats, setStats] = useState({});
+  const [branchId, setBranchId] = useState("");
+  const [message, setMessage] = useState("");
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
   const handleChange = (event) => {
     setMonths(event.target.value);
     getSummaryOfaStore(event.target.value);
@@ -294,26 +313,23 @@ const Dashboard = ({ toggleTheme }) => {
     }
     setStoreDetailLoading(false);
   };
-  const getData = async () => {
+  const getStats = async () => {
     if (ifixit_admin_panel.token) {
-      setStoreListLoading(true);
+      setLoading(true);
+      let url = `/api/v1/dashboard/stats`;
+      let statsData = await getDataWithToken(url);
 
-      let stores = await getDataWithToken(
-        "getStoreInformation",
-        ifixit_admin_panel,
-        logout
-      );
-
-      if (stores?.data?.status) {
-        if (stores.data?.data?.storeInfo?.length > 0) {
-          setStoreList(stores.data.data.storeInfo);
-        } else {
-          setStoreListMessage(stores.data.message);
-        }
-      } else {
-        setStoreListMessage(stores.data.message);
+      if (statsData?.status === 401) {
+        logout();
+        return;
       }
-      setStoreListLoading(false);
+      if (statsData.status >= 200 && statsData.status < 300) {
+        setStats(statsData?.data?.data);
+      } else {
+        setLoading(false);
+        handleSnakbarOpen(statsData?.data?.message, "error");
+      }
+      setLoading(false);
     }
   };
 
@@ -332,11 +348,35 @@ const Dashboard = ({ toggleTheme }) => {
     overflow: "hidden",
     padding: "16px 28px",
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-    minWidth: "420px",
+    minWidth: "200px",
+  };
+
+  const getBranchList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
   };
   useEffect(() => {
-    // getData();
-
+    getStats();
+    getBranchList();
     // getSummaryOfaStore();
     // getStoreDetails();
 
@@ -383,7 +423,7 @@ const Dashboard = ({ toggleTheme }) => {
                   Summary
                 </Typography>
               </Grid>
-              {/* <Grid  size="auto">
+              <Grid size="auto">
                 <Typography
                   variant="medium"
                   color="text.main"
@@ -391,7 +431,54 @@ const Dashboard = ({ toggleTheme }) => {
                 >
                   Updated 1 month ago
                 </Typography>
-              </Grid> */}
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    // ...customeSelectFeild,
+                    "& label.Mui-focused": {
+                      color: "rgba(0,0,0,0)",
+                    },
+                    "& .MuiOutlinedInput-input.Mui-disabled": {
+                      color: "#343E54", // Customize the text color when disabled
+                      WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
+                    },
+                    "& .MuiOutlinedInput-input img": {
+                      position: "relative",
+                      top: "2px",
+                    },
+                  }}
+                >
+                  {branchId.length < 1 && (
+                    <InputLabel
+                      id="demo-simple-select-label"
+                      sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                    >
+                      Select Transfer From
+                    </InputLabel>
+                  )}
+                  <Select
+                    required
+                    labelId="demo-simple-select-label"
+                    id="type"
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          maxHeight: 250, // Set the max height here
+                        },
+                      },
+                    }}
+                    value={branchId}
+                    onChange={(e) => setBranchId(e.target.value)}
+                  >
+                    {branchList?.map((item) => (
+                      <MenuItem key={item?._id} value={item?._id}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
             </Grid>
             <Divider />
             <Grid

@@ -9,7 +9,7 @@ const Dashboard = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   return (
     <div>
-      {/* <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
+      <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
         <Grid size={6}>
           <Typography
             variant="h6"
@@ -20,12 +20,10 @@ const Dashboard = () => {
             Dashboard
           </Typography>
         </Grid>
-        <Grid size={6} style={{ textAlign: "right" }}>
-          
-        </Grid>
-      </Grid> 
-      <Dashboard2 />*/}
-      <Grid
+        <Grid size={6} style={{ textAlign: "right" }}></Grid>
+      </Grid>
+      <Dashboard2 />
+      {/* <Grid
         container
         justifyContent="center"
         alignItems="center"
@@ -40,7 +38,7 @@ const Dashboard = () => {
             Coming soon
           </Typography>
         </Grid>
-      </Grid>
+      </Grid> */}
     </div>
   );
 };

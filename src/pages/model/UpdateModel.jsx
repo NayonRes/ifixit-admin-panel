@@ -47,7 +47,6 @@ import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
 import ImageUpload from "../../utils/ImageUpload";
 
- 
 const UpdateModel = ({ clearFilter, row }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -136,9 +135,6 @@ const UpdateModel = ({ clearFilter, row }) => {
     // }
   };
 
-  
-
-  
   const customeTextFeild = {
     boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
     // padding: "15px 20px",
@@ -465,7 +461,7 @@ const UpdateModel = ({ clearFilter, row }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-             dimension="Size: (100 : 100)"
+              dimension="Size: (200 : 200)"
             />
           </Box>
         </DialogContent>

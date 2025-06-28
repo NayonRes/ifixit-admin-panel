@@ -135,7 +135,7 @@ const ImageUpload = ({ file, setFile, dimension }) => {
           or drag and drop
         </Typography>
         <Typography variant="medium" color="text.fade">
-          File Type : PNG, JPG
+          File Type : PNG, JPG, JPEG, WEBP
         </Typography>
         <Typography variant="medium" color="text.fade">
           {dimension && dimension}
