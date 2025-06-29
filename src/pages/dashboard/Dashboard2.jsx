@@ -49,6 +49,9 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { PulseLoader, SyncLoader } from "react-spinners";
 import { useSnackbar } from "notistack";
+import dayjs from "dayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 // import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 // const useStyles = makeStyles((theme) => ({
@@ -89,6 +92,43 @@ const Dashboard = ({ toggleTheme }) => {
   const [stats, setStats] = useState({});
   const [branchId, setBranchId] = useState("");
   const [message, setMessage] = useState("");
+  const [startingTime, setStartingTime] = useState(dayjs().subtract(30, "day"));
+  const [endingTime, setEndingTime] = useState(dayjs().startOf("day"));
+
+  const customeTextFeild = {
+    width: "260px",
+    // padding: "15px 20px",
+    // background: "#FAFAFA",
+    "& label": {
+      fontSize: "11px",
+    },
+    "& label.Mui-focused": {
+      color: "#0F1624",
+    },
+
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#B2BAC2",
+    },
+    "& .MuiOutlinedInput-input": {
+      padding: "8px 12px",
+    },
+    "& .MuiOutlinedInput-root": {
+      // paddingLeft: "24px",
+      fontSize: "13px",
+      "& fieldset": {
+        // borderColor: "rgba(0,0,0,0)",
+        borderRadius: "8px",
+      },
+
+      "&:hover fieldset": {
+        borderColor: "#969696",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#969696",
+      },
+    },
+  };
+
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -313,10 +353,13 @@ const Dashboard = ({ toggleTheme }) => {
     }
     setStoreDetailLoading(false);
   };
-  const getStats = async () => {
+  const getStats = async (formDate, toDate) => {
     if (ifixit_admin_panel.token) {
       setLoading(true);
-      let url = `/api/v1/dashboard/stats`;
+
+      const startDate = formDate ? dayjs(formDate).format("YYYY-MM-DD") : "";
+      const endDate = toDate ? dayjs(toDate).format("YYYY-MM-DD") : "";
+      let url = `/api/v1/dashboard/stats?startDate=${startDate}&endDate=${endDate}`;
       let statsData = await getDataWithToken(url);
 
       if (statsData?.status === 401) {
@@ -375,7 +418,7 @@ const Dashboard = ({ toggleTheme }) => {
     setLoading2(false);
   };
   useEffect(() => {
-    getStats();
+    getStats(startingTime, endingTime);
     getBranchList();
     // getSummaryOfaStore();
     // getStoreDetails();
@@ -414,70 +457,100 @@ const Dashboard = ({ toggleTheme }) => {
               justifyContent="space-between"
               sx={{ mb: 1.125, px: 3 }}
             >
-              <Grid size="auto">
+              <Grid size={6}>
                 <Typography
                   variant="base"
                   color="text.main"
                   sx={{ fontWeight: 500 }}
                 >
                   Summary
-                </Typography>
-              </Grid>
-              <Grid size="auto">
-                <Typography
-                  variant="medium"
-                  color="text.main"
-                  sx={{ fontWeight: 400 }}
-                >
-                  Updated 1 month ago
-                </Typography>
-                <FormControl
-                  fullWidth
-                  size="small"
-                  sx={{
-                    // ...customeSelectFeild,
-                    "& label.Mui-focused": {
-                      color: "rgba(0,0,0,0)",
-                    },
-                    "& .MuiOutlinedInput-input.Mui-disabled": {
-                      color: "#343E54", // Customize the text color when disabled
-                      WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
-                    },
-                    "& .MuiOutlinedInput-input img": {
-                      position: "relative",
-                      top: "2px",
-                    },
-                  }}
-                >
-                  {branchId.length < 1 && (
-                    <InputLabel
-                      id="demo-simple-select-label"
-                      sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                    >
-                      Select Transfer From
-                    </InputLabel>
-                  )}
-                  <Select
-                    required
-                    labelId="demo-simple-select-label"
-                    id="type"
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          maxHeight: 250, // Set the max height here
-                        },
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    sx={{
+                      ...customeTextFeild,
+                      "& label.Mui-focused": {
+                        color: "rgba(0,0,0,0)",
+                      },
+                      "& .MuiOutlinedInput-input.Mui-disabled": {
+                        color: "#343E54", // Customize the text color when disabled
+                        WebkitTextFillColor: "#343E54", // Apply the Webkit text fill color
+                      },
+                      "& .MuiOutlinedInput-input img": {
+                        position: "relative",
+                        top: "2px",
                       },
                     }}
-                    value={branchId}
-                    onChange={(e) => setBranchId(e.target.value)}
                   >
-                    {branchList?.map((item) => (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    {branchId.length < 1 && (
+                      <InputLabel
+                        id="demo-simple-select-label"
+                        sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                      >
+                        Select Branch
+                      </InputLabel>
+                    )}
+                    <Select
+                      required
+                      labelId="demo-simple-select-label"
+                      id="type"
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 250, // Set the max height here
+                          },
+                        },
+                      }}
+                      value={branchId}
+                      onChange={(e) => setBranchId(e.target.value)}
+                    >
+                      {branchList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Typography>
+              </Grid>
+              <Grid size={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="From Date"
+                    value={startingTime}
+                    onChange={(newValue) => {
+                      getStats(newValue, endingTime);
+                      setStartingTime(newValue);
+                    }}
+                    format="DD/MM/YYYY"
+                    maxDate={dayjs()}
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: { ...customeTextFeild },
+                      }, // ✅ this is the correct way
+                    }}
+                  />
+                </LocalizationProvider>
+
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="To Date"
+                    value={endingTime}
+                    onChange={(newValue) => {
+                      getStats(startingTime, newValue);
+                      setEndingTime(newValue);
+                    }}
+                    format="DD/MM/YYYY"
+                    maxDate={dayjs()}
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: { ...customeTextFeild },
+                      }, // ✅ this is the correct way
+                    }}
+                  />
+                </LocalizationProvider>
               </Grid>
             </Grid>
             <Divider />
