@@ -353,13 +353,21 @@ const Dashboard = ({ toggleTheme }) => {
     }
     setStoreDetailLoading(false);
   };
-  const getStats = async (formDate, toDate) => {
+
+  const handleBranchChange = (event) => {
+    setBranchId(event.target.value);
+    getStats(startingTime, endingTime, event.target.value);
+  };
+  const getStats = async (formDate, toDate, branch) => {
     if (ifixit_admin_panel.token) {
       setLoading(true);
-
+      let newBranch = branch;
+      if (branch === "None") {
+        newBranch = "";
+      }
       const startDate = formDate ? dayjs(formDate).format("YYYY-MM-DD") : "";
       const endDate = toDate ? dayjs(toDate).format("YYYY-MM-DD") : "";
-      let url = `/api/v1/dashboard/stats?startDate=${startDate}&endDate=${endDate}`;
+      let url = `/api/v1/dashboard/stats?branch_id=${newBranch}&startDate=${startDate}&endDate=${endDate}`;
       let statsData = await getDataWithToken(url);
 
       if (statsData?.status === 401) {
@@ -418,7 +426,7 @@ const Dashboard = ({ toggleTheme }) => {
     setLoading2(false);
   };
   useEffect(() => {
-    getStats(startingTime, endingTime);
+    getStats(startingTime, endingTime, branchId);
     getBranchList();
     // getSummaryOfaStore();
     // getStoreDetails();
@@ -502,7 +510,7 @@ const Dashboard = ({ toggleTheme }) => {
                         },
                       }}
                       value={branchId}
-                      onChange={(e) => setBranchId(e.target.value)}
+                      onChange={handleBranchChange}
                     >
                       {branchList?.map((item) => (
                         <MenuItem key={item?._id} value={item?._id}>
@@ -519,7 +527,7 @@ const Dashboard = ({ toggleTheme }) => {
                     label="From Date"
                     value={startingTime}
                     onChange={(newValue) => {
-                      getStats(newValue, endingTime);
+                      getStats(newValue, endingTime, branchId);
                       setStartingTime(newValue);
                     }}
                     format="DD/MM/YYYY"
@@ -538,7 +546,7 @@ const Dashboard = ({ toggleTheme }) => {
                     label="To Date"
                     value={endingTime}
                     onChange={(newValue) => {
-                      getStats(startingTime, newValue);
+                      getStats(startingTime, newValue, branchId);
                       setEndingTime(newValue);
                     }}
                     format="DD/MM/YYYY"
