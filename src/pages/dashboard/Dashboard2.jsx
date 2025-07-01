@@ -90,6 +90,7 @@ const Dashboard = ({ toggleTheme }) => {
   const [loading2, setLoading2] = useState(false);
   const [branchList, setBranchList] = useState([]);
   const [stats, setStats] = useState({});
+  const [repairSummary, setRepairSummary] = useState({});
   const [branchId, setBranchId] = useState("");
   const [message, setMessage] = useState("");
   const [startingTime, setStartingTime] = useState(dayjs().subtract(30, "day"));
@@ -383,6 +384,31 @@ const Dashboard = ({ toggleTheme }) => {
       setLoading(false);
     }
   };
+  const getRepairSummary = async (formDate, toDate, branch) => {
+    if (ifixit_admin_panel.token) {
+      setLoading(true);
+      let newBranch = branch;
+      if (branch === "None") {
+        newBranch = "";
+      }
+      const startDate = formDate ? dayjs(formDate).format("YYYY-MM-DD") : "";
+      const endDate = toDate ? dayjs(toDate).format("YYYY-MM-DD") : "";
+      let url = `/api/v1/dashboard/repair-summary`;
+      let repairSummaryData = await getDataWithToken(url);
+
+      if (repairSummaryData?.status === 401) {
+        logout();
+        return;
+      }
+      if (repairSummaryData.status >= 200 && repairSummaryData.status < 300) {
+        setRepairSummary(repairSummaryData?.data?.data);
+      } else {
+        setLoading(false);
+        handleSnakbarOpen(repairSummaryData?.data?.message, "error");
+      }
+      setLoading(false);
+    }
+  };
 
   const boxStyle = {
     background: "#fff",
@@ -427,6 +453,7 @@ const Dashboard = ({ toggleTheme }) => {
   };
   useEffect(() => {
     getStats(startingTime, endingTime, branchId);
+    getRepairSummary();
     getBranchList();
     // getSummaryOfaStore();
     // getStoreDetails();
