@@ -85,7 +85,7 @@ const Dashboard = ({ toggleTheme }) => {
   const [totalVerified, setTotalVerified] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [display, setDisplay] = useState(false);
-  const [months, setMonths] = React.useState(12);
+  const [months, setMonths] = React.useState(3);
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [branchList, setBranchList] = useState([]);
@@ -144,7 +144,7 @@ const Dashboard = ({ toggleTheme }) => {
   };
   const handleChange = (event) => {
     setMonths(event.target.value);
-    getSummaryOfaStore(event.target.value);
+    getRepairSummaryForChart(event.target.value);
   };
   const [chartData, setChartData] = useState({
     series: [
@@ -409,6 +409,36 @@ const Dashboard = ({ toggleTheme }) => {
       setLoading(false);
     }
   };
+  const getRepairSummaryForChart = async (monthCount) => {
+    console.log("monthCount", monthCount);
+
+    if (ifixit_admin_panel.token) {
+      setLoading(true);
+      setMonths(monthCount);
+      const currentMonthStart = dayjs().startOf("month");
+      const startDate = currentMonthStart
+        .subtract(monthCount, "month")
+        .format("YYYY-MM-DD");
+      const endDate = currentMonthStart.subtract(1, "day").format("YYYY-MM-DD");
+
+      // const startDate = formDate ? dayjs(formDate).format("YYYY-MM-DD") : "";
+      // const endDate = toDate ? dayjs(toDate).format("YYYY-MM-DD") : "";
+      let url = `/api/v1/dashboard/repair-summary?startDate=${startDate}&endDate=${endDate}`;
+      let repairSummaryData = await getDataWithToken(url);
+
+      if (repairSummaryData?.status === 401) {
+        logout();
+        return;
+      }
+      if (repairSummaryData.status >= 200 && repairSummaryData.status < 300) {
+        setRepairSummary(repairSummaryData?.data?.data);
+      } else {
+        setLoading(false);
+        handleSnakbarOpen(repairSummaryData?.data?.message, "error");
+      }
+      setLoading(false);
+    }
+  };
 
   const boxStyle = {
     background: "#fff",
@@ -455,6 +485,7 @@ const Dashboard = ({ toggleTheme }) => {
     getStats(startingTime, endingTime, branchId);
     getRepairSummary();
     getBranchList();
+    getRepairSummaryForChart(months)
     // getSummaryOfaStore();
     // getStoreDetails();
 
@@ -1026,6 +1057,7 @@ const Dashboard = ({ toggleTheme }) => {
                       <MenuItem value={12}>12 Months</MenuItem>
                       <MenuItem value={6}>6 Months</MenuItem>
                       <MenuItem value={3}>3 Months</MenuItem>
+                      <MenuItem value={1}>1 Months</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
