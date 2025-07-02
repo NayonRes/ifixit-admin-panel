@@ -34,6 +34,7 @@ import { designationList, roleList } from "../../data";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import RepairList from "./RepairList";
+import { jwtDecode } from "jwt-decode";
 
 const Repair = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -506,35 +507,36 @@ const Repair = () => {
                     </Select>
                   </FormControl>
                 </Grid> */}
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Branch
-                    </InputLabel>
-                    <Select
+                {jwtDecode(ifixit_admin_panel?.token)?.user?.is_main_branch && (
+                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                    <FormControl
+                      variant="outlined"
                       fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Branch"
-                      value={branch}
-                      onChange={(e) => setBranch(e.target.value)}
+                      size="small"
+                      // sx={{ ...customeTextFeild }}
+                      sx={{ ...customeTextFeild }}
                     >
-                      <MenuItem value="None">None</MenuItem>
-                      {branchList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
+                      <InputLabel id="demo-status-outlined-label">
+                        Branch
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        labelId="demo-status-outlined-label"
+                        id="demo-status-outlined"
+                        label="Branch"
+                        value={branch}
+                        onChange={(e) => setBranch(e.target.value)}
+                      >
+                        <MenuItem value="None">None</MenuItem>
+                        {branchList?.map((item) => (
+                          <MenuItem key={item?._id} value={item?._id}>
+                            {item?.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                )}
                 {/* <Grid size={2}>
                   <FormControl
                     variant="outlined"

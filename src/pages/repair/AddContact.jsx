@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ContactForm from "./ContactForm";
 
-const AddContact = ({ searchPrams, contactData, setContactData}) => {
+const AddContact = ({ searchPrams, contactData, setContactData }) => {
   return (
     <div>
       <Grid container columnSpacing={3} sx={{}}>
@@ -65,7 +65,13 @@ const AddContact = ({ searchPrams, contactData, setContactData}) => {
           </Box>
         </Grid>
         <Grid size={12}>
-          <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: 600, mb: 3 }}
+            onClick={() => {
+              console.log("contactData", contactData);
+            }}
+          >
             Add Contact
           </Typography>
         </Grid>

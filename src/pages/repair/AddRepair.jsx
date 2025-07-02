@@ -131,6 +131,8 @@ const AddRepair = () => {
   };
 
   const handleSubmit = async () => {
+    console.log("contactData", contactData);
+
     let repairP = allIssue.reduce((sum, item) => sum + item.repair_cost, 0);
     let parsP = allSpareParts.reduce((sum, item) => sum + item.price, 0);
     let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
@@ -139,7 +141,7 @@ const AddRepair = () => {
 
     // return console.log('ok')
 
-    if (!customer_id) {
+    if (!customer_id && !contactData?._id) {
       return handleSnakbarOpen("Custommer is Required", "error");
     }
     if (repairP == 0) {

@@ -170,6 +170,7 @@ const ContactForm = ({ contactData, setContactData }) => {
       logout();
       return;
     }
+    console.log("response?.data?.data-----------new customer");
 
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
