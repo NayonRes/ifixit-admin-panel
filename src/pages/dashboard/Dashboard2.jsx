@@ -66,6 +66,48 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 //     },
 //   },
 // }));
+
+const colors = [
+  {
+    main: "#FE9B66",
+    background: "rgba(254, 155, 102, 0.08)",
+  },
+  {
+    main: "#A38CFF",
+    background: "rgba(163, 140, 255, 0.08)",
+  },
+  {
+    main: "#9BE1FE",
+    background: "rgba(155, 225, 254, 0.08)",
+  },
+  {
+    main: "#7CDBA7",
+    background: "rgba(124, 219, 167, 0.08)",
+  },
+  {
+    main: "#eaaa08",
+    background: "#FEF7C3",
+  },
+  {
+    main: "#4B46E5",
+    background: "#E0E8FF",
+  },
+];
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 const Dashboard = ({ toggleTheme }) => {
   const theme = useTheme();
   // const classes = useStyles();
@@ -87,12 +129,14 @@ const Dashboard = ({ toggleTheme }) => {
   const [totalVerified, setTotalVerified] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [display, setDisplay] = useState(false);
-  const [months, setMonths] = React.useState(3);
+  const [months, setMonths] = React.useState(6);
   const [loading, setLoading] = useState(false);
+  const [repairSummaryloading, setRepairSummaryLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [branchList, setBranchList] = useState([]);
   const [stats, setStats] = useState({});
   const [repairSummary, setRepairSummary] = useState({});
+  const [repairChartSummary, setRepairChartSummary] = useState({});
   const [branchId, setBranchId] = useState("");
   const [message, setMessage] = useState("");
   const [startingTime, setStartingTime] = useState(dayjs().subtract(30, "day"));
@@ -146,7 +190,7 @@ const Dashboard = ({ toggleTheme }) => {
   };
   const handleChange = (event) => {
     setMonths(event.target.value);
-    getRepairSummaryForChart(event.target.value);
+    getRepairSummaryForChart(event.target.value, branchList);
   };
   const [chartData, setChartData] = useState({
     series: [
@@ -213,7 +257,7 @@ const Dashboard = ({ toggleTheme }) => {
         },
         title: {
           // text: "   ",
-          text: "Attempted vs Verified",
+          text: "",
           style: {
             colors: theme.palette.text.light, // Change the x-axis label color here
           },
@@ -310,8 +354,7 @@ const Dashboard = ({ toggleTheme }) => {
           data2.push(item.totalVerified);
         });
       }
-      console.log("data1", data1);
-      console.log("names ===========================================", names);
+
       setSummaryList(storesSummary.data.data.summary);
       setTotalSummary(newTotalSummary);
       setTotalVerified(newTotalVerified);
@@ -389,7 +432,7 @@ const Dashboard = ({ toggleTheme }) => {
   };
   const getRepairSummary = async (formDate, toDate, branch) => {
     if (ifixit_admin_panel.token) {
-      setLoading(true);
+      setRepairSummaryLoading(true);
       let newBranch = branch;
       if (branch === "None") {
         newBranch = "";
@@ -406,17 +449,43 @@ const Dashboard = ({ toggleTheme }) => {
       if (repairSummaryData.status >= 200 && repairSummaryData.status < 300) {
         setRepairSummary(repairSummaryData?.data?.data);
       } else {
-        setLoading(false);
+        setRepairSummaryLoading(false);
         handleSnakbarOpen(repairSummaryData?.data?.message, "error");
       }
-      setLoading(false);
+      setRepairSummaryLoading(false);
     }
   };
-  const getRepairSummaryForChart = async (monthCount) => {
-    console.log("monthCount", monthCount);
 
+  function getPreviousMonths(count) {
+    const result = [];
+    const currentDate = new Date();
+
+    for (let i = 0; i < count; i++) {
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - i,
+        1
+      );
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      const monthName = monthNames[month];
+
+      result.push({
+        year,
+        month: month + 1,
+        monthName,
+        formattedDate: `${monthName} ${year}`,
+      });
+    }
+
+    return result;
+  }
+  const getRepairSummaryForChart = async (monthCount, branchList) => {
     if (ifixit_admin_panel.token) {
-      setLoading(true);
+      console.log("currentDate");
+      const monthsArray = getPreviousMonths(monthCount);
+      console.log(monthsArray);
+      setSummaryLoading(true);
       setMonths(monthCount);
       const currentMonthStart = dayjs().startOf("month");
       const startDate = currentMonthStart
@@ -424,8 +493,6 @@ const Dashboard = ({ toggleTheme }) => {
         .format("YYYY-MM-DD");
       const endDate = currentMonthStart.subtract(1, "day").format("YYYY-MM-DD");
 
-      // const startDate = formDate ? dayjs(formDate).format("YYYY-MM-DD") : "";
-      // const endDate = toDate ? dayjs(toDate).format("YYYY-MM-DD") : "";
       let url = `/api/v1/dashboard/repair-chart?startDate=${startDate}&endDate=${endDate}&months=${monthCount}`;
       let repairSummaryData = await getDataWithToken(url);
 
@@ -434,12 +501,101 @@ const Dashboard = ({ toggleTheme }) => {
         return;
       }
       if (repairSummaryData.status >= 200 && repairSummaryData.status < 300) {
-        setRepairSummary(repairSummaryData?.data?.data);
+        console.log(
+          "repairSummaryData?.data?.data*****************",
+          repairSummaryData?.data?.data
+        );
+        console.log("monthsArray", monthsArray);
+        console.log("branchList", branchList);
+
+        let chartMonthsList = monthsArray?.map((item) => item?.formattedDate);
+        let myDataSeries = branchList?.map((item) => ({
+          name: item?.name,
+          data: [],
+        }));
+        console.log("chartMonthsList", chartMonthsList);
+        console.log("myDataSeries", myDataSeries);
+
+        // let myDataSeries2 = [
+        //   {
+        //     name: "Total Applied",
+        //     data: [],
+        //   },
+        //   {
+        //     name: "Total Verified",
+        //     data: [],
+        //   },
+        // ];
+        let chartSeries = monthsArray?.map((item) => {
+          let monthAndYearData = repairSummaryData?.data?.data?.filter(
+            (res) => res?.month === item?.month && res?.year === item?.year
+          );
+
+          if (monthAndYearData?.length < 1) {
+            myDataSeries.forEach((series) => {
+              series.data.push(0);
+            });
+          } else {
+            myDataSeries.forEach((series) => {
+              const branchData = monthAndYearData?.find(
+                (el) => el?.branch_name === series?.name
+              );
+
+              if (branchData && branchData.branch_name === series.name) {
+                const total =
+                  (branchData?.total_issue_cost || 0) +
+                  (branchData?.total_product_price || 0);
+                series.data.push(total);
+              } else {
+                series.data.push(0);
+              }
+            });
+          }
+          console.log("monthAndYearData", monthAndYearData);
+          // monthAndYearData?.map((item)=>{
+
+          // })
+          // let newSeries = branchList?.map((branch) => {
+          //   const branchData = monthAndYearData?.find(
+          //     (el) => el?.branch_id === branch?._id
+          //   );
+
+          //   const total =
+          //     (branchData?.total_issue_cost || 0) +
+          //     (branchData?.total_product_price || 0);
+
+          //   return {
+          //     name: branch?.name,
+          //     data: total,
+          //   };
+          // });
+          // return newSeries;
+        });
+
+        console.log("myDataSeries final", myDataSeries);
+        // console.log("chartSeries", chartSeries);
+
+        repairSummaryData?.data?.data?.map((item) => {});
+        setRepairChartSummary(repairSummaryData?.data?.data);
+
+        let names = chartMonthsList;
+
+        setChartData({
+          ...chartData,
+          // series: chartSeries,
+          series: myDataSeries,
+          options: {
+            ...chartData.options,
+            xaxis: {
+              categories: names,
+            },
+          },
+        });
       } else {
-        setLoading(false);
+        setSummaryLoading(false);
         handleSnakbarOpen(repairSummaryData?.data?.message, "error");
       }
-      setLoading(false);
+      setSummaryLoading(false);
     }
   };
 
@@ -474,7 +630,7 @@ const Dashboard = ({ toggleTheme }) => {
 
     if (allData.status >= 200 && allData.status < 300) {
       setBranchList(allData?.data?.data);
-
+      getRepairSummaryForChart(months, allData?.data?.data);
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
@@ -488,7 +644,7 @@ const Dashboard = ({ toggleTheme }) => {
     getStats(startingTime, endingTime, branchId);
     getRepairSummary();
     getBranchList();
-    getRepairSummaryForChart(months);
+    // getRepairSummaryForChart(months);
     // getSummaryOfaStore();
     // getStoreDetails();
 
@@ -520,13 +676,13 @@ const Dashboard = ({ toggleTheme }) => {
             }}
           >
             {" "}
-            <Typography
+            {/* <Typography
               variant="base"
               color="text.main"
               sx={{ fontWeight: 500, ml: 4 }}
             >
               Summary
-            </Typography>
+            </Typography> */}
             <Grid
               container
               alignItems="center"
@@ -656,7 +812,7 @@ const Dashboard = ({ toggleTheme }) => {
                   </svg>
                 </Avatar>
                 <Typography
-                  variant="base"
+                  variant="medium"
                   color="text.light"
                   sx={{ fontWeight: 500, mt: 1 }}
                 >
@@ -704,7 +860,7 @@ const Dashboard = ({ toggleTheme }) => {
                   </svg>
                 </Avatar>
                 <Typography
-                  variant="base"
+                  variant="medium"
                   color="text.light"
                   sx={{ fontWeight: 500, mt: 1 }}
                 >
@@ -758,7 +914,7 @@ const Dashboard = ({ toggleTheme }) => {
                   </svg>
                 </Avatar>
                 <Typography
-                  variant="base"
+                  variant="medium"
                   color="text.light"
                   sx={{ fontWeight: 500, mt: 1 }}
                 >
@@ -816,7 +972,7 @@ const Dashboard = ({ toggleTheme }) => {
                   </svg>
                 </Avatar>
                 <Typography
-                  variant="base"
+                  variant="medium"
                   color="text.light"
                   sx={{ fontWeight: 500, mt: 1 }}
                 >
@@ -888,7 +1044,7 @@ const Dashboard = ({ toggleTheme }) => {
                   </svg>
                 </Avatar>
                 <Typography
-                  variant="base"
+                  variant="medium"
                   color="text.light"
                   sx={{ fontWeight: 500, mt: 1 }}
                 >
@@ -948,7 +1104,7 @@ const Dashboard = ({ toggleTheme }) => {
                   </svg>
                 </Avatar>
                 <Typography
-                  variant="base"
+                  variant="medium"
                   color="text.light"
                   sx={{ fontWeight: 500, mt: 1 }}
                 >
@@ -967,7 +1123,7 @@ const Dashboard = ({ toggleTheme }) => {
         </Grid>
       </Grid>
       <Grid container spacing={3}>
-        <Grid size={8} sx={{ minHeight: "100%" }}>
+        <Grid size={7} sx={{ minHeight: "100%" }}>
           <Box sx={{ ...boxStyle, p: 3, minHeight: "100%" }}>
             {" "}
             <Grid
@@ -1003,7 +1159,10 @@ const Dashboard = ({ toggleTheme }) => {
                   {/* <IconButton>
                     <MenuIcon color={theme.palette.text.light} />
                   </IconButton> */}
-                  <FormControl sx={{ minWidth: 120 }} size="small">
+                  <FormControl
+                    sx={{ minWidth: 120, ...customeTextFeild }}
+                    size="small"
+                  >
                     <InputLabel id="demo-simple-select-label">
                       Months
                     </InputLabel>
@@ -1017,7 +1176,7 @@ const Dashboard = ({ toggleTheme }) => {
                       <MenuItem value={12}>12 Months</MenuItem>
                       <MenuItem value={6}>6 Months</MenuItem>
                       <MenuItem value={3}>3 Months</MenuItem>
-                      <MenuItem value={1}>1 Months</MenuItem>
+                      {/* <MenuItem value={1}>1 Months</MenuItem> */}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -1083,7 +1242,7 @@ const Dashboard = ({ toggleTheme }) => {
             </Grid>
           </Box>
         </Grid>
-        <Grid size={4} sx={{ minHeight: "100%" }}>
+        <Grid size={5} sx={{ minHeight: "100%" }}>
           <Box sx={{ ...boxStyle, p: 3, minHeight: "100%" }}>
             {" "}
             <Grid
@@ -1095,11 +1254,11 @@ const Dashboard = ({ toggleTheme }) => {
               <Grid size="auto">
                 {" "}
                 <Typography
-                  variant="base"
+                  variant="h6"
                   color="text.main"
-                  sx={{ fontWeight: 500 }}
+                  sx={{ fontWeight: 600, mb: 2.5 }}
                 >
-                  Store Details
+                  Repair Summary
                 </Typography>
               </Grid>
               {/* <Grid  size="auto">
@@ -1108,93 +1267,106 @@ const Dashboard = ({ toggleTheme }) => {
                 </IconButton>
               </Grid> */}
             </Grid>
-            <Alert severity="" color="warning" sx={{ mb: 2 }}>
+            {/* <Alert severity="" color="warning" sx={{ mb: 2 }}>
               Important: Please do not share your Store ID or Store Password
               with anyone.
-            </Alert>
-            {storeDetailLoading ? (
-              <Grid container>
-                <Grid size={6}>
-                  <Skeleton
-                    variant="rectangular"
-                    width={160}
-                    height={160}
-                    style={{ marginBottom: "16px" }}
-                  />
-                </Grid>
-                <Grid size={6}>
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    <Skeleton variant="rectangular" width="80%" />
-                  </Typography>
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    <Skeleton variant="rectangular" width="80%" />
-                  </Typography>
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    <Skeleton variant="rectangular" width="80%" />
-                  </Typography>
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    <Skeleton variant="rectangular" width="80%" />
-                  </Typography>
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    <Skeleton variant="rectangular" width="80%" />
-                  </Typography>
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    <Skeleton variant="rectangular" width="80%" />
-                  </Typography>
-                </Grid>
-              </Grid>
-            ) : (
-              <Grid container>
-                <Grid size={6}>
-                  <img
-                    src={
-                      storeDetails.storeImage !== undefined
-                        ? storeDetails.storeImage
-                        : "/images/no-image.png"
-                    }
-                    alt="Store Image"
-                    width="160px"
-                    height="160px"
-                    style={{ marginBottom: "16px" }}
-                  />
-                </Grid>
-                <Grid size={6}>
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    Store Name: {storeDetails.storeName}
-                  </Typography>
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    Store Desc: {storeDetails.storeDesc}
-                  </Typography>
-                  <Typography variant="small" color="text.main" sx={{ mb: 1 }}>
-                    Store ID: {storeDetails.storeId}
-                  </Typography>
+            </Alert> */}
+            {/* 111 */}
+            {!repairSummaryloading &&
+              repairSummary?.length > 0 &&
+              branchList?.length > 0 &&
+              branchList?.map((item, i) => {
+                let branchSummaryData = repairSummary?.find(
+                  (res) => res?.branch_id === item?._id
+                );
 
-                  <Typography variant="small" color="text.main" sx={{ mb: 1 }}>
-                    Password:{" "}
-                    {showPassword
-                      ? storeDetails.storePassword
-                      : "**** **** ****"}
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? (
-                        <VisibilityOffOutlinedIcon />
-                      ) : (
-                        <VisibilityOutlinedIcon />
-                      )}
-                    </IconButton>
-                  </Typography>
-
-                  <Typography variant="small" color="text.main" sx={{ mb: 2 }}>
-                    Created At:{" "}
-                    {moment(storeDetails.storeCreated).format(
-                      "DD MMM YYYY | h:mm A"
-                    )}
-                  </Typography>
-                </Grid>
-              </Grid>
-            )}
+                return (
+                  <Box key={item?._id}>
+                    <Grid container alignItems="center" spacing={2}>
+                      <Grid size={3}>
+                        <Typography
+                          variant="base"
+                          color="text.light"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {item?.name}
+                        </Typography>
+                      </Grid>
+                      <Grid size={9}>
+                        <Box
+                          sx={{
+                            background: colors[i]?.background,
+                            borderLeft: `4px solid ${colors[i]?.main}`,
+                            borderRadius: "8px",
+                            pl: 2,
+                            py: 1,
+                          }}
+                        >
+                          <Grid container spacing={4}>
+                            <Grid size={4}>
+                              {" "}
+                              <Typography variant="medium" color="text.light">
+                                Total Repair:
+                              </Typography>
+                              <Typography
+                                variant="medium"
+                                color="text.main"
+                                sx={{ fontWeight: 600, margin: "0px" }}
+                              >
+                                <CountUp
+                                  end={
+                                    branchSummaryData?.total_product_price +
+                                      branchSummaryData?.total_issue_cost || 0
+                                  }
+                                  duration={1}
+                                  decimals={2}
+                                />
+                              </Typography>
+                            </Grid>
+                            <Grid size={4}>
+                              {" "}
+                              <Typography variant="medium" color="text.light">
+                                Spare Parts:
+                              </Typography>
+                              <Typography
+                                variant="medium"
+                                color="text.main"
+                                sx={{ fontWeight: 600, margin: "0px" }}
+                              >
+                                <CountUp
+                                  end={
+                                    branchSummaryData?.total_product_price || 0
+                                  }
+                                  duration={1}
+                                  decimals={2}
+                                />
+                              </Typography>
+                            </Grid>
+                            <Grid size={4}>
+                              {" "}
+                              <Typography variant="medium" color="text.light">
+                                Service Profit:
+                              </Typography>
+                              <Typography
+                                variant="medium"
+                                color="text.main"
+                                sx={{ fontWeight: 600, margin: "0px" }}
+                              >
+                                <CountUp
+                                  end={branchSummaryData?.total_issue_cost || 0}
+                                  duration={1}
+                                  decimals={2}
+                                />
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </Grid>
+                    </Grid>
+                    {i + 1 < branchList?.length && <Divider sx={{ my: 1.5 }} />}
+                  </Box>
+                );
+              })}
           </Box>
         </Grid>
       </Grid>
