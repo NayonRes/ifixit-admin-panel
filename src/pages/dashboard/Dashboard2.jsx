@@ -784,7 +784,7 @@ const Dashboard = ({ toggleTheme }) => {
               alignItems="center"
               sx={{ mt: 2.5, px: 3 }}
             >
-              <Grid
+              {/* <Grid
                 size="auto"
                 sx={{
                   ...boxStyle2,
@@ -829,7 +829,7 @@ const Dashboard = ({ toggleTheme }) => {
                     decimals={2}
                   />
                 </Typography>
-              </Grid>
+              </Grid> */}
               <Grid
                 size="auto"
                 sx={{

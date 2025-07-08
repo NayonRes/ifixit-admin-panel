@@ -168,13 +168,13 @@ const PaymentList = ({
             <Typography variant="body1" sx={{ fontWeight: 600, mb: 3 }}>
               Payment Status
             </Typography>
-            <Typography
+            {/* <Typography
               variant="body2"
               color="text.secondary"
               sx={{ fontWeight: 600, mb: 3 }}
             >
               Payment Received Time: 15/04/2024 12:35:38
-            </Typography>
+            </Typography> */}
           </Box>
         </Grid>
       </Grid>
@@ -280,7 +280,6 @@ const PaymentList = ({
               <TextField
                 required
                 type="number"
-                
                 onWheel={(e) => e.target.blur()}
                 size="small"
                 fullWidth

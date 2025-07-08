@@ -75,7 +75,7 @@ const AddContact = ({ searchPrams, contactData, setContactData }) => {
             Add Contact
           </Typography>
         </Grid>
-        <ContactForm setContactData={setContactData} />
+        <ContactForm searchPrams={searchPrams} setContactData={setContactData} />
       </Grid>
     </div>
   );

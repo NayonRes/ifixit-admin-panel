@@ -113,7 +113,10 @@ const Invoice = () => {
           size="large"
           startIcon={<LocalPrintshopOutlinedIcon />}
         >
-          Print Invoice
+          Print{" "}
+          {details?.delivery_status === "Not Delivered"
+            ? "Job Card"
+            : "Invoice"}
         </Button>
       </Box>
       <Box
@@ -191,10 +194,17 @@ const Invoice = () => {
           sx={{ background: "#ddd", p: 0.5, border: "1px solid #c5c5c5" }}
         >
           <Grid size="auto" sx={{ fontSize: "14px" }}>
-            INVOICE NO: {details?.repair_id}
+            {" "}
+            {details?.delivery_status === "Not Delivered"
+              ? "JOB CARD"
+              : "INVOICE"}{" "}
+            NO: {details?.repair_id}
           </Grid>
           <Grid size="auto" sx={{ fontSize: "16px", fontWeight: 500 }}>
-            REPAIR INVOICE
+            REPAIR{" "}
+            {details?.delivery_status === "Not Delivered"
+              ? "JOB CARD"
+              : "INVOICE"}{" "}
           </Grid>
 
           <Grid size="auto" sx={{ fontSize: "14px" }}>
@@ -673,7 +683,10 @@ const Invoice = () => {
                         <TableCell sx={{}}>Discount Amount</TableCell>
 
                         <TableCell align="right" sx={{}}>
-                          - {details?.discount_amount}
+                          -{" "}
+                          {details?.discount_amount
+                            ? details?.discount_amount
+                            : 0}
                         </TableCell>
                       </TableRow>
                       <TableRow sx={{ background: "#eee" }}>
@@ -703,11 +716,7 @@ const Invoice = () => {
             to collect your item within 2 months of servicing.Otherwise,we will
             not be liable if your item is lost,damaged or stolen.
           </Typography>
-          <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
-            <span style={{ color: "red" }}> Service disclaimers:</span> Be sure
-            to collect your item within 2 months of servicing.Otherwise,we will
-            not be liable if your item is lost,damaged or stolen.
-          </Typography>
+
           <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
             <span style={{ color: "red" }}> Terms and conditions:</span> Please
             also be aware that we can only service your gadgets at your own

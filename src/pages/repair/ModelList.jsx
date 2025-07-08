@@ -259,7 +259,7 @@ const ModelList = ({
     let branch_id = getBranchId();
     //localhost:8088/api/v1/service?branch_id=id&brand_id=&device_id=&model_id=6787aac7c296a2f8e87871ec
 
-    let url = `/api/v1/service?model_id=${device_id}&branch_id=${branch_id}`;
+    let url = `/api/v1/service?model_id=${device_id}&branch_id=${branch_id}&limit=1000`;
 
     let allData = await getDataWithToken(url);
     console.log(
