@@ -81,8 +81,8 @@ const AddRepair = () => {
   const [serialLoading, setSerialLoading] = useState(false);
   const [serialHistoryList, setSerialHistoryList] = useState([]);
 
-  const [due_amount, set_due_amount] = useState("");
-  const [discount_amount, set_discount_amount] = useState("");
+  const [due_amount, set_due_amount] = useState(0);
+  const [discount_amount, set_discount_amount] = useState(0);
   const [customer_id, set_customer_id] = useState("");
 
   const [payment_info, set_payment_info] = useState([]);
@@ -144,15 +144,15 @@ const AddRepair = () => {
     if (!customer_id && !contactData?._id) {
       return handleSnakbarOpen("Custommer is Required", "error");
     }
-    if (repairP == 0) {
-      return handleSnakbarOpen("Repair list is empty", "error");
-    }
+    // if (repairP == 0) {
+    //   return handleSnakbarOpen("Repair list is empty", "error");
+    // }
     if (!brand_id) {
       return handleSnakbarOpen("Brand is Required", "error");
     }
-    if (allIssue.length < 1) {
-      return handleSnakbarOpen("Issue is Required", "error");
-    }
+    // if (allIssue.length < 1) {
+    //   return handleSnakbarOpen("Issue is Required", "error");
+    // }
     if (!repairStatus) {
       return handleSnakbarOpen("Repair status is Required", "error");
     }
@@ -339,7 +339,9 @@ const AddRepair = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Create Repair Job
+            {location.pathname.includes("/update-repair")
+              ? "Update Job Card"
+              : "Create Job Card"}
             {/* {name} */}
           </Typography>
         </Grid>

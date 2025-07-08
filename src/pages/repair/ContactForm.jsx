@@ -85,9 +85,10 @@ const customeSelectFeild = {
   },
 };
 
-const ContactForm = ({ contactData, setContactData }) => {
+const ContactForm = ({ searchPrams, contactData, setContactData }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { enqueueSnackbar } = useSnackbar();
+  console.log("searchPrams", searchPrams);
 
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -202,6 +203,9 @@ const ContactForm = ({ contactData, setContactData }) => {
     getInitData();
     // console.log('ddd', contactData?._id)
   }, [contactData]);
+  useEffect(() => {
+    setMobile(searchPrams);
+  }, [searchPrams]);
 
   return (
     <form onSubmit={onSubmit}>
