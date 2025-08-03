@@ -96,7 +96,7 @@ const ContactForm = ({ searchPrams, contactData, setContactData }) => {
   const [customerType, setCustomerType] = useState("Walk In");
   const [email, setEmail] = useState("");
   const [remark, setRemark] = useState("");
-  const [rating, setRating] = useState("");
+  const [rating, setRating] = useState("Neutral");
   const [color, setColor] = useState("");
   const [membershipId, setMembershipId] = useState("");
 

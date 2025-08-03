@@ -96,7 +96,7 @@ const AddCustomer = ({ clearFilter }) => {
   const [email, setEmail] = useState("");
   const [type, setType] = useState("Walk In");
   const [remarks, setRemarks] = useState("");
-  const [rating, setRating] = useState("");
+  const [rating, setRating] = useState("Neutral");
   const [membershipId, setMembershipId] = useState("");
 
   const [parent_id, setParent_id] = useState("");
