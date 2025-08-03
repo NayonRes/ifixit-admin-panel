@@ -271,12 +271,23 @@ const ModelList = ({
       logout();
       return;
     }
+    // allData?.data?.data?.map((item)=>{
+    //   if(){
+
+    //   }
+    // })
     let allRepairs = allData?.data?.data?.flatMap((item) => item.repair_info);
+    console.log("allRepairs", allRepairs);
 
     const repairServices = allRepairs.map((service) => ({
       _id: service._id,
       service_id: service._id,
-      name: service.name,
+      name: service?.product_data?.name
+        ? service?.product_data?.name +
+          " " +
+          service?.product_variation_data?.name +
+          " Assemble Charge"
+        : service.name,
       repair_image: service.repair_image,
       details: service.details,
       repair_cost: service.repair_cost,

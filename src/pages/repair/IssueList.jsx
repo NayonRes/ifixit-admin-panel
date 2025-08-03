@@ -198,57 +198,6 @@ const IssueList = ({
     return branch_id;
   };
 
-  const getServices = async () => {
-    setIssueLoading(true);
-
-    let branch_id = getBranchId();
-    //localhost:8088/api/v1/service?branch_id=id&brand_id=&device_id=&model_id=6787aac7c296a2f8e87871ec
-
-    let url = `/api/v1/service?model_id=${deviceId}&branch_id=${branch_id}`;
-
-    let allData = await getDataWithToken(url);
-    console.log(
-      "(allData?.data?.data products issue list",
-      allData?.data?.data
-    );
-
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    let allRepairs = allData?.data?.data?.flatMap((item) => item.repair_info);
-
-    const repairServices = allRepairs.map((service) => ({
-      _id: service._id,
-      service_id: service._id,
-      name: service.name,
-      repair_image: service.repair_image,
-      details: service.details,
-      repair_cost: service.repair_cost,
-      guaranty: service.guaranty,
-      warranty: service.warranty,
-    }));
-
-    // console.log("dddfdf", repairServices);
-
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setIssueLoading(false);
-      setIssueArr(repairServices);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setIssueLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-  };
-
   // const revampList = (all) => {
   //   let list = all.map((i) => {
   //     let l = {
@@ -385,6 +334,7 @@ const IssueList = ({
                                 // whiteSpace: "nowrap",
                               }}
                             >
+                             
                               {item.name}
                             </Typography>
                             <Box
