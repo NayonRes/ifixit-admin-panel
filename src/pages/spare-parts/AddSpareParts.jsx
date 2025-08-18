@@ -49,6 +49,8 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { TableContainer } from "@mui/material";
+import Chip from "@mui/material/Chip";
+import { useTheme } from "@mui/material/styles";
 import {
   customerTypeList,
   designationList,
@@ -57,6 +59,23 @@ import {
 } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+function getModelStyles(name, modelName, theme) {
+  return {
+    fontWeight: modelName.includes(name)
+      ? theme.typography.fontWeightMedium
+      : theme.typography.fontWeightRegular,
+  };
+}
 const baseStyle = {
   flex: 1,
   display: "flex",
@@ -101,6 +120,7 @@ const variationObject = {
   file: null,
 };
 const AddSpareParts = ({ clearFilter }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -121,7 +141,8 @@ const AddSpareParts = ({ clearFilter }) => {
   const [details, setDetails] = useState("");
   const [file, setFile] = useState(null);
   const [remarks, setRemarks] = useState("");
-
+  const [model, setModel] = useState([]);
+  const [modelNames, setModelNames] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -135,7 +156,15 @@ const AddSpareParts = ({ clearFilter }) => {
     }
     clearForm();
   };
-
+  const handleModelChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setModel(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
   const dropzoneRef = useRef(null);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -458,7 +487,11 @@ const AddSpareParts = ({ clearFilter }) => {
     }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
-
+      setModelNames(
+        allData?.data?.data
+          ?.filter((obj) => obj.name !== "Primary")
+          ?.map?.((item) => item.name)
+      );
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
@@ -708,7 +741,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Model
+                Select Origin Model
               </Typography>
 
               <FormControl
@@ -780,6 +813,68 @@ const AddSpareParts = ({ clearFilter }) => {
                 }}
                 onWheel={(e) => e.target.blur()}
               />
+            </Grid>
+
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Select Attachable Models
+              </Typography>
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {model?.length < 1 && (
+                  <InputLabel
+                    id="demo-multiple-chip-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Models
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-multiple-chip-label"
+                  id="demo-multiple-chip"
+                  multiple
+                  value={model}
+                  onChange={handleModelChange}
+                  input={<OutlinedInput id="select-multiple-chip" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={value} />
+                      ))}
+                    </Box>
+                  )}
+                  MenuProps={MenuProps}
+                >
+                  {modelNames?.map((name) => (
+                    <MenuItem
+                      key={name}
+                      value={name}
+                      style={getModelStyles(name, model, theme)}
+                    >
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             {/* <Grid size={4}>
               <Typography
