@@ -106,6 +106,13 @@ function getStyles(name, branchName, theme) {
       : theme.typography.fontWeightRegular,
   };
 }
+function getModelStyles(name, modelName, theme) {
+  return {
+    fontWeight: modelName.includes(name)
+      ? theme.typography.fontWeightMedium
+      : theme.typography.fontWeightRegular,
+  };
+}
 const AddService = ({ clearFilter }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -145,12 +152,23 @@ const AddService = ({ clearFilter }) => {
 
   const [message, setMessage] = useState("");
   const [orderNo, setOrderNo] = useState();
+  const [model, setModel] = useState([]);
+  const [modelNames, setModelNames] = useState([]);
 
   const handleBranchChange = (event) => {
     const {
       target: { value },
     } = event;
     setBranchName(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+  const handleModelChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setModel(
       // On autofill we get a stringified value.
       typeof value === "string" ? value.split(",") : value
     );
@@ -238,11 +256,14 @@ const AddService = ({ clearFilter }) => {
       title: title,
       order_no: orderNo,
       image: await fileToBase64(image),
-      model_id: modelId,
+      // model_id: modelId,
       device_id: deviceId,
       brand_id: brandId,
       branch_id: branchName?.map(
         (item) => branchList.find((obj) => obj.name === item)._id
+      ),
+      model_id: model?.map(
+        (item) => modelList.find((obj) => obj.name === item)._id
       ),
       steps: newStepList,
       repair_info: newRepairServiceList,
@@ -453,6 +474,12 @@ const AddService = ({ clearFilter }) => {
     }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
+
+      setModelNames(
+        allData?.data?.data
+          ?.filter((obj) => obj.name !== "Primary")
+          ?.map?.((item) => item.name)
+      );
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -711,10 +738,60 @@ const AddService = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Model
+                Model *
               </Typography>
-
               <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {model?.length < 1 && (
+                  <InputLabel
+                    id="demo-multiple-chip-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Models
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-multiple-chip-label"
+                  id="demo-multiple-chip"
+                  multiple
+                  value={model}
+                  onChange={handleModelChange}
+                  input={<OutlinedInput id="select-multiple-chip" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={value} />
+                      ))}
+                    </Box>
+                  )}
+                  MenuProps={MenuProps}
+                >
+                  {modelNames?.map((name) => (
+                    <MenuItem
+                      key={name}
+                      value={name}
+                      style={getModelStyles(name, model, theme)}
+                    >
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {/* <FormControl
                 fullWidth
                 size="small"
                 sx={{
@@ -734,7 +811,7 @@ const AddService = ({ clearFilter }) => {
                     id="demo-simple-select-label"
                     sx={{ color: "#b3b3b3", fontWeight: 300 }}
                   >
-                    Select Model
+                    Select Models
                   </InputLabel>
                 )}
                 <Select
@@ -758,7 +835,7 @@ const AddService = ({ clearFilter }) => {
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </FormControl> */}
             </Grid>
 
             <Grid size={6}>

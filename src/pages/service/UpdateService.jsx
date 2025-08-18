@@ -105,6 +105,14 @@ function getStyles(name, branchName, theme) {
       : theme.typography.fontWeightRegular,
   };
 }
+
+function getModelStyles(name, modelName, theme) {
+  return {
+    fontWeight: modelName.includes(name)
+      ? theme.typography.fontWeightMedium
+      : theme.typography.fontWeightRegular,
+  };
+}
 const UpdateService = ({ clearFilter }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -149,6 +157,8 @@ const UpdateService = ({ clearFilter }) => {
   const [allData, setAllData] = useState([]);
   const [status, setStatus] = useState("");
   const [orderNo, setOrderNo] = useState();
+  const [model, setModel] = useState([]);
+  const [modelNames, setModelNames] = useState([]);
 
   const handleBranchChange = (event) => {
     const {
@@ -159,7 +169,15 @@ const UpdateService = ({ clearFilter }) => {
       typeof value === "string" ? value.split(",") : value
     );
   };
-
+  const handleModelChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setModel(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setAddDialog(false);
@@ -245,11 +263,14 @@ const UpdateService = ({ clearFilter }) => {
       title: title,
       order_no: orderNo,
       status: status,
-      model_id: modelId,
+      // model_id: modelId,
       device_id: deviceId,
       brand_id: brandId,
       branch_id: branchName?.map(
         (item) => branchList.find((obj) => obj.name === item)._id
+      ),
+      model_id: model?.map(
+        (item) => modelList.find((obj) => obj.name === item)._id
       ),
       steps: newStepList,
       repair_info: newRepairServiceList,
@@ -439,7 +460,11 @@ const UpdateService = ({ clearFilter }) => {
 
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
-
+      setModelNames(
+        allData?.data?.data
+          ?.filter((obj) => obj.name !== "Primary")
+          ?.map?.((item) => item.name)
+      );
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
@@ -527,6 +552,8 @@ const UpdateService = ({ clearFilter }) => {
       setBranchName(
         allData?.data?.data[0]?.branch_data?.map((item) => item?.name)
       );
+      // model_data
+      setModel(allData?.data?.data[0]?.model_data?.map((item) => item?.name));
 
       setAllData(allData?.data?.data);
 
@@ -770,7 +797,7 @@ const UpdateService = ({ clearFilter }) => {
                   gutterBottom
                   sx={{ fontWeight: 500 }}
                 >
-                  Model
+                  Model *
                 </Typography>
 
                 <FormControl
@@ -788,32 +815,38 @@ const UpdateService = ({ clearFilter }) => {
                     },
                   }}
                 >
-                  {modelId?.length < 1 && (
+                  {model?.length < 1 && (
                     <InputLabel
-                      id="demo-simple-select-label"
+                      id="demo-multiple-chip-label"
                       sx={{ color: "#b3b3b3", fontWeight: 300 }}
                     >
-                      Select Model
+                      Select Models
                     </InputLabel>
                   )}
                   <Select
-                    disabled={deviceId?.length < 1}
                     required
-                    labelId="demo-simple-select-label"
-                    id="modelId"
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          maxHeight: 250, // Set the max height here
-                        },
-                      },
-                    }}
-                    value={modelId}
-                    onChange={(e) => setModelId(e.target.value)}
+                    labelId="demo-multiple-chip-label"
+                    id="demo-multiple-chip"
+                    multiple
+                    value={model}
+                    onChange={handleModelChange}
+                    input={<OutlinedInput id="select-multiple-chip" />}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip key={value} label={value} />
+                        ))}
+                      </Box>
+                    )}
+                    MenuProps={MenuProps}
                   >
-                    {modelList?.map((item) => (
-                      <MenuItem key={item?._id} value={item?._id}>
-                        {item?.name}
+                    {modelNames?.map((name) => (
+                      <MenuItem
+                        key={name}
+                        value={name}
+                        style={getModelStyles(name, model, theme)}
+                      >
+                        {name}
                       </MenuItem>
                     ))}
                   </Select>
