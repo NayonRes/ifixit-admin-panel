@@ -312,7 +312,9 @@ const AddSpareParts = ({ clearFilter }) => {
     // formdata.append("name", name);
 
     // formdata.append("parent_id", parent_id);
-
+    let modelIds = model?.map(
+      (item) => modelList.find((obj) => obj.name === item)._id
+    );
     const formData = new FormData();
 
     formData.append("name", name.trim());
@@ -320,11 +322,16 @@ const AddSpareParts = ({ clearFilter }) => {
     formData.append("category_id", categoryId);
     formData.append("device_id", deviceId);
     formData.append("model_id", modelId);
+    // formData.append(
+    //   "attachable_models",
+    //   model?.map((item) => modelList.find((obj) => obj.name === item)._id)
+    // );
+
     formData.append("warranty", warranty);
     formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
-
+    modelIds?.map((model_id) => formData.append("attachable_models", model_id));
     let response = await handlePostData(
       "/api/v1/product/create",
       formData,

@@ -234,7 +234,9 @@ const UpdateSpareParts = ({ getData, row }) => {
     // formdata.append("name", name);
 
     // formdata.append("parent_id", parent_id);
-
+    let modelIds = model?.map(
+      (item) => modelList.find((obj) => obj.name === item)._id
+    );
     const formData = new FormData();
 
     formData.append("name", name.trim());
@@ -246,6 +248,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     // formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
+    modelIds?.map((model_id) => formData.append("attachable_models", model_id));
     {
       file !== null && formData.append("images", file);
     }
@@ -436,6 +439,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     setDeviceId(row?.device_id);
 
     setModelId(row?.model_id);
+    setModel(row?.attachable_models_data?.map((item) => item?.name));
     setWarranty(row?.warranty);
     // setPrice(row?.price);
     setDetails(row?.description);
@@ -756,7 +760,7 @@ const UpdateSpareParts = ({ getData, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Select Models
+                Select Origin Model
               </Typography>
 
               <FormControl
