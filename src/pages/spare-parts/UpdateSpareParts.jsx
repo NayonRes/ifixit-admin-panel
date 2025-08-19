@@ -44,6 +44,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
+import Chip from "@mui/material/Chip";
+import { useTheme } from "@mui/material/styles";
 
 import {
   customerTypeList,
@@ -53,6 +55,23 @@ import {
 } from "../../data";
 import TextEditor from "../../utils/TextEditor";
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+function getModelStyles(name, modelName, theme) {
+  return {
+    fontWeight: modelName.includes(name)
+      ? theme.typography.fontWeightMedium
+      : theme.typography.fontWeightRegular,
+  };
+}
 const baseStyle = {
   flex: 1,
   display: "flex",
@@ -89,6 +108,7 @@ const form = {
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
 const UpdateSpareParts = ({ getData, row }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
@@ -114,13 +134,22 @@ const UpdateSpareParts = ({ getData, row }) => {
 
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
-
+  const [model, setModel] = useState([]);
+  const [modelNames, setModelNames] = useState([]);
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setUpdateDialog(false);
     }
   };
-
+  const handleModelChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setModel(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -205,7 +234,9 @@ const UpdateSpareParts = ({ getData, row }) => {
     // formdata.append("name", name);
 
     // formdata.append("parent_id", parent_id);
-
+    let modelIds = model?.map(
+      (item) => modelList.find((obj) => obj.name === item)._id
+    );
     const formData = new FormData();
 
     formData.append("name", name.trim());
@@ -217,6 +248,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     // formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
+    modelIds?.map((model_id) => formData.append("attachable_models", model_id));
     {
       file !== null && formData.append("images", file);
     }
@@ -380,7 +412,11 @@ const UpdateSpareParts = ({ getData, row }) => {
     }
     if (allData.status >= 200 && allData.status < 300) {
       setModelList(allData?.data?.data);
-
+      setModelNames(
+        allData?.data?.data
+          ?.filter((obj) => obj.name !== "Primary")
+          ?.map?.((item) => item.name)
+      );
       if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
@@ -403,6 +439,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     setDeviceId(row?.device_id);
 
     setModelId(row?.model_id);
+    setModel(row?.attachable_models_data?.map((item) => item?.name));
     setWarranty(row?.warranty);
     // setPrice(row?.price);
     setDetails(row?.description);
@@ -723,7 +760,7 @@ const UpdateSpareParts = ({ getData, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Model
+                Select Origin Model
               </Typography>
 
               <FormControl
@@ -796,6 +833,68 @@ const UpdateSpareParts = ({ getData, row }) => {
                 onWheel={(e) => e.target.blur()}
               />
             </Grid>
+
+            <Grid size={12}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Select Attachable Models
+              </Typography>
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {model?.length < 1 && (
+                  <InputLabel
+                    id="demo-multiple-chip-label"
+                    sx={{ color: "#b3b3b3", fontWeight: 300 }}
+                  >
+                    Select Models
+                  </InputLabel>
+                )}
+                <Select
+                  required
+                  labelId="demo-multiple-chip-label"
+                  id="demo-multiple-chip"
+                  multiple
+                  value={model}
+                  onChange={handleModelChange}
+                  input={<OutlinedInput id="select-multiple-chip" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={value} />
+                      ))}
+                    </Box>
+                  )}
+                  MenuProps={MenuProps}
+                >
+                  {modelNames?.map((name) => (
+                    <MenuItem
+                      key={name}
+                      value={name}
+                      style={getModelStyles(name, model, theme)}
+                    >
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
             {/* <Grid size={6}>
               <Typography
                 variant="medium"
@@ -820,7 +919,7 @@ const UpdateSpareParts = ({ getData, row }) => {
                 }}
               />
             </Grid> */}
-            <Grid size={6}>
+            <Grid size={12}>
               <Typography
                 variant="medium"
                 color="text.main"

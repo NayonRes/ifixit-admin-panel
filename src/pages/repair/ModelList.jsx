@@ -230,11 +230,8 @@ const ModelList = ({
 
     let branch_id = getBranchId();
 
-    // let url = `/api/v1/product?brand_id=${brand_id}&model_id=${deviceId}&device_id=${partsDeviceId}&branch_id=${branch_id}`;
-
-    let url = `/api/v1/product?model_id=${device_id}&branch_id=${branch_id}`;
-
-    // url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    // let url = `/api/v1/product?model_id=${device_id}&branch_id=${branch_id}`;
+    let url = `/api/v1/product?attachable_models=${device_id}&branch_id=${branch_id}&limit=1000`;
 
     let allData = await getDataWithToken(url);
     // console.log("(allData?.data?.data products", allData?.data?.data);
