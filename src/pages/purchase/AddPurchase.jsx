@@ -46,6 +46,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import {
   customerTypeList,
   designationList,
@@ -627,7 +628,7 @@ const AddPurchase = ({ clearFilter }) => {
       newCategoryId = catId;
     }
 
-    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
+    url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}&limit=1000`;
 
     let allData = await getDataWithToken(url);
     console.log("(allData?.data?.data products", allData?.data?.data);
@@ -676,6 +677,18 @@ const AddPurchase = ({ clearFilter }) => {
       ]);
     }
   };
+
+  const clearSearchFilters = () => {
+    //  111
+    setCategoryId("");
+    setModelId("");
+    setDeviceId("");
+    setBrandId("");
+    setsearchProductText("");
+    setModelList([]);
+    setProductList([]);
+  };
+
   useEffect(() => {
     getSupplierList();
     getCategoryList();
@@ -1466,6 +1479,17 @@ const AddPurchase = ({ clearFilter }) => {
                     ))}
                 </Select>
               </FormControl>
+            </Grid>
+            <Grid size={2}>
+              <Button
+              sx={{mt:3}}
+                variant="outlined"
+                color="text"
+                startIcon={<ClearOutlinedIcon />}
+                onClick={clearSearchFilters}
+              >
+                Clear
+              </Button>
             </Grid>
             <Grid size={12}>
               <Typography

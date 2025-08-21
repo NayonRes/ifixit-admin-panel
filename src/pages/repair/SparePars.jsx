@@ -110,7 +110,7 @@ const SparePars = ({
 
     // let url = `/api/v1/product?brand_id=${brand_id}&model_id=${deviceId}&device_id=${partsDeviceId}&branch_id=${branch_id}`;
 
-    let url = `/api/v1/product?model_id=${partsDeviceId}&branch_id=${branch_id}`;
+    let url = `/api/v1/product?model_id=${partsDeviceId}&branch_id=${branch_id}&limit=1000`;
 
     // url = `/api/v1/product?name=${newSearchProductText.trim()}&category_id=${newCategoryId}&brand_id=${newBrandId}&device_id=${newDeviceId}&model_id=${newModelId}`;
 
