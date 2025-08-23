@@ -1566,6 +1566,20 @@ export default function Layout() {
                           </ListItemButton>
                         </ListItem>
                       )}
+                      {checkPermission("issue_list") && (
+                        <ListItem disablePadding sx={{ display: "block" }}>
+                          <ListItemButton
+                            component={Link}
+                            to="/issue-list"
+                            sx={[
+                              { ...listButtonStyle },
+                              pathname === "/issue-list" && { ...activeStyle },
+                            ]}
+                          >
+                            <ListItemText primary="Issue" />
+                          </ListItemButton>
+                        </ListItem>
+                      )}
 
                       {/* {checkPermission("variant_list") && (
                         <ListItem disablePadding sx={{ display: "block" }}>

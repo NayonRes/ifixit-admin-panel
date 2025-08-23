@@ -136,10 +136,9 @@ const RepairChecklist = ({
     setNewCheckList("");
   };
 
-
   useEffect(() => {
     console.log("all-----------:", allIssueCheckList);
-  
+
     let preArr = repair_checklist?.checklist;
     if (!preArr) {
       preArr = [];
@@ -362,7 +361,7 @@ const RepairChecklist = ({
                 </Grid>
               ))}
           </Grid>
-          <Grid size={12}>
+          {/* <Grid size={12}>
             <Typography
               variant="medium"
               color="text.main"
@@ -394,8 +393,8 @@ const RepairChecklist = ({
                 }
               />
             </FormControl>
-          </Grid>
-          <Grid container spacing={3}>
+          </Grid> */}
+          <Grid container spacing={3} sx={{ mt: 2 }}>
             <Grid size={6}>
               <Typography
                 variant="medium"

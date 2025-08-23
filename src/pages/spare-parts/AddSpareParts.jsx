@@ -829,7 +829,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Select Attachable Models
+                Select Supported Models
               </Typography>
               <FormControl
                 fullWidth
