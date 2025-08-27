@@ -26,6 +26,7 @@ import { allIssueCheckList } from "../../data";
 
 import PulseLoader from "react-spinners/PulseLoader";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import { getDataWithToken } from "../../services/GetDataService";
 
 const customeTextFeild = {
   boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
@@ -61,6 +62,10 @@ const RepairChecklist = ({
   deviceId,
   showComponent,
   setShowComponent,
+  repairCheckList,
+  setRepairCheckList,
+  issueLoading2,
+  setIssueLoading2,
 }) => {
   const { enqueueSnackbar } = useSnackbar();
 
@@ -73,7 +78,22 @@ const RepairChecklist = ({
   const [note, set_note] = useState("");
 
   const [newCheckList, setNewCheckList] = useState("");
+  // const [repairCheckList, setRepairCheckList] = useState([]);
+  // const [issueLoading2, setIssueLoading2] = useState(false);
+  const [reload, setReload] = useState(false);
 
+  const handleSnakbarOpen = (msg, vrnt) => {
+    let duration;
+    if (vrnt === "error") {
+      duration = 3000;
+    } else {
+      duration = 1000;
+    }
+    enqueueSnackbar(msg, {
+      variant: vrnt,
+      autoHideDuration: duration,
+    });
+  };
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setOpen(!open);
@@ -81,7 +101,7 @@ const RepairChecklist = ({
   };
 
   const handleSave = () => {
-    const transformed = issueList.filter((item) => item.status != false);
+    const transformed = repairCheckList.filter((item) => item.status != false);
     // .map((item) => item.name);
 
     let data = {
@@ -90,16 +110,14 @@ const RepairChecklist = ({
       note,
       checklist: transformed,
     };
-    console.log("transformed data", data);
+
     set_repair_checklist(data);
   };
 
   const handleCheckboxChange = (index, clickStatus) => {
-    console.log("status", index, clickStatus, issueList);
-
-    const updatedList = [...issueList];
+    const updatedList = [...repairCheckList];
     updatedList[index].status = clickStatus;
-    setIssueList(updatedList);
+    setRepairCheckList(updatedList);
   };
 
   const handleAdd = () => {
@@ -129,7 +147,7 @@ const RepairChecklist = ({
     const newItem = { name: newName, status: false };
     setIssueList((prevList) => {
       const updatedList = [...prevList, newItem];
-      console.log("Updated issueList:", updatedList);
+
       return updatedList;
     });
 
@@ -137,26 +155,32 @@ const RepairChecklist = ({
   };
 
   useEffect(() => {
-    console.log("all-----------:", allIssueCheckList);
-
-    let preArr = repair_checklist?.checklist;
-    if (!preArr) {
-      preArr = [];
-    }
-
-    const updatedAllArr = allIssueCheckList.map((item) => {
-      const match = preArr.find((preItem) => preItem.name === item.name);
-      return match ? { ...item, status: match.status } : item;
-    });
-
-    const newItems = preArr.filter(
-      (preItem) => !allIssueCheckList.some((item) => item.name === preItem.name)
+    console.log(
+      "all-----------==========================================================================================================================:",
+      repairCheckList
     );
 
-    const finalUpdatedAllArr = [...updatedAllArr, ...newItems];
+    // let preArr = repair_checklist?.checklist;
+    // if (!preArr) {
+    //   preArr = [];
+    // }
+    // console.log("preArr", preArr);
 
-    console.log("updatedAllArr", finalUpdatedAllArr);
-    setIssueList(finalUpdatedAllArr);
+    // const updatedAllArr = repairCheckList?.map((item) => {
+    //   const match = preArr.find(
+    //     (preItem) => preItem.model_id === item.model_id
+    //   );
+    //   return match ? { ...item, status: match.status } : item;
+    // });
+
+    // const newItems = preArr.filter(
+    //   (preItem) => !repairCheckList.some((item) => item.name === preItem.name)
+    // );
+
+    // const finalUpdatedAllArr = [...updatedAllArr, ...newItems];
+
+    // console.log("updatedAllArr", finalUpdatedAllArr);
+    // setRepairCheckList(finalUpdatedAllArr);
 
     if (repair_checklist.has_power !== undefined) {
       set_has_power(repair_checklist.has_power);
@@ -167,7 +191,9 @@ const RepairChecklist = ({
     if (repair_checklist.note !== undefined) {
       set_note(repair_checklist.note);
     }
-  }, []);
+
+    setReload(!reload);
+  }, [repairCheckList.length > 0]);
 
   return (
     <div>
@@ -175,7 +201,11 @@ const RepairChecklist = ({
         <Button
           variant="outlined"
           disabled={!deviceId}
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true);
+
+            // getRepairCheckList(deviceId);
+          }}
           sx={{ mr: 1 }}
         >
           Pre Repair Checklist
@@ -223,7 +253,6 @@ const RepairChecklist = ({
             px: 2,
             borderBottom: "1px solid #EAECF1",
           }}
-          onClick={() => console.log("issueList", issueList)}
         >
           Pre Repair Checklist
           <IconButton
@@ -287,8 +316,9 @@ const RepairChecklist = ({
               </FormControl>
             </Grid>
 
-            {!loading &&
-              issueList.map((item, index) => (
+            {!issueLoading2 &&
+              repairCheckList?.length > 0 &&
+              repairCheckList?.map((item, index) => (
                 <Grid
                   key={index}
                   size={6}

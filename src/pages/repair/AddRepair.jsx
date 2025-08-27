@@ -97,6 +97,9 @@ const AddRepair = () => {
   const [issueList, setIssueList] = useState(
     JSON.parse(JSON.stringify(allIssueCheckList))
   );
+
+  const [repairCheckList, setRepairCheckList] = useState([]);
+  const [issueLoading2, setIssueLoading2] = useState(false);
   const [mainIssueList, setMainIssueList] = useState(allIssueCheckList); // using this for only keep  allIssueCheckList array
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
@@ -524,6 +527,10 @@ const AddRepair = () => {
               apiCallForUpdate={apiCallForUpdate}
               previousRepairData={previousRepairData}
               setPreviousRepairData={setPreviousRepairData}
+              repairCheckList={repairCheckList}
+              setRepairCheckList={setRepairCheckList}
+              issueLoading2={issueLoading2}
+              setIssueLoading2={setIssueLoading2}
             />
             // <div>Model list</div>
           )}
