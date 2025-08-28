@@ -137,6 +137,7 @@ const ModelList = ({
   setRepairCheckList,
   issueLoading2,
   setIssueLoading2,
+  branchList, setBranchList
 }) => {
   const location = useLocation();
   const { rid } = useParams();
@@ -554,6 +555,8 @@ const ModelList = ({
           setProductList={setProductList}
           productLoading={productLoading}
           setProductLoading={setProductLoading}
+           branchList={branchList}
+              setBranchList={setBranchList}
         />
       )}
     </div>

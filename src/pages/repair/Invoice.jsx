@@ -322,7 +322,7 @@ const Invoice = () => {
               </Grid>
               <Grid size={12}>
                 <Grid container spacing={1}>
-                  {allIssueCheckList.map((item, index) => {
+                  {/* {allIssueCheckList.map((item, index) => {
                     let newstatus = details?.repair_checklist?.checklist.find(
                       (res) => res?.name === item?.name
                     )?.status;
@@ -350,12 +350,7 @@ const Invoice = () => {
                         >
                           {newstatus === "Functional" ? (
                             <>
-                              {/* <img
-                        src="/check.png"
-                        alt=""
-                        style={{ width: "25px" }}
-                        // onClick={() => handleCheckboxChange(index, "Damaged")}
-                      /> */}
+                           
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="17"
@@ -398,20 +393,19 @@ const Invoice = () => {
                         >
                           {item.name}
                         </Typography>
-
-                        {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}
                       </Grid>
                     );
-                  })}
+                  })} */}
 
-                  {details?.repair_checklist?.checklist
-                    ?.filter(
-                      (item) =>
-                        !allIssueCheckList.some(
-                          (check) => check.name === item.name
-                        )
-                    )
-                    .map((item, index) => {
+                  {
+                    // details?.repair_checklist?.checklist
+                    //   ?.filter(
+                    //     (item) =>
+                    //       !allIssueCheckList.some(
+                    //         (check) => check.name === item.name
+                    //       )
+                    //   )
+                    details?.repair_checklist?.checklist?.map((item, index) => {
                       return (
                         <Grid
                           key={index}
@@ -476,11 +470,10 @@ const Invoice = () => {
                           >
                             {item.name}
                           </Typography>
-
-                          {/* <img src="/check.png" alt="" style={{ width: "25px" }} /> */}
                         </Grid>
                       );
-                    })}
+                    })
+                  }
                   <Grid
                     size={6}
                     sx={{

@@ -132,6 +132,7 @@ const AddStockLimit = ({ clearFilter }) => {
   const [details, setDetails] = useState("");
   const [limitDataList, setLimitDataList] = useState();
   const [limitDataLoading, setLimitDataLoading] = useState(false);
+  const [productData, setProductData] = useState({});
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -139,6 +140,7 @@ const AddStockLimit = ({ clearFilter }) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setAddDialog(false);
       setBranchList(branchList?.map((item) => ({ ...item, limit: "" })));
+      setProductData({});
     }
   };
 
@@ -530,8 +532,9 @@ const AddStockLimit = ({ clearFilter }) => {
     }
     setSearchLoading(false);
   };
-  const handleSelectedProduct = (item) => {
+  const handleSelectedProduct = (item, product_data) => {
     console.log("item", item);
+    setProductData(product_data);
     setDetails(item);
     getBranchLimit(item?._id);
     setAddDialog(true);
@@ -1028,7 +1031,7 @@ const AddStockLimit = ({ clearFilter }) => {
                                   (pro) => pro?._id === item?._id
                                 ) && "1px solid #818FF8",
                             }}
-                            onClick={() => handleSelectedProduct(item)}
+                            onClick={() => handleSelectedProduct(item, row)}
                           >
                             {" "}
                             <Box sx={{ flexGrow: 1 }}>
@@ -1159,6 +1162,12 @@ const AddStockLimit = ({ clearFilter }) => {
             my: 1,
           }}
         >
+          <Typography sx={{ mb: 1 }}>
+            <b>Spare Parts Name</b>: {productData?.name} {details?.name}
+          </Typography>
+          <Typography sx={{ mb: 2 }}>
+            <b>Variation Name</b>: {details?.name}
+          </Typography>
           <Grid container spacing={2}>
             {branchList?.map((item, i) => (
               <Grid size={6}>

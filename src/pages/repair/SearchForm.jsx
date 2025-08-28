@@ -886,13 +886,16 @@ const SearchForm = ({
           //   setDeliveryStatus(e.target.value);
           // }}
         />
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => setSteps("payment")}
-        >
-          Payment
-        </Button>
+
+        {repairStatus === "Complete" && deliveryStatus === "Delivered" && (
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={() => setSteps("payment")}
+          >
+            Payment
+          </Button>
+        )}
       </div>
     </div>
   );

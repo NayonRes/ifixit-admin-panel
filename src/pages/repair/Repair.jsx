@@ -30,7 +30,7 @@ import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
 import ClearIcon from "@mui/icons-material/Clear";
-import { designationList, roleList } from "../../data";
+import { designationList, roleList, statusList } from "../../data";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import RepairList from "./RepairList";
@@ -68,6 +68,7 @@ const Repair = () => {
   const [cancelProductData, setCancelProductData] = useState({});
   const [cancelProductDialog, setCancelProductDialog] = useState(false);
   const [branchList, setBranchList] = useState([]);
+  const [filterRepairStatus, setFilterRepairStatus] = useState("");
   const [modelList, setModelList] = useState();
   const [modelId, setModelId] = useState("");
   const [branch, setBranch] = useState("");
@@ -172,6 +173,7 @@ const Repair = () => {
   const clearFilter = (event) => {
     console.log("clearFilter");
     setOrderID("");
+    setFilterRepairStatus("");
     setRepairNo("");
     setNumber("");
     setModelId("");
@@ -206,6 +208,7 @@ const Repair = () => {
     if (newUrl) {
       url = newUrl;
     } else {
+      let newFilterRepairStatus = filterRepairStatus;
       let newBranch = branch;
       let newStatus = status;
       let newMinPrice = minPrice;
@@ -214,6 +217,9 @@ const Repair = () => {
       let newEndingTime = "";
       if (branch === "None") {
         newBranch = "";
+      }
+      if (filterRepairStatus === "None") {
+        newFilterRepairStatus = "";
       }
       if (status === "None") {
         newStatus = "";
@@ -231,7 +237,7 @@ const Repair = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/repair?repair_id=${repairNo.trim()}&customerNo=${number}&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/repair?repair_id=${repairNo.trim()}&customerNo=${number}&branch_id=${newBranch}&repair_status=${newFilterRepairStatus}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -389,13 +395,15 @@ const Repair = () => {
           boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
         }}
       >
+
+        
         <Grid
           container
           justifyContent="space-between"
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
         >
-          <Grid size={2}>
+          <Grid size={12}>
             <Typography
               variant="h6"
               gutterBottom
@@ -405,7 +413,7 @@ const Repair = () => {
               Details
             </Typography>
           </Grid>
-          <Grid size={10}>
+          <Grid size={12}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
                 container
@@ -507,6 +515,34 @@ const Repair = () => {
                     </Select>
                   </FormControl>
                 </Grid> */}
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Repair Status
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Repair Status"
+                      value={filterRepairStatus}
+                      onChange={(e) => setFilterRepairStatus(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {statusList?.map((item) => (
+                        <MenuItem key={item?.name} value={item?.name}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
                 {jwtDecode(ifixit_admin_panel?.token)?.user?.is_main_branch && (
                   <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                     <FormControl

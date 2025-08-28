@@ -35,6 +35,24 @@ import Paper from "@mui/material/Paper";
 import { handlePostData } from "../../services/PostDataService";
 import { AuthContext } from "../../context/AuthContext";
 
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+const LightTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.common.white,
+    color: "rgba(0, 0, 0, 0.87)",
+    boxShadow: theme.shadows[1],
+    fontSize: 11,
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: "#fff", // this controls arrow color
+    "&::before": {
+      boxShadow: theme.shadows[1], // adds shadow around the arrow
+      border: "1px solid #ddd", // optional border around arrow
+    },
+  },
+}));
 const baseStyle = {
   flex: 1,
   display: "flex",
@@ -81,13 +99,29 @@ const SparePars = ({
   setProductList,
   productLoading,
   setProductLoading,
+  branchList,
+  setBranchList,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [selectedProducts, setSelectedProducts] = useState([]);
-
+  const [limitDataLoading, setLimitDataLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [tooltipOpen, setTooltipOpen] = useState("");
 
+  const [stockLimitList, setStockLimitList] = useState([]);
+
+  const handleTooltipClose = () => {
+    setTooltipOpen("");
+  };
+
+  const handleTooltipOpen = (id) => {
+    if (tooltipOpen !== id) {
+      setTooltipOpen(id);
+    } else {
+      setTooltipOpen("");
+    }
+  };
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSnakbarOpen = (msg, vrnt) => {
@@ -134,6 +168,72 @@ const SparePars = ({
       handleSnakbarOpen(allData?.data?.message, "error");
     }
     setProductLoading(false);
+  };
+
+  const getBranchLimit = async (product_variation_id) => {
+    if (tooltipOpen === product_variation_id) {
+      return;
+    }
+    setLimitDataLoading(true);
+
+    // let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let url = `/api/v1/stockCounterAndLimit/branch-limit?product_variation_id=${product_variation_id}`;
+    let data = { product_variation_id };
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("getBranchLimit************************", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setLimitDataLoading(false);
+      // setModelList(allData?.data?.data);
+
+      let newBranchList = branchList?.map((item) => {
+        let newData = allData?.data?.data?.find(
+          (el) => el.branch_id === item?._id
+        );
+        return { ...item, limit: newData?.stock_limit || 0 }; // Defaults to 0 if stock_limit is undefined
+      });
+      console.log("newBranchList", newBranchList);
+      let stockLimitsData = {
+        product_variation_id: product_variation_id,
+        stocks: newBranchList,
+      };
+
+      console.log("[...stockLimitList, stockLimitsData]", [
+        ...stockLimitList,
+        stockLimitsData,
+      ]);
+
+      // setStockLimitList([...stockLimitList, stockLimitsData]);
+      setStockLimitList((prevList) => {
+        const exists = prevList.some(
+          (item) =>
+            item.product_variation_id === stockLimitsData.product_variation_id
+        );
+
+        if (exists) {
+          // update
+          return prevList.map((item) =>
+            item.product_variation_id === stockLimitsData.product_variation_id
+              ? { ...item, stocks: stockLimitsData.stocks } // update stocks
+              : item
+          );
+        } else {
+          // add new
+          return [...prevList, stockLimitsData];
+        }
+      });
+      handleTooltipOpen(product_variation_id);
+      if (allData.data.data.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLimitDataLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
   };
   const handleSelectedProduct = (item, row) => {
     console.log("item:::", item);
@@ -309,112 +409,159 @@ const SparePars = ({
                 (row, rowIndex) =>
                   row?.variation_data?.length > 0 &&
                   row.variation_data.map((item, itemIndex) => (
-                    <Grid
-                      key={`row-${rowIndex}-item-${itemIndex}`}
-                      item
-                      size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 4 }}
+                    <LightTooltip
+                      title={
+                        <Box sx={{ p: 0.5 }}>
+                          {stockLimitList?.length > 0 &&
+                            stockLimitList
+                              ?.find(
+                                (res) =>
+                                  res?.product_variation_id === tooltipOpen
+                              )
+                              ?.stocks?.map((stockData) => (
+                                <>
+                                  <Typography
+                                    variant="small"
+                                    sx={{
+                                      mb: 1,
+                                      background: "#f9f9f9",
+                                      py: 0.5,
+                                      px: 1,
+                                      borderRadius: "8px",
+                                    }}
+                                  >
+                                    {stockData?.name} ({stockData?.limit})
+                                  </Typography>
+                                  {/* <Typography variant="small" sx={{ mb: 1 }}>
+                                    <b>Branch Name</b>: {stockData?.name}
+                                  </Typography>
+                                  <Typography variant="small" sx={{ mb: 2 }}>
+                                    <b>Limits</b>: {stockData?.limit}
+                                  </Typography> */}
+                                </>
+                              ))}
+                        </Box>
+                      }
+                      arrow
+                      placement="top"
+                      open={tooltipOpen === item?._id}
+                      onClose={handleTooltipClose}
                     >
-                      <Item
-                        sx={{
-                          border:
-                            selectedProducts.some(
-                              (pro) => pro?.product_variation_id === item?._id
-                            ) && "1px solid #818FF8",
-                        }}
-                        onClick={() => handleSelectedProduct(item, row)}
+                      <Grid
+                        key={`row-${rowIndex}-item-${itemIndex}`}
+                        item
+                        size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 4 }}
                       >
-                        {" "}
-                        <Box sx={{ flexGrow: 1 }}>
-                          <Grid container alignItems="center">
-                            <Grid size="auto" sx={{ width: "40px", mr: 1 }}>
-                              {" "}
-                              <img
-                                src={
-                                  item?.images?.length > 0
-                                    ? item?.images[0]?.url
-                                    : "/noImage.jpg"
-                                }
-                                alt=""
-                                width={30}
-                                height={40}
-                              />
-                            </Grid>
-                            <Grid
-                              size="auto"
-                              sx={{ width: "Calc(100% - 50px)" }}
-                            >
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                }}
+                        <Item
+                          sx={{
+                            border:
+                              selectedProducts.some(
+                                (pro) => pro?.product_variation_id === item?._id
+                              ) && "1px solid #818FF8",
+                          }}
+                          // onMouseEnter={() => getBranchLimit(item?._id)}
+                          onClick={() => {
+                            handleSelectedProduct(item, row);
+                            getBranchLimit(item?._id);
+                          }}
+                        >
+                          {" "}
+                          <Box sx={{ flexGrow: 1 }}>
+                            <Grid container alignItems="center">
+                              <Grid size="auto" sx={{ width: "40px", mr: 1 }}>
+                                {" "}
+                                <img
+                                  src={
+                                    item?.images?.length > 0
+                                      ? item?.images[0]?.url
+                                      : "/noImage.jpg"
+                                  }
+                                  alt=""
+                                  width={30}
+                                  height={40}
+                                />
+                              </Grid>
+                              <Grid
+                                size="auto"
+                                sx={{ width: "Calc(100% - 50px)" }}
                               >
-                                <Typography
-                                  variant="medium"
+                                <Box
                                   sx={{
-                                    fontWeight: 500,
-                                    color: "#344054",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                    marginRight: 1, // Optional for spacing
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
                                   }}
                                 >
-                                  {row?.name}
+                                  <Typography
+                                    variant="medium"
+                                    sx={{
+                                      fontWeight: 500,
+                                      color: "#344054",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      marginRight: 1, // Optional for spacing
+                                    }}
+                                  >
+                                    {row?.name}
 
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 2,
-                                      alignItems: "center",
-                                      mt: 0.5,
-                                    }}
-                                  >
-                                    <Typography
-                                      variant="small"
-                                      sx={{ color: "#424949", fontWeight: 500 }}
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        gap: 2,
+                                        alignItems: "center",
+                                        mt: 0.5,
+                                      }}
                                     >
-                                      {item?.name}
-                                    </Typography>
-                                  </Box>
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 2,
-                                      alignItems: "center",
-                                      mt: 0.5,
-                                    }}
-                                  >
-                                    <Typography
-                                      variant="body2"
-                                      sx={{ color: "#3E3BC3" }}
+                                      <Typography
+                                        variant="small"
+                                        sx={{
+                                          color: "#424949",
+                                          fontWeight: 500,
+                                        }}
+                                      >
+                                        {item?.name}
+                                      </Typography>
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        gap: 2,
+                                        alignItems: "center",
+                                        mt: 0.5,
+                                      }}
                                     >
-                                      {item.price}TK
-                                    </Typography>
-                                  </Box>
-                                </Typography>
-                                <Checkbox
-                                  sx={{
-                                    display: selectedProducts.some(
-                                      (pro) =>
-                                        pro?.product_variation_id === item?._id
-                                    )
-                                      ? "block"
-                                      : "none",
-                                  }}
-                                  size="small"
-                                  checked={true}
-                                  inputProps={{
-                                    "aria-label": "controlled",
-                                  }}
-                                />
-                              </Box>
+                                      <Typography
+                                        variant="body2"
+                                        sx={{ color: "#3E3BC3" }}
+                                      >
+                                        {item.price}TK
+                                      </Typography>
+                                    </Box>
+                                  </Typography>
+                                  <Checkbox
+                                    sx={{
+                                      display: selectedProducts.some(
+                                        (pro) =>
+                                          pro?.product_variation_id ===
+                                          item?._id
+                                      )
+                                        ? "block"
+                                        : "none",
+                                    }}
+                                    size="small"
+                                    checked={true}
+                                    inputProps={{
+                                      "aria-label": "controlled",
+                                    }}
+                                  />
+                                </Box>
+                              </Grid>
                             </Grid>
-                          </Grid>
-                        </Box>
-                      </Item>
-                    </Grid>
+                          </Box>
+                        </Item>
+                      </Grid>
+                    </LightTooltip>
                   ))
               )}
             {productLoading && (
