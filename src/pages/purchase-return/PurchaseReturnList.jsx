@@ -713,7 +713,7 @@ const PurchaseReturnList = () => {
                           color="info"
                           startIcon={<ListAltOutlinedIcon />}
                           onClick={() => {
-                            handleDetailOpen(row?.stocks);
+                            handleDetailOpen(row);
                           }}
                         >
                           Details
@@ -798,7 +798,7 @@ const PurchaseReturnList = () => {
         </DialogTitle>
         <DialogContent>
           <PrintReturnList details={details} />
-          <PurchaseReturnDetails details={details} />
+          <PurchaseReturnDetails details={details?.stocks} />
         </DialogContent>
         <DialogActions sx={{ px: 2 }}>
           <Button

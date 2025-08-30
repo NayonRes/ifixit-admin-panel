@@ -73,7 +73,7 @@ const PurchaseReturnDetails = ({ details }) => {
       style={{
         overflowX: "auto",
 
-        minWidth: "100%",
+        // minWidth: "100%",
         // width: "Calc(100vw - 385px)",
         // padding: "10px 16px 0px",
         boxSizing: "border-box",
@@ -86,16 +86,16 @@ const PurchaseReturnDetails = ({ details }) => {
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Product Name
               </TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>
+              {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                 Purchase date
-              </TableCell>
+              </TableCell> */}
               <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
 
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Purchase price
               </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>SKU Number</TableCell>
-              <TableCell style={{ minWidth: "150px" }}>Note</TableCell>
+              {/* <TableCell style={{ minWidth: "150px" }}>Note</TableCell> */}
               {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                             <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
           
@@ -147,11 +147,11 @@ const PurchaseReturnDetails = ({ details }) => {
                       : "---------"}
                   </TableCell>
 
-                  <TableCell>
+                  {/* <TableCell>
                     {moment(row?.purchase_data[0]?.purchase_date).format(
                       "DD/MM/YYYY"
                     )}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>
                     {row?.branch_data ? row?.branch_data[0]?.name : "---------"}
                   </TableCell>
@@ -161,10 +161,10 @@ const PurchaseReturnDetails = ({ details }) => {
                       : "---------"}
                   </TableCell>
                   <TableCell>{row?.sku_number}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     {" "}
                     {row?.remarks ? row?.remarks : "----------"}
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
 

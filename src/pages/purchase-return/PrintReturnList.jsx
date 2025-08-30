@@ -33,7 +33,7 @@ const PrintReturnList = ({ details }) => {
   // const handlePrint = useReactToPrint({ contentRef });
   const handlePrint = useReactToPrint({
     contentRef: contentRef,
-    // documentTitle: "AwesomeFileName",
+    documentTitle: `print-retunt-list-${details?._id}`,
     // ignoreGlobalStyles: true,
     // pageStyle: ".head {background: red; }",
     // onAfterPrint: handleAfterPrint,
@@ -154,7 +154,7 @@ const PrintReturnList = ({ details }) => {
           </Grid>
         </Grid>
 
-        <PurchaseReturnDetails details={details} />
+        <PurchaseReturnDetails details={details?.stocks} />
 
         {/* <Box sx={{ mt: 2 }}>
           <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>

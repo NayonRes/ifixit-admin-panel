@@ -148,9 +148,7 @@ const AddRepair = () => {
     if (!customer_id && !contactData?._id) {
       return handleSnakbarOpen("Custommer is Required", "error");
     }
-    // if (repairP == 0) {
-    //   return handleSnakbarOpen("Repair list is empty", "error");
-    // }
+
     if (!brand_id) {
       return handleSnakbarOpen("Brand is Required", "error");
     }
@@ -160,15 +158,27 @@ const AddRepair = () => {
     if (!technician) {
       return handleSnakbarOpen("Please select a technician", "error");
     }
-    // if (allIssue.length < 1) {
-    //   return handleSnakbarOpen("Issue is Required", "error");
-    // }
+
     if (!repairStatus) {
       return handleSnakbarOpen("Repair status is Required", "error");
     }
     if (!deliveryStatus) {
       return handleSnakbarOpen("Delivery status is Required", "error");
     }
+
+    if (repairStatus === "Complete" && deliveryStatus === "Delivered") {
+      if (allIssue.length < 1) {
+        return handleSnakbarOpen("Issue is Required", "error");
+      }
+      if (allSpareParts.length < 1) {
+        return handleSnakbarOpen("Spare Parts is Required", "error");
+      }
+
+      if (repairP == 0) {
+        return handleSnakbarOpen("Repair list is empty", "error");
+      }
+    }
+
     if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
       return handleSnakbarOpen("Total Amount and input are not same!", "error");
     }
