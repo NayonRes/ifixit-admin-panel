@@ -132,6 +132,12 @@ const ModelList = ({
 
   previousRepairData,
   setPreviousRepairData,
+
+  repairCheckList,
+  setRepairCheckList,
+  issueLoading2,
+  setIssueLoading2,
+  branchList, setBranchList
 }) => {
   const location = useLocation();
   const { rid } = useParams();
@@ -250,6 +256,55 @@ const ModelList = ({
     }
     setProductLoading(false);
   };
+
+  const getRepairCheckList = async (device_id) => {
+    setIssueLoading2(true);
+
+    let url = `/api/v1/issue?model_id=${device_id}`;
+    let allData = await getDataWithToken(url);
+
+    if (allData?.status >= 200 && allData?.status < 300) {
+      if (allData?.data?.data?.length > 0) {
+        let issues = allData?.data?.data?.map((item) => ({
+          model_id: item?._id,
+          name: item?.name,
+          status: false,
+        }));
+        console.log("issues", issues);
+        if (location.pathname.includes("/update-repair")) {
+          let preArr = repair_checklist?.checklist;
+          if (!preArr) {
+            preArr = [];
+          }
+          console.log("preArr", preArr);
+
+          const updatedAllArr = issues?.map((item) => {
+            const match = preArr.find(
+              (preItem) => preItem.model_id === item.model_id
+            );
+            return match ? { ...item, status: match.status } : item;
+          });
+          console.log("updatedAllArr", updatedAllArr);
+
+          // const newItems = preArr.filter(
+          //   (preItem) =>
+          //     !repairCheckList.some((item) => item.name === preItem.name)
+          // );
+
+          // const finalUpdatedAllArr = [...updatedAllArr, ...newItems];
+
+          // console.log("updatedAllArr", finalUpdatedAllArr);
+          setRepairCheckList(updatedAllArr);
+        } else {
+          setRepairCheckList(issues);
+        }
+      }
+    } else {
+      setIssueLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setIssueLoading2(false);
+  };
   const getServices = async (device_id) => {
     setIssueLoading(true);
 
@@ -328,6 +383,7 @@ const ModelList = ({
 
   useEffect(() => {
     if (location.pathname.includes("/update-repair")) {
+      getRepairCheckList(deviceId);
       getServices(deviceId);
       getProducts(deviceId);
     }
@@ -346,6 +402,10 @@ const ModelList = ({
         deviceId={deviceId}
         showComponent={showComponent}
         setShowComponent={setShowComponent}
+        repairCheckList={repairCheckList}
+        setRepairCheckList={setRepairCheckList}
+        issueLoading2={issueLoading2}
+        setIssueLoading2={setIssueLoading2}
       />
       {showComponent === "Model List" && (
         <>
@@ -417,6 +477,7 @@ const ModelList = ({
                         onClick={() => {
                           setDevice(item.name);
                           setDeviceId(item?._id);
+                          getRepairCheckList(item?._id);
                           getServices(item?._id);
                           getProducts(item?._id);
                           setAllIssue([]);
@@ -494,6 +555,8 @@ const ModelList = ({
           setProductList={setProductList}
           productLoading={productLoading}
           setProductLoading={setProductLoading}
+           branchList={branchList}
+              setBranchList={setBranchList}
         />
       )}
     </div>

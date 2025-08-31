@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
 import { getDataWithToken } from "../../services/GetDataService";
-import { AuthContext } from "../../context/AuthContext";
-
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import TablePagination from "@mui/material/TablePagination";
 import Skeleton from "@mui/material/Skeleton";
 import IconButton from "@mui/material/IconButton";
-import { Link, useNavigate } from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -17,11 +18,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useSnackbar } from "notistack";
 import axios from "axios";
-import { Box, Collapse } from "@mui/material";
+import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
+import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
+import { Box, Chip, TableContainer } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
@@ -30,15 +32,12 @@ import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
 import ClearIcon from "@mui/icons-material/Clear";
-import { designationList, roleList, statusList } from "../../data";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import RepairList from "./RepairList";
-import { jwtDecode } from "jwt-decode";
+import AddIssue from "./AddIssue";
+import UpdateIssue from "./UpdateIssue";
+import { AuthContext } from "../../context/AuthContext";
 
-const Repair = () => {
+const IssueList = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
   const [tableDataList, setTableDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -48,43 +47,25 @@ const Repair = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [deleteData, setDeleteData] = useState({});
-  const [orderID, setOrderID] = useState("");
-  const [repairNo, setRepairNo] = useState("");
-  const [email, setEmail] = useState("");
-  const [number, setNumber] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [minPrice, setMinPrice] = useState(null);
-  const [maxPrice, setMaxPrice] = useState(null);
+  const [name, setName] = useState("");
+  const [deviceId, setDeviceId] = useState("");
   const [status, setStatus] = useState("");
-  const [category, SetCategory] = useState("");
   const { enqueueSnackbar } = useSnackbar();
   const [startingTime, setStartingTime] = useState(null);
   const [endingTime, setEndingTime] = useState(null);
-
+  const [deviceList, setDeviceList] = useState([]);
+  const [orderNo, setOrderNo] = useState();
   const [imageDialog, setImageDialog] = useState(false);
   const [images, setImages] = useState([]);
   const [detailDialog, setDetailDialog] = useState(false);
   const [details, setDetails] = useState([]);
-  const [cancelProductData, setCancelProductData] = useState({});
-  const [cancelProductDialog, setCancelProductDialog] = useState(false);
-  const [branchList, setBranchList] = useState([]);
-  const [filterRepairStatus, setFilterRepairStatus] = useState("");
-  const [modelList, setModelList] = useState();
-  const [modelId, setModelId] = useState("");
-  const [branch, setBranch] = useState("");
-  const handleDetailClickOpen = (obj) => {
-    console.log("obj", obj);
-    setDetails(obj);
-    setDetailDialog(true);
-  };
+
   const handleDetailClose = () => {
     setDetails({});
     setDetailDialog(false);
   };
 
   const customeTextFeild = {
-    // padding: "15px 20px",
-    // background: "#FAFAFA",
     "& label": {
       fontSize: "11px",
     },
@@ -138,16 +119,11 @@ const Repair = () => {
     setDeleteData({});
   };
 
-  const handleDeleteDialog = (i, row) => {
-    setDeleteData({ index: i, row: row });
-    setDeleteDialog(true);
-  };
-
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 10;
+    let loadingNumber = 5;
 
-    if (ifixit_admin_panel?.user?.permission?.includes("update_repair")) {
+    if (ifixit_admin_panel?.user?.permission?.includes("update_issue")) {
       loadingNumber = loadingNumber + 1;
     }
     for (let i = 0; i < 10; i++) {
@@ -171,19 +147,13 @@ const Repair = () => {
   };
 
   const clearFilter = (event) => {
-    console.log("clearFilter");
-    setOrderID("");
-    setFilterRepairStatus("");
-    setRepairNo("");
-    setNumber("");
-    setModelId("");
-    setBranch("");
+    setName("");
+    setOrderNo("");
+    setDeviceId("");
     setStatus("");
-    SetCategory("");
-    setStartingTime(null);
-    setEndingTime(null);
+
     setPage(0);
-    const newUrl = `/api/v1/repair?limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/issue?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -208,28 +178,14 @@ const Repair = () => {
     if (newUrl) {
       url = newUrl;
     } else {
-      let newFilterRepairStatus = filterRepairStatus;
-      let newBranch = branch;
       let newStatus = status;
-      let newMinPrice = minPrice;
-      let newMaxPrice = maxPrice;
+
       let newStartingTime = "";
       let newEndingTime = "";
-      if (branch === "None") {
-        newBranch = "";
-      }
-      if (filterRepairStatus === "None") {
-        newFilterRepairStatus = "";
-      }
       if (status === "None") {
         newStatus = "";
       }
-      if (minPrice === null) {
-        newMinPrice = "";
-      }
-      if (maxPrice === null) {
-        newMaxPrice = "";
-      }
+
       if (startingTime !== null) {
         newStartingTime = dayjs(startingTime).format("YYYY-MM-DD");
       }
@@ -237,23 +193,21 @@ const Repair = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/repair?repair_id=${repairNo.trim()}&customerNo=${number}&branch_id=${newBranch}&repair_status=${newFilterRepairStatus}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/issue?name=${name.trim()}&device_id=${deviceId}&order_no=${orderNo}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
     let allData = await getDataWithToken(url);
-
     if (allData?.status === 401) {
       logout();
       return;
     }
-
-    if (allData?.status >= 200 && allData?.status < 300) {
+    if (allData.status >= 200 && allData.status < 300) {
       setTableDataList(allData?.data?.data);
-      // setRowsPerPage(allData?.data?.limit);
+
       setTotalData(allData?.data?.totalData);
 
-      if (allData?.data?.data.length < 1) {
+      if (allData.data.data.length < 1) {
         setMessage("No data found");
       }
     } else {
@@ -263,34 +217,28 @@ const Repair = () => {
     setLoading(false);
   };
 
-  const getBranchList = async () => {
-    setLoading2(true);
+  const sortByParentName = (a, b) => {
+    const nameA = a.parent_name.toUpperCase();
+    const nameB = b.parent_name.toUpperCase();
 
-    let url = `/api/v1/branch/dropdownlist`;
-    let allData = await getDataWithToken(url);
-
-    if (allData?.status >= 200 && allData?.status < 300) {
-      setBranchList(allData?.data?.data);
-
-      if (allData.data?.data?.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
+    if (nameA < nameB) {
+      return -1;
     }
-    setLoading2(false);
+    if (nameA > nameB) {
+      return 1;
+    }
+
+    return 0;
   };
 
-  const getModelList = async (id) => {
+  const getDeviceList = async () => {
     setLoading2(true);
 
-    // let url = `/api/v1/model/device-model?deviceId=${id}`;
-    let url = `/api/v1/model/dropdownlist`;
+    let url = `/api/v1/device/dropdownlist`;
     let allData = await getDataWithToken(url);
 
-    if (allData?.status >= 200 && allData?.status < 300) {
-      setModelList(allData?.data?.data);
+    if (allData.status >= 200 && allData.status < 300) {
+      setDeviceList(allData?.data?.data);
 
       if (allData.data.data.length < 1) {
         setMessage("No data found");
@@ -303,9 +251,7 @@ const Repair = () => {
   };
   useEffect(() => {
     getData();
-    getBranchList();
-    getModelList();
-    // getCategoryList();
+    getDeviceList();
   }, []);
 
   return (
@@ -318,70 +264,12 @@ const Repair = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Repair List
+            Issue List
           </Typography>
         </Grid>
         <Grid size={3} style={{ textAlign: "right" }}>
-          {/* <Button
-            variant="contained"
-            disableElevation
-            sx={{
-              px: 2,
-              py: 1.25,
-              fontSize: "14px",
-              fontWeight: 600,
-              minWidth: "127px",
-              minHeight: "44px",
-            }}
-            onClick={() => navigate("/add-repair")}
-            startIcon={
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M17.5 17.5L14.5834 14.5833M16.6667 9.58333C16.6667 13.4954 13.4954 16.6667 9.58333 16.6667C5.67132 16.6667 2.5 13.4954 2.5 9.58333C2.5 5.67132 5.67132 2.5 9.58333 2.5C13.4954 2.5 16.6667 5.67132 16.6667 9.58333Z"
-                  stroke="#fff"
-                  stroke-width="1.66667"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            }
-          >
-            Add Job
-          </Button> */}
-
-          {ifixit_admin_panel?.user?.permission?.includes("add_repair") && (
-            <Button
-              variant="contained"
-              disableElevation
-              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-              component={Link}
-              to="/add-repair"
-              startIcon={
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-                    stroke="white"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              }
-            >
-              Add Job
-            </Button>
+          {ifixit_admin_panel?.user?.permission?.includes("add_issue") && (
+            <AddIssue clearFilter={clearFilter} />
           )}
         </Grid>
       </Grid>
@@ -395,15 +283,13 @@ const Repair = () => {
           boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
         }}
       >
-
-        
         <Grid
           container
           justifyContent="space-between"
           alignItems="center"
           sx={{ px: 1.5, mb: 1.75 }}
         >
-          <Grid size={12}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -413,7 +299,7 @@ const Repair = () => {
               Details
             </Typography>
           </Grid>
-          <Grid size={12}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 10, xl: 10 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid
                 container
@@ -421,66 +307,37 @@ const Repair = () => {
                 alignItems="center"
                 spacing={1}
               >
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <TextField
                     sx={{ ...customeTextFeild }}
                     id="Name"
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="Job / Invoice No"
-                    value={repairNo}
-                    onChange={(e) => setRepairNo(e.target.value)}
+                    label="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="From Date"
-                      value={startingTime}
-                      onChange={(newValue) => setStartingTime(newValue)}
-                      format="DD/MM/YYYY"
-                      maxDate={dayjs()}
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                          sx: { ...customeTextFeild },
-                        }, // ✅ this is the correct way
-                      }}
-                    />
-                  </LocalizationProvider>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="To Date"
-                      value={endingTime}
-                      onChange={(newValue) => setEndingTime(newValue)}
-                      format="DD/MM/YYYY"
-                      maxDate={dayjs()}
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                          sx: { ...customeTextFeild },
-                        }, // ✅ this is the correct way
-                      }}
-                    />
-                  </LocalizationProvider>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <TextField
                     sx={{ ...customeTextFeild }}
-                    id="number"
+                    id="orderNo"
+                    type="number"
+                    onWheel={(e) => e.target.blur()}
                     fullWidth
                     size="small"
                     variant="outlined"
-                    label="number"
-                    inputProps={{ maxLength: 11 }}
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
+                    label="Order No"
+                    InputLabelProps={{
+                      shrink: !!orderNo, // Shrink label only when there's a value
+                    }}
+                    value={orderNo}
+                    onChange={(e) => setOrderNo(e.target.value)}
                   />
                 </Grid>
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -489,96 +346,41 @@ const Repair = () => {
                     sx={{ ...customeTextFeild }}
                   >
                     <InputLabel id="demo-status-outlined-label">
-                      Model
+                      Device
                     </InputLabel>
                     <Select
                       fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Model"
                       MenuProps={{
                         PaperProps: {
                           sx: {
-                            maxHeight: 200, // Controls dropdown height
+                            maxHeight: 250, // Set the max height here
                           },
                         },
                       }}
-                      value={modelId}
-                      onChange={(e) => setModelId(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {modelList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid> */}
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Repair Status
-                    </InputLabel>
-                    <Select
-                      fullWidth
                       labelId="demo-status-outlined-label"
                       id="demo-status-outlined"
-                      label="Repair Status"
-                      value={filterRepairStatus}
-                      onChange={(e) => setFilterRepairStatus(e.target.value)}
+                      label="Device"
+                      value={deviceId}
+                      onChange={(e) => setDeviceId(e.target.value)}
                     >
                       <MenuItem value="None">None</MenuItem>
-                      {statusList?.map((item) => (
-                        <MenuItem key={item?.name} value={item?.name}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                {jwtDecode(ifixit_admin_panel?.token)?.user?.is_main_branch && (
-                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                    <FormControl
-                      variant="outlined"
-                      fullWidth
-                      size="small"
-                      // sx={{ ...customeTextFeild }}
-                      sx={{ ...customeTextFeild }}
-                    >
-                      <InputLabel id="demo-status-outlined-label">
-                        Branch
-                      </InputLabel>
-                      <Select
-                        fullWidth
-                        labelId="demo-status-outlined-label"
-                        id="demo-status-outlined"
-                        label="Branch"
-                        value={branch}
-                        onChange={(e) => setBranch(e.target.value)}
-                      >
-                        <MenuItem value="None">None</MenuItem>
-                        {branchList?.map((item) => (
-                          <MenuItem key={item?._id} value={item?._id}>
+                      {deviceList
+                        ?.filter(
+                          (item) => !item.name.toLowerCase().includes("series")
+                        )
+                        ?.map((item) => (
+                          <MenuItem key={item} value={item?._id}>
                             {item?.name}
                           </MenuItem>
                         ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                )}
-                {/* <Grid size={2}>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
                     size="small"
-                    // sx={{ ...customeTextFeild }}
                     sx={{ ...customeTextFeild }}
                   >
                     <InputLabel id="demo-status-outlined-label">
@@ -597,9 +399,9 @@ const Repair = () => {
                       <MenuItem value={false}>Inactive</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid> */}
+                </Grid>
 
-                <Grid size={2}>
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={{ lg: 1, xl: 1 }}>
                       <Grid size={4}>
@@ -636,19 +438,137 @@ const Repair = () => {
             </Box>
           </Grid>
         </Grid>
-        <RepairList
-          loading={loading}
-          pageLoading={pageLoading}
-          tableDataList={tableDataList}
-          clearFilter={clearFilter}
-          handleDeleteDialog={handleDeleteDialog}
-          message={message}
-          totalData={totalData}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-        />
+        <div
+          style={{
+            overflowX: "auto",
+
+            minWidth: "100%",
+            width: "Calc(100vw - 385px)",
+
+            boxSizing: "border-box",
+          }}
+        >
+          <TableContainer sx={{ maxHeight: "Calc(100vh - 250px)" }}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Order No
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Models</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                  {ifixit_admin_panel?.user?.permission?.includes(
+                    "update_issue"
+                  ) && (
+                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
+                      Actions
+                    </TableCell>
+                  )}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {!loading &&
+                  tableDataList.length > 0 &&
+                  tableDataList.map((row, i) => (
+                    <TableRow key={i}>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                        {row?.name}
+                      </TableCell>
+                      <TableCell>{row?.order_no}</TableCell>
+                      <TableCell>
+                        {row?.model_data?.map((item) => (
+                          <Chip
+                            size="small"
+                            label={item.name}
+                            variant="outlined"
+                            sx={{
+                              mr: 1,
+                              px: 1,
+                              my: 0.5,
+                            }}
+                          />
+                        ))}
+                      </TableCell>
+
+                      <TableCell>
+                        {row?.status ? (
+                          <>
+                            <TaskAltOutlinedIcon
+                              style={{
+                                color: "#10ac84",
+                                height: "16px",
+                                position: "relative",
+                                top: "4px",
+                              }}
+                            />{" "}
+                            <span
+                              style={{
+                                color: "#10ac84",
+                              }}
+                            >
+                              Active &nbsp;
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <HighlightOffOutlinedIcon
+                              style={{
+                                color: "#ee5253",
+                                height: "16px",
+                                position: "relative",
+                                top: "4px",
+                              }}
+                            />
+                            <span
+                              style={{
+                                color: "#ee5253",
+                              }}
+                            >
+                              Inactive
+                            </span>
+                          </>
+                        )}
+                      </TableCell>
+                      {ifixit_admin_panel?.user?.permission?.includes(
+                        "update_issue"
+                      ) && (
+                        <TableCell align="right">
+                          <UpdateIssue clearFilter={clearFilter} row={row} />
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+
+                {!loading && tableDataList.length < 1 ? (
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell colSpan={4} style={{ textAlign: "center" }}>
+                      <strong> {message}</strong>
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+                {loading && pageLoading()}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+        {tableDataList.length > 0 ? (
+          <div>
+            <TablePagination
+              style={{ display: "block", border: "none" }}
+              rowsPerPageOptions={[]}
+              count={totalData}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </div>
+        ) : (
+          <br />
+        )}
       </div>
       <Dialog
         open={detailDialog}
@@ -658,8 +578,6 @@ const Repair = () => {
         maxWidth="xl"
         fullWidth={true}
       >
-        {/* <div style={{ padding: "10px", minWidth: "300px" }}> */}
-        {/* <DialogTitle id="alert-dialog-title">{"Product Detail"}</DialogTitle> */}
         <DialogContent>
           <Grid container style={{ borderBottom: "1px solid #154360" }}>
             <Grid size={6}>
@@ -683,7 +601,6 @@ const Repair = () => {
         aria-describedby="alert-dialog-description"
         maxWidth="xl"
       >
-        {/* <div style={{ padding: "10px", minWidth: "300px" }}> */}
         <DialogTitle id="alert-dialog-title">{"Images"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -705,10 +622,9 @@ const Repair = () => {
         <DialogActions>
           <Button onClick={handleImageClose}>Close</Button>
         </DialogActions>
-        {/* </div> */}
       </Dialog>
     </>
   );
 };
 
-export default Repair;
+export default IssueList;

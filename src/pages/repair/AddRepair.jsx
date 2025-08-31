@@ -97,7 +97,11 @@ const AddRepair = () => {
   const [issueList, setIssueList] = useState(
     JSON.parse(JSON.stringify(allIssueCheckList))
   );
-  const [mainIssueList, setMainIssueList] = useState(allIssueCheckList); // using this for only keep  allIssueCheckList array
+
+  const [repairCheckList, setRepairCheckList] = useState([]);
+  const [issueLoading2, setIssueLoading2] = useState(false);
+  const [mainIssueList, setMainIssueList] = useState(allIssueCheckList);
+  const [branchList, setBranchList] = useState([]); // using this for only keep  allIssueCheckList array
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
     let decodedToken = jwtDecode(token);
@@ -144,21 +148,37 @@ const AddRepair = () => {
     if (!customer_id && !contactData?._id) {
       return handleSnakbarOpen("Custommer is Required", "error");
     }
-    // if (repairP == 0) {
-    //   return handleSnakbarOpen("Repair list is empty", "error");
-    // }
+
     if (!brand_id) {
       return handleSnakbarOpen("Brand is Required", "error");
     }
-    // if (allIssue.length < 1) {
-    //   return handleSnakbarOpen("Issue is Required", "error");
-    // }
+    if (!deviceId) {
+      return handleSnakbarOpen("Please select a device model", "error");
+    }
+    if (!technician) {
+      return handleSnakbarOpen("Please select a technician", "error");
+    }
+
     if (!repairStatus) {
       return handleSnakbarOpen("Repair status is Required", "error");
     }
     if (!deliveryStatus) {
       return handleSnakbarOpen("Delivery status is Required", "error");
     }
+
+    if (repairStatus === "Complete" && deliveryStatus === "Delivered") {
+      if (allIssue.length < 1) {
+        return handleSnakbarOpen("Issue is Required", "error");
+      }
+      if (allSpareParts.length < 1) {
+        return handleSnakbarOpen("Spare Parts is Required", "error");
+      }
+
+      if (repairP == 0) {
+        return handleSnakbarOpen("Repair list is empty", "error");
+      }
+    }
+
     if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
       return handleSnakbarOpen("Total Amount and input are not same!", "error");
     }
@@ -322,11 +342,29 @@ const AddRepair = () => {
       // setLoading2(false);
     }
   };
+  const getBranchList = async () => {
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      let newBranchWithLimit = allData?.data?.data?.map((item) => ({
+        ...item,
+        limit: "",
+      }));
 
+      setBranchList(newBranchWithLimit);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
   useEffect(() => {
     if (rid) {
       initState(rid);
     }
+    getBranchList();
   }, []);
 
   return (
@@ -524,6 +562,12 @@ const AddRepair = () => {
               apiCallForUpdate={apiCallForUpdate}
               previousRepairData={previousRepairData}
               setPreviousRepairData={setPreviousRepairData}
+              repairCheckList={repairCheckList}
+              setRepairCheckList={setRepairCheckList}
+              issueLoading2={issueLoading2}
+              setIssueLoading2={setIssueLoading2}
+              branchList={branchList}
+              setBranchList={setBranchList}
             />
             // <div>Model list</div>
           )}
@@ -574,6 +618,7 @@ const AddRepair = () => {
               setTechnician={setTechnician}
             />
           )}
+
           {steps == "payment" && (
             <PaymentList
               paymentStatus={paymentStatus}
@@ -624,25 +669,27 @@ const AddRepair = () => {
                 Back
               </Button> */}
 
-            {steps == "payment" && (
-              <>
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                  // onClick={checkSum}
-                  sx={buttonStyle}
-                  disabled={loading}
-                >
-                  {rid ? "Update" : "Submit"}
-                  <PulseLoader
-                    color={"#4B46E5"}
-                    loading={loading}
-                    size={10}
-                    speedMultiplier={0.5}
-                  />
-                </Button>
-              </>
-            )}
+            {/* {steps == "payment" && (
+              <> */}
+
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              color="success"
+              // onClick={checkSum}
+              sx={{ ...buttonStyle, minWidth: "220px", minHeight: "57px" }}
+              disabled={loading}
+            >
+              {rid ? "Update" : "Save Changes"}
+              <PulseLoader
+                color={"#16bb3aff"}
+                loading={loading}
+                size={10}
+                speedMultiplier={0.5}
+              />
+            </Button>
+            {/* </>
+            )} */}
           </Box>
         </Grid>
       </Grid>

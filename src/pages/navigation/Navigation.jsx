@@ -55,6 +55,7 @@ import SalesInvoice from "../sales/SalesInvoice";
 import Reports from "../reports/Reports";
 import ExpenseCategoryList from "../expense-category/ExpenseCategoryList";
 import ExpenseList from "../expense/ExpenseList";
+import IssueList from "../issue/IssueList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -183,6 +184,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <ModelList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="issue-list"
+          element={
+            <PrivateRoute>
+              <IssueList />
             </PrivateRoute>
           }
         />

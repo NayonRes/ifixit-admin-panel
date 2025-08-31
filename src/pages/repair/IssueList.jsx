@@ -126,6 +126,8 @@ const IssueList = ({
   setProductList,
   productLoading,
   setProductLoading,
+  branchList,
+  setBranchList,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
@@ -133,8 +135,7 @@ const IssueList = ({
   const [serviceType, setServiceType] = useState("issue");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [checkedIssue, setCheckedIssue] = useState([]);
-
+  const [checkedIssue, setCheckedIssue] = useState([]); 
   const [message, setMessage] = useState("");
 
   const handleSnakbarOpen = (msg, vrnt) => {
@@ -218,6 +219,7 @@ const IssueList = ({
   //   getServices();
   // }, []);
 
+  
   return (
     <div>
       {/* <RepairChecklist
@@ -334,7 +336,6 @@ const IssueList = ({
                                 // whiteSpace: "nowrap",
                               }}
                             >
-                             
                               {item.name}
                             </Typography>
                             <Box
@@ -433,6 +434,8 @@ const IssueList = ({
             setProductList={setProductList}
             productLoading={productLoading}
             setProductLoading={setProductLoading}
+            branchList={branchList}
+            setBranchList={setBranchList}
           />
         </Box>
       )}

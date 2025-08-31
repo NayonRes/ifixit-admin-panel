@@ -55,12 +55,8 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ReactToPrint from "react-to-print";
 import { designationList, roleList } from "../../data";
 import AddPurchaseReturn from "./AddPurchaseReturn";
-
-import LocalPrintshopOutlinedIcon from "@mui/icons-material/LocalPrintshopOutlined";
 // import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
-import PurchaseReturnDetails from "./PurchaseReturnDetails";
-import PrintReturnList from "./PrintReturnList";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -114,10 +110,6 @@ const PurchaseReturnList = () => {
   const handleDetailClose = () => {
     setDetails({});
     setDetailDialog(false);
-  };
-  const handleDetailOpen = (data) => {
-    setDetails(data);
-    setDetailDialog(true);
   };
 
   const customeTextFeild = {
@@ -213,7 +205,7 @@ const PurchaseReturnList = () => {
     setBranch("");
 
     setPage(0);
-    const newUrl = `/api/v1/stock/group-by-list?stock_status=Returned&limit=${rowsPerPage}&page=1`;
+    const newUrl = `/api/v1/stockCounterAndLimit?limit=${rowsPerPage}&page=1`;
     getData(0, rowsPerPage, newUrl);
   };
 
@@ -257,7 +249,7 @@ const PurchaseReturnList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/stock/group-by-list?stock_status=Returned&branch_id=${newBranch}&page=${
+      url = `/api/v1/stock?stock_status=Returned&branch_id=${newBranch}&page=${
         newPageNO + 1
       }`;
     }
@@ -684,15 +676,40 @@ const PurchaseReturnList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Returned Date
+                    Product Name
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Quantity
+                    Purchase date
                   </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Branch</TableCell>
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Purchase price
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    SKU Number
+                  </TableCell>
+                  <TableCell style={{ minWidth: "150px" }}>Note</TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Warranty
+                  </TableCell>
+                 
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Serial No
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Description
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Note</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
 
                   <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
                     Actions
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -703,21 +720,46 @@ const PurchaseReturnList = () => {
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell>{row?._id}</TableCell>
-                      <TableCell>{row?.count}</TableCell>
+                      {/* <TableCell sx={{ width: 50 }}>
+                            <img
+                              src={
+                                row?.images?.length > 0
+                                  ? row?.images[0]?.url
+                                  : "/noImage.jpg"
+                              }
+                              alt=""
+                              width={40}
+                            />
+                          </TableCell> */}
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.product_data
+                          ? row?.product_data[0]?.name
+                          : "---------"}{" "}
+                        &nbsp;{" "}
+                        {row?.product_variation_data
+                          ? row?.product_variation_data[0]?.name
+                          : "---------"}
+                      </TableCell>
 
-                      <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="info"
-                          startIcon={<ListAltOutlinedIcon />}
-                          onClick={() => {
-                            handleDetailOpen(row);
-                          }}
-                        >
-                          Details
-                        </Button>
+                      <TableCell>
+                        {moment(row?.purchase_data[0]?.purchase_date).format(
+                          "DD/MM/YYYY"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {row?.branch_data
+                          ? row?.branch_data[0]?.name
+                          : "---------"}
+                      </TableCell>
+                      <TableCell sx={{ minWidth: "130px" }}>
+                        {row?.purchase_products_data
+                          ? row?.purchase_products_data[0]?.unit_price
+                          : "---------"}
+                      </TableCell>
+                      <TableCell>{row?.sku_number}</TableCell>
+                      <TableCell>
+                        {" "}
+                        {row?.remarks ? row?.remarks : "----------"}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -758,85 +800,24 @@ const PurchaseReturnList = () => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         maxWidth="xl"
+        fullWidth={true}
       >
         {/* <div style={{ padding: "10px", minWidth: "300px" }}> */}
         {/* <DialogTitle id="alert-dialog-title">{"Product Detail"}</DialogTitle> */}
-
-        <DialogTitle
-          id="alert-dialog-title"
-          sx={{
-            fontSize: "20px",
-            fontFamily: '"Inter", sans-serif',
-            fontWeight: 600,
-            color: "#0F1624",
-            position: "relative",
-            px: 2,
-            borderBottom: "1px solid #EAECF1",
-          }}
-        >
-          Details
-          <IconButton
-            sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => handleDetailClose()}
-          >
-            <svg
-              width="46"
-              height="44"
-              viewBox="0 0 46 44"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M29 16L17 28M17 16L29 28"
-                stroke="#656E81"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </IconButton>
-        </DialogTitle>
         <DialogContent>
-          <PrintReturnList details={details} />
-          <PurchaseReturnDetails details={details?.stocks} />
+          <Grid container style={{ borderBottom: "1px solid #154360" }}>
+            <Grid size={6}>
+              <p>User Details</p>
+            </Grid>
+            <Grid size={6} style={{ textAlign: "right" }}>
+              <IconButton onClick={handleDetailClose}>
+                <ClearIcon style={{ color: "#205295" }} />
+              </IconButton>
+            </Grid>
+          </Grid>
+          <br />
         </DialogContent>
-        <DialogActions sx={{ px: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={handleDetailClose}
-            sx={{
-              px: 2,
-              py: 1.25,
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#344054",
-              border: "1px solid #D0D5DD",
-              boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-            }}
-          >
-            Close
-          </Button>
-          <Button
-            variant="contained"
-            sx={{
-              px: 2,
-              py: 1.25,
-              fontSize: "14px",
-              fontWeight: 600,
-              minWidth: "127px",
-              minHeight: "44px",
-            }}
-            // style={{ minWidth: "180px", minHeight: "35px" }}
-            autoFocus
-            disableElevation
-            startIcon={<LocalPrintshopOutlinedIcon />}
-            onClick={() => {
-              document.getElementById("print-retunt-list").click();
-            }}
-          >
-            Print
-          </Button>
-        </DialogActions>
+
         {/* </div> */}
       </Dialog>
       <Dialog
