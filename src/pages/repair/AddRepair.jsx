@@ -177,11 +177,11 @@ const AddRepair = () => {
       if (repairP == 0) {
         return handleSnakbarOpen("Repair list is empty", "error");
       }
+      if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
+        return handleSnakbarOpen("Total Amount and input are not same!", "error");
+      }
     }
 
-    if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
-      return handleSnakbarOpen("Total Amount and input are not same!", "error");
-    }
     // if (!passCode) {
     //   return handleSnakbarOpen("Pass Code is Required", "error");
     // }

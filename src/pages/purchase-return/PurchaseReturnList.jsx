@@ -798,7 +798,7 @@ const PurchaseReturnList = () => {
         </DialogTitle>
         <DialogContent>
           <PrintReturnList details={details} />
-          <PurchaseReturnDetails details={details?.stocks} />
+          <PurchaseReturnDetails details={details?.stocks} showAllData={true}/>
         </DialogContent>
         <DialogActions sx={{ px: 2 }}>
           <Button
