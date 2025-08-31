@@ -178,11 +178,25 @@ const WarrantyProductSKU = ({ row }) => {
       handleSnakbarOpen("Please add at least one product", "error");
       return;
     }
+    if (productList?.length > 0) {
+      const missingClaimedSku = productList.some(
+        (item) => !item.claimed_on_sku_number
+      );
+
+      if (missingClaimedSku) {
+        handleSnakbarOpen("Please add  claimed sku number", "error");
+        return;
+      }
+    }
     setLoading(true);
     let data = {
       repair_id: row?._id,
       is_warranty_claimed_sku: true,
       sku_numbers: productList?.map((item) => item.sku_number),
+      claimed_on_sku_data: productList?.map((item) => ({
+        sku_number: item.sku_number,
+        claimed_on_sku_number: parseInt(item.claimed_on_sku_number),
+      })),
     };
 
     let response = await handlePostData(
@@ -297,9 +311,23 @@ const WarrantyProductSKU = ({ row }) => {
             handleSnakbarOpen("This is not your branch product", "error");
           } else if (allData?.data?.data[0]?.stock_status === "Available") {
             setProductList([
-              { ...allData?.data?.data[0], note: "" },
+              {
+                ...allData?.data?.data[0],
+                note: "",
+                claimed_on_sku_number: "",
+              },
               ...productList,
             ]);
+
+            console.log("add products", [
+              {
+                ...allData?.data?.data[0],
+                note: "",
+                claimed_on_sku_number: "",
+              },
+              ...productList,
+            ]);
+
             setsearchProductText("");
           } else {
             handleSnakbarOpen(
@@ -939,6 +967,10 @@ const WarrantyProductSKU = ({ row }) => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           SKU Number
                         </TableCell>
+
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Claimed on SKU Number
+                        </TableCell>
                         {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                         Is Warranty Available
                       </TableCell> */}
@@ -1013,6 +1045,7 @@ const WarrantyProductSKU = ({ row }) => {
                               : "---------"}
                           </TableCell> */}
                             <TableCell>{item?.sku_number}</TableCell>
+                            <TableCell>{item?.claimed_on_sku_number}</TableCell>
                             {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                             {isDateAfterMonths(
                               row?.created_at,
@@ -1368,6 +1401,9 @@ const WarrantyProductSKU = ({ row }) => {
                         <TableCell style={{ whiteSpace: "nowrap" }}>
                           SKU Number
                         </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Claimed on SKU Number
+                        </TableCell>
 
                         {/* <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
@@ -1438,7 +1474,39 @@ const WarrantyProductSKU = ({ row }) => {
                               : "---------"}
                           </TableCell> */}
                             <TableCell>{item?.sku_number}</TableCell>
-
+                            <TableCell sx={{ minWidth: "130px" }}>
+                              {" "}
+                              <TextField
+                                required
+                                type="number"
+                                size="small"
+                                id="claimed_on_sku_number"
+                                // placeholder="Claimed "
+                                variant="outlined"
+                                sx={{
+                                  ...customeTextFeild,
+                                  "& .MuiOutlinedInput-input": {
+                                    padding: "6.5px 12px",
+                                    fontSize: "14px",
+                                  },
+                                  minWidth: "150px",
+                                }}
+                                value={item.claimed_on_sku_number || ""}
+                                onChange={(e) => {
+                                  const updatedValue = e.target.value;
+                                  setProductList((prevList) =>
+                                    prevList.map((obj, index) =>
+                                      index === i
+                                        ? {
+                                            ...obj,
+                                            claimed_on_sku_number: updatedValue,
+                                          }
+                                        : obj
+                                    )
+                                  );
+                                }}
+                              />
+                            </TableCell>
                             <TableCell align="right">
                               <IconButton
                                 onClick={() =>
