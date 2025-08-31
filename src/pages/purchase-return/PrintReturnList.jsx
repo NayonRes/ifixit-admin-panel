@@ -154,7 +154,7 @@ const PrintReturnList = ({ details }) => {
           </Grid>
         </Grid>
 
-        <PurchaseReturnDetails details={details?.stocks} />
+        <PurchaseReturnDetails details={details?.stocks} showAllData={false}/>
 
         {/* <Box sx={{ mt: 2 }}>
           <Typography variant="small" sx={{ fontWeight: 500, mb: 1 }}>
