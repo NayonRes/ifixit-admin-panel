@@ -101,6 +101,8 @@ const SparePars = ({
   setProductLoading,
   branchList,
   setBranchList,
+  stockLimitList,
+  setStockLimitList,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -109,7 +111,7 @@ const SparePars = ({
   const [message, setMessage] = useState("");
   const [tooltipOpen, setTooltipOpen] = useState("");
 
-  const [stockLimitList, setStockLimitList] = useState([]);
+  // const [stockLimitList, setStockLimitList] = useState([]);
 
   const handleTooltipClose = () => {
     setTooltipOpen("");
@@ -235,62 +237,81 @@ const SparePars = ({
       handleSnakbarOpen(allData?.data?.message, "error");
     }
   };
+  // const getBranchLimit = async (product_variation_id) => {
+  //   if (tooltipOpen === product_variation_id) {
+  //     return;
+  //   }
+  //   setLimitDataLoading(true);
+
+  //   // let url = `/api/v1/model/device-model?deviceId=${id}`;
+  //   let url = `/api/v1/stockCounterAndLimit/branch-limit?product_variation_id=${product_variation_id}`;
+  //   let data = { product_variation_id };
+  //   let allData = await getDataWithToken(url);
+  //   if (allData?.status === 401) {
+  //     logout();
+  //     return;
+  //   }
+  //   console.log("getBranchLimit************************", allData?.data?.data);
+
+  //   if (allData.status >= 200 && allData.status < 300) {
+  //     setLimitDataLoading(false);
+  //     // setModelList(allData?.data?.data);
+
+  //     let newBranchList = branchList?.map((item) => {
+  //       let newData = allData?.data?.data?.find(
+  //         (el) => el.branch_id === item?._id
+  //       );
+  //       return { ...item, limit: newData?.stock_limit || 0 }; // Defaults to 0 if stock_limit is undefined
+  //     });
+  //     console.log("newBranchList", newBranchList);
+  //     let stockLimitsData = {
+  //       product_variation_id: product_variation_id,
+  //       stocks: newBranchList,
+  //     };
+
+  //     console.log("[...stockLimitList, stockLimitsData]", [
+  //       ...stockLimitList,
+  //       stockLimitsData,
+  //     ]);
+
+  //     // setStockLimitList([...stockLimitList, stockLimitsData]);
+  //     setStockLimitList((prevList) => {
+  //       const exists = prevList.some(
+  //         (item) =>
+  //           item.product_variation_id === stockLimitsData.product_variation_id
+  //       );
+
+  //       if (exists) {
+  //         // update
+  //         return prevList.map((item) =>
+  //           item.product_variation_id === stockLimitsData.product_variation_id
+  //             ? { ...item, stocks: stockLimitsData.stocks } // update stocks
+  //             : item
+  //         );
+  //       } else {
+  //         // add new
+  //         return [...prevList, stockLimitsData];
+  //       }
+  //     });
+  //     handleTooltipOpen(product_variation_id);
+  //     if (allData.data.data.length < 1) {
+  //       setMessage("No data found");
+  //     }
+  //   } else {
+  //     setLimitDataLoading(false);
+  //     handleSnakbarOpen(allData?.data?.message, "error");
+  //   }
+  // };
   const handleSelectedProduct = (item, row) => {
     console.log("item:::", item);
     console.log("selectedProducts", selectedProducts);
 
-    if (selectedProducts.some((res) => res._id === item._id)) {
+    if (selectedProducts.some((res) => res.product_variation_id === item._id)) {
       setSelectedProducts(
-        selectedProducts.filter((res) => res._id !== item._id)
-      );
-      setAllSpareParts(selectedProducts.filter((res) => res._id !== item._id));
-    } else {
-      // {
-      //   ...item,
-      //   product_full_name: `${row?.name} - ${item?.name}`,
-      //   product_id: item.product_id,
-      //   product_variation_id: item._id,
-      //   purchase_product_status: "",
-      //   quantity: "",
-      //   unit_price: "",
-      // },
-      setSelectedProducts([
-        ...selectedProducts,
-        {
-          ...item,
-          id: item.product_id,
-          name: `${row?.name} - ${item?.name}`,
-          price: item.price,
-          product_full_name: `${row?.name} - ${item?.name}`,
-          product_id: item.product_id,
-          product_variation_id: item._id,
-        },
-      ]);
-      setAllSpareParts([
-        ...selectedProducts,
-        {
-          ...item,
-
-          id: item.product_id,
-          name: `${row?.name} - ${item?.name}`,
-          price: item.price,
-          product_full_name: `${row?.name} - ${item?.name}`,
-          product_id: item.product_id,
-          product_variation_id: item._id,
-        },
-      ]);
-    }
-
-    console.log("all selectedProducts", selectedProducts);
-  };
-  const handleSelectedProduct2 = (item, row) => {
-    console.log("item:::", item);
-    if (selectedProducts.some((res) => res.product_id === item.product_id)) {
-      setSelectedProducts(
-        selectedProducts.filter((res) => res.product_id !== item.product_id)
+        selectedProducts.filter((res) => res.product_variation_id !== item._id)
       );
       setAllSpareParts(
-        selectedProducts.filter((res) => res.product_id !== item.product_id)
+        selectedProducts.filter((res) => res.product_variation_id !== item._id)
       );
     } else {
       // {
@@ -306,7 +327,7 @@ const SparePars = ({
         ...selectedProducts,
         {
           ...item,
-          id: item.product_id,
+          // id: item.product_id,
           name: `${row?.name} - ${item?.name}`,
           price: item.price,
           product_full_name: `${row?.name} - ${item?.name}`,
@@ -319,7 +340,7 @@ const SparePars = ({
         {
           ...item,
 
-          id: item.product_id,
+          // id: item.product_id,
           name: `${row?.name} - ${item?.name}`,
           price: item.price,
           product_full_name: `${row?.name} - ${item?.name}`,
@@ -462,7 +483,8 @@ const SparePars = ({
                           // onMouseEnter={() => getBranchLimit(item?._id)}
                           onClick={() => {
                             handleSelectedProduct(item, row);
-                            getBranchLimit(item?._id);
+                            // getBranchLimit(item?._id);
+                            console.log("stockLimitList", stockLimitList);
                           }}
                         >
                           {" "}

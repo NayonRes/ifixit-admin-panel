@@ -363,7 +363,7 @@ const SearchForm = ({
   };
 
   const removeSpareParts = (id) => {
-    setAllSpareParts(allSpareParts.filter((item) => item._id !== id));
+    setAllSpareParts(allSpareParts.filter((item) => item.product_variation_id !== id));
   };
 
   const handleBranchClick = () => {
@@ -722,6 +722,10 @@ const SearchForm = ({
           color="text.main"
           gutterBottom
           sx={{ fontWeight: 500 }}
+          onClick={() => {
+            console.log("allIssue", allIssue);
+            console.log("allSpareParts", allSpareParts);
+          }}
         >
           Device
         </Typography>
@@ -756,7 +760,7 @@ const SearchForm = ({
           <Box sx={styles.issue_list}>
             {allIssue.map((item, index) => (
               <Box key={index} sx={styles.issue_list_item}>
-                {item.name} | ৳ {item.repair_cost}
+                {item.name} | ৳ {item.repair_cost} {item?._id}
                 <Box
                   role="button"
                   onClick={() => removeItem(item.service_id)}
@@ -773,10 +777,10 @@ const SearchForm = ({
           <Box sx={styles.issue_list}>
             {allSpareParts.map((item, index) => (
               <Box key={index} sx={styles.issue_list_item}>
-                {item.name} | ৳ {item.price}
+                {item.name} | ৳ {item.price} {item?._id}
                 <Box
                   role="button"
-                  onClick={() => removeSpareParts(item._id)}
+                  onClick={() => removeSpareParts(item.product_variation_id)}
                   className="issue_list_btn"
                   sx={{ mt: "4px" }}
                 >

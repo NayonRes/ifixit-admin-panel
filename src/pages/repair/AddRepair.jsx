@@ -102,6 +102,7 @@ const AddRepair = () => {
   const [issueLoading2, setIssueLoading2] = useState(false);
   const [mainIssueList, setMainIssueList] = useState(allIssueCheckList);
   const [branchList, setBranchList] = useState([]); // using this for only keep  allIssueCheckList array
+  const [stockLimitList, setStockLimitList] = useState([]);
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
     let decodedToken = jwtDecode(token);
@@ -178,7 +179,10 @@ const AddRepair = () => {
         return handleSnakbarOpen("Repair list is empty", "error");
       }
       if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
-        return handleSnakbarOpen("Total Amount and input are not same!", "error");
+        return handleSnakbarOpen(
+          "Total Amount and input are not same!",
+          "error"
+        );
       }
     }
 
@@ -568,6 +572,8 @@ const AddRepair = () => {
               setIssueLoading2={setIssueLoading2}
               branchList={branchList}
               setBranchList={setBranchList}
+              stockLimitList={stockLimitList}
+              setStockLimitList={setStockLimitList}
             />
             // <div>Model list</div>
           )}

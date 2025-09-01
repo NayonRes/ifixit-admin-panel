@@ -128,6 +128,8 @@ const IssueList = ({
   setProductLoading,
   branchList,
   setBranchList,
+  stockLimitList,
+  setStockLimitList,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
@@ -135,7 +137,7 @@ const IssueList = ({
   const [serviceType, setServiceType] = useState("issue");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [checkedIssue, setCheckedIssue] = useState([]); 
+  const [checkedIssue, setCheckedIssue] = useState([]);
   const [message, setMessage] = useState("");
 
   const handleSnakbarOpen = (msg, vrnt) => {
@@ -161,11 +163,11 @@ const IssueList = ({
 
   const handleSelectedProduct = (item) => {
     console.log("item:::", item);
-    if (allIssue.some((res) => res._id === item._id)) {
+    if (allIssue.some((res) => res.service_id === item._id)) {
       // setSelectedProducts(
       //   selectedProducts.filter((res) => res._id !== item._id)
       // );
-      setAllIssue(allIssue.filter((res) => res._id !== item._id));
+      setAllIssue(allIssue.filter((res) => res.service_id !== item._id));
     } else {
       // setSelectedProducts([
       //   ...selectedProducts,
@@ -181,7 +183,6 @@ const IssueList = ({
         {
           ...item,
 
-          id: item._id,
           name: item.name,
           repair_cost: item.repair_cost,
           service_id: item._id,
@@ -219,7 +220,6 @@ const IssueList = ({
   //   getServices();
   // }, []);
 
-  
   return (
     <div>
       {/* <RepairChecklist
@@ -436,6 +436,8 @@ const IssueList = ({
             setProductLoading={setProductLoading}
             branchList={branchList}
             setBranchList={setBranchList}
+            stockLimitList={stockLimitList}
+            setStockLimitList={setStockLimitList}
           />
         </Box>
       )}
