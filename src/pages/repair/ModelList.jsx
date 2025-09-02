@@ -239,8 +239,8 @@ const ModelList = ({
 
     let branch_id = getBranchId();
 
-    // let url = `/api/v1/product?model_id=${device_id}&branch_id=${branch_id}`;
-    let url = `/api/v1/product?attachable_models=${device_id}&branch_id=${branch_id}&limit=1000`;
+   
+    let url = `/api/v1/product/branch-stocks?attachable_models=${device_id}&branch_id=${branch_id}`;
 
     let allData = await getDataWithToken(url);
     // console.log("(allData?.data?.data products", allData?.data?.data);
@@ -259,8 +259,8 @@ const ModelList = ({
             : []
         ) || [];
 
-      console.log(variationIds);
-      getBranchLimit(variationIds);
+      console.log("variationIds", variationIds);
+      // getBranchLimit(variationIds);
       setProductList(allData?.data?.data);
     } else {
       setProductLoading(false);

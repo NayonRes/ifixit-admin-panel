@@ -429,44 +429,54 @@ const SparePars = ({
               productList.map(
                 (row, rowIndex) =>
                   row?.variation_data?.length > 0 &&
-                  row.variation_data.map((item, itemIndex) => (
+                  row.variation_data[0]?.map((item, itemIndex) => (
                     <LightTooltip
                       title={
                         <Box sx={{ p: 0.5 }}>
-                          {stockLimitList?.length > 0 &&
-                            stockLimitList
-                              ?.find(
-                                (res) =>
-                                  res?.product_variation_id === tooltipOpen
-                              )
-                              ?.stocks?.map((stockData) => (
-                                <>
-                                  <Typography
-                                    variant="small"
-                                    sx={{
-                                      mb: 1,
-                                      background: "#f9f9f9",
-                                      py: 0.5,
-                                      px: 1,
-                                      borderRadius: "8px",
-                                    }}
-                                  >
-                                    {stockData?.name} ({stockData?.limit})
-                                  </Typography>
-                                  {/* <Typography variant="small" sx={{ mb: 1 }}>
+                          {item?.stock_data?.map((stockData) => (
+                            <>
+                              <Typography
+                                variant="small"
+                                sx={{
+                                  mb: 1,
+                                  background: "#f9f9f9",
+                                  py: 0.5,
+                                  px: 1,
+                                  borderRadius: "8px",
+                                }}
+                              >
+                                {stockData?.branch_data?.name} (
+                                {stockData?.total_stock})
+                              </Typography>
+                              {/* <Typography variant="small" sx={{ mb: 1 }}>
                                     <b>Branch Name</b>: {stockData?.name}
                                   </Typography>
                                   <Typography variant="small" sx={{ mb: 2 }}>
                                     <b>Limits</b>: {stockData?.limit}
                                   </Typography> */}
-                                </>
-                              ))}
+                            </>
+                          ))}
+
+                          {item?.stock_data?.length < 1 && (
+                            <Typography
+                              variant="small"
+                              sx={{
+                                mb: 1,
+                                background: "#f9f9f9",
+                                py: 0.5,
+                                px: 1,
+                                borderRadius: "8px",
+                              }}
+                            >
+                              Not Available
+                            </Typography>
+                          )}
                         </Box>
                       }
                       arrow
                       placement="top"
-                      open={tooltipOpen === item?._id}
-                      onClose={handleTooltipClose}
+                      // open={tooltipOpen === item?._id}
+                      // onClose={handleTooltipClose}
                     >
                       <Grid
                         key={`row-${rowIndex}-item-${itemIndex}`}
