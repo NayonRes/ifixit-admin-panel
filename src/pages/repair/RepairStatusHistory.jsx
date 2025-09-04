@@ -40,6 +40,8 @@ export default function RepairStatusHistory({
   repairStatus,
   setRepairStatus,
   setLastUpdatedRepairStatus,
+  lastUpdatedRepairStatusRemarks,
+  setLastUpdatedRepairStatusRemarks,
   technician,
   setTechnician,
 }) {
@@ -319,7 +321,10 @@ export default function RepairStatusHistory({
                       minWidth: "150px",
                     }}
                     value={newStatusRemarks}
-                    onChange={(e) => setNewStatusRemarks(e.target.value)}
+                    onChange={(e) =>
+                      setLastUpdatedRepairStatusRemarks(e.target.value)
+                    }
+                    // onChange={(e) => setNewStatusRemarks(e.target.value)}
                   />
                 </TableCell>
 

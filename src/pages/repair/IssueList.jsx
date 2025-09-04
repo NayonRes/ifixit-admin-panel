@@ -182,7 +182,7 @@ const IssueList = ({
         ...allIssue,
         {
           ...item,
-
+      
           name: item.name,
           repair_cost: item.repair_cost,
           service_id: item._id,

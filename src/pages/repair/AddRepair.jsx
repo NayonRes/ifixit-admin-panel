@@ -53,6 +53,8 @@ const AddRepair = () => {
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
   const [lastUpdatedRepairStatus, setLastUpdatedRepairStatus] = useState("");
+  const [lastUpdatedRepairStatusRemarks, setLastUpdatedRepairStatusRemarks] =
+    useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
@@ -197,6 +199,9 @@ const AddRepair = () => {
         service_id: item?.service_id,
         name: item.name,
         repair_cost: item.repair_cost,
+        status: item?.status,
+        updated_at: item?.updated_at,
+        updated_by: item?.updated_by,
       };
       return d;
     });
@@ -225,6 +230,7 @@ const AddRepair = () => {
       discount_amount: discount_amount,
       repair_by: technician,
       repair_status: repairStatus,
+      repair_status_remarks: lastUpdatedRepairStatusRemarks,
       issues: allIssueModified,
       product_details: allSparePartsModified,
       repair_checklist: repair_checklist,
@@ -234,12 +240,12 @@ const AddRepair = () => {
       model_id: deviceId,
     };
 
-    if (location.pathname.includes("/update-repair")) {
-      data = {
-        ...data,
-        repair_status: lastUpdatedRepairStatus,
-      };
-    }
+    // if (location.pathname.includes("/update-repair")) {
+    //   data = {
+    //     ...data,
+    //     repair_status: lastUpdatedRepairStatus,
+    //   };
+    // }
 
     console.log("final data", data);
 
@@ -266,10 +272,10 @@ const AddRepair = () => {
       setLoading(true);
       set_repair_checklist({});
 
-      setIssueList(allIssueCheckList);
+      // setIssueList(allIssueCheckList);
       handleSnakbarOpen("Added successfully", "success");
 
-      navigate(`/repair/invoice/${response?.data?.data?._id}`);
+      // navigate(`/repair/invoice/${response?.data?.data?._id}`);
 
       // clearFilter();
 
@@ -447,6 +453,10 @@ const AddRepair = () => {
             repairStatus={repairStatus}
             setRepairStatus={setRepairStatus}
             setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
+            lastUpdatedRepairStatusRemarks={lastUpdatedRepairStatusRemarks}
+            setLastUpdatedRepairStatusRemarks={
+              setLastUpdatedRepairStatusRemarks
+            }
             deliveryStatus={deliveryStatus}
             setDeliveryStatus={setDeliveryStatus}
             parentList={parentList}
@@ -613,6 +623,10 @@ const AddRepair = () => {
               repairStatus={repairStatus}
               setRepairStatus={setRepairStatus}
               setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
+              lastUpdatedRepairStatusRemarks={lastUpdatedRepairStatusRemarks}
+              setLastUpdatedRepairStatusRemarks={
+                setLastUpdatedRepairStatusRemarks
+              }
               deliveryStatus={deliveryStatus}
               setDeliveryStatus={setDeliveryStatus}
               repair_status_history_data={repair_status_history_data}

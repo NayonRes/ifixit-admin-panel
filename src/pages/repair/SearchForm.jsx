@@ -369,7 +369,24 @@ const SearchForm = ({
   };
 
   const removeItem = (id) => {
-    setAllIssue(allIssue.filter((item) => item.service_id !== id));
+    let removeObj = allIssue?.find((res) => res.service_id === id);
+    console.log("removeObj", removeObj);
+    if (removeObj?._id) {
+      setAllIssue((prevIssues) =>
+        prevIssues.map((item) =>
+          item.service_id === id
+            ? {
+                ...item,
+                status: false,
+                updated_at: new Date().toISOString(),
+                updated_by: ifixit_admin_panel?.user?.email,
+              }
+            : item
+        )
+      );
+    } else {
+      setAllIssue(allIssue.filter((item) => item.service_id !== id));
+    }
   };
 
   const removeSpareParts = (id) => {
