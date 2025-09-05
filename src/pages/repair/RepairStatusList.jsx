@@ -75,8 +75,8 @@ const RepairStatusList = ({
   repairStatus,
   setRepairStatus,
   setLastUpdatedRepairStatus,
-  lastUpdatedRepairStatusRemarks,
-  setLastUpdatedRepairStatusRemarks,
+  repairStatusRemarks,
+  setRepairStatusRemarks,
   deliveryStatus,
   setDeliveryStatus,
   repair_status_history_data,
@@ -157,10 +157,8 @@ const RepairStatusList = ({
             repairStatus={repairStatus}
             setRepairStatus={setRepairStatus}
             setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
-            lastUpdatedRepairStatusRemarks={lastUpdatedRepairStatusRemarks}
-            setLastUpdatedRepairStatusRemarks={
-              setLastUpdatedRepairStatusRemarks
-            }
+            repairStatusRemarks={repairStatusRemarks}
+            setRepairStatusRemarks={setRepairStatusRemarks}
             technician={technician}
             setTechnician={setTechnician}
           />

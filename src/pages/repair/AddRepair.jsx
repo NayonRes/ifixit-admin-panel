@@ -53,8 +53,7 @@ const AddRepair = () => {
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
   const [lastUpdatedRepairStatus, setLastUpdatedRepairStatus] = useState("");
-  const [lastUpdatedRepairStatusRemarks, setLastUpdatedRepairStatusRemarks] =
-    useState("");
+  const [repairStatusRemarks, setRepairStatusRemarks] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
@@ -230,7 +229,7 @@ const AddRepair = () => {
       discount_amount: discount_amount,
       repair_by: technician,
       repair_status: repairStatus,
-      repair_status_remarks: lastUpdatedRepairStatusRemarks,
+      repair_status_remarks: repairStatusRemarks,
       issues: allIssueModified,
       product_details: allSparePartsModified,
       repair_checklist: repair_checklist,
@@ -272,10 +271,10 @@ const AddRepair = () => {
       setLoading(true);
       set_repair_checklist({});
 
-      // setIssueList(allIssueCheckList);
+      setIssueList(allIssueCheckList);
       handleSnakbarOpen("Added successfully", "success");
 
-      // navigate(`/repair/invoice/${response?.data?.data?._id}`);
+      navigate(`/repair/invoice/${response?.data?.data?._id}`);
 
       // clearFilter();
 
@@ -453,10 +452,8 @@ const AddRepair = () => {
             repairStatus={repairStatus}
             setRepairStatus={setRepairStatus}
             setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
-            lastUpdatedRepairStatusRemarks={lastUpdatedRepairStatusRemarks}
-            setLastUpdatedRepairStatusRemarks={
-              setLastUpdatedRepairStatusRemarks
-            }
+            repairStatusRemarks={repairStatusRemarks}
+            setRepairStatusRemarks={setRepairStatusRemarks}
             deliveryStatus={deliveryStatus}
             setDeliveryStatus={setDeliveryStatus}
             parentList={parentList}
@@ -623,10 +620,8 @@ const AddRepair = () => {
               repairStatus={repairStatus}
               setRepairStatus={setRepairStatus}
               setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
-              lastUpdatedRepairStatusRemarks={lastUpdatedRepairStatusRemarks}
-              setLastUpdatedRepairStatusRemarks={
-                setLastUpdatedRepairStatusRemarks
-              }
+              repairStatusRemarks={repairStatusRemarks}
+              setRepairStatusRemarks={setRepairStatusRemarks}
               deliveryStatus={deliveryStatus}
               setDeliveryStatus={setDeliveryStatus}
               repair_status_history_data={repair_status_history_data}

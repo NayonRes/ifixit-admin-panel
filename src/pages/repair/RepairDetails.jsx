@@ -634,6 +634,126 @@ const RepairDetails = ({ clearFilter }) => {
           </Grid>
         </Box>
       </div>
+
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+          marginBottom: 16,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Grid container spacing={2}>
+            <Grid size={12}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                component="div"
+                sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+              >
+                Payment Info
+              </Typography>
+            </Grid>
+
+            <Grid size={12}>
+              {details?.payment_info?.length > 0 ? (
+                details?.payment_info?.map((item, index) => (
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                    key={index}
+                    style={{
+                      background: "#eee",
+                      marginRight: "10px",
+                      padding: "5px 10px",
+                      borderRadius: "5px",
+                      marginBottom: "5px",
+                      display: "inline-block",
+                    }}
+                  >
+                    {item?.name} : <b>{item?.amount}</b>
+                  </Typography>
+                ))
+              ) : (
+                <Box sx={{ textAlign: "center", fontWeight: 600 }}>
+                  No Payment Available
+                </Box>
+              )}
+
+              {details?.payment_info?.length > 0 && (
+                <>
+                  {details?.due_amount && (
+                    <Typography
+                      variant="medium"
+                      color="text.main"
+                      gutterBottom
+                      sx={{ fontWeight: 500 }}
+                      style={{
+                        background: "#eee",
+                        marginRight: "10px",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
+                        marginBottom: "5px",
+                        display: "inline-block",
+                      }}
+                    >
+                      Due Amount : <b>{details?.due_amount}</b>
+                    </Typography>
+                  )}
+
+                  {details?.discount_amount && (
+                    <Typography
+                      variant="medium"
+                      color="text.main"
+                      gutterBottom
+                      sx={{ fontWeight: 500 }}
+                      style={{
+                        background: "#eee",
+                        marginRight: "10px",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
+                        marginBottom: "5px",
+                        display: "inline-block",
+                      }}
+                    >
+                      Discount Amount : <b>{details?.discount_amount}</b>
+                    </Typography>
+                  )}
+
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                    style={{
+                      background: "#eee",
+                      marginRight: "10px",
+                      padding: "5px 10px",
+                      borderRadius: "5px",
+                      marginBottom: "5px",
+                      display: "inline-block",
+                    }}
+                  >
+                    Total Paid Amount :{" "}
+                    <b>
+                      {repairCost +
+                        spareParsCost -
+                        (Number(details?.discount_amount) || 0)}
+                    </b>
+                  </Typography>
+                </>
+              )}
+            </Grid>
+          </Grid>
+        </Box>
+      </div>
       <div
         style={{
           background: "#fff",
@@ -777,6 +897,267 @@ const RepairDetails = ({ clearFilter }) => {
               </TableBody>
             </Table>
           </TableContainer>
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 3 }}
+          >
+            Service History
+          </Typography>
+          {!loading &&
+            details?.repair_service_history_data?.length > 0 &&
+            details?.repair_service_history_data
+              ?.slice()
+              ?.reverse()
+              ?.map((item, i) => (
+                <Box
+                  sx={{
+                    mb: 2,
+                    background: "#f9f9f9",
+                    p: 1,
+                    borderRadius: "8px",
+                  }}
+                >
+                  <Typography
+                    variant=""
+                    gutterBottom
+                    component="div"
+                    sx={{ color: "#0F1624", margin: 0 }}
+                  >
+                    <b>Date :</b>{" "}
+                    {moment(item?.created_at).format("DD MMM YYYY")} |{" "}
+                    <b>User Name:</b> {item?.created_user?.name} |{" "}
+                    <b>User Email:</b> {item?.created_user?.email}
+                  </Typography>
+                  <TableContainer sx={{ background: "#fff" }}>
+                    <Table stickyHeader aria-label="sticky table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell style={{ whiteSpace: "nowrap" }}>
+                            Name
+                          </TableCell>
+                          {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                Purchase date
+                </TableCell> */}
+
+                          <TableCell
+                            align="right"
+                            style={{ whiteSpace: "nowrap" }}
+                          >
+                            Cost
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {!loading &&
+                          item?.service_info?.length > 0 &&
+                          item?.service_info?.map((row, i) => (
+                            <TableRow
+                              key={i}
+                              // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                            >
+                              {/* <TableCell sx={{ width: 50 }}>
+                                      <img
+                                        src={
+                                          row?.images?.length > 0
+                                            ? row?.images[0]?.url
+                                            : "/noImage.jpg"
+                                        }
+                                        alt=""
+                                        width={40}
+                                      />
+                                    </TableCell> */}
+
+                              <TableCell>{row?.name}</TableCell>
+                              <TableCell align="right">
+                                {row?.repair_cost}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        {!loading && item?.service_info?.length > 0 && (
+                          <TableRow>
+                            <TableCell>
+                              <strong>Total</strong>
+                            </TableCell>
+                            <TableCell align="right">
+                              <strong>
+                                {item?.service_info?.reduce(
+                                  (acc, cur) =>
+                                    acc + (Number(cur?.repair_cost) || 0),
+                                  0
+                                )}
+                              </strong>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        {item?.service_info?.length < 1 ? (
+                          <TableRow
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell
+                              colSpan={2}
+                              style={{ textAlign: "center" }}
+                            >
+                              <strong> No data found</strong>
+                            </TableCell>
+                          </TableRow>
+                        ) : null}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              ))}
+          {details?.repair_service_history_data < 1 ? (
+            <Box sx={{ textAlign: "center" }}>
+              <strong> No data found</strong>
+            </Box>
+          ) : null}
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 3 }}
+          >
+            Spare Parts History
+          </Typography>
+          {!loading &&
+            details?.repair_product_history_data?.length > 0 &&
+            details?.repair_product_history_data
+              ?.slice()
+              ?.reverse()
+              ?.map((item, i) => (
+                <Box
+                  sx={{
+                    mb: 2,
+                    background: "#f9f9f9",
+                    p: 1,
+                    borderRadius: "8px",
+                  }}
+                >
+                  <Typography
+                    variant=""
+                    gutterBottom
+                    component="div"
+                    sx={{ color: "#0F1624", margin: 0 }}
+                  >
+                    <b>Date :</b>{" "}
+                    {moment(item?.created_at).format("DD MMM YYYY")} |{" "}
+                    <b>User Name:</b> {item?.created_user?.name} |{" "}
+                    <b>User Email:</b> {item?.created_user?.email}
+                  </Typography>
+                  <TableContainer sx={{ background: "#fff" }}>
+                    <Table stickyHeader aria-label="sticky table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell style={{ whiteSpace: "nowrap" }}>
+                            Name
+                          </TableCell>
+                          {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                Purchase date
+                </TableCell> */}
+
+                          <TableCell
+                            align="right"
+                            style={{ whiteSpace: "nowrap" }}
+                          >
+                            Price
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {!loading &&
+                          item?.product_details?.length > 0 &&
+                          item?.product_details?.map((row, i) => (
+                            <TableRow
+                              key={i}
+                              // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                            >
+                              {/* <TableCell sx={{ width: 50 }}>
+                                      <img
+                                        src={
+                                          row?.images?.length > 0
+                                            ? row?.images[0]?.url
+                                            : "/noImage.jpg"
+                                        }
+                                        alt=""
+                                        width={40}
+                                      />
+                                    </TableCell> */}
+
+                              <TableCell>{row?.name}</TableCell>
+                              <TableCell align="right">{row?.price}</TableCell>
+                            </TableRow>
+                          ))}
+                        {!loading && item?.product_details?.length > 0 && (
+                          <TableRow>
+                            <TableCell>
+                              <strong>Total</strong>
+                            </TableCell>
+                            <TableCell align="right">
+                              <strong>
+                                {item?.product_details?.reduce(
+                                  (acc, cur) => acc + (Number(cur?.price) || 0),
+                                  0
+                                )}
+                              </strong>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        {item?.product_details?.length < 1 ? (
+                          <TableRow
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell
+                              colSpan={2}
+                              style={{ textAlign: "center" }}
+                            >
+                              <strong> No data found</strong>
+                            </TableCell>
+                          </TableRow>
+                        ) : null}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              ))}
+          {details?.repair_service_history_data < 1 ? (
+            <Box sx={{ textAlign: "center" }}>
+              <strong> No data found</strong>
+            </Box>
+          ) : null}
         </Box>
       </div>
 
@@ -1004,115 +1385,6 @@ const RepairDetails = ({ clearFilter }) => {
               </TableBody>
             </Table>
           </TableContainer>
-        </Box>
-      </div>
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #EAECF1",
-          borderRadius: "12px",
-          overflow: "hidden",
-          // backgroundColor: "#F9FAFB",
-          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-          marginTop: 20,
-          marginBottom: 16,
-        }}
-      >
-        <Box sx={{ padding: "12px", margin: "16px" }}>
-          <Grid container spacing={2}>
-            <Grid size={12}>
-              <Typography
-                variant="h6"
-                gutterBottom
-                component="div"
-                sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-              >
-                Payment Info
-              </Typography>
-            </Grid>
-
-            <Grid size={12}>
-              {details?.payment_info?.length > 0
-                ? details?.payment_info?.map((item, index) => (
-                    <Typography
-                      variant="medium"
-                      color="text.main"
-                      gutterBottom
-                      sx={{ fontWeight: 500 }}
-                      key={index}
-                      style={{
-                        background: "#eee",
-                        marginRight: "10px",
-                        padding: "5px 10px",
-                        borderRadius: "5px",
-                        marginBottom: "5px",
-                        display: "inline-block",
-                      }}
-                    >
-                      {item?.name} : <b>{item?.amount}</b>
-                    </Typography>
-                  ))
-                : "---------"}
-              {details?.due_amount && (
-                <Typography
-                  variant="medium"
-                  color="text.main"
-                  gutterBottom
-                  sx={{ fontWeight: 500 }}
-                  style={{
-                    background: "#eee",
-                    marginRight: "10px",
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    marginBottom: "5px",
-                    display: "inline-block",
-                  }}
-                >
-                  Due Amount : <b>{details?.due_amount}</b>
-                </Typography>
-              )}
-              {details?.discount_amount && (
-                <Typography
-                  variant="medium"
-                  color="text.main"
-                  gutterBottom
-                  sx={{ fontWeight: 500 }}
-                  style={{
-                    background: "#eee",
-                    marginRight: "10px",
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    marginBottom: "5px",
-                    display: "inline-block",
-                  }}
-                >
-                  Discount Amount : <b>{details?.discount_amount}</b>
-                </Typography>
-              )}
-
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-                style={{
-                  background: "#eee",
-                  marginRight: "10px",
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  marginBottom: "5px",
-                  display: "inline-block",
-                }}
-              >
-                Total Paid Amount :{" "}
-                <b>
-                  {repairCost +
-                    spareParsCost -
-                    (Number(details?.discount_amount) || 0)}
-                </b>
-              </Typography>
-            </Grid>
-          </Grid>
         </Box>
       </div>
     </>
