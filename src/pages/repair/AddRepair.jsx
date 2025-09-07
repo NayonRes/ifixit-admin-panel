@@ -41,7 +41,7 @@ const AddRepair = () => {
   const [contactData, setContactData] = useState({});
 
   const [id, setId] = useState("");
-
+  const [allInfo, setAllInfo] = useState({});
   const [searchPrams, setSearchPrams] = useState("");
   const [name, setName] = useState("");
   const [serial, setSerial] = useState("");
@@ -104,6 +104,7 @@ const AddRepair = () => {
   const [mainIssueList, setMainIssueList] = useState(allIssueCheckList);
   const [branchList, setBranchList] = useState([]); // using this for only keep  allIssueCheckList array
   const [stockLimitList, setStockLimitList] = useState([]);
+  const [billCollections, setBillCollections] = useState([]);
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
     let decodedToken = jwtDecode(token);
@@ -225,8 +226,8 @@ const AddRepair = () => {
       pass_code: passCode,
       brand_id: brand_id,
       delivery_status: deliveryStatus,
-      due_amount: due_amount,
-      discount_amount: discount_amount,
+      due_amount: due_amount || 0,
+      discount_amount: discount_amount || 0,
       repair_by: technician,
       repair_status: repairStatus,
       repair_status_remarks: repairStatusRemarks,
@@ -234,6 +235,7 @@ const AddRepair = () => {
       product_details: allSparePartsModified,
       repair_checklist: repair_checklist,
       payment_info: payment_info,
+      billCollections: billCollections,
       serial: serial,
 
       model_id: deviceId,
@@ -301,6 +303,7 @@ const AddRepair = () => {
         // setSteps(0);
         let data = allData?.data?.data;
         setPreviousRepairData(data);
+        setAllInfo(data);
         console.log("edit data", data);
         setId(data?._id);
         setName(data?.customer_data[0]?.name);
@@ -646,6 +649,10 @@ const AddRepair = () => {
               set_discount_amount={set_discount_amount}
               allIssue={allIssue}
               allSpareParts={allSpareParts}
+              billCollections={billCollections}
+              setBillCollections={setBillCollections}
+              allInfo={allInfo}
+              setAllInfo={setAllInfo}
             />
           )}
           {/* {screenType == "add_contact" && (
