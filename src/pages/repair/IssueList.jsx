@@ -182,7 +182,7 @@ const IssueList = ({
         ...allIssue,
         {
           ...item,
-      
+
           name: item.name,
           repair_cost: item.repair_cost,
           service_id: item._id,
@@ -291,89 +291,93 @@ const IssueList = ({
         <Grid container spacing={2} sx={{ mt: 3 }}>
           {!issueLoading &&
             issueArr.length > 0 &&
-            issueArr.map((item, itemIndex) => (
-              <Grid
-                key={itemIndex}
-                size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 4 }}
-              >
-                <Item
-                  sx={{
-                    border:
-                      allIssue.some((pro) => pro?.service_id === item?._id) &&
-                      "1px solid #818FF8",
-                  }}
-                  onClick={() => handleSelectedProduct(item)}
+            issueArr
+              .slice() // make a shallow copy so original array is not mutated
+              .sort((a, b) => a.order_no - b.order_no) // ascending order by order_no
+
+              .map((item, itemIndex) => (
+                <Grid
+                  key={itemIndex}
+                  size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 4 }}
                 >
-                  {" "}
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Grid container alignItems="center">
-                      <Grid size="auto" sx={{ width: "100%" }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            gap: 2,
-                          }}
-                        >
+                  <Item
+                    sx={{
+                      border:
+                        allIssue.some((pro) => pro?.service_id === item?._id) &&
+                        "1px solid #818FF8",
+                    }}
+                    onClick={() => handleSelectedProduct(item)}
+                  >
+                    {" "}
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Grid container alignItems="center">
+                        <Grid size="auto" sx={{ width: "100%" }}>
                           <Box
-                            key={itemIndex}
                             sx={{
                               display: "flex",
-                              flexDirection: "column",
-                              gap: 1,
-                              flex: 1,
-                              maxWidth: "80%",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              gap: 2,
                             }}
                           >
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: 500,
-                                color: "#344054",
-                                // overflow: "hidden",
-                                // textOverflow: "ellipsis",
-                                // whiteSpace: "nowrap",
-                              }}
-                            >
-                              {item.name}
-                            </Typography>
                             <Box
+                              key={itemIndex}
                               sx={{
                                 display: "flex",
-                                gap: 2,
-                                alignItems: "center",
+                                flexDirection: "column",
+                                gap: 1,
+                                flex: 1,
+                                maxWidth: "80%",
                               }}
                             >
                               <Typography
-                                variant="body2"
-                                sx={{ color: "#3E3BC3" }}
+                                variant="body1"
+                                sx={{
+                                  fontWeight: 500,
+                                  color: "#344054",
+                                  // overflow: "hidden",
+                                  // textOverflow: "ellipsis",
+                                  // whiteSpace: "nowrap",
+                                }}
                               >
-                                {item.repair_cost}TK
+                                {item.name}
                               </Typography>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  gap: 2,
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "#3E3BC3" }}
+                                >
+                                  {item.repair_cost}TK
+                                </Typography>
+                              </Box>
                             </Box>
+                            <Checkbox
+                              sx={{
+                                display: allIssue.some(
+                                  (pro) => pro?.service_id === item?._id
+                                )
+                                  ? "block"
+                                  : "none",
+                              }}
+                              size="small"
+                              checked={true}
+                              inputProps={{
+                                "aria-label": "controlled",
+                              }}
+                            />
                           </Box>
-                          <Checkbox
-                            sx={{
-                              display: allIssue.some(
-                                (pro) => pro?.service_id === item?._id
-                              )
-                                ? "block"
-                                : "none",
-                            }}
-                            size="small"
-                            checked={true}
-                            inputProps={{
-                              "aria-label": "controlled",
-                            }}
-                          />
-                        </Box>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </Box>
-                </Item>
-              </Grid>
-            ))}
+                    </Box>
+                  </Item>
+                </Grid>
+              ))}
 
           {issueLoading && (
             <Grid size={12}>

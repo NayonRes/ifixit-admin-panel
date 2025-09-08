@@ -26,6 +26,7 @@ import { PulseLoader } from "react-spinners";
 import RepairHistory from "./RepairHistory";
 import SerialHistory from "./SerialHistory";
 import { allIssueCheckList } from "../../data";
+import RefundTransaction from "../refund/RefundTransaction";
 
 const AddRepair = () => {
   const navigate = useNavigate();
@@ -140,11 +141,15 @@ const AddRepair = () => {
   const handleSubmit = async () => {
     console.log("contactData", contactData);
 
+    console.log("billCollections", billCollections);
+
     let repairP = allIssue.reduce((sum, item) => sum + item.repair_cost, 0);
     let parsP = allSpareParts.reduce((sum, item) => sum + item.price, 0);
     let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
     let dueP = parseInt(due_amount || 0);
     let discount_amount_p = parseInt(discount_amount || 0);
+    console.log("paymentP", paymentP);
+    console.log("parsP", parsP);
 
     // return console.log('ok')
 
@@ -371,6 +376,10 @@ const AddRepair = () => {
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
+  };
+
+  const showRefund = () => {
+    return repairStatus === "Cancelled" || repairStatus === "Failed";
   };
   useEffect(() => {
     if (rid) {
@@ -693,6 +702,23 @@ const AddRepair = () => {
 
             {/* {steps == "payment" && (
               <> */}
+            {showRefund() && (
+              <>
+                <RefundTransaction
+                  transaction_source_id={rid}
+                  transaction_source_type="repairModel"
+                  transaction_type="debit"
+                  totalCollection={
+                    Array.isArray(allInfo?.payment_info)
+                      ? allInfo?.payment_info.reduce(
+                          (sum, i) => sum + (i.amount || 0),
+                          0
+                        )
+                      : 0
+                  }
+                />
+              </>
+            )}
 
             <Button
               variant="contained"
