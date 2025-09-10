@@ -102,7 +102,7 @@ const RefundTransaction = ({
 
     let data = {
       transaction_source_id: transaction_source_id,
-      transaction_info: [{ cash: amount }],
+      transaction_info: [{ name: "Cash", amount: amount }],
       transaction_source_type: transaction_source_type,
       transaction_type: transaction_type,
     };

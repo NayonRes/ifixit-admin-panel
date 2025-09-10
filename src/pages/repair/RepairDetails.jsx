@@ -1,7 +1,14 @@
 import React, { useEffect, useState, useContext } from "react";
 import Grid from "@mui/material/Grid2";
 
-import { Box, Button, Divider, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  Divider,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useSnackbar } from "notistack";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
@@ -21,42 +28,6 @@ import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import moment from "moment";
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#F9FAFB",
-  padding: "16px 12px",
-  borderRadius: "8px !important",
-  border: "1px solid #EAECF0",
-  cursor: "pointer",
-}));
 const RepairDetails = ({ clearFilter }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { rid } = useParams();
@@ -82,6 +53,36 @@ const RepairDetails = ({ clearFilter }) => {
       autoHideDuration: duration,
     });
   };
+
+  function calculateTransactionTotals(transactions = []) {
+    if (!transactions || transactions.length === 0) {
+      return { credit: 0, debit: 0, netBalance: 0 };
+    }
+
+    const totals = transactions.reduce(
+      (acc, transaction) => {
+        const sum = (transaction.transaction_info || []).reduce(
+          (s, t) => s + (t.amount || 0),
+          0
+        );
+
+        if (transaction.transaction_type === "credit") {
+          acc.credit += sum;
+        } else if (transaction.transaction_type === "debit") {
+          acc.debit += sum;
+        }
+
+        return acc;
+      },
+      { credit: 0, debit: 0 }
+    );
+
+    return {
+      credit: totals.credit,
+      debit: totals.debit,
+      netBalance: totals.credit - totals.debit,
+    };
+  }
   const calculateTotalRepairCost = (services) => {
     return services.reduce((total, service) => {
       return total + service.repair_cost;
@@ -125,6 +126,10 @@ const RepairDetails = ({ clearFilter }) => {
     }
     setLoading(false);
   };
+
+  const totals = calculateTransactionTotals(
+    details?.transaction_histories_data
+  );
   useEffect(() => {
     getData();
   }, []);
@@ -1154,6 +1159,216 @@ const RepairDetails = ({ clearFilter }) => {
                 </Box>
               ))}
           {details?.repair_service_history_data < 1 ? (
+            <Box sx={{ textAlign: "center" }}>
+              <strong> No data found</strong>
+            </Box>
+          ) : null}
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          {/* <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 3 }}
+          >
+            Transactions History{" "}
+            {
+              calculateTransactionTotals(details?.transaction_histories_data)
+                ?.credit
+            }{" "}
+            {
+              calculateTransactionTotals(details?.transaction_histories_data)
+                ?.debit
+            }
+            {
+              calculateTransactionTotals(details?.transaction_histories_data)
+                ?.netBalance
+            }
+          </Typography> */}
+
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              component="div"
+              sx={{ color: "#0F1624", fontWeight: 600, mb: 2 }}
+            >
+              Transactions History
+            </Typography>
+
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Chip
+                label={`Total Collection: ${totals.credit}`}
+                color="success"
+                variant="outlined"
+                sx={{ fontWeight: "bold", fontSize: "14px" }}
+              />
+              <Chip
+                label={`Total Refund: ${totals.debit}`}
+                color="error"
+                variant="outlined"
+                sx={{ fontWeight: "bold", fontSize: "14px" }}
+              />
+              <Chip
+                label={`Net Balance: ${totals.netBalance}`}
+                color={totals.netBalance >= 0 ? "primary" : "warning"}
+                variant="filled"
+                sx={{ fontWeight: "bold", fontSize: "14px" }}
+              />
+            </Box>
+          </Box>
+
+          {!loading &&
+            details?.transaction_histories_data?.length > 0 &&
+            details?.transaction_histories_data?.map((item, i) => (
+              <Box
+                sx={{
+                  mb: 2,
+                  background: "#f9f9f9",
+                  p: 1,
+                  borderRadius: "8px",
+                }}
+              >
+                <Typography
+                  variant=""
+                  gutterBottom
+                  component="div"
+                  sx={{ color: "#0F1624", margin: 0 }}
+                >
+                  <b>Date :</b> {moment(item?.created_at).format("DD MMM YYYY")}{" "}
+                  | <b>User Name:</b> {item?.created_user?.name} |{" "}
+                  <b>User Email:</b> {item?.created_user?.email}
+                </Typography>
+                <TableContainer sx={{ background: "#fff" }}>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Account Name
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Transaction Type
+                        </TableCell>
+
+                        <TableCell
+                          align="right"
+                          style={{ whiteSpace: "nowrap" }}
+                        >
+                          Total
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {!loading &&
+                        item?.transaction_info?.length > 0 &&
+                        item?.transaction_info?.map((row, i) => (
+                          <TableRow
+                            key={i}
+                            // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                          >
+                            {/* <TableCell sx={{ width: 50 }}>
+                                      <img
+                                        src={
+                                          row?.images?.length > 0
+                                            ? row?.images[0]?.url
+                                            : "/noImage.jpg"
+                                        }
+                                        alt=""
+                                        width={40}
+                                      />
+                                    </TableCell> */}
+
+                            <TableCell>{row?.name}</TableCell>
+
+                            <TableCell>
+                              {item?.transaction_type === "credit" ? (
+                                <>
+                                  <TaskAltOutlinedIcon
+                                    style={{
+                                      color: "#10ac84",
+                                      height: "16px",
+                                      position: "relative",
+                                      top: "4px",
+                                    }}
+                                  />{" "}
+                                  <span
+                                    style={{
+                                      color: "#10ac84",
+                                    }}
+                                  >
+                                    Received &nbsp;
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <HighlightOffOutlinedIcon
+                                    style={{
+                                      color: "#ee5253",
+                                      height: "16px",
+                                      position: "relative",
+                                      top: "4px",
+                                    }}
+                                  />
+                                  <span
+                                    style={{
+                                      color: "#ee5253",
+                                    }}
+                                  >
+                                    Refund
+                                  </span>
+                                </>
+                              )}
+                            </TableCell>
+                            <TableCell align="right">{row?.amount}</TableCell>
+                          </TableRow>
+                        ))}
+                      {!loading && item?.transaction_info?.length > 0 && (
+                        <TableRow>
+                          <TableCell>
+                            <strong>Total</strong>
+                          </TableCell>
+                          <TableCell align="right" colSpan={2}>
+                            <strong>
+                              {item?.transaction_info?.reduce(
+                                (acc, cur) => acc + (Number(cur?.amount) || 0),
+                                0
+                              )}
+                            </strong>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {item?.transaction_info?.length < 1 ? (
+                        <TableRow
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell
+                            colSpan={2}
+                            style={{ textAlign: "center" }}
+                          >
+                            <strong> No data found</strong>
+                          </TableCell>
+                        </TableRow>
+                      ) : null}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            ))}
+          {details?.transaction_histories_data < 1 ? (
             <Box sx={{ textAlign: "center" }}>
               <strong> No data found</strong>
             </Box>
