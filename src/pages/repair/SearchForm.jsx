@@ -88,20 +88,30 @@ const styles = {
   issue_list: { display: "flex", flexDirection: "column", gap: 1, mb: 3 },
   issue_list_item: {
     p: 1,
+    mb: 1,
     border: "1px solid #818FF8",
     borderRadius: 1,
     background: "#E0E8FF",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    height: 45,
+    position: "relative",
+    pr: 4,
+    // height: 45,
     ".issue_list_btn": {
       display: "none",
+      background: "#efeeff",
+      pb: 0,
+      color: "#222",
     },
     "&:hover": {
-      cursor: "pointer",
+      // cursor: "pointer",
       "& .issue_list_btn": {
-        display: "block",
+        display: "inline-block",
+        position: "absolute",
+        right: 5,
+        top: 2,
+        color: "#000",
       },
     },
   },
@@ -359,11 +369,30 @@ const SearchForm = ({
   };
 
   const removeItem = (id) => {
+    // let removeObj = allIssue?.find((res) => res.service_id === id);
+    // console.log("removeObj", removeObj);
+    // if (removeObj?._id) {
+    //   setAllIssue((prevIssues) =>
+    //     prevIssues.map((item) =>
+    //       item.service_id === id
+    //         ? {
+    //             ...item,
+    //             status: false,
+    //             updated_at: new Date().toISOString(),
+    //             updated_by: ifixit_admin_panel?.user?.email,
+    //           }
+    //         : item
+    //     )
+    //   );
+    // } else {
+    // }
     setAllIssue(allIssue.filter((item) => item.service_id !== id));
   };
 
   const removeSpareParts = (id) => {
-    setAllSpareParts(allSpareParts.filter((item) => item._id !== id));
+    setAllSpareParts(
+      allSpareParts.filter((item) => item.product_variation_id !== id)
+    );
   };
 
   const handleBranchClick = () => {
@@ -722,6 +751,10 @@ const SearchForm = ({
           color="text.main"
           gutterBottom
           sx={{ fontWeight: 500 }}
+          onClick={() => {
+            console.log("allIssue", allIssue);
+            console.log("allSpareParts", allSpareParts);
+          }}
         >
           Device
         </Typography>
@@ -753,35 +786,35 @@ const SearchForm = ({
         />
         {/* working */}
         {allIssue.length > 0 && (
-          <Box sx={styles.issue_list}>
+          <Box>
             {allIssue.map((item, index) => (
               <Box key={index} sx={styles.issue_list_item}>
                 {item.name} | ৳ {item.repair_cost}
-                <Box
+                <IconButton
                   role="button"
+                  size="small"
                   onClick={() => removeItem(item.service_id)}
                   className="issue_list_btn"
-                  sx={{ mt: "4px" }}
                 >
-                  <CloseIcon />{" "}
-                </Box>
+                  <CloseIcon sx={{ fontSize: "18px" }} />{" "}
+                </IconButton>
               </Box>
             ))}
           </Box>
         )}
         {allSpareParts.length > 0 && (
-          <Box sx={styles.issue_list}>
+          <Box>
             {allSpareParts.map((item, index) => (
               <Box key={index} sx={styles.issue_list_item}>
                 {item.name} | ৳ {item.price}
-                <Box
+                <IconButton
+                  size="small"
                   role="button"
-                  onClick={() => removeSpareParts(item._id)}
+                  onClick={() => removeSpareParts(item.product_variation_id)}
                   className="issue_list_btn"
-                  sx={{ mt: "4px" }}
                 >
-                  <CloseIcon />{" "}
-                </Box>
+                  <CloseIcon sx={{ fontSize: "18px" }} />{" "}
+                </IconButton>
               </Box>
             ))}
           </Box>

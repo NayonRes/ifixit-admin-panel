@@ -1090,7 +1090,7 @@ const AddSpareParts = ({ clearFilter }) => {
                                 // required
                                 size="small"
                                 id="quality"
-                                placeholder="Variation quality"
+                                placeholder="Quality"
                                 variant="outlined"
                                 sx={{
                                   ...customeTextFeild,
@@ -1149,7 +1149,7 @@ const AddSpareParts = ({ clearFilter }) => {
                                 type="number"
                                 size="small"
                                 id="base_price"
-                                placeholder="base_price"
+                                placeholder="Base Price"
                                 variant="outlined"
                                 sx={{
                                   ...customeTextFeild,

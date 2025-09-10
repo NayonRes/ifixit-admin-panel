@@ -40,6 +40,8 @@ export default function RepairStatusHistory({
   repairStatus,
   setRepairStatus,
   setLastUpdatedRepairStatus,
+  repairStatusRemarks,
+  setRepairStatusRemarks,
   technician,
   setTechnician,
 }) {
@@ -236,7 +238,7 @@ export default function RepairStatusHistory({
               <TableRow>
                 <TableCell sx={{}}>Status</TableCell>
                 <TableCell>Note</TableCell>
-                <TableCell align="right">Action</TableCell>
+                {/* <TableCell align="right">Action</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody
@@ -318,12 +320,13 @@ export default function RepairStatusHistory({
                       },
                       minWidth: "150px",
                     }}
-                    value={newStatusRemarks}
-                    onChange={(e) => setNewStatusRemarks(e.target.value)}
+                    value={repairStatusRemarks}
+                    onChange={(e) => setRepairStatusRemarks(e.target.value)}
+                    // onChange={(e) => setNewStatusRemarks(e.target.value)}
                   />
                 </TableCell>
 
-                <TableCell
+                {/* <TableCell
                   align="right"
                   sx={{ whiteSpace: "nowrap", width: "90px" }}
                 >
@@ -345,7 +348,7 @@ export default function RepairStatusHistory({
                     />{" "}
                     {saveLoading === false && "Save"}
                   </Button>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             </TableBody>
           </Table>

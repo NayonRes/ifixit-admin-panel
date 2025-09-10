@@ -1,7 +1,14 @@
 import React, { useEffect, useState, useContext } from "react";
 import Grid from "@mui/material/Grid2";
 
-import { Box, Button, Divider, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  Divider,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useSnackbar } from "notistack";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
@@ -17,43 +24,10 @@ import Paper from "@mui/material/Paper";
 import { AuthContext } from "../../context/AuthContext";
 import LocalPrintshopOutlinedIcon from "@mui/icons-material/LocalPrintshopOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
+import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
+import moment from "moment";
 
-const baseStyle = {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "16px 24px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#EAECF0",
-  borderStyle: "dashed",
-  backgroundColor: "#fff",
-  // color: "#bdbdbd",
-  outline: "none",
-  transition: "border .24s ease-in-out",
-  borderRadius: "12px",
-};
-
-const focusedStyle = {
-  borderColor: "#2196f3",
-};
-
-const acceptStyle = {
-  borderColor: "#00e676",
-};
-
-const rejectStyle = {
-  borderColor: "#ff1744",
-};
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#F9FAFB",
-  padding: "16px 12px",
-  borderRadius: "8px !important",
-  border: "1px solid #EAECF0",
-  cursor: "pointer",
-}));
 const RepairDetails = ({ clearFilter }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { rid } = useParams();
@@ -79,6 +53,36 @@ const RepairDetails = ({ clearFilter }) => {
       autoHideDuration: duration,
     });
   };
+
+  function calculateTransactionTotals(transactions = []) {
+    if (!transactions || transactions.length === 0) {
+      return { credit: 0, debit: 0, netBalance: 0 };
+    }
+
+    const totals = transactions.reduce(
+      (acc, transaction) => {
+        const sum = (transaction.transaction_info || []).reduce(
+          (s, t) => s + (t.amount || 0),
+          0
+        );
+
+        if (transaction.transaction_type === "credit") {
+          acc.credit += sum;
+        } else if (transaction.transaction_type === "debit") {
+          acc.debit += sum;
+        }
+
+        return acc;
+      },
+      { credit: 0, debit: 0 }
+    );
+
+    return {
+      credit: totals.credit,
+      debit: totals.debit,
+      netBalance: totals.credit - totals.debit,
+    };
+  }
   const calculateTotalRepairCost = (services) => {
     return services.reduce((total, service) => {
       return total + service.repair_cost;
@@ -122,6 +126,10 @@ const RepairDetails = ({ clearFilter }) => {
     }
     setLoading(false);
   };
+
+  const totals = calculateTransactionTotals(
+    details?.transaction_histories_data
+  );
   useEffect(() => {
     getData();
   }, []);
@@ -631,6 +639,7 @@ const RepairDetails = ({ clearFilter }) => {
           </Grid>
         </Box>
       </div>
+
       <div
         style={{
           background: "#fff",
@@ -657,14 +666,40 @@ const RepairDetails = ({ clearFilter }) => {
             </Grid>
 
             <Grid size={12}>
-              {details?.payment_info?.length > 0
-                ? details?.payment_info?.map((item, index) => (
+              {details?.payment_info?.length > 0 ? (
+                details?.payment_info?.map((item, index) => (
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                    key={index}
+                    style={{
+                      background: "#eee",
+                      marginRight: "10px",
+                      padding: "5px 10px",
+                      borderRadius: "5px",
+                      marginBottom: "5px",
+                      display: "inline-block",
+                    }}
+                  >
+                    {item?.name} : <b>{item?.amount}</b>
+                  </Typography>
+                ))
+              ) : (
+                <Box sx={{ textAlign: "center", fontWeight: 600 }}>
+                  No Payment Available
+                </Box>
+              )}
+
+              {details?.payment_info?.length > 0 && (
+                <>
+                  {details?.due_amount && (
                     <Typography
                       variant="medium"
                       color="text.main"
                       gutterBottom
                       sx={{ fontWeight: 500 }}
-                      key={index}
                       style={{
                         background: "#eee",
                         marginRight: "10px",
@@ -674,70 +709,897 @@ const RepairDetails = ({ clearFilter }) => {
                         display: "inline-block",
                       }}
                     >
-                      {item?.name} : <b>{item?.amount}</b>
+                      Due Amount : <b>{details?.due_amount}</b>
                     </Typography>
-                  ))
-                : "---------"}
-              {details?.due_amount && (
-                <Typography
-                  variant="medium"
-                  color="text.main"
-                  gutterBottom
-                  sx={{ fontWeight: 500 }}
-                  style={{
-                    background: "#eee",
-                    marginRight: "10px",
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    marginBottom: "5px",
-                    display: "inline-block",
-                  }}
-                >
-                  Due Amount : <b>{details?.due_amount}</b>
-                </Typography>
-              )}
-              {details?.discount_amount && (
-                <Typography
-                  variant="medium"
-                  color="text.main"
-                  gutterBottom
-                  sx={{ fontWeight: 500 }}
-                  style={{
-                    background: "#eee",
-                    marginRight: "10px",
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    marginBottom: "5px",
-                    display: "inline-block",
-                  }}
-                >
-                  Discount Amount : <b>{details?.discount_amount}</b>
-                </Typography>
-              )}
+                  )}
 
-              <Typography
-                variant="medium"
-                color="text.main"
-                gutterBottom
-                sx={{ fontWeight: 500 }}
-                style={{
-                  background: "#eee",
-                  marginRight: "10px",
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  marginBottom: "5px",
-                  display: "inline-block",
-                }}
-              >
-                Total Paid Amount :{" "}
-                <b>
-                  {repairCost +
-                    spareParsCost -
-                    (Number(details?.discount_amount) || 0)}
-                </b>
-              </Typography>
+                  {details?.discount_amount && (
+                    <Typography
+                      variant="medium"
+                      color="text.main"
+                      gutterBottom
+                      sx={{ fontWeight: 500 }}
+                      style={{
+                        background: "#eee",
+                        marginRight: "10px",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
+                        marginBottom: "5px",
+                        display: "inline-block",
+                      }}
+                    >
+                      Discount Amount : <b>{details?.discount_amount}</b>
+                    </Typography>
+                  )}
+
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                    style={{
+                      background: "#eee",
+                      marginRight: "10px",
+                      padding: "5px 10px",
+                      borderRadius: "5px",
+                      marginBottom: "5px",
+                      display: "inline-block",
+                    }}
+                  >
+                    Total Paid Amount :{" "}
+                    <b>
+                      {repairCost +
+                        spareParsCost -
+                        (Number(details?.discount_amount) || 0)}
+                    </b>
+                  </Typography>
+                </>
+              )}
             </Grid>
           </Grid>
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+          >
+            Attached Items
+          </Typography>
+
+          <TableContainer>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Product Name
+                  </TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                Purchase date
+                </TableCell> */}
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    SKU Number
+                  </TableCell>
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Created Info
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Updated Info
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {!loading &&
+                  details?.repair_attached_spareparts_data?.length > 0 &&
+                  details?.repair_attached_spareparts_data
+                    ?.filter((item) => item?.is_warranty_claimed_sku === false)
+                    ?.map((row, i) => (
+                      <TableRow
+                        key={i}
+                        // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      >
+                        {/* <TableCell sx={{ width: 50 }}>
+                                      <img
+                                        src={
+                                          row?.images?.length > 0
+                                            ? row?.images[0]?.url
+                                            : "/noImage.jpg"
+                                        }
+                                        alt=""
+                                        width={40}
+                                      />
+                                    </TableCell> */}
+                        <TableCell sx={{ minWidth: "130px" }}>
+                          {row?.stocks_data?.product_data
+                            ? row?.stocks_data?.product_data?.name
+                            : "---------"}{" "}
+                          &nbsp;{" "}
+                          {row?.stocks_data?.product_variation_data
+                            ? row?.stocks_data?.product_variation_data?.name
+                            : "---------"}
+                        </TableCell>
+
+                        <TableCell>{row?.sku_number}</TableCell>
+                        <TableCell>
+                          {row?.created_user?.name} <br />
+                          {moment(row?.created_at).format("DD/MM/YYYY")}
+                        </TableCell>
+                        <TableCell>
+                          {row?.updated_user?.name
+                            ? row?.updated_user?.name
+                            : "N/A"}{" "}
+                          <br />
+                          {row?.updated_user?.name &&
+                            moment(row?.updated_at).format("DD/MM/YYYY")}
+                        </TableCell>
+                        <TableCell>
+                          {row?.status ? (
+                            <>
+                              <TaskAltOutlinedIcon
+                                style={{
+                                  color: "#10ac84",
+                                  height: "16px",
+                                  position: "relative",
+                                  top: "4px",
+                                }}
+                              />{" "}
+                              <span
+                                style={{
+                                  color: "#10ac84",
+                                }}
+                              >
+                                Attached &nbsp;
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <HighlightOffOutlinedIcon
+                                style={{
+                                  color: "#ee5253",
+                                  height: "16px",
+                                  position: "relative",
+                                  top: "4px",
+                                }}
+                              />
+                              <span
+                                style={{
+                                  color: "#ee5253",
+                                }}
+                              >
+                                Removed
+                              </span>
+                            </>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
+                {details?.length < 1 ? (
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                      <strong> No data found</strong>
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 3 }}
+          >
+            Service History
+          </Typography>
+          {!loading &&
+            details?.repair_service_history_data?.length > 0 &&
+            details?.repair_service_history_data
+              ?.slice()
+              ?.reverse()
+              ?.map((item, i) => (
+                <Box
+                  sx={{
+                    mb: 2,
+                    background: "#f9f9f9",
+                    p: 1,
+                    borderRadius: "8px",
+                  }}
+                >
+                  <Typography
+                    variant=""
+                    gutterBottom
+                    component="div"
+                    sx={{ color: "#0F1624", margin: 0 }}
+                  >
+                    <b>Date :</b>{" "}
+                    {moment(item?.created_at).format("DD MMM YYYY")} |{" "}
+                    <b>User Name:</b> {item?.created_user?.name} |{" "}
+                    <b>User Email:</b> {item?.created_user?.email}
+                  </Typography>
+                  <TableContainer sx={{ background: "#fff" }}>
+                    <Table stickyHeader aria-label="sticky table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell style={{ whiteSpace: "nowrap" }}>
+                            Name
+                          </TableCell>
+                          {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                Purchase date
+                </TableCell> */}
+
+                          <TableCell
+                            align="right"
+                            style={{ whiteSpace: "nowrap" }}
+                          >
+                            Cost
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {!loading &&
+                          item?.service_info?.length > 0 &&
+                          item?.service_info?.map((row, i) => (
+                            <TableRow
+                              key={i}
+                              // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                            >
+                              {/* <TableCell sx={{ width: 50 }}>
+                                      <img
+                                        src={
+                                          row?.images?.length > 0
+                                            ? row?.images[0]?.url
+                                            : "/noImage.jpg"
+                                        }
+                                        alt=""
+                                        width={40}
+                                      />
+                                    </TableCell> */}
+
+                              <TableCell>{row?.name}</TableCell>
+                              <TableCell align="right">
+                                {row?.repair_cost}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        {!loading && item?.service_info?.length > 0 && (
+                          <TableRow>
+                            <TableCell>
+                              <strong>Total</strong>
+                            </TableCell>
+                            <TableCell align="right">
+                              <strong>
+                                {item?.service_info?.reduce(
+                                  (acc, cur) =>
+                                    acc + (Number(cur?.repair_cost) || 0),
+                                  0
+                                )}
+                              </strong>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        {item?.service_info?.length < 1 ? (
+                          <TableRow
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell
+                              colSpan={2}
+                              style={{ textAlign: "center" }}
+                            >
+                              <strong> No data found</strong>
+                            </TableCell>
+                          </TableRow>
+                        ) : null}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              ))}
+          {details?.repair_service_history_data < 1 ? (
+            <Box sx={{ textAlign: "center" }}>
+              <strong> No data found</strong>
+            </Box>
+          ) : null}
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 3 }}
+          >
+            Spare Parts History
+          </Typography>
+          {!loading &&
+            details?.repair_product_history_data?.length > 0 &&
+            details?.repair_product_history_data
+              ?.slice()
+              ?.reverse()
+              ?.map((item, i) => (
+                <Box
+                  sx={{
+                    mb: 2,
+                    background: "#f9f9f9",
+                    p: 1,
+                    borderRadius: "8px",
+                  }}
+                >
+                  <Typography
+                    variant=""
+                    gutterBottom
+                    component="div"
+                    sx={{ color: "#0F1624", margin: 0 }}
+                  >
+                    <b>Date :</b>{" "}
+                    {moment(item?.created_at).format("DD MMM YYYY")} |{" "}
+                    <b>User Name:</b> {item?.created_user?.name} |{" "}
+                    <b>User Email:</b> {item?.created_user?.email}
+                  </Typography>
+                  <TableContainer sx={{ background: "#fff" }}>
+                    <Table stickyHeader aria-label="sticky table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell style={{ whiteSpace: "nowrap" }}>
+                            Name
+                          </TableCell>
+                          {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                Purchase date
+                </TableCell> */}
+
+                          <TableCell
+                            align="right"
+                            style={{ whiteSpace: "nowrap" }}
+                          >
+                            Price
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {!loading &&
+                          item?.product_details?.length > 0 &&
+                          item?.product_details?.map((row, i) => (
+                            <TableRow
+                              key={i}
+                              // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                            >
+                              {/* <TableCell sx={{ width: 50 }}>
+                                      <img
+                                        src={
+                                          row?.images?.length > 0
+                                            ? row?.images[0]?.url
+                                            : "/noImage.jpg"
+                                        }
+                                        alt=""
+                                        width={40}
+                                      />
+                                    </TableCell> */}
+
+                              <TableCell>{row?.name}</TableCell>
+                              <TableCell align="right">{row?.price}</TableCell>
+                            </TableRow>
+                          ))}
+                        {!loading && item?.product_details?.length > 0 && (
+                          <TableRow>
+                            <TableCell>
+                              <strong>Total</strong>
+                            </TableCell>
+                            <TableCell align="right">
+                              <strong>
+                                {item?.product_details?.reduce(
+                                  (acc, cur) => acc + (Number(cur?.price) || 0),
+                                  0
+                                )}
+                              </strong>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        {item?.product_details?.length < 1 ? (
+                          <TableRow
+                            sx={{
+                              "&:last-child td, &:last-child th": { border: 0 },
+                            }}
+                          >
+                            <TableCell
+                              colSpan={2}
+                              style={{ textAlign: "center" }}
+                            >
+                              <strong> No data found</strong>
+                            </TableCell>
+                          </TableRow>
+                        ) : null}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              ))}
+          {details?.repair_service_history_data < 1 ? (
+            <Box sx={{ textAlign: "center" }}>
+              <strong> No data found</strong>
+            </Box>
+          ) : null}
+        </Box>
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          {/* <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 3 }}
+          >
+            Transactions History{" "}
+            {
+              calculateTransactionTotals(details?.transaction_histories_data)
+                ?.credit
+            }{" "}
+            {
+              calculateTransactionTotals(details?.transaction_histories_data)
+                ?.debit
+            }
+            {
+              calculateTransactionTotals(details?.transaction_histories_data)
+                ?.netBalance
+            }
+          </Typography> */}
+
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              component="div"
+              sx={{ color: "#0F1624", fontWeight: 600, mb: 2 }}
+            >
+              Transactions History
+            </Typography>
+
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Chip
+                label={`Total Collection: ${totals.credit}`}
+                color="success"
+                variant="outlined"
+                sx={{ fontWeight: "bold", fontSize: "14px" }}
+              />
+              <Chip
+                label={`Total Refund: ${totals.debit}`}
+                color="error"
+                variant="outlined"
+                sx={{ fontWeight: "bold", fontSize: "14px" }}
+              />
+              <Chip
+                label={`Net Balance: ${totals.netBalance}`}
+                color={totals.netBalance >= 0 ? "primary" : "warning"}
+                variant="filled"
+                sx={{ fontWeight: "bold", fontSize: "14px" }}
+              />
+            </Box>
+          </Box>
+
+          {!loading &&
+            details?.transaction_histories_data?.length > 0 &&
+            details?.transaction_histories_data?.map((item, i) => (
+              <Box
+                sx={{
+                  mb: 2,
+                  background: "#f9f9f9",
+                  p: 1,
+                  borderRadius: "8px",
+                }}
+              >
+                <Typography
+                  variant=""
+                  gutterBottom
+                  component="div"
+                  sx={{ color: "#0F1624", margin: 0 }}
+                >
+                  <b>Date :</b> {moment(item?.created_at).format("DD MMM YYYY")}{" "}
+                  | <b>User Name:</b> {item?.created_user?.name} |{" "}
+                  <b>User Email:</b> {item?.created_user?.email}
+                </Typography>
+                <TableContainer sx={{ background: "#fff" }}>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Account Name
+                        </TableCell>
+                        <TableCell style={{ whiteSpace: "nowrap" }}>
+                          Transaction Type
+                        </TableCell>
+
+                        <TableCell
+                          align="right"
+                          style={{ whiteSpace: "nowrap" }}
+                        >
+                          Total
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {!loading &&
+                        item?.transaction_info?.length > 0 &&
+                        item?.transaction_info?.map((row, i) => (
+                          <TableRow
+                            key={i}
+                            // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                          >
+                            {/* <TableCell sx={{ width: 50 }}>
+                                      <img
+                                        src={
+                                          row?.images?.length > 0
+                                            ? row?.images[0]?.url
+                                            : "/noImage.jpg"
+                                        }
+                                        alt=""
+                                        width={40}
+                                      />
+                                    </TableCell> */}
+
+                            <TableCell>{row?.name}</TableCell>
+
+                            <TableCell>
+                              {item?.transaction_type === "credit" ? (
+                                <>
+                                  <TaskAltOutlinedIcon
+                                    style={{
+                                      color: "#10ac84",
+                                      height: "16px",
+                                      position: "relative",
+                                      top: "4px",
+                                    }}
+                                  />{" "}
+                                  <span
+                                    style={{
+                                      color: "#10ac84",
+                                    }}
+                                  >
+                                    Received &nbsp;
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <HighlightOffOutlinedIcon
+                                    style={{
+                                      color: "#ee5253",
+                                      height: "16px",
+                                      position: "relative",
+                                      top: "4px",
+                                    }}
+                                  />
+                                  <span
+                                    style={{
+                                      color: "#ee5253",
+                                    }}
+                                  >
+                                    Refund
+                                  </span>
+                                </>
+                              )}
+                            </TableCell>
+                            <TableCell align="right">{row?.amount}</TableCell>
+                          </TableRow>
+                        ))}
+                      {!loading && item?.transaction_info?.length > 0 && (
+                        <TableRow>
+                          <TableCell>
+                            <strong>Total</strong>
+                          </TableCell>
+                          <TableCell align="right" colSpan={2}>
+                            <strong>
+                              {item?.transaction_info?.reduce(
+                                (acc, cur) => acc + (Number(cur?.amount) || 0),
+                                0
+                              )}
+                            </strong>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {item?.transaction_info?.length < 1 ? (
+                        <TableRow
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell
+                            colSpan={2}
+                            style={{ textAlign: "center" }}
+                          >
+                            <strong> No data found</strong>
+                          </TableCell>
+                        </TableRow>
+                      ) : null}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            ))}
+          {details?.transaction_histories_data < 1 ? (
+            <Box sx={{ textAlign: "center" }}>
+              <strong> No data found</strong>
+            </Box>
+          ) : null}
+        </Box>
+      </div>
+
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #EAECF1",
+          borderRadius: "12px",
+          overflow: "hidden",
+          // backgroundColor: "#F9FAFB",
+          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          marginTop: 20,
+        }}
+      >
+        <Box sx={{ padding: "12px", margin: "16px" }}>
+          {/* <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+          >
+            Warranty Items
+          </Typography> */}
+          <Box sx={{ my: "16px" }}>
+            <Grid container spacing={2}>
+              <Grid size={12}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  component="div"
+                  sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+                >
+                  Warranty Info
+                </Typography>
+              </Grid>
+
+              <Grid size={3}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  Service Charge :{" "}
+                  <b>
+                    {details?.warranties_data?.[0]?.service_charge > 0
+                      ? `TK. ${details.warranties_data[0].service_charge}`
+                      : "---------"}
+                  </b>
+                </Typography>
+              </Grid>
+              <Grid size={3}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  Discount :{" "}
+                  <b>
+                    {details?.warranties_data?.[0]?.discount > 0
+                      ? `TK. ${details.warranties_data[0].discount}`
+                      : "TK. 0"}
+                  </b>
+                </Typography>
+              </Grid>
+              <Grid size={3}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  Status :{" "}
+                  <b>
+                    {details?.warranties_data?.[0]?.warranty_service_status
+                      ? `${details.warranties_data[0].warranty_service_status}`
+                      : "---------"}
+                  </b>
+                </Typography>
+              </Grid>
+              <Grid size={3}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  Date :{" "}
+                  <b>
+                    {details?.warranties_data?.[0]?.created_at
+                      ? moment(details.warranties_data[0].created_at).format(
+                          "DD/MM/YYYY"
+                        )
+                      : "---------"}
+                  </b>
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+          <TableContainer>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Product Name
+                  </TableCell>
+                  {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                Purchase date
+                </TableCell> */}
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    SKU Number
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Claimed on SKU Number
+                  </TableCell>
+
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Created Info
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Updated Info
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {!loading &&
+                  details?.repair_attached_spareparts_data?.length > 0 &&
+                  details?.repair_attached_spareparts_data
+                    ?.filter((item) => item?.is_warranty_claimed_sku === true)
+                    ?.map((row, i) => (
+                      <TableRow
+                        key={i}
+                        // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      >
+                        {/* <TableCell sx={{ width: 50 }}>
+                                      <img
+                                        src={
+                                          row?.images?.length > 0
+                                            ? row?.images[0]?.url
+                                            : "/noImage.jpg"
+                                        }
+                                        alt=""
+                                        width={40}
+                                      />
+                                    </TableCell> */}
+                        <TableCell sx={{ minWidth: "130px" }}>
+                          {row?.stocks_data?.product_data
+                            ? row?.stocks_data?.product_data?.name
+                            : "---------"}{" "}
+                          &nbsp;{" "}
+                          {row?.stocks_data?.product_variation_data
+                            ? row?.stocks_data?.product_variation_data?.name
+                            : "---------"}
+                        </TableCell>
+
+                        <TableCell>{row?.sku_number}</TableCell>
+                        <TableCell>{row?.claimed_on_sku_number}</TableCell>
+
+                        <TableCell>
+                          {row?.created_user?.name} <br />
+                          {moment(row?.created_at).format("DD/MM/YYYY")}
+                        </TableCell>
+                        <TableCell>
+                          {row?.updated_user?.name
+                            ? row?.updated_user?.name
+                            : "N/A"}{" "}
+                          <br />
+                          {row?.updated_user?.name &&
+                            moment(row?.updated_at).format("DD/MM/YYYY")}
+                        </TableCell>
+                        <TableCell>
+                          {row?.status ? (
+                            <>
+                              <TaskAltOutlinedIcon
+                                style={{
+                                  color: "#10ac84",
+                                  height: "16px",
+                                  position: "relative",
+                                  top: "4px",
+                                }}
+                              />{" "}
+                              <span
+                                style={{
+                                  color: "#10ac84",
+                                }}
+                              >
+                                Attached &nbsp;
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <HighlightOffOutlinedIcon
+                                style={{
+                                  color: "#ee5253",
+                                  height: "16px",
+                                  position: "relative",
+                                  top: "4px",
+                                }}
+                              />
+                              <span
+                                style={{
+                                  color: "#ee5253",
+                                }}
+                              >
+                                Removed
+                              </span>
+                            </>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
+                {details?.length < 1 ? (
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                      <strong> No data found</strong>
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
       </div>
     </>

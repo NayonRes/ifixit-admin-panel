@@ -1,5 +1,17 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Box, Button, Checkbox, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
@@ -109,8 +121,9 @@ const bkash = "/bkash.png";
 
 const due = "/due.png";
 const discount = "/discount.png";
+const refund = "/refund.png";
 
-let statusList = [
+let paymentMethodList = [
   { name: "Cash", color: "#FEF7C3", icon: cash },
   { name: "UCB", color: "#FEE4E2", icon: ucb },
   { name: "City", color: "#DCFAE6", icon: city },
@@ -129,29 +142,109 @@ const PaymentList = ({
   set_discount_amount,
   allIssue,
   allSpareParts,
+  billCollections,
+  setBillCollections,
+  allInfo,
+  setAllInfo,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [amounts, setAmounts] = useState([]);
 
-  const handleChange = (name, value) => {
-    const updatedAmounts = [...amounts];
-    const index = updatedAmounts.findIndex((item) => item.name === name);
+  const totalAmount =
+    allIssue.reduce((sum, item) => sum + item.repair_cost, 0) +
+    allSpareParts.reduce((sum, item) => sum + item.price, 0);
 
-    if (value === 0) {
-      // Remove the entry if the amount is 0
-      if (index !== -1) {
-        updatedAmounts.splice(index, 1);
-      }
-    } else {
-      if (index !== -1) {
-        updatedAmounts[index].amount = value;
+  const totalPaidAmount = (data) => {
+    const paidAmount = data?.reduce((sum, item) => sum + (item.amount || 0), 0);
+    return paidAmount;
+  };
+  // const handleChange = (name, value) => {
+  //   const updatedAmounts = [...billCollections];
+  //   const index = updatedAmounts.findIndex((item) => item.name === name);
+
+  //   if (value === 0) {
+  //     // Remove the entry if the amount is 0
+  //     if (index !== -1) {
+  //       updatedAmounts.splice(index, 1);
+  //     }
+  //   } else {
+  //     if (index !== -1) {
+  //       updatedAmounts[index].amount = value;
+  //     } else {
+  //       updatedAmounts.push({ name, amount: value });
+  //     }
+  //   }
+  //   const groupedPayments = updatedAmounts.reduce((acc, item) => {
+  //     if (!acc[item.name]) {
+  //       acc[item.name] = 0;
+  //     }
+  //     acc[item.name] += item.amount;
+  //     return acc;
+  //   }, {});
+
+  //   // convert back to array of objects
+  //   const paymentInfo = Object.entries(groupedPayments).map(([key, value]) => ({
+  //     name: key,
+  //     amount: value,
+  //   }));
+  //   // setAmounts(updatedAmounts);
+  //   set_payment_info(paymentInfo);
+  //   // todays collections
+  //   setBillCollections(updatedAmounts);
+
+  //   // const paidAmount = totalPaidAmount(updatedAmounts);
+
+  //   // const dueAmount = totalAmount - paidAmount - discount_amount;
+
+  //   // set_due_amount(dueAmount);
+  // };
+  const handleChange = (name, value) => {
+    let updatedAmounts;
+
+    // Case 1: Input is blank (user cleared it)
+    if (value === "") {
+      updatedAmounts = billCollections.filter((item) => item.name !== name);
+    }
+    // Case 2: Value is not a number
+    else if (isNaN(value)) {
+      updatedAmounts = billCollections.filter((item) => item.name !== name);
+    }
+    // Case 3: Valid number
+    else {
+      const exists = billCollections.some((item) => item.name === name);
+
+      if (exists) {
+        updatedAmounts = billCollections.map((item) =>
+          item.name === name ? { ...item, amount: Number(value) } : item
+        );
       } else {
-        updatedAmounts.push({ name, amount: value });
+        updatedAmounts = [...billCollections, { name, amount: Number(value) }];
       }
     }
 
-    setAmounts(updatedAmounts);
-    set_payment_info(updatedAmounts);
+    // Update state
+    setBillCollections(updatedAmounts);
+
+    // Merge with existing payment_info
+    set_payment_info((prev) => {
+      const base =
+        allInfo?.payment_info?.find((item) => item.name === name)?.amount || 0;
+
+      const exists = prev.some((item) => item.name === name);
+
+      if (value === "" || isNaN(value)) {
+        // If cleared → remove from payment_info too
+        return prev.filter((item) => item.name !== name);
+      }
+
+      if (exists) {
+        return prev.map((item) =>
+          item.name === name ? { ...item, amount: base + Number(value) } : item
+        );
+      } else {
+        return [...prev, { name, amount: base + Number(value) }];
+      }
+    });
   };
 
   useEffect(() => {
@@ -159,6 +252,13 @@ const PaymentList = ({
       setAmounts(payment_info);
     }
   }, []);
+
+  // useEffect(() => {
+  //   const paidAmount = totalPaidAmount(billCollections);
+  //   const dueAmount = totalAmount - paidAmount - discount_amount;
+
+  //   set_due_amount(dueAmount);
+  // }, [billCollections, totalAmount, discount_amount]);
 
   return (
     <div>
@@ -179,7 +279,263 @@ const PaymentList = ({
         </Grid>
       </Grid>
       {/* {JSON.stringify(amounts)} Amount: */}
-      <Grid
+      <TableContainer
+        sx={{
+          borderRadius: "16px",
+          borderRadius: "8px 8px 0 0",
+          border: "3px solid #eee",
+          mt: 0,
+        }}
+      >
+        <Table stickyHeader aria-label="sticky table">
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ whiteSpace: "nowrap", background: "#fff" }}>
+                Methods
+              </TableCell>
+              {/* <TableCell style={{ whiteSpace: "nowrap" }}>
+                Purchase date
+                </TableCell> */}
+
+              <TableCell style={{ whiteSpace: "nowrap", background: "#fff" }}>
+                Received Amount
+              </TableCell>
+              <TableCell style={{ whiteSpace: "nowrap", background: "#fff" }}>
+                Amount
+              </TableCell>
+              <TableCell style={{ whiteSpace: "nowrap", background: "#fff" }}>
+                Total Amount
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {/* {!loading &&
+                  details?.repair_attached_spareparts_data?.length > 0 &&
+                  details?.repair_attached_spareparts_data
+                    ?.filter((item) => item?.is_warranty_claimed_sku === false)
+                    ?.map((row, i) => ( */}
+            {paymentMethodList.length > 0 &&
+              paymentMethodList.map((item, index) => (
+                <TableRow
+                  // key={i}
+                  // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  style={index % 2 === 0 ? { background: "#F9FAFB" } : null}
+                >
+                  <TableCell sx={{ minWidth: "400px" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        flex: 1,
+                      }}
+                    >
+                      <Box>
+                        <img
+                          src={item?.icon}
+                          style={{ maxHeight: "30px" }}
+                          alt=""
+                        />
+                      </Box>
+                      <Box>{item.name}</Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "130px" }}>
+                    {allInfo?.payment_info?.find(
+                      (res) => res?.name === item.name
+                    )?.amount || 0}{" "}
+                  </TableCell>
+                  <TableCell sx={{ width: "200px" }}>
+                    <TextField
+                      required
+                      type="number"
+                      onWheel={(e) => e.target.blur()}
+                      size="small"
+                      fullWidth
+                      variant="outlined"
+                      sx={{ ...customeTextFeild, mb: 0 }}
+                      // onChange={(e) => {
+                      //   const value = e.target.value;
+
+                      //   // allow only digits (no e, -, +)
+                      //   if (/^\d*$/.test(value)) {
+                      //     handleChange(
+                      //       item.name,
+                      //       value === "" ? 0 : Number(value)
+                      //     );
+                      //   }
+                      // }}
+
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        // allow only digits (no e, -, +)
+                        if (/^\d*$/.test(value)) {
+                          handleChange(
+                            item.name,
+                            value === "" ? "" : Number(value)
+                          );
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        // Prevent typing e, +, -, .
+                        if (["e", "E", "+", "-", "."].includes(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      value={
+                        billCollections.find(
+                          (entry) => entry.name === item.name
+                        )?.amount
+                      }
+                      // value={membershipId}
+                      // onChange={(e) => {
+                      //   setMembershipId(e.target.value);
+                      // }}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "130px" }}>
+                    {payment_info?.find((el) => el.name === item.name)?.amount}
+                  </TableCell>
+                </TableRow>
+              ))}
+
+            <TableRow
+            // key={i}
+            // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell sx={{ minWidth: "400px" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    flex: 1,
+                  }}
+                >
+                  <Box>
+                    <img src={due} style={{ maxHeight: "30px" }} alt="" />
+                  </Box>
+                  <Box>Due</Box>
+                </Box>
+              </TableCell>
+              <TableCell></TableCell>
+              <TableCell sx={{ width: "200px" }}>
+                <TextField
+                  required
+                  type="number"
+                  onWheel={(e) => e.target.blur()}
+                  size="small"
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    ...customeTextFeild,
+                    mb: 0,
+                    background: due_amount < 0 && "#ff7a7a",
+                  }}
+                  onKeyDown={(e) => {
+                    // Prevent typing e, +, -, .
+                    if (["e", "E", "+", "-", "."].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  value={due_amount}
+                  onChange={(e) => {
+                    set_due_amount(e.target.value);
+                  }}
+                />
+              </TableCell>{" "}
+              <TableCell>{due_amount}</TableCell>
+            </TableRow>
+            <TableRow
+            // key={i}
+            // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell sx={{ minWidth: "400px" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    flex: 1,
+                  }}
+                >
+                  <Box>
+                    <img src={discount} style={{ maxHeight: "30px" }} alt="" />
+                  </Box>
+                  <Box>Discount</Box>
+                </Box>
+              </TableCell>
+              <TableCell></TableCell>
+              <TableCell sx={{ width: "200px" }}>
+                <TextField
+                  required
+                  type="number"
+                  onWheel={(e) => e.target.blur()}
+                  size="small"
+                  fullWidth
+                  variant="outlined"
+                  sx={{ ...customeTextFeild, mb: 0 }}
+                  value={discount_amount}
+                  onChange={(e) => {
+                    set_discount_amount(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    // Prevent typing e, +, -, .
+                    if (["e", "E", "+", "-", "."].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </TableCell>{" "}
+              <TableCell>{discount_amount}</TableCell>
+            </TableRow>
+
+            <TableRow
+              // key={i}
+              // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              sx={{ py: 4 }}
+            >
+              <TableCell
+                align="right"
+                sx={{
+                  minWidth: "400px",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#fff",
+                  overflow: "hidden",
+                  borderRadius: "0 0 0 8px",
+                  background: "#4238CA",
+                  py: 2,
+                }}
+                colSpan={1}
+              >
+                Total Amount
+              </TableCell>
+              <TableCell sx={{ background: "#4238CA", py: 2 }}></TableCell>
+              <TableCell sx={{ background: "#4238CA", py: 2 }}></TableCell>
+
+              <TableCell
+                align="right"
+                sx={{
+                  color: "#fff",
+                  overflow: "hidden",
+                  borderRadius: "0 0 8px",
+                  background: "#4238CA",
+                  py: 2,
+                }}
+              >
+                {totalAmount}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* <Grid
         container
         spacing={0}
         sx={{
@@ -189,8 +545,8 @@ const PaymentList = ({
           borderRadius: 2,
         }}
       >
-        {statusList.length > 0 &&
-          statusList.map((item, index) => (
+        {paymentMethodList.length > 0 &&
+          paymentMethodList.map((item, index) => (
             <Grid
               size={12}
               key={index}
@@ -284,11 +640,15 @@ const PaymentList = ({
                 size="small"
                 fullWidth
                 variant="outlined"
-                sx={{ ...customeTextFeild, mb: 0 }}
-                value={due_amount}
-                onChange={(e) => {
-                  set_due_amount(e.target.value);
+                sx={{
+                  ...customeTextFeild,
+                  mb: 0,
+                  background: due_amount < 0 && "#ff7a7a",
                 }}
+                value={due_amount}
+                // onChange={(e) => {
+                //   set_due_amount(e.target.value);
+                // }}
               />
             </Box>
           </Box>
@@ -376,10 +736,11 @@ const PaymentList = ({
                 fullWidth
                 variant="outlined"
                 sx={{ mb: 0, background: "#fff", borderRadius: 1 }}
-                value={
-                  allIssue.reduce((sum, item) => sum + item.repair_cost, 0) +
-                  allSpareParts.reduce((sum, item) => sum + item.price, 0)
-                }
+                value={totalAmount}
+                // value={
+                //   allIssue.reduce((sum, item) => sum + item.repair_cost, 0) +
+                //   allSpareParts.reduce((sum, item) => sum + item.price, 0)
+                // }
                 // value={membershipId}
                 // onChange={(e) => {
                 //   setMembershipId(e.target.value);
@@ -388,7 +749,7 @@ const PaymentList = ({
             </Box>
           </Box>
         </Grid>
-      </Grid>
+      </Grid> */}
     </div>
   );
 };

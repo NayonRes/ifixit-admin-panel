@@ -26,6 +26,7 @@ import { PulseLoader } from "react-spinners";
 import RepairHistory from "./RepairHistory";
 import SerialHistory from "./SerialHistory";
 import { allIssueCheckList } from "../../data";
+import RefundTransaction from "../refund/RefundTransaction";
 
 const AddRepair = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const AddRepair = () => {
   const [contactData, setContactData] = useState({});
 
   const [id, setId] = useState("");
-
+  const [allInfo, setAllInfo] = useState({});
   const [searchPrams, setSearchPrams] = useState("");
   const [name, setName] = useState("");
   const [serial, setSerial] = useState("");
@@ -53,6 +54,7 @@ const AddRepair = () => {
   const [repairBy, setRepairBy] = useState("");
   const [repairStatus, setRepairStatus] = useState("");
   const [lastUpdatedRepairStatus, setLastUpdatedRepairStatus] = useState("");
+  const [repairStatusRemarks, setRepairStatusRemarks] = useState("");
   const [deliveryStatus, setDeliveryStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [parentList, setParentList] = useState([]);
@@ -102,6 +104,8 @@ const AddRepair = () => {
   const [issueLoading2, setIssueLoading2] = useState(false);
   const [mainIssueList, setMainIssueList] = useState(allIssueCheckList);
   const [branchList, setBranchList] = useState([]); // using this for only keep  allIssueCheckList array
+  const [stockLimitList, setStockLimitList] = useState([]);
+  const [billCollections, setBillCollections] = useState([]);
   const getBranchId = () => {
     let token = ifixit_admin_panel.token;
     let decodedToken = jwtDecode(token);
@@ -137,11 +141,15 @@ const AddRepair = () => {
   const handleSubmit = async () => {
     console.log("contactData", contactData);
 
+    console.log("billCollections", billCollections);
+
     let repairP = allIssue.reduce((sum, item) => sum + item.repair_cost, 0);
     let parsP = allSpareParts.reduce((sum, item) => sum + item.price, 0);
     let paymentP = payment_info.reduce((sum, item) => sum + item.amount, 0);
     let dueP = parseInt(due_amount || 0);
     let discount_amount_p = parseInt(discount_amount || 0);
+    console.log("paymentP", paymentP);
+    console.log("parsP", parsP);
 
     // return console.log('ok')
 
@@ -178,7 +186,10 @@ const AddRepair = () => {
         return handleSnakbarOpen("Repair list is empty", "error");
       }
       if (repairP + parsP !== dueP + paymentP + discount_amount_p) {
-        return handleSnakbarOpen("Total Amount and input are not same!", "error");
+        return handleSnakbarOpen(
+          "Total Amount and input are not same!",
+          "error"
+        );
       }
     }
 
@@ -193,6 +204,9 @@ const AddRepair = () => {
         service_id: item?.service_id,
         name: item.name,
         repair_cost: item.repair_cost,
+        status: item?.status,
+        updated_at: item?.updated_at,
+        updated_by: item?.updated_by,
       };
       return d;
     });
@@ -217,25 +231,27 @@ const AddRepair = () => {
       pass_code: passCode,
       brand_id: brand_id,
       delivery_status: deliveryStatus,
-      due_amount: due_amount,
-      discount_amount: discount_amount,
+      due_amount: due_amount || 0,
+      discount_amount: discount_amount || 0,
       repair_by: technician,
       repair_status: repairStatus,
+      repair_status_remarks: repairStatusRemarks,
       issues: allIssueModified,
       product_details: allSparePartsModified,
       repair_checklist: repair_checklist,
       payment_info: payment_info,
+      billCollections: billCollections,
       serial: serial,
 
       model_id: deviceId,
     };
 
-    if (location.pathname.includes("/update-repair")) {
-      data = {
-        ...data,
-        repair_status: lastUpdatedRepairStatus,
-      };
-    }
+    // if (location.pathname.includes("/update-repair")) {
+    //   data = {
+    //     ...data,
+    //     repair_status: lastUpdatedRepairStatus,
+    //   };
+    // }
 
     console.log("final data", data);
 
@@ -292,6 +308,7 @@ const AddRepair = () => {
         // setSteps(0);
         let data = allData?.data?.data;
         setPreviousRepairData(data);
+        setAllInfo(data);
         console.log("edit data", data);
         setId(data?._id);
         setName(data?.customer_data[0]?.name);
@@ -359,6 +376,10 @@ const AddRepair = () => {
     } else {
       handleSnakbarOpen(allData?.data?.message, "error");
     }
+  };
+
+  const showRefund = () => {
+    return repairStatus === "Cancelled" || repairStatus === "Failed";
   };
   useEffect(() => {
     if (rid) {
@@ -443,6 +464,8 @@ const AddRepair = () => {
             repairStatus={repairStatus}
             setRepairStatus={setRepairStatus}
             setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
+            repairStatusRemarks={repairStatusRemarks}
+            setRepairStatusRemarks={setRepairStatusRemarks}
             deliveryStatus={deliveryStatus}
             setDeliveryStatus={setDeliveryStatus}
             parentList={parentList}
@@ -568,6 +591,8 @@ const AddRepair = () => {
               setIssueLoading2={setIssueLoading2}
               branchList={branchList}
               setBranchList={setBranchList}
+              stockLimitList={stockLimitList}
+              setStockLimitList={setStockLimitList}
             />
             // <div>Model list</div>
           )}
@@ -607,6 +632,8 @@ const AddRepair = () => {
               repairStatus={repairStatus}
               setRepairStatus={setRepairStatus}
               setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
+              repairStatusRemarks={repairStatusRemarks}
+              setRepairStatusRemarks={setRepairStatusRemarks}
               deliveryStatus={deliveryStatus}
               setDeliveryStatus={setDeliveryStatus}
               repair_status_history_data={repair_status_history_data}
@@ -631,6 +658,10 @@ const AddRepair = () => {
               set_discount_amount={set_discount_amount}
               allIssue={allIssue}
               allSpareParts={allSpareParts}
+              billCollections={billCollections}
+              setBillCollections={setBillCollections}
+              allInfo={allInfo}
+              setAllInfo={setAllInfo}
             />
           )}
           {/* {screenType == "add_contact" && (
@@ -671,6 +702,23 @@ const AddRepair = () => {
 
             {/* {steps == "payment" && (
               <> */}
+            {showRefund() && (
+              <>
+                <RefundTransaction
+                  transaction_source_id={rid}
+                  transaction_source_type="repairModel"
+                  transaction_type="debit"
+                  totalCollection={
+                    Array.isArray(allInfo?.payment_info)
+                      ? allInfo?.payment_info.reduce(
+                          (sum, i) => sum + (i.amount || 0),
+                          0
+                        )
+                      : 0
+                  }
+                />
+              </>
+            )}
 
             <Button
               variant="contained"

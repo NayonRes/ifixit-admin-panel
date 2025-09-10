@@ -137,7 +137,10 @@ const ModelList = ({
   setRepairCheckList,
   issueLoading2,
   setIssueLoading2,
-  branchList, setBranchList
+  branchList,
+  setBranchList,
+  stockLimitList,
+  setStockLimitList,
 }) => {
   const location = useLocation();
   const { rid } = useParams();
@@ -236,8 +239,8 @@ const ModelList = ({
 
     let branch_id = getBranchId();
 
-    // let url = `/api/v1/product?model_id=${device_id}&branch_id=${branch_id}`;
-    let url = `/api/v1/product?attachable_models=${device_id}&branch_id=${branch_id}&limit=1000`;
+   
+    let url = `/api/v1/product/branch-stocks?attachable_models=${device_id}&branch_id=${branch_id}`;
 
     let allData = await getDataWithToken(url);
     // console.log("(allData?.data?.data products", allData?.data?.data);
@@ -249,6 +252,15 @@ const ModelList = ({
 
     if (allData.status >= 200 && allData.status < 300) {
       console.log("lll", allData?.data?.data);
+      const variationIds =
+        allData?.data?.data?.flatMap((item) =>
+          Array.isArray(item?.variation_data)
+            ? item.variation_data.map((v) => v._id)
+            : []
+        ) || [];
+
+      console.log("variationIds", variationIds);
+      // getBranchLimit(variationIds);
       setProductList(allData?.data?.data);
     } else {
       setProductLoading(false);
@@ -256,7 +268,31 @@ const ModelList = ({
     }
     setProductLoading(false);
   };
+  const getBranchLimit = async (product_variation_ids) => {
+    // let url = `/api/v1/model/device-model?deviceId=${id}`;
+    let url = `/api/v1/stockCounterAndLimit/branch-limit?product_variation_ids=${product_variation_ids}`;
 
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("getBranchLimit************************", allData?.data?.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      // setModelList(allData?.data?.data);
+
+      let newLimitListwithBranchData = allData?.data?.data?.map((item) => {
+        let newData = branchList?.find((el) => el._id === item?.branch_id);
+        return { ...item, branch_name: newData?.name }; // Defaults to 0 if stock_limit is undefined
+      });
+
+      console.log("newLimitListwithBranchData", newLimitListwithBranchData);
+      setStockLimitList(newLimitListwithBranchData);
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+  };
   const getRepairCheckList = async (device_id) => {
     setIssueLoading2(true);
 
@@ -555,8 +591,8 @@ const ModelList = ({
           setProductList={setProductList}
           productLoading={productLoading}
           setProductLoading={setProductLoading}
-           branchList={branchList}
-              setBranchList={setBranchList}
+          branchList={branchList}
+          setBranchList={setBranchList}
         />
       )}
     </div>
