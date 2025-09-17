@@ -705,6 +705,7 @@ const AddRepair = () => {
             {showRefund() && (
               <>
                 <RefundTransaction
+                  transaction_name="Repair Refund"
                   transaction_source_id={rid}
                   transaction_source_type="repairModel"
                   transaction_type="debit"

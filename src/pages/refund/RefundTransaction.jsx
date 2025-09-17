@@ -54,6 +54,7 @@ const form = {
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
 const RefundTransaction = ({
+  transaction_name,
   transaction_source_id,
   transaction_source_type,
   transaction_type,
@@ -68,6 +69,7 @@ const RefundTransaction = ({
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
+  const [remarks, setRemarks] = useState("");
 
   const [message, setMessage] = useState("");
 
@@ -94,6 +96,7 @@ const RefundTransaction = ({
 
   const clearForm = () => {
     setAmount("");
+    setRemarks("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -101,10 +104,12 @@ const RefundTransaction = ({
     setLoading(true);
 
     let data = {
+      transaction_name: transaction_name,
       transaction_source_id: transaction_source_id,
       transaction_info: [{ name: "Cash", amount: amount }],
       transaction_source_type: transaction_source_type,
       transaction_type: transaction_type,
+      remarks: remarks,
     };
 
     let response = await handlePostData(
@@ -327,6 +332,33 @@ const RefundTransaction = ({
               if (["e", "E", "+", "-", "."].includes(e.key)) {
                 e.preventDefault();
               }
+            }}
+          />
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500, mt: 3 }}
+          >
+            Remarks
+          </Typography>
+          <TextField
+            required
+            type="number"
+            size="small"
+            fullWidth
+            id="refund"
+            placeholder="Remarks"
+            variant="outlined"
+            multiline
+            rows={3}
+            sx={{ ...customeTextFeild }}
+            value={remarks}
+            // onChange={(e) => {
+            //   setName(e.target.value);
+            // }}
+            onChange={(e) => {
+              setRemarks(e.target.value);
             }}
           />
 

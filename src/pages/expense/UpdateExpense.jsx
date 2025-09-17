@@ -182,6 +182,12 @@ const UpdateExpense = ({ clearFilter, row }) => {
       expense_date: dayjs(expenseDate).toDate(),
       remarks: remarks,
       status: status,
+
+      // for adjust transaction
+      transaction_name:
+        expenseCategoryList?.find((res) => res._id === expenseCategoryId.trim())
+          ?.name || "",
+      transaction_info: [{ name: "Cash", amount: amount }],
     };
 
     let response = await handlePutData(
@@ -525,7 +531,7 @@ const UpdateExpense = ({ clearFilter, row }) => {
             size="small"
             fullWidth
             id="amount"
-            placeholder="Full Name"
+            placeholder="Amount"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}
             value={amount}
@@ -549,7 +555,7 @@ const UpdateExpense = ({ clearFilter, row }) => {
             multiline
             rows={3}
             id="remarks"
-            placeholder="Full Name"
+            placeholder="Note"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}
             value={remarks}
