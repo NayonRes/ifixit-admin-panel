@@ -17,7 +17,7 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getDataWithToken } from "../../services/GetDataService";
 
 import InputAdornment from "@mui/material/InputAdornment";
@@ -48,9 +48,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment";
 import dayjs from "dayjs";
 
-const WarrantyProductSKU = ({  }) => {
+const WarrantyProductSKU = ({ row }) => {
   const navigate = useNavigate();
-  const { rid } = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
@@ -67,8 +66,6 @@ const WarrantyProductSKU = ({  }) => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [details, setDetails] = useState("");
-  const [repairLoading, setRepairLoading] = useState(false);
-  const [repairDetails, setRepairDetails] = useState("");
   const [removeSkuDetails, setRemoveSkuDetails] = useState();
   const [removeSKUDialog, setRemoveSKUDialog] = useState(false);
   const [removeLoading, setRemoveLoading] = useState(false);
@@ -155,7 +152,7 @@ const WarrantyProductSKU = ({  }) => {
 
     setWarrantyLoading(true);
     let data = {
-      repair_id: rid,
+      repair_id: row?._id,
       service_charge: serviceCharge,
       discount,
       warranty_service_status: serviceStatus,
@@ -193,7 +190,7 @@ const WarrantyProductSKU = ({  }) => {
     }
     setLoading(true);
     let data = {
-      repair_id: rid,
+      repair_id: row?._id,
       is_warranty_claimed_sku: true,
       sku_numbers: productList?.map((item) => item.sku_number),
       claimed_on_sku_data: productList?.map((item) => ({
@@ -400,7 +397,7 @@ const WarrantyProductSKU = ({  }) => {
   const getData = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/repairAttachedSpareparts?repair_id=${rid}&is_warranty_claimed_sku=false&status=true`;
+    let url = `/api/v1/repairAttachedSpareparts?repair_id=${row?._id}&is_warranty_claimed_sku=false&status=true`;
 
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
@@ -426,7 +423,7 @@ const WarrantyProductSKU = ({  }) => {
     setLoading2(false);
   };
   const getWarantyDetails = async () => {
-    let url = `/api/v1/warranty?repair_id=${rid}`;
+    let url = `/api/v1/warranty?repair_id=${row?._id}`;
 
     let warrantyData = await getDataWithToken(url);
     if (warrantyData?.status === 401) {
@@ -455,7 +452,7 @@ const WarrantyProductSKU = ({  }) => {
   const getWarrantyData = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/repairAttachedSpareparts?repair_id=${rid}&is_warranty_claimed_sku=true&status=true`;
+    let url = `/api/v1/repairAttachedSpareparts?repair_id=${row?._id}&is_warranty_claimed_sku=true&status=true`;
 
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
@@ -484,67 +481,27 @@ const WarrantyProductSKU = ({  }) => {
     const newDate = dayjs(createdAt).add(monthsToAdd, "month");
     return newDate.isAfter(dayjs());
   };
-
-  const getRepairDetails = async () => {
-    setRepairLoading(true);
-
-    let url = `/api/v1/repair/${encodeURIComponent(rid.trim())}`;
-    let allData = await getDataWithToken(url);
-    console.log("allData?.data?.data", allData?.data?.data);
-
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setRepairDetails(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        // setMessage("No data found");
-      }
-    } else {
-      setRepairLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setRepairLoading(false);
-  };
   useEffect(() => {
     // getDropdownList();
-    getRepairDetails();
   }, []);
   return (
     <>
-      <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
-        <Grid size={6}>
-          <Typography
-            variant="h6"
-            gutterBottom
-            component="div"
-            sx={{ color: "#0F1624", fontWeight: 600 }}
-          >
-          Warranty
-          </Typography>
-        </Grid>
-        <Grid size={6} style={{ textAlign: "right" }}>
-          <Button
-            variant="outlined"
-            disableElevation
-            size="small"
-            color="secondary"
-            // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-            onClick={() => {
-              setAddDialog(true);
-              getData();
-              getWarrantyData();
-              getWarantyDetails();
-            }}
-            startIcon={<AddOutlinedIcon />}
-          >
-            Add Warranty
-          </Button>
-        </Grid>
-      </Grid>
+      <Button
+        variant="outlined"
+        disableElevation
+        size="small"
+        color="secondary"
+        // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+        onClick={() => {
+          setAddDialog(true);
+          getData();
+          getWarrantyData();
+          getWarantyDetails();
+        }}
+        startIcon={<AddOutlinedIcon />}
+      >
+        Add Warranty Previous
+      </Button>
 
       <Dialog
         open={addDialog}
@@ -625,7 +582,7 @@ const WarrantyProductSKU = ({  }) => {
                     sx={{ fontWeight: 500 }}
                   >
                     Invoice No :{" "}
-                    <b>{repairDetails?.repair_id ? repairDetails?.repair_id : "---------"}</b>
+                    <b>{row?.repair_id ? row?.repair_id : "---------"}</b>
                   </Typography>
                   <Typography
                     variant="medium"
@@ -634,7 +591,7 @@ const WarrantyProductSKU = ({  }) => {
                     sx={{ fontWeight: 500 }}
                   >
                     Invoice Date :{" "}
-                    <b>{dayjs(repairDetails?.created_at).format("DD MMM YYYY")}</b>
+                    <b>{dayjs(row?.created_at).format("DD MMM YYYY")}</b>
                   </Typography>
                 </Grid>
 
@@ -647,8 +604,8 @@ const WarrantyProductSKU = ({  }) => {
                   >
                     Name :{" "}
                     <b>
-                      {repairDetails?.customer_data?.length > 0
-                        ? repairDetails?.customer_data[0]?.name
+                      {row?.customer_data?.length > 0
+                        ? row?.customer_data[0]?.name
                         : "---------"}
                     </b>
                   </Typography>
@@ -660,8 +617,8 @@ const WarrantyProductSKU = ({  }) => {
                   >
                     Number :{" "}
                     <b>
-                      {repairDetails?.customer_data?.length > 0
-                        ? repairDetails?.customer_data[0]?.mobile
+                      {row?.customer_data?.length > 0
+                        ? row?.customer_data[0]?.mobile
                         : "---------"}
                     </b>
                   </Typography>
@@ -820,7 +777,7 @@ const WarrantyProductSKU = ({  }) => {
                             </TableCell>
                             <TableCell style={{ whiteSpace: "nowrap" }}>
                               {isDateAfterMonths(
-                                repairDetails?.created_at,
+                                row?.created_at,
 
                                 item?.product?.product_data[0]?.warranty
                               ) ? (
@@ -1091,7 +1048,7 @@ const WarrantyProductSKU = ({  }) => {
                             <TableCell>{item?.claimed_on_sku_number}</TableCell>
                             {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                             {isDateAfterMonths(
-                              repairDetails?.created_at,
+                              row?.created_at,
 
                               item?.product?.product_data[0]?.warranty
                             ) ? (

@@ -23,6 +23,7 @@ import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import AddRepairProductSKU from "./AddRepairProductSKU";
 import WarrantyProductSKU from "./WarrantyProductSKU";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 const RepairList = ({
   loading,
   pageLoading,
@@ -251,7 +252,19 @@ const RepairList = ({
                       ) && (
                         <>
                           <AddRepairProductSKU row={row} /> &nbsp; &nbsp;
-                          <WarrantyProductSKU row={row} /> &nbsp; &nbsp;
+                          <Button
+                            variant="outlined"
+                            disableElevation
+                            size="small"
+                            color="secondary"
+                            component={Link}
+                            to={`/repair/warranty/${row?._id}`}
+                            startIcon={<AddOutlinedIcon />}
+                          >
+                            Add Warranty
+                          </Button>{" "}
+                          &nbsp; &nbsp;
+                          {/* <WarrantyProductSKU row={row} /> &nbsp; &nbsp; */}
                           <Button
                             size="small"
                             variant="outlined"

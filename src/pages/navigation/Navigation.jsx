@@ -56,6 +56,8 @@ import Reports from "../reports/Reports";
 import ExpenseCategoryList from "../expense-category/ExpenseCategoryList";
 import ExpenseList from "../expense/ExpenseList";
 import IssueList from "../issue/IssueList";
+import WarrantyProductSKU from "../repair/WarrantyProductSKU";
+import WarrantyList from "../repair/WarrantyList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -443,6 +445,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <RepairDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/warranty/:rid"
+          element={
+            <PrivateRoute>
+              <WarrantyList />
             </PrivateRoute>
           }
         />
