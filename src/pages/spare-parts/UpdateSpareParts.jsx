@@ -128,7 +128,7 @@ const UpdateSpareParts = ({ getData, row }) => {
   const [details, setDetails] = useState("");
   const [file, setFile] = useState(null);
   const [remarks, setRemarks] = useState("");
-
+  const [status, setStatus] = useState();
   const [loading2, setLoading2] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -248,6 +248,7 @@ const UpdateSpareParts = ({ getData, row }) => {
     // formData.append("price", price);
     formData.append("description", details.trim());
     formData.append("remarks", remarks.trim());
+    formData.append("status", status);
     modelIds?.map((model_id) => formData.append("attachable_models", model_id));
     {
       file !== null && formData.append("images", file);
@@ -440,11 +441,11 @@ const UpdateSpareParts = ({ getData, row }) => {
 
     setModelId(row?.model_id);
     setModel(row?.attachable_models_data?.map((item) => item?.name));
-    setWarranty(row?.warranty);
+    setWarranty(row?.warranty === null ? "" : row?.warranty);
     // setPrice(row?.price);
     setDetails(row?.description);
     setRemarks(row?.remarks);
-    // setStatus(row?.status);
+    setStatus(row?.status);
   }, [row]);
   return (
     <>
@@ -825,13 +826,65 @@ const UpdateSpareParts = ({ getData, row }) => {
                 id="warranty"
                 placeholder="Warranty"
                 variant="outlined"
-                sx={{ ...customeTextFeild, mb: 2 }}
+                sx={{ ...customeTextFeild }}
                 value={warranty}
                 onChange={(e) => {
                   setWarranty(e.target.value);
                 }}
                 onWheel={(e) => e.target.blur()}
               />
+            </Grid>
+            <Grid size={6}>
+              {" "}
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                Select Status
+              </Typography>
+              <FormControl
+                fullWidth
+                size="small"
+                sx={{
+                  ...customeSelectFeild,
+                  "& label.Mui-focused": {
+                    color: "rgba(0,0,0,0)",
+                  },
+
+                  "& .MuiOutlinedInput-input img": {
+                    position: "relative",
+                    top: "2px",
+                  },
+                }}
+              >
+                {/* {parent_id?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Status
+              </InputLabel>
+            )} */}
+                <Select
+                  // required
+                  labelId="demo-simple-select-label"
+                  id="baseLanguage"
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 250, // Set the max height here
+                      },
+                    },
+                  }}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <MenuItem value={true}>Active</MenuItem>
+                  <MenuItem value={false}>Inactive</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
 
             <Grid size={12}>

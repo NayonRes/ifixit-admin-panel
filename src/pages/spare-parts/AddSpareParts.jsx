@@ -554,7 +554,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Spare Parts Name
+                Spare Parts Name *
               </Typography>
               <TextField
                 required
@@ -577,7 +577,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Brand
+                Brand *
               </Typography>
 
               <FormControl
@@ -634,7 +634,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Category
+                Category *
               </Typography>
 
               <FormControl
@@ -691,7 +691,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Device
+                Device *
               </Typography>
 
               <FormControl
@@ -748,7 +748,7 @@ const AddSpareParts = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Select Origin Model
+                Select Origin Model *
               </Typography>
 
               <FormControl
