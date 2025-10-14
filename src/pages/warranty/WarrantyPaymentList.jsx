@@ -131,17 +131,15 @@ let paymentMethodList = [
   { name: "SSL", color: "#E0E8FF", icon: ssl },
   { name: "Bkash", color: "#EBE9FE", icon: bkash },
 ];
-const PaymentList = ({
-  paymentStatus,
-  setPaymentStatus,
+const WarrantyPaymentList = ({
+  serviceCharge,
   payment_info,
   set_payment_info,
   due_amount,
   set_due_amount,
   discount_amount,
   set_discount_amount,
-  allIssue,
-  allSpareParts,
+
   billCollections,
   setBillCollections,
   allInfo,
@@ -150,54 +148,13 @@ const PaymentList = ({
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [amounts, setAmounts] = useState([]);
 
-  const totalAmount =
-    allIssue.reduce((sum, item) => sum + item.repair_cost, 0) +
-    allSpareParts.reduce((sum, item) => sum + item.price, 0);
+  const totalAmount = serviceCharge;
 
   const totalPaidAmount = (data) => {
     const paidAmount = data?.reduce((sum, item) => sum + (item.amount || 0), 0);
     return paidAmount;
   };
-  // const handleChange = (name, value) => {
-  //   const updatedAmounts = [...billCollections];
-  //   const index = updatedAmounts.findIndex((item) => item.name === name);
 
-  //   if (value === 0) {
-  //     // Remove the entry if the amount is 0
-  //     if (index !== -1) {
-  //       updatedAmounts.splice(index, 1);
-  //     }
-  //   } else {
-  //     if (index !== -1) {
-  //       updatedAmounts[index].amount = value;
-  //     } else {
-  //       updatedAmounts.push({ name, amount: value });
-  //     }
-  //   }
-  //   const groupedPayments = updatedAmounts.reduce((acc, item) => {
-  //     if (!acc[item.name]) {
-  //       acc[item.name] = 0;
-  //     }
-  //     acc[item.name] += item.amount;
-  //     return acc;
-  //   }, {});
-
-  //   // convert back to array of objects
-  //   const paymentInfo = Object.entries(groupedPayments).map(([key, value]) => ({
-  //     name: key,
-  //     amount: value,
-  //   }));
-  //   // setAmounts(updatedAmounts);
-  //   set_payment_info(paymentInfo);
-  //   // todays collections
-  //   setBillCollections(updatedAmounts);
-
-  //   // const paidAmount = totalPaidAmount(updatedAmounts);
-
-  //   // const dueAmount = totalAmount - paidAmount - discount_amount;
-
-  //   // set_due_amount(dueAmount);
-  // };
   const handleChange = (name, value) => {
     let updatedAmounts;
 
@@ -252,13 +209,6 @@ const PaymentList = ({
       setAmounts(payment_info);
     }
   }, []);
-
-  // useEffect(() => {
-  //   const paidAmount = totalPaidAmount(billCollections);
-  //   const dueAmount = totalAmount - paidAmount - discount_amount;
-
-  //   set_due_amount(dueAmount);
-  // }, [billCollections, totalAmount, discount_amount]);
 
   return (
     <div>
@@ -534,224 +484,8 @@ const PaymentList = ({
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* <Grid
-        container
-        spacing={0}
-        sx={{
-          mt: 0,
-          borderRadius: "8px 8px 0 0",
-          border: "3px solid #eee",
-          borderRadius: 2,
-        }}
-      >
-        {paymentMethodList.length > 0 &&
-          paymentMethodList.map((item, index) => (
-            <Grid
-              size={12}
-              key={index}
-              sx={{ p: 1 }}
-              style={index % 2 === 0 ? { background: "#F9FAFB" } : null}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  height: "100%",
-                  gap: 3,
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    flex: 1,
-                  }}
-                >
-                  <Box>
-                    <img
-                      src={item?.icon}
-                      style={{ maxHeight: "30px" }}
-                      alt=""
-                    />
-                  </Box>
-                  <Box>{item.name}</Box>
-                </Box>
-                <Box sx={{ flex: 1 }}>
-                  <TextField
-                    required
-                    type="number"
-                    onWheel={(e) => e.target.blur()}
-                    size="small"
-                    fullWidth
-                    variant="outlined"
-                    sx={{ ...customeTextFeild, mb: 0 }}
-                    onChange={(e) =>
-                      handleChange(item.name, parseFloat(e.target.value) || 0)
-                    }
-                    value={
-                      amounts.find((entry) => entry.name === item.name)
-                        ?.amount || ""
-                    }
-                    // value={membershipId}
-                    // onChange={(e) => {
-                    //   setMembershipId(e.target.value);
-                    // }}
-                  />
-                </Box>
-              </Box>
-            </Grid>
-          ))}
-
-        <Grid size={12} sx={{ p: 1, background: "#F9FAFB" }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              height: "100%",
-              gap: 3,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                flex: 1,
-              }}
-            >
-              <Box>
-                <img src={due} style={{ maxHeight: "30px" }} alt="" />
-              </Box>
-              <Box>Due</Box>
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <TextField
-                required
-                type="number"
-                onWheel={(e) => e.target.blur()}
-                size="small"
-                fullWidth
-                variant="outlined"
-                sx={{
-                  ...customeTextFeild,
-                  mb: 0,
-                  background: due_amount < 0 && "#ff7a7a",
-                }}
-                value={due_amount}
-                // onChange={(e) => {
-                //   set_due_amount(e.target.value);
-                // }}
-              />
-            </Box>
-          </Box>
-        </Grid>
-        <Grid size={12} sx={{ p: 1 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              height: "100%",
-              gap: 3,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                flex: 1,
-              }}
-            >
-              <Box>
-                <img src={discount} style={{ maxHeight: "30px" }} alt="" />
-              </Box>
-              <Box>Discount</Box>
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <TextField
-                required
-                type="number"
-                onWheel={(e) => e.target.blur()}
-                size="small"
-                fullWidth
-                variant="outlined"
-                sx={{ ...customeTextFeild, mb: 0 }}
-                value={discount_amount}
-                onChange={(e) => {
-                  set_discount_amount(e.target.value);
-                }}
-              />
-            </Box>
-          </Box>
-        </Grid>
-
-        <Grid
-          size={12}
-          sx={{
-            p: 1,
-            background: ColorPalette.light.primary.main,
-            color: "white",
-            borderRadius: "0 0 8px 8px",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              height: "100%",
-              gap: 3,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                flex: 1,
-              }}
-            >
-              <Box></Box>
-              <Box>Total Amount</Box>
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <TextField
-                required
-                type="number"
-                onWheel={(e) => e.target.blur()}
-                size="small"
-                fullWidth
-                variant="outlined"
-                sx={{ mb: 0, background: "#fff", borderRadius: 1 }}
-                value={totalAmount}
-                // value={
-                //   allIssue.reduce((sum, item) => sum + item.repair_cost, 0) +
-                //   allSpareParts.reduce((sum, item) => sum + item.price, 0)
-                // }
-                // value={membershipId}
-                // onChange={(e) => {
-                //   setMembershipId(e.target.value);
-                // }}
-              />
-            </Box>
-          </Box>
-        </Grid>
-      </Grid> */}
     </div>
   );
 };
 
-export default PaymentList;
+export default WarrantyPaymentList;

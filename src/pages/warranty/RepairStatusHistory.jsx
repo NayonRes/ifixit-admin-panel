@@ -47,6 +47,7 @@ export default function RepairStatusHistory({
 }) {
   const [searchParams] = useSearchParams();
   const { rid } = useParams();
+  const { wid } = useParams();
 
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
@@ -197,7 +198,7 @@ export default function RepairStatusHistory({
   const getData = async () => {
     setLoading(true);
 
-    let url = `/api/v1/repairStatusHistory?repair_id=${rid}&limit=100&page=1`;
+    let url = `/api/v1/repairStatusHistory?repair_id=${rid}&warranty_id=${wid}&limit=100&page=1`;
     // let url = `/api/v1/repair?serial=${serial}&limit=100&page=1`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data::::::", allData?.data?.data);
@@ -222,7 +223,9 @@ export default function RepairStatusHistory({
     setLoading(false);
   };
   useEffect(() => {
-    getData();
+    if (wid) {
+      getData();
+    }
     // console.log("repair_status_history_data", statusList);
   }, []);
 

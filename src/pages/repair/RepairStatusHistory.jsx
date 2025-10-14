@@ -197,7 +197,7 @@ export default function RepairStatusHistory({
   const getData = async () => {
     setLoading(true);
 
-    let url = `/api/v1/repairStatusHistory?repair_id=${rid}&limit=100&page=1`;
+    let url = `/api/v1/repairStatusHistory?repair_id=${rid}&warranty_id=null&limit=1000&page=1`;
     // let url = `/api/v1/repair?serial=${serial}&limit=100&page=1`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data::::::", allData?.data?.data);
