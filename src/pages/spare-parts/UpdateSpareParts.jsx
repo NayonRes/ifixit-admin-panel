@@ -817,7 +817,7 @@ const UpdateSpareParts = ({ getData, row }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Warranty
+                Warranty (in months)
               </Typography>
               <TextField
                 size="small"

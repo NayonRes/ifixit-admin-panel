@@ -21,9 +21,10 @@ import { AuthContext } from "../../context/AuthContext";
 
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import AddRepairProductSKU from "./AddRepairProductSKU";
+import WarrantyProductSKU from "./WarrantyProductSKU";
 
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import SafetyCheckOutlinedIcon from "@mui/icons-material/SafetyCheckOutlined";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined"; 
+import SafetyCheckOutlinedIcon from '@mui/icons-material/SafetyCheckOutlined';
 const RepairList = ({
   loading,
   pageLoading,
@@ -208,12 +209,10 @@ const RepairList = ({
                         : 0}
                     </TableCell>
                     <TableCell sx={{ color: "#D92D20" }}>
-                      {row?.due_amount > -1 ? row?.due_amount : "-------"}
+                      {row?.due_amount ? row?.due_amount : "-------"}
                     </TableCell>
                     <TableCell sx={{ color: "#D92D20" }}>
-                      {row?.discount_amount > -1
-                        ? row?.discount_amount
-                        : "-------"}
+                      {row?.discount_amount ? row?.discount_amount : "-------"}
                     </TableCell>
                     <TableCell>{calculateTotalAmount(row)}</TableCell>
 
@@ -260,7 +259,7 @@ const RepairList = ({
                             size="small"
                             color="secondary"
                             component={Link}
-                            to={`/repair/${row?._id}/warranty`}
+                            to={`/repair/warranty/${row?._id}`}
                             startIcon={<SafetyCheckOutlinedIcon />}
                           >
                             Warranty

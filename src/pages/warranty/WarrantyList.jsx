@@ -17,7 +17,7 @@ import axios from "axios";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import { AuthContext } from "../../context/AuthContext";
-import { Box, Collapse, TableContainer } from "@mui/material";
+import { Box, Chip, Collapse, TableContainer } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import dayjs from "dayjs";
@@ -26,6 +26,8 @@ import moment from "moment";
 import Slide from "@mui/material/Slide";
 
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
+import AddWarranty from "./AddWarranty";
+import { statusList } from "../../data";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -214,35 +216,34 @@ const WarrantyList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          {ifixit_admin_panel?.user?.permission?.includes(
-            "add_spare_parts"
-          ) && (
-            <Button
-              variant="contained"
-              disableElevation
-              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-              component={Link}
-              to="/add-spare-parts"
-              startIcon={
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-                    stroke="white"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              }
-            >
-              Add Spare Parts
-            </Button>
+          {ifixit_admin_panel?.user?.permission?.includes("update_repair") && (
+            // <Button
+            //   variant="contained"
+            //   disableElevation
+            //   sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+            //   component={Link}
+            //   to={`/repair/${rid}/add-warranty`}
+            //   startIcon={
+            //     <svg
+            //       width="20"
+            //       height="20"
+            //       viewBox="0 0 20 20"
+            //       fill="none"
+            //       xmlns="http://www.w3.org/2000/svg"
+            //     >
+            //       <path
+            //         d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+            //         stroke="white"
+            //         stroke-width="2"
+            //         stroke-linecap="round"
+            //         stroke-linejoin="round"
+            //       />
+            //     </svg>
+            //   }
+            // >
+            //   Add Warranty
+            // </Button>
+            <AddWarranty />
           )}
         </Grid>
       </Grid>
@@ -270,19 +271,24 @@ const WarrantyList = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Name</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Brand</TableCell>
-
                   <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Category
+                    Warranty No
                   </TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Device</TableCell>
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Model</TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Paid Amount
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Due Amount
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Discount Amount
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Total Service charge
+                  </TableCell>
 
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>Price</TableCell>*/}
-                  <TableCell style={{ whiteSpace: "nowrap" }}>
-                    Warranty
-                  </TableCell>
+
                   {/* <TableCell style={{ whiteSpace: "nowrap" }}>
                     Price / <br />
                     Not on sale
@@ -324,10 +330,10 @@ const WarrantyList = () => {
                         />
                       </TableCell> */}
                       <TableCell sx={{ minWidth: "130px" }}>
-                        {row?.name}
+                        {row?.warranty_id}
                       </TableCell>
 
-                      <TableCell>
+                      {/* <TableCell>
                         {row?.brand_data[0]?.name
                           ? row?.brand_data[0]?.name
                           : "---------"}
@@ -347,14 +353,11 @@ const WarrantyList = () => {
                         {row?.model_data[0]?.name
                           ? row?.model_data[0]?.name
                           : "---------"}
-                      </TableCell>
+                      </TableCell> */}
                       {/* <TableCell>
                         {row?.price ? row?.price : "---------"}
                       </TableCell> */}
 
-                      <TableCell>
-                        {row?.warranty ? row?.warranty : "---------"}
-                      </TableCell>
                       {/* <TableCell>
                         {row?.product_id ? row?.product_id : "---------"}
                       </TableCell> */}
@@ -362,49 +365,57 @@ const WarrantyList = () => {
                       {/* <TableCell sx={{ minWidth: "150px" }}>
                         {row?.description ? row?.description : "---------"}
                       </TableCell> */}
+                      <TableCell>
+                        {row?.payment_info?.length > 0
+                          ? row?.payment_info.reduce(
+                              (sum, item) => sum + item.amount,
+                              0
+                            )
+                          : 0}
+                      </TableCell>
+                      <TableCell sx={{ color: "#D92D20" }}>
+                        {row?.due_amount > -1 ? row?.due_amount : "-------"}
+                      </TableCell>
+                      <TableCell sx={{ color: "#D92D20" }}>
+                        {row?.discount_amount > -1
+                          ? row?.discount_amount
+                          : "-------"}
+                      </TableCell>
+                      <TableCell>
+                        {row?.service_charge > -1
+                          ? row?.service_charge
+                          : "-------"}
+                      </TableCell>
+
                       <TableCell sx={{ minWidth: "150px" }}>
                         {row?.remarks ? row?.remarks : "---------"}
                       </TableCell>
                       <TableCell>
-                        {row?.status ? (
-                          <>
-                            <TaskAltOutlinedIcon
-                              style={{
-                                color: "#10ac84",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
-                            />{" "}
-                            <span
-                              style={{
-                                color: "#10ac84",
-                              }}
-                            >
-                              Active &nbsp;
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <HighlightOffOutlinedIcon
-                              style={{
-                                color: "#ee5253",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
-                            />
-                            <span
-                              style={{
-                                color: "#ee5253",
-                              }}
-                            >
-                              Inactive
-                            </span>
-                          </>
-                        )}
-                      </TableCell>
+                        {row?.repair_status_history_data?.length > 0
+                          ? (() => {
+                              const lastStatus =
+                                row.repair_status_history_data[
+                                  row.repair_status_history_data.length - 1
+                                ];
+                              const statusColor =
+                                statusList.find(
+                                  (el) =>
+                                    el.name === lastStatus.repair_status_name
+                                )?.color || "";
 
+                              return (
+                                <Chip
+                                  label={lastStatus.repair_status_name}
+                                  variant="outlined"
+                                  sx={{
+                                    border: "0px",
+                                    backgroundColor: statusColor,
+                                  }}
+                                />
+                              );
+                            })()
+                          : "----------"}
+                      </TableCell>
                       {/* <TableCell align="center" style={{ minWidth: "130px" }}>
                         <Invoice data={row} />
                       </TableCell> */}
