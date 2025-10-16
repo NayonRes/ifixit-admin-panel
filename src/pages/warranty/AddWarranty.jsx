@@ -50,6 +50,7 @@ import dayjs from "dayjs";
 import TechnicianList from "./TechnicianList";
 import RepairStatusList from "./RepairStatusList";
 import WarrantyPaymentList from "./WarrantyPaymentList";
+import { handlePutData } from "../../services/PutDataService";
 
 const AddWarranty = ({}) => {
   const navigate = useNavigate();
@@ -233,7 +234,19 @@ const AddWarranty = ({}) => {
       billCollections: billCollections,
     };
 
-    let response = await handlePostData("/api/v1/warranty/create", data, false);
+    // let response = await handlePostData("/api/v1/warranty/create", data, false);
+
+    let response;
+
+    if (wid) {
+      response = await handlePutData(
+        `/api/v1/warranty/update/${wid}`,
+        data,
+        false
+      );
+    } else {
+      response = await handlePostData("/api/v1/warranty/create", data, false);
+    }
 
     if (response?.status === 401) {
       logout();
@@ -440,7 +453,7 @@ const AddWarranty = ({}) => {
 
         setTechnician(data?.repair_by);
         setServiceCharge(data?.service_charge);
-        
+        setRemarks(data?.remarks);
 
         // setPaymentStatus(data?.paymentStatus);
         // setSteps(data?.steps);

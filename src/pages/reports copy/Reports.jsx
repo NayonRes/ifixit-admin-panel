@@ -106,8 +106,6 @@ const Reports = ({
   const [repairList, setRepairList] = useState([]);
   const [repairListDialog, setRepairListDialog] = useState(false);
   const [createdBy, setCreatedBy] = useState(null);
-  const [transactionData, setTransactionData] = useState([]);
-  const [transactionLoading, setTransactionLoading] = useState(false);
   const handleRepairListDialogClose = () => {
     setRepairListDialog(false);
     setCreatedBy(null);
@@ -282,33 +280,6 @@ const Reports = ({
     }
     setLoading(false);
   };
-  const getTransactions = async () => {
-    setTransactionLoading(true);
-
-    let url = `/api/v1/transactionHistory/all?startDate=${dayjs().format(
-      "YYYY-MM-DD"
-    )}&is_collection_received=false`;
-
-    let allData = await getDataWithToken(url);
-
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    console.log("TransactionData", allData?.data?.data);
-
-    if (allData?.status >= 200 && allData?.status < 300) {
-      setTransactionData(allData?.data?.data);
-
-      if (allData?.data?.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setTransactionLoading(false);
-  };
   const calculateTotalAmount = (data) => {
     console.log("data ================", data?.due_amount);
 
@@ -369,7 +340,6 @@ const Reports = ({
   useEffect(() => {
     getUsers();
     getReports();
-    getTransactions();
   }, []);
 
   return (

@@ -611,7 +611,7 @@ const AddWarranty = () => {
                 <RefundTransaction
                   transaction_name="Repair Refund"
                   transaction_source_id={rid}
-                  transaction_source_type="repairModel"
+                  transaction_source_type="warranty"
                   transaction_type="debit"
                   totalCollection={
                     Array.isArray(allInfo?.payment_info)
