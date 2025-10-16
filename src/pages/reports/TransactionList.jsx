@@ -234,7 +234,7 @@ const TransactionList = ({
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Total Amount
               </TableCell>
-              <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
+              {/* <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -323,7 +323,7 @@ const TransactionList = ({
                       ).toLocaleString()}
                     </TableCell>
 
-                    <TableCell>
+                    {/* <TableCell>
                       <Chip
                         label={row?.status ? "Active" : "Inactive"}
                         variant="outlined"
@@ -333,7 +333,7 @@ const TransactionList = ({
                           border: "none",
                         }}
                       />
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 </>
               ))}

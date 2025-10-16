@@ -328,7 +328,7 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
             Details
           </Typography>
         </Grid>
-        <Grid size={10}>
+        {/* <Grid size={10}>
           <Box sx={{ flexGrow: 1 }}>
             <Grid
               container
@@ -395,41 +395,7 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
                   onChange={(e) => setNumber(e.target.value)}
                 />
               </Grid>
-              {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Model
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Model"
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 200, // Controls dropdown height
-                          },
-                        },
-                      }}
-                      value={modelId}
-                      onChange={(e) => setModelId(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      {modelList?.map((item) => (
-                        <MenuItem key={item?._id} value={item?._id}>
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid> */}
+              
               <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                 <FormControl
                   variant="outlined"
@@ -459,31 +425,7 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
                 </FormControl>
               </Grid>
 
-              {/* <Grid size={2}>
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    // sx={{ ...customeTextFeild }}
-                    sx={{ ...customeTextFeild }}
-                  >
-                    <InputLabel id="demo-status-outlined-label">
-                      Status
-                    </InputLabel>
-                    <Select
-                      fullWidth
-                      labelId="demo-status-outlined-label"
-                      id="demo-status-outlined"
-                      label="Status"
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                    >
-                      <MenuItem value="None">None</MenuItem>
-                      <MenuItem value={true}>Active</MenuItem>
-                      <MenuItem value={false}>Inactive</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
+               
 
               <Grid size={2}>
                 <Box sx={{ flexGrow: 1 }}>
@@ -520,7 +462,7 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
               </Grid>
             </Grid>
           </Box>
-        </Grid>
+        </Grid> */}
       </Grid>
       <TransactionList
         loading={loading}
