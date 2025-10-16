@@ -1,17 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Paper,
-  Skeleton,
-  Typography,
-} from "@mui/material";
+import { Box, Chip, Paper, Skeleton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
@@ -19,11 +7,9 @@ import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 
-import ClearIcon from "@mui/icons-material/Clear";
-
 import { useSnackbar } from "notistack";
 import dayjs from "dayjs";
-import ReportRepair from "./ReportRepair";
+import ReportDetails from "./ReportDetails";
 
 const style = {
   nav: {
@@ -98,16 +84,16 @@ const Reports = ({
 
   const { enqueueSnackbar } = useSnackbar();
   const [technicianList, setTechnicianList] = useState([]);
-  const [branchList, setBranchList] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [message, setMessage] = useState("");
-  const [repairList, setRepairList] = useState([]);
-  const [repairListDialog, setRepairListDialog] = useState(false);
-  const [createdBy, setCreatedBy] = useState(null);
+
   const [transactionData, setTransactionData] = useState([]);
   const [transactionLoading, setTransactionLoading] = useState(false);
+  const [repairListDialog, setRepairListDialog] = useState(false);
+  const [createdBy, setCreatedBy] = useState(null);
+
   const handleRepairListDialogClose = () => {
     setRepairListDialog(false);
     setCreatedBy(null);
@@ -132,43 +118,7 @@ const Reports = ({
     let branch_id = decodedToken?.user?.branch_id;
     return branch_id;
   };
-  const getTechnician2 = async () => {
-    setLoading(true);
 
-    let branch_id = getBranchId();
-    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
-    let newBranchId;
-    if (ifixit_admin_panel?.user?.is_main_branch) {
-      newBranchId = selectedBranch;
-    } else {
-      newBranchId = branch_id;
-    }
-
-    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${newBranchId}`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    console.log("technician list", allData?.data.data);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setTechnicianList(allData?.data.data);
-
-      let name = allData?.data.data.filter((i) => i._id === technician);
-      // setTechnicianName(name[0]?.name);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No Data found");
-      } else {
-        setMessage("");
-      }
-    } else {
-      handleSnakbarOpen(allData?.data?.message, "error");
-      setLoading(false);
-    }
-    setLoading(false);
-  };
   const getUsers = async () => {
     setLoading2(true);
 
@@ -183,7 +133,6 @@ const Reports = ({
       logout();
       return;
     }
-    console.log("technician list", allData?.data.data);
 
     if (allData.status >= 200 && allData.status < 300) {
       setLoading2(false);
@@ -225,63 +174,7 @@ const Reports = ({
       handleSnakbarOpen(allData?.data?.message, "error");
     }
   };
-  const getBranchData = async () => {
-    setLoading(true);
 
-    let branch_id = getBranchId();
-    setSelectedBranch(branch_id);
-
-    let url = `/api/v1/branch/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    console.log("BranchData:", allData?.data?.data);
-
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        // setMessage("No data found");
-      }
-    } else {
-      setLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading(false);
-  };
-
-  // useEffect(() => {
-  //   getBranchData();
-  // }, []);
-  const getReports = async () => {
-    setLoading(true);
-
-    let url = `/api/v1/repair?startDate=${dayjs().format(
-      "YYYY-MM-DD"
-    )}&status=true&limit=1000&page=1`;
-
-    let allData = await getDataWithToken(url);
-
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-
-    if (allData?.status >= 200 && allData?.status < 300) {
-      setRepairList(allData?.data?.data);
-
-      if (allData?.data?.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading(false);
-  };
   const getTransactions = async () => {
     setTransactionLoading(true);
 
@@ -295,7 +188,7 @@ const Reports = ({
       logout();
       return;
     }
-    console.log("TransactionData", allData?.data?.data);
+    console.log("TransactionData ====================", allData?.data?.data);
 
     if (allData?.status >= 200 && allData?.status < 300) {
       setTransactionData(allData?.data?.data);
@@ -309,67 +202,63 @@ const Reports = ({
     }
     setTransactionLoading(false);
   };
-  const calculateTotalAmount = (data) => {
-    console.log("data ================", data?.due_amount);
 
-    const issueTotal = data?.issues?.length
-      ? data.issues.reduce((acc, issue) => acc + (issue.repair_cost || 0), 0)
-      : 0;
-
-    const sparePartsTotal = data?.product_details?.length
-      ? data.product_details.reduce((acc, part) => acc + (part.price || 0), 0)
-      : 0;
-    const dueAmount =
-      typeof data?.due_amount === "number" ? data.due_amount : 0;
-    const totalCost = issueTotal + sparePartsTotal;
-
-    return totalCost;
-  };
-  const userReportData = (id) => {
-    console.log("repairList", repairList);
-
-    let allData = repairList?.filter(
-      (item) => item?.created_by_info[0]?._id === id
+  const userReportData = (userEmail) => {
+    // Filter transactions by created_by (user email)
+    let allData = transactionData?.filter(
+      (item) => item?.created_by === userEmail
     );
 
-    let totalPayableAmount = 0;
-    let totalAmount = 0;
+    let totalCreditAmount = 0;
+    let totalDebitAmount = 0;
+    let totalTransactionAmount = 0;
+
     if (allData?.length > 0) {
-      totalPayableAmount = allData.reduce((total, row) => {
-        const paymentTotal = row?.payment_info?.length
-          ? row.payment_info.reduce((sum, item) => sum + item.amount, 0)
+      allData.forEach((transaction) => {
+        // Calculate total amount for this transaction
+        const transactionTotal = transaction?.transaction_info?.length
+          ? transaction.transaction_info.reduce(
+              (sum, item) => sum + (item.amount || 0),
+              0
+            )
           : 0;
 
-        const dueAmount =
-          typeof row?.due_amount === "number" ? row.due_amount : 0;
+        totalTransactionAmount += transactionTotal;
 
-        return total + paymentTotal + dueAmount;
-      }, 0);
-      console.log(
-        "totalPayableAmount ********************",
-        totalPayableAmount
-      );
+        // Credit = Income, Debit = Outgoings (Expenses/Refunds)
+        if (transaction.transaction_type === "credit") {
+          totalCreditAmount += transactionTotal;
+        } else if (transaction.transaction_type === "debit") {
+          totalDebitAmount += transactionTotal;
+        }
+      });
 
-      totalAmount = allData?.reduce((total, item) => {
-        return total + calculateTotalAmount(item);
-      }, 0);
-
-      console.log("totalAmount", totalAmount);
+      console.log("Transaction data for user:", userEmail, allData);
+      console.log("Total Credit Amount (Income):", totalCreditAmount);
+      console.log("Total Debit Amount (Outgoings):", totalDebitAmount);
+      console.log("Total Transaction Amount:", totalTransactionAmount);
     }
-    // console.log("totalPayableAmount", totalPayableAmount);
 
-    // console.log("allData", allData);
     return {
       length: allData?.length > 0 ? allData?.length : 0,
-
-      totalPayableAmount: totalPayableAmount,
-      totalAmount: totalAmount,
+      totalCreditAmount: totalCreditAmount, // Income
+      totalDebitAmount: totalDebitAmount, // Outgoings (Expenses/Refunds)
+      totalIncomeAmount: totalCreditAmount, // Same as credit
+      totalOutgoingsAmount: totalDebitAmount, // Same as debit
+      netBalance: totalCreditAmount - totalDebitAmount, // Net Balance
+      totalAmount: totalTransactionAmount,
     };
   };
   useEffect(() => {
-    getUsers();
-    getReports();
-    getTransactions();
+    const loadData = async () => {
+      try {
+        await Promise.all([getUsers(), getTransactions()]);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+
+    loadData();
   }, []);
 
   return (
@@ -436,7 +325,7 @@ const Reports = ({
                 </Typography>
                 {item?.users?.length > 0 &&
                   item?.users?.map((item, i) => {
-                    const report = userReportData(item?._id);
+                    const report = userReportData(item?.email);
                     return (
                       <Grid size={3} key={i}>
                         <Box
@@ -525,7 +414,7 @@ const Reports = ({
                                 color="text.light"
                                 sx={{ fontWeight: 400 }}
                               >
-                                Total Amount
+                                Total Transaction Amount
                               </Typography>
                               <Typography
                                 variant="base"
@@ -540,13 +429,49 @@ const Reports = ({
                                 color="text.light"
                                 sx={{ fontWeight: 400 }}
                               >
-                                Total Payable Amount
+                                Net Balance
                               </Typography>
                               <Typography
                                 variant="base"
-                                sx={{ fontWeight: 600 }}
+                                sx={{
+                                  fontWeight: 600,
+                                  color:
+                                    report?.netBalance >= 0
+                                      ? "#2E7D32"
+                                      : "#D32F2F",
+                                }}
                               >
-                                ৳ {report?.totalPayableAmount}
+                                ৳ {report?.netBalance}
+                              </Typography>
+                            </Grid>
+                            <Grid size={6} sx={{}}>
+                              <Typography
+                                variant="medium"
+                                color="text.light"
+                                sx={{ fontWeight: 400 }}
+                              >
+                                Total Income
+                              </Typography>
+                              <Typography
+                                variant="base"
+                                sx={{ fontWeight: 600, color: "#2E7D32" }}
+                              >
+                                ৳ {report?.totalIncomeAmount}
+                              </Typography>
+                            </Grid>
+                            <Grid size={6} sx={{ textAlign: "right" }}>
+                              <Typography
+                                variant="medium"
+                                color="text.light"
+                                sx={{ fontWeight: 400 }}
+                              >
+                                Total Outgoings (Expenses/Refunds)
+                              </Typography>
+                              <Typography
+                                variant="base"
+                                sx={{ fontWeight: 600, color: "#D32F2F" }}
+                              >
+                                ৳ {report?.totalOutgoingsAmount}
                               </Typography>
                             </Grid>
                           </Grid>
@@ -596,54 +521,79 @@ const Reports = ({
           )}
 
           {loading2 && (
-            <Grid size={12}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: 3,
-                }}
-              >
-                <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
-                <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
-                <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
-                <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
-              </Box>
-            </Grid>
+            <>
+              <Grid size={12}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 3,
+                  }}
+                >
+                  <Skeleton
+                    variant="rectangular"
+                    height={250}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={250}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={250}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={250}
+                    sx={{ flex: 1 }}
+                  />
+                </Box>
+              </Grid>
+              <Grid size={12}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 3,
+                  }}
+                >
+                  <Skeleton
+                    variant="rectangular"
+                    height={250}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={250}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={250}
+                    sx={{ flex: 1 }}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height={250}
+                    sx={{ flex: 1 }}
+                  />
+                </Box>
+              </Grid>
+            </>
           )}
         </Grid>
       </Paper>
-      <Dialog
-        open={repairListDialog}
-        onClose={handleRepairListDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        maxWidth="xl"
-        fullWidth={true}
-      >
-        {/* <div style={{ padding: "10px", minWidth: "300px" }}> */}
-        <DialogTitle id="alert-dialog-title">
-          {" "}
-          <Grid container>
-            <Grid size={6}>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                {" "}
-                Repair List
-              </Typography>
-            </Grid>
-            <Grid size={6} style={{ textAlign: "right" }}>
-              <IconButton onClick={handleRepairListDialogClose}>
-                <ClearIcon style={{ color: "#205295" }} />
-              </IconButton>
-            </Grid>
-          </Grid>
-        </DialogTitle>
-        <DialogContent>
-          {createdBy && <ReportRepair created_by={createdBy} />}
-        </DialogContent>
 
-        {/* </div> */}
-      </Dialog>
+      {repairListDialog && (
+        <ReportDetails
+          created_by={createdBy}
+          isDialog={true}
+          onClose={handleRepairListDialogClose}
+        />
+      )}
     </div>
   );
 };
