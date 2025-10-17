@@ -34,6 +34,7 @@ import { designationList, roleList } from "../../data";
 import TransactionList from "./TransactionList";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { handlePutData } from "../../services/PutDataService";
 
 const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
@@ -74,26 +75,7 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
   // State declarations
   const [tableDataList, setTableDataList] = useState([]);
   const [selectedItems, setSelectedItems] = useState(new Set());
-
-  // Checkbox handlers
-  const handleSelectAll = (event) => {
-    if (event.target.checked) {
-      const allIds = new Set(tableDataList.map((item) => item._id));
-      setSelectedItems(allIds);
-    } else {
-      setSelectedItems(new Set());
-    }
-  };
-
-  const handleSelectItem = (event, itemId) => {
-    const newSelectedItems = new Set(selectedItems);
-    if (event.target.checked) {
-      newSelectedItems.add(itemId);
-    } else {
-      newSelectedItems.delete(itemId);
-    }
-    setSelectedItems(newSelectedItems);
-  };
+  const [loading3, setLoading3] = useState(false);
 
   const isAllSelected =
     tableDataList.length > 0 && selectedItems.size === tableDataList.length;
@@ -101,20 +83,33 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
     selectedItems.size > 0 && selectedItems.size < tableDataList.length;
 
   // Auto-select all items when tableDataList is first loaded
-  useEffect(() => {
-    if (tableDataList.length > 0 && selectedItems.size === 0) {
-      const allIds = new Set(tableDataList.map((item) => item._id));
-      setSelectedItems(allIds);
+  const onUpdateStatus = async (e) => {
+    setLoading3(true);
+    let data = {
+      transaction_received_status_list: selectedItems,
+    };
+    let response = await handlePutData(
+      `/api/v1/transactionHistory/update-transaction-received-status`,
+      data,
+      false
+    );
+
+    console.log("response", response);
+    if (response?.status === 401) {
+      logout();
+      return;
     }
-  }, [tableDataList]);
-  const handleDetailClickOpen = (obj) => {
-    console.log("obj", obj);
-    setDetails(obj);
-    setDetailDialog(true);
-  };
-  const handleDetailClose = () => {
-    setDetails({});
-    setDetailDialog(false);
+    if (response.status >= 200 && response.status < 300) {
+      handleSnakbarOpen("Updated successfully", "success");
+
+      onClose();
+    } else {
+      setLoading3(false);
+      handleSnakbarOpen(response?.data?.message, "error");
+    }
+
+    setLoading3(false);
+    // }
   };
 
   const customeTextFeild = {
@@ -300,7 +295,19 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
   useEffect(() => {
     getData();
   }, []);
+  useEffect(() => {
+    if (tableDataList.length > 0 && selectedItems.size === 0) {
+      const allIds = tableDataList.map((item) => ({
+        _id: item._id,
+        is_collection_received: true,
+      }));
 
+      setSelectedItems(allIds); // keep your selected IDs
+
+      // 👉 If you want to use this array later, store it in state
+      // setUpdatePayload(allIds);
+    }
+  }, [tableDataList]);
   const content = (
     <div
       style={{
@@ -477,10 +484,6 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
         handleChangePage={handleChangePage}
         handleChangeRowsPerPage={handleChangeRowsPerPage}
         selectedItems={selectedItems}
-        handleSelectAll={handleSelectAll}
-        handleSelectItem={handleSelectItem}
-        isAllSelected={isAllSelected}
-        isIndeterminate={isIndeterminate}
       />
     </div>
   );
@@ -529,27 +532,27 @@ const ReportDetails = ({ created_by, isDialog = false, onClose }) => {
 
           <Button
             variant="contained"
-            disabled={loading}
-            type="submit"
+            disabled={loading3}
             sx={{
               px: 2,
               py: 1.25,
               fontSize: "14px",
               fontWeight: 600,
-              minWidth: "127px",
+              minWidth: "230px",
               minHeight: "44px",
             }}
             // style={{ minWidth: "180px", minHeight: "35px" }}
-            autoFocus
+
             disableElevation
+            onClick={onUpdateStatus}
           >
             <PulseLoader
               color={"#4B46E5"}
-              loading={loading}
+              loading={loading3}
               size={10}
               speedMultiplier={0.5}
             />{" "}
-            {loading === false && "Adjust Payment"}
+            {loading3 === false && "Collection Complete"}
           </Button>
         </DialogActions>
       </Dialog>

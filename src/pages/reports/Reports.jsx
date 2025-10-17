@@ -91,11 +91,12 @@ const Reports = ({
 
   const [transactionData, setTransactionData] = useState([]);
   const [transactionLoading, setTransactionLoading] = useState(false);
-  const [repairListDialog, setRepairListDialog] = useState(false);
+  const [repairListDialog, setDetailsDialog] = useState(false);
   const [createdBy, setCreatedBy] = useState(null);
 
-  const handleRepairListDialogClose = () => {
-    setRepairListDialog(false);
+  
+  const handleDetailsDialogClose = () => {
+    setDetailsDialog(false);
     setCreatedBy(null);
   };
 
@@ -180,7 +181,7 @@ const Reports = ({
 
     let url = `/api/v1/transactionHistory/all?startDate=${dayjs().format(
       "YYYY-MM-DD"
-    )}&is_collection_received=false`;
+    )}`;
 
     let allData = await getDataWithToken(url);
 
@@ -349,7 +350,7 @@ const Reports = ({
                           role="button"
                           onClick={() => {
                             setCreatedBy(item?.email);
-                            setRepairListDialog(true);
+                            setDetailsDialog(true);
                           }}
                         >
                           <Grid
@@ -408,6 +409,37 @@ const Reports = ({
                                 }}
                               />
                             </Grid>
+
+                                <Grid size={6} sx={{}}>
+                              <Typography
+                                variant="medium"
+                                color="text.light"
+                                sx={{ fontWeight: 400 }}
+                              >
+                                Total Income
+                              </Typography>
+                              <Typography
+                                variant="base"
+                                sx={{ fontWeight: 600, color: "#2E7D32" }}
+                              >
+                                ৳ {report?.totalIncomeAmount}
+                              </Typography>
+                            </Grid>
+                            <Grid size={6} sx={{ textAlign: "right" }}>
+                              <Typography
+                                variant="medium"
+                                color="text.light"
+                                sx={{ fontWeight: 400 }}
+                              >
+                                Total Outgoings (Expenses/Refunds)
+                              </Typography>
+                              <Typography
+                                variant="base"
+                                sx={{ fontWeight: 600, color: "#D32F2F" }}
+                              >
+                                ৳ {report?.totalOutgoingsAmount}
+                              </Typography>
+                            </Grid>
                             <Grid size={6} sx={{}}>
                               <Typography
                                 variant="medium"
@@ -444,36 +476,7 @@ const Reports = ({
                                 ৳ {report?.netBalance}
                               </Typography>
                             </Grid>
-                            <Grid size={6} sx={{}}>
-                              <Typography
-                                variant="medium"
-                                color="text.light"
-                                sx={{ fontWeight: 400 }}
-                              >
-                                Total Income
-                              </Typography>
-                              <Typography
-                                variant="base"
-                                sx={{ fontWeight: 600, color: "#2E7D32" }}
-                              >
-                                ৳ {report?.totalIncomeAmount}
-                              </Typography>
-                            </Grid>
-                            <Grid size={6} sx={{ textAlign: "right" }}>
-                              <Typography
-                                variant="medium"
-                                color="text.light"
-                                sx={{ fontWeight: 400 }}
-                              >
-                                Total Outgoings (Expenses/Refunds)
-                              </Typography>
-                              <Typography
-                                variant="base"
-                                sx={{ fontWeight: 600, color: "#D32F2F" }}
-                              >
-                                ৳ {report?.totalOutgoingsAmount}
-                              </Typography>
-                            </Grid>
+                        
                           </Grid>
 
                           <Grid
@@ -591,7 +594,7 @@ const Reports = ({
         <ReportDetails
           created_by={createdBy}
           isDialog={true}
-          onClose={handleRepairListDialogClose}
+          onClose={handleDetailsDialogClose}
         />
       )}
     </div>

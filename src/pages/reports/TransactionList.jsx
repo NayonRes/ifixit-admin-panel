@@ -28,16 +28,6 @@ const TransactionList = ({
   clearFilter,
   handleDeleteDialog,
   message,
-  totalData,
-  rowsPerPage,
-  page,
-  handleChangePage,
-  handleChangeRowsPerPage,
-  selectedItems,
-  handleSelectAll,
-  handleSelectItem,
-  isAllSelected,
-  isIndeterminate,
 }) => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
 
@@ -55,19 +45,6 @@ const TransactionList = ({
     return transactionInfo?.length
       ? transactionInfo.map((item) => `${item.name}: ${item.amount}`).join(", ")
       : "N/A";
-  };
-
-  const getSourceId = (transactionSourceId, sourceType) => {
-    if (sourceType === "repair" && transactionSourceId?.repair_id) {
-      return transactionSourceId.repair_id;
-    }
-    if (sourceType === "warranty" && transactionSourceId?.warranty_id) {
-      return transactionSourceId.warranty_id;
-    }
-    if (sourceType === "expense" && transactionSourceId?.amount) {
-      return `Expense - ${transactionSourceId.amount}`;
-    }
-    return transactionSourceId?._id || "N/A";
   };
 
   // Calculate total debit and credit amounts
@@ -210,14 +187,6 @@ const TransactionList = ({
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  checked={isAllSelected}
-                  indeterminate={isIndeterminate}
-                  onChange={handleSelectAll}
-                  inputProps={{ "aria-label": "select all transactions" }}
-                />
-              </TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>Date</TableCell>
               <TableCell style={{ whiteSpace: "nowrap" }}>
                 Transaction Name
@@ -246,15 +215,6 @@ const TransactionList = ({
                     key={row?._id}
                     // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={selectedItems.has(row._id)}
-                        onChange={(event) => handleSelectItem(event, row._id)}
-                        inputProps={{
-                          "aria-label": `select transaction ${row._id}`,
-                        }}
-                      />
-                    </TableCell>
                     <TableCell>
                       {moment(row?.created_at).format("DD/MM/YYYY")}
                     </TableCell>
