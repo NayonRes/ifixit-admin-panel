@@ -48,7 +48,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment";
 import dayjs from "dayjs";
 
-const WarrantyProductSKU = ({}) => {
+const WarrantyProductSKU = ({ warrantyData, reload, setReload }) => {
+  console.log("warrantyData", warrantyData);
   const navigate = useNavigate();
   const { rid } = useParams();
   const { enqueueSnackbar } = useSnackbar();
@@ -194,6 +195,7 @@ const WarrantyProductSKU = ({}) => {
     setLoading(true);
     let data = {
       repair_id: rid,
+      warranty_id: warrantyData?._id,
       is_warranty_claimed_sku: true,
       sku_numbers: productList?.map((item) => item.sku_number),
       claimed_on_sku_data: productList?.map((item) => ({
@@ -215,9 +217,10 @@ const WarrantyProductSKU = ({}) => {
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
-      getWarrantyData();
+      // getWarrantyData();
       setProductList([]);
-      // handleDialogClose();
+      handleDialogClose();
+      setReload(!reload);
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -455,7 +458,7 @@ const WarrantyProductSKU = ({}) => {
   const getWarrantyData = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/repairAttachedSpareparts?repair_id=${rid}&is_warranty_claimed_sku=true&status=true`;
+    let url = `/api/v1/repairAttachedSpareparts?repair_id=${rid}&is_warranty_claimed_sku=true&warranty_id=${warrantyData?._id}&status=true`;
 
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
@@ -1604,11 +1607,8 @@ const WarrantyProductSKU = ({}) => {
                 </Box>
               </div>
             </Box>
-
-           
           </Box>
         </DialogContent>
- 
       </Dialog>
 
       <Dialog

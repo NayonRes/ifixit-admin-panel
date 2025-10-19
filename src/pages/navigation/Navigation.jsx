@@ -58,6 +58,8 @@ import ExpenseList from "../expense/ExpenseList";
 import IssueList from "../issue/IssueList";
 import WarrantyList from "../warranty/WarrantyList";
 import AddWarranty from "../warranty/AddWarranty";
+import WarrantyDetails from "../warranty/WarrantyDetails";
+import AllWarrantyList from "../warranty/AllWarrantyList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -448,11 +450,20 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
+
         <Route
           path="repair/:rid/warranty"
           element={
             <PrivateRoute>
               <WarrantyList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="warranty-list"
+          element={
+            <PrivateRoute>
+              <AllWarrantyList />
             </PrivateRoute>
           }
         />

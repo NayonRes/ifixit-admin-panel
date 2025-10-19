@@ -220,8 +220,12 @@ const AddWarranty = ({}) => {
       return handleSnakbarOpen("Total Amount and input are not same!", "error");
     }
     setWarrantyLoading(true);
+
+    let token = ifixit_admin_panel.token;
+    const decodedToken = jwtDecode(token);
     let data = {
       repair_id: rid,
+      branch_id: decodedToken?.user?.branch_id,
       service_charge: serviceCharge,
       discount_amount: discount_amount || 0,
       due_amount: due_amount || 0,

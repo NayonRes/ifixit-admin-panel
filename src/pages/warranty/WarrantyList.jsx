@@ -69,6 +69,7 @@ const WarrantyList = () => {
   const [removeSKUDialog, setRemoveSKUDialog] = useState(false);
   const [removeLoading, setRemoveLoading] = useState(false);
   const [removeSkuDetails, setRemoveSkuDetails] = useState();
+  const [reload, setReload] = useState(false);
 
   const isDateAfterMonths = (createdAt, monthsToAdd) => {
     const newDate = dayjs(createdAt).add(monthsToAdd, "month");
@@ -300,7 +301,7 @@ const WarrantyList = () => {
 
     getData2();
     getWarrantyData();
-  }, []);
+  }, [reload]);
 
   return (
     <>
@@ -1094,7 +1095,8 @@ const WarrantyList = () => {
                       ) && (
                         <TableCell align="right">
                           &nbsp; &nbsp;
-                          <WarrantyProductSKU row={row} /> &nbsp; &nbsp;
+                          <WarrantyProductSKU warrantyData={row} reload={reload} setReload={setReload}/> &nbsp;
+                          &nbsp;
                           <Button
                             size="small"
                             variant="outlined"

@@ -17,7 +17,7 @@ import axios from "axios";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import { AuthContext } from "../../context/AuthContext";
-import { Box, Chip, Collapse, TableContainer } from "@mui/material";
+import { Box, Chip, Collapse, IconButton, TableContainer } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
 import dayjs from "dayjs";
@@ -27,17 +27,33 @@ import Slide from "@mui/material/Slide";
 
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import AddWarranty from "./AddWarranty";
-import { statusList } from "../../data";
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import WarrantyProductSKU from "./WarrantyProductSKU";
+
+import FilterListOffIcon from "@mui/icons-material/FilterListOff";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import SearchIcon from "@mui/icons-material/Search";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import TextField from "@mui/material/TextField";
+import { designationList, roleList, statusList } from "../../data";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { jwtDecode } from "jwt-decode";
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const WarrantyList = () => {
+const AllWarrantyList = () => {
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const { rid } = useParams();
   const [tableDataList, setTableDataList] = useState([]);
+  const [warrantyDataList, setWarrantyDataList] = useState([]);
   const [page, setPage] = useState(0);
   const [totalData, setTotalData] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -59,6 +75,27 @@ const WarrantyList = () => {
   const [detailDialog, setDetailDialog] = useState(false);
   const [details, setDetails] = useState([]);
 
+  const [repairLoading, setRepairLoading] = useState(false);
+  const [repairDetails, setRepairDetails] = useState("");
+  const [loading2, setLoading2] = useState(false);
+  const [warrantyList, setWarrantyList] = useState([]);
+
+  const [removeSKUDialog, setRemoveSKUDialog] = useState(false);
+  const [removeLoading, setRemoveLoading] = useState(false);
+  const [removeSkuDetails, setRemoveSkuDetails] = useState();
+  const [reload, setReload] = useState(false);
+
+  const [branchList, setBranchList] = useState([]);
+  const [filterRepairStatus, setFilterRepairStatus] = useState("");
+  const [modelList, setModelList] = useState();
+  const [modelId, setModelId] = useState("");
+  const [branch, setBranch] = useState("");
+  const [warrantyNo, setWarrantyNo] = useState("");
+
+  const isDateAfterMonths = (createdAt, monthsToAdd) => {
+    const newDate = dayjs(createdAt).add(monthsToAdd, "month");
+    return newDate.isAfter(dayjs());
+  };
   const handleDetailClose = () => {
     setDetails({});
     setDetailDialog(false);
@@ -150,6 +187,7 @@ const WarrantyList = () => {
     setLoading(true);
     let newPageNO = page;
     let url;
+
     if (pageNO >= 0) {
       newPageNO = pageNO;
     }
@@ -161,9 +199,13 @@ const WarrantyList = () => {
       url = newUrl;
     } else {
       let newStatus = status;
-
+      let newBranch = branch;
       let newStartingTime = "";
       let newEndingTime = "";
+
+      if (branch === "None") {
+        newBranch = "";
+      }
       if (status === "None") {
         newStatus = "";
       }
@@ -175,7 +217,7 @@ const WarrantyList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/warranty?repair_id=${rid}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/warranty?warranty_id=${warrantyNo?.trim()}&&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -186,7 +228,7 @@ const WarrantyList = () => {
     }
 
     if (allData.status >= 200 && allData.status < 300) {
-      setTableDataList(allData?.data?.data);
+      setWarrantyDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
       setTotalData(allData?.data?.totalData);
 
@@ -199,10 +241,126 @@ const WarrantyList = () => {
     }
     setLoading(false);
   };
+  const getData2 = async () => {
+    setLoading2(true);
 
+    let url = `/api/v1/repairAttachedSpareparts?repair_id=${rid}&is_warranty_claimed_sku=false&status=true`;
+
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      const items = allData?.data?.data || [];
+
+      // Using Promise.all to resolve all async operations inside map
+      const newData = await Promise.all(
+        items.map(async (item) => {
+          const product = await getPreviousProducts(item?.sku_number);
+          return { ...item, product }; // Merge the product data with existing item
+        })
+      );
+
+      setTableDataList(newData);
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+
+  const getWarrantyData = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/repairAttachedSpareparts?repair_id=${rid}&is_warranty_claimed_sku=true&status=true`;
+
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData.status >= 200 && allData.status < 300) {
+      const items = allData?.data?.data || [];
+
+      // Using Promise.all to resolve all async operations inside map
+      const newData = await Promise.all(
+        items.map(async (item) => {
+          const product = await getPreviousProducts(item?.sku_number);
+          return { ...item, product }; // Merge the product data with existing item
+        })
+      );
+
+      setWarrantyList(newData);
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
+
+  const getPreviousProducts = async (sku) => {
+    let url;
+    let result = {};
+    url = `/api/v1/stock?sku_number=${parseInt(sku)}`;
+
+    let allData = await getDataWithToken(url);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    if (allData?.status >= 200 && allData?.status < 300) {
+      const products = allData?.data?.data || [];
+
+      return products[0];
+    } else {
+      handleSnakbarOpen(
+        allData?.data?.message || "Something went wrong",
+        "error"
+      );
+      return null;
+    }
+  };
+
+  const clearFilter = (event) => {
+    console.log("clearFilter");
+    setFilterRepairStatus("");
+    setWarrantyNo("");
+    setModelId("");
+    setBranch("");
+    setStatus("");
+    setStartingTime(null);
+    setEndingTime(null);
+    setPage(0);
+    const newUrl = `/api/v1/warranty?limit=${rowsPerPage}&page=1`;
+    getData(0, rowsPerPage, newUrl);
+  };
+
+  const getBranchList = async () => {
+    setLoading2(true);
+
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+
+    if (allData?.status >= 200 && allData?.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data?.data?.length < 1) {
+        setMessage("No data found");
+      }
+    } else {
+      setLoading2(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading2(false);
+  };
   useEffect(() => {
     getData();
-  }, []);
+    getBranchList();
+    // getData2();
+    // getWarrantyData();
+  }, [reload]);
 
   return (
     <>
@@ -239,6 +397,7 @@ const WarrantyList = () => {
           )}
         </Grid>
       </Grid>
+
       <div
         style={{
           background: "#fff",
@@ -249,6 +408,233 @@ const WarrantyList = () => {
           boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
         }}
       >
+        <Grid
+          container
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ px: 1.5, mb: 1.75 }}
+        >
+          <Grid size={12}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              component="div"
+              sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
+            >
+              Details
+            </Typography>
+          </Grid>
+          <Grid size={12}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Grid
+                container
+                justifyContent="right"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <TextField
+                    sx={{ ...customeTextFeild }}
+                    id="Name"
+                    fullWidth
+                    size="small"
+                    variant="outlined"
+                    label="Warranty No"
+                    value={warrantyNo}
+                    onChange={(e) => setWarrantyNo(e.target.value)}
+                  />
+                </Grid>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="From Date"
+                    value={startingTime}
+                    onChange={(newValue) => setStartingTime(newValue)}
+                    format="DD/MM/YYYY"
+                    maxDate={dayjs()}
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: { ...customeTextFeild },
+                      }, // ✅ this is the correct way
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="To Date"
+                    value={endingTime}
+                    onChange={(newValue) => setEndingTime(newValue)}
+                    format="DD/MM/YYYY"
+                    maxDate={dayjs()}
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: { ...customeTextFeild },
+                      }, // ✅ this is the correct way
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid> */}
+
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Model
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Model"
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 200, // Controls dropdown height
+                          },
+                        },
+                      }}
+                      value={modelId}
+                      onChange={(e) => setModelId(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      {modelList?.map((item) => (
+                        <MenuItem key={item?._id} value={item?._id}>
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid> */}
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                <FormControl
+                  variant="outlined"
+                  fullWidth
+                  size="small"
+                  // sx={{ ...customeTextFeild }}
+                  sx={{ ...customeTextFeild }}
+                >
+                  <InputLabel id="demo-status-outlined-label">
+                    Repair Status
+                  </InputLabel>
+                  <Select
+                    fullWidth
+                    labelId="demo-status-outlined-label"
+                    id="demo-status-outlined"
+                    label="Repair Status"
+                    value={filterRepairStatus}
+                    onChange={(e) => setFilterRepairStatus(e.target.value)}
+                  >
+                    <MenuItem value="None">None</MenuItem>
+                    {statusList?.map((item) => (
+                      <MenuItem key={item?.name} value={item?.name}>
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid> */}
+                {jwtDecode(ifixit_admin_panel?.token)?.user?.is_main_branch && (
+                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                    <FormControl
+                      variant="outlined"
+                      fullWidth
+                      size="small"
+                      // sx={{ ...customeTextFeild }}
+                      sx={{ ...customeTextFeild }}
+                    >
+                      <InputLabel id="demo-status-outlined-label">
+                        Branch
+                      </InputLabel>
+                      <Select
+                        fullWidth
+                        labelId="demo-status-outlined-label"
+                        id="demo-status-outlined"
+                        label="Branch"
+                        value={branch}
+                        onChange={(e) => setBranch(e.target.value)}
+                      >
+                        <MenuItem value="None">None</MenuItem>
+                        {branchList?.map((item) => (
+                          <MenuItem key={item?._id} value={item?._id}>
+                            {item?.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                )}
+                {/* <Grid size={2}>
+                  <FormControl
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    // sx={{ ...customeTextFeild }}
+                    sx={{ ...customeTextFeild }}
+                  >
+                    <InputLabel id="demo-status-outlined-label">
+                      Status
+                    </InputLabel>
+                    <Select
+                      fullWidth
+                      labelId="demo-status-outlined-label"
+                      id="demo-status-outlined"
+                      label="Status"
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      <MenuItem value="None">None</MenuItem>
+                      <MenuItem value={true}>Active</MenuItem>
+                      <MenuItem value={false}>Inactive</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid> */}
+
+                <Grid size={2}>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Grid container spacing={{ lg: 1, xl: 1 }}>
+                      <Grid size={4}>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          color="info"
+                          disableElevation
+                          size="small"
+                          sx={{ py: "4px" }}
+                          onClick={clearFilter}
+                        >
+                          <RestartAltIcon />
+                        </Button>
+                      </Grid>
+                      <Grid size={8}>
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          disableElevation
+                          color="info"
+                          sx={{ py: "4px" }}
+                          size="small"
+                          startIcon={<SearchIcon />}
+                          onClick={(event) => handleChangePage(event, 0)}
+                        >
+                          Search
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
+        </Grid>
         <div
           style={{
             overflowX: "auto",
@@ -304,8 +690,8 @@ const WarrantyList = () => {
               </TableHead>
               <TableBody>
                 {!loading &&
-                  tableDataList.length > 0 &&
-                  tableDataList.map((row, i) => (
+                  warrantyDataList.length > 0 &&
+                  warrantyDataList.map((row, i) => (
                     <TableRow
                       key={i}
                       // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -415,6 +801,24 @@ const WarrantyList = () => {
                         "view_spare_parts_details"
                       ) && (
                         <TableCell align="right">
+                          {/* &nbsp; &nbsp;
+                          <WarrantyProductSKU
+                            warrantyData={row}
+                            reload={reload}
+                            setReload={setReload}
+                          />{" "} */}
+                          &nbsp; &nbsp;
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="info"
+                            startIcon={<ListAltOutlinedIcon />}
+                            component={Link}
+                            to={`/repair/details/${rid}`}
+                          >
+                            Details
+                          </Button>
+                          &nbsp; &nbsp;
                           <Button
                             size="small"
                             variant="outlined"
@@ -451,7 +855,7 @@ const WarrantyList = () => {
                               </svg>
                             }
                             component={Link}
-                            to={`/repair/${rid}/update-warranty/${row?._id}`}
+                            to={`/repair/${row?.repair_data[0]?._id}/update-warranty/${row?._id}`}
                             state={{ row }}
                           >
                             Update
@@ -462,7 +866,7 @@ const WarrantyList = () => {
                     </TableRow>
                   ))}
 
-                {!loading && tableDataList.length < 1 ? (
+                {!loading && warrantyDataList.length < 1 ? (
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
@@ -476,7 +880,7 @@ const WarrantyList = () => {
             </Table>
           </TableContainer>
         </div>
-        {tableDataList.length > 0 ? (
+        {warrantyDataList.length > 0 ? (
           <div>
             <TablePagination
               style={{ display: "block", border: "none" }}
@@ -496,4 +900,4 @@ const WarrantyList = () => {
   );
 };
 
-export default WarrantyList;
+export default AllWarrantyList;

@@ -48,7 +48,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment";
 import dayjs from "dayjs";
 
-const WarrantyProductSKU = ({  }) => {
+const WarrantyDetails = ({ warrantyData, reload, setReload }) => {
+  console.log("warrantyData", warrantyData);
   const navigate = useNavigate();
   const { rid } = useParams();
   const { enqueueSnackbar } = useSnackbar();
@@ -194,6 +195,7 @@ const WarrantyProductSKU = ({  }) => {
     setLoading(true);
     let data = {
       repair_id: rid,
+      warranty_id: warrantyData?._id,
       is_warranty_claimed_sku: true,
       sku_numbers: productList?.map((item) => item.sku_number),
       claimed_on_sku_data: productList?.map((item) => ({
@@ -215,9 +217,10 @@ const WarrantyProductSKU = ({  }) => {
     if (response.status >= 200 && response.status < 300) {
       setLoading(false);
       handleSnakbarOpen("Added successfully", "success");
-      getWarrantyData();
+      // getWarrantyData();
       setProductList([]);
-      // handleDialogClose();
+      handleDialogClose();
+      setReload(!reload);
     } else {
       setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
@@ -455,7 +458,7 @@ const WarrantyProductSKU = ({  }) => {
   const getWarrantyData = async () => {
     setLoading2(true);
 
-    let url = `/api/v1/repairAttachedSpareparts?repair_id=${rid}&is_warranty_claimed_sku=true&status=true`;
+    let url = `/api/v1/repairAttachedSpareparts?repair_id=${rid}&is_warranty_claimed_sku=true&warranty_id=${warrantyData?._id}&status=true`;
 
     let allData = await getDataWithToken(url);
     if (allData?.status === 401) {
@@ -515,36 +518,22 @@ const WarrantyProductSKU = ({  }) => {
   }, []);
   return (
     <>
-      <Grid container columnSpacing={3} style={{ padding: "24px 0" }}>
-        <Grid size={6}>
-          <Typography
-            variant="h6"
-            gutterBottom
-            component="div"
-            sx={{ color: "#0F1624", fontWeight: 600 }}
-          >
-          Warranty
-          </Typography>
-        </Grid>
-        <Grid size={6} style={{ textAlign: "right" }}>
-          <Button
-            variant="outlined"
-            disableElevation
-            size="small"
-            color="secondary"
-            // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-            onClick={() => {
-              setAddDialog(true);
-              getData();
-              getWarrantyData();
-              getWarantyDetails();
-            }}
-            startIcon={<AddOutlinedIcon />}
-          >
-            Add Warranty
-          </Button>
-        </Grid>
-      </Grid>
+      <Button
+        variant="outlined"
+        disableElevation
+        size="small"
+        color="primary"
+        // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+        onClick={() => {
+          setAddDialog(true);
+          getData();
+          getWarrantyData();
+          getWarantyDetails();
+        }}
+        startIcon={<AddOutlinedIcon />}
+      >
+        Attached Spareparts
+      </Button>
 
       <Dialog
         open={addDialog}
@@ -625,7 +614,11 @@ const WarrantyProductSKU = ({  }) => {
                     sx={{ fontWeight: 500 }}
                   >
                     Invoice No :{" "}
-                    <b>{repairDetails?.repair_id ? repairDetails?.repair_id : "---------"}</b>
+                    <b>
+                      {repairDetails?.repair_id
+                        ? repairDetails?.repair_id
+                        : "---------"}
+                    </b>
                   </Typography>
                   <Typography
                     variant="medium"
@@ -634,7 +627,9 @@ const WarrantyProductSKU = ({  }) => {
                     sx={{ fontWeight: 500 }}
                   >
                     Invoice Date :{" "}
-                    <b>{dayjs(repairDetails?.created_at).format("DD MMM YYYY")}</b>
+                    <b>
+                      {dayjs(repairDetails?.created_at).format("DD MMM YYYY")}
+                    </b>
                   </Typography>
                 </Grid>
 
@@ -1612,231 +1607,8 @@ const WarrantyProductSKU = ({  }) => {
                 </Box>
               </div>
             </Box>
-
-            <form
-              onSubmit={onWarrantySubmit}
-              style={{
-                background: "#fff",
-                border: "1px solid #EAECF1",
-                borderRadius: "12px",
-                // overflow: "hidden",
-                padding: "32px 16px",
-                boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
-              }}
-            >
-              <Typography
-                variant="medium"
-                gutterBottom
-                component="div"
-                sx={{ color: "#0F1624", fontWeight: 600, margin: 0, mb: 2 }}
-              >
-                Warranty Details
-              </Typography>
-              <Grid
-                container
-                justifyContent="space-between"
-                alignItems="center"
-                spacing={2}
-              >
-                {" "}
-                <Grid size={6}>
-                  <Typography
-                    variant="medium"
-                    color="text.main"
-                    gutterBottom
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Service Charge *
-                  </Typography>
-                  <TextField
-                    required
-                    size="small"
-                    type="number"
-                    fullWidth
-                    id="serviceCharge"
-                    placeholder="Service Charges"
-                    variant="outlined"
-                    sx={{ ...customeTextFeild }}
-                    value={serviceCharge}
-                    onChange={(e) => {
-                      setServiceCharge(e.target.value);
-                    }}
-                    onWheel={(e) => e.target.blur()}
-                  />
-                </Grid>
-                <Grid size={6}>
-                  <Typography
-                    variant="medium"
-                    color="text.main"
-                    gutterBottom
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Discount
-                  </Typography>
-                  <TextField
-                    size="small"
-                    type="number"
-                    fullWidth
-                    id="discount"
-                    placeholder="Discount Amount"
-                    variant="outlined"
-                    sx={{ ...customeTextFeild }}
-                    value={discount}
-                    onChange={(e) => {
-                      setDiscount(e.target.value);
-                    }}
-                    onWheel={(e) => e.target.blur()}
-                  />
-                </Grid>
-                <Grid size={6}>
-                  <Typography
-                    variant="medium"
-                    color="text.main"
-                    gutterBottom
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Service Status *
-                  </Typography>
-
-                  <FormControl
-                    fullWidth
-                    size="small"
-                    sx={{
-                      ...customeSelectFeild,
-                      "& label.Mui-focused": {
-                        color: "rgba(0,0,0,0)",
-                      },
-
-                      "& .MuiOutlinedInput-input img": {
-                        position: "relative",
-                        top: "2px",
-                      },
-                    }}
-                  >
-                    {serviceStatus?.length < 1 && (
-                      <InputLabel
-                        id="demo-simple-select-label"
-                        sx={{ color: "#b3b3b3", fontWeight: 300 }}
-                      >
-                        Service Status
-                      </InputLabel>
-                    )}
-                    <Select
-                      required
-                      labelId="demo-simple-select-label"
-                      id="purchaseStatus"
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            maxHeight: 250, // Set the max height here
-                          },
-                        },
-                      }}
-                      value={serviceStatus}
-                      onChange={(e) => setServiceStatus(e.target.value)}
-                    >
-                      <MenuItem value={"Pending"}>Pending</MenuItem>
-                      <MenuItem value={"Delivered"}>Delivered</MenuItem>
-                      <MenuItem value={"Canceled"}>Canceled</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid size={6}>
-                  <Typography
-                    variant="medium"
-                    color="text.main"
-                    gutterBottom
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Add Note
-                  </Typography>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    id="membershipId"
-                    placeholder="Add Note"
-                    variant="outlined"
-                    sx={{ ...customeTextFeild }}
-                    value={remarks}
-                    onChange={(e) => {
-                      setRemarks(e.target.value);
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              <Box sx={{ px: 1, mt: 2, textAlign: "right" }}>
-                <Button
-                  variant="contained"
-                  disabled={warrantyLoading}
-                  type="submit"
-                  // onClick={() => onWarrantySubmit()}
-                  sx={{
-                    px: 2,
-                    py: 1.25,
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    minWidth: "220px",
-                    minHeight: "44px",
-                  }}
-                  // style={{ minWidth: "180px", minHeight: "35px" }}
-                  autoFocus
-                  disableElevation
-                >
-                  <PulseLoader
-                    color={"#4B46E5"}
-                    loading={warrantyLoading}
-                    size={10}
-                    speedMultiplier={0.5}
-                  />{" "}
-                  {warrantyLoading === false && "Save Warranty Details"}
-                </Button>
-              </Box>
-              {/* 111 */}
-            </form>
           </Box>
         </DialogContent>
-
-        {/* <DialogActions sx={{ px: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={handleDialogClose}
-            sx={{
-              px: 2,
-              py: 1.25,
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#344054",
-              border: "1px solid #D0D5DD",
-              boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-            }}
-          >
-            Close
-          </Button>
-          <Button
-            variant="contained"
-            disabled={loading}
-            // type="submit"
-            sx={{
-              px: 2,
-              py: 1.25,
-              fontSize: "14px",
-              fontWeight: 600,
-              minWidth: "127px",
-              minHeight: "44px",
-            }}
-            // style={{ minWidth: "180px", minHeight: "35px" }}
-            autoFocus
-            disableElevation
-          >
-            <PulseLoader
-              color={"#4B46E5"}
-              loading={loading}
-              size={10}
-              speedMultiplier={0.5}
-            />{" "}
-            {loading === false && "Save changes"}
-          </Button>
-        </DialogActions> */}
       </Dialog>
 
       <Dialog
@@ -2020,4 +1792,4 @@ const WarrantyProductSKU = ({  }) => {
   );
 };
 
-export default WarrantyProductSKU;
+export default WarrantyDetails;
