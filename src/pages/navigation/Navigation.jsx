@@ -450,6 +450,14 @@ const Navigation = ({ notificationCartName }) => {
             </PrivateRoute>
           }
         />
+        <Route
+          path="repair/:rid/warranty/details/:wid"
+          element={
+            <PrivateRoute>
+              <WarrantyDetails />
+            </PrivateRoute>
+          }
+        />
 
         <Route
           path="repair/:rid/warranty"

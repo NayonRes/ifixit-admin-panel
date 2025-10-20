@@ -48,12 +48,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment";
 import dayjs from "dayjs";
 
-const WarrantyProductSKU = ({ warrantyData, reload, setReload }) => {
+const WarrantyDetails = ({ warrantyData, reload, setReload }) => {
   console.log("warrantyData", warrantyData);
   const navigate = useNavigate();
-  // const { rid } = useParams();
-  let rid = warrantyData?.repair_id;
-  // let newRepairId = rid || warrantyData?.repair_id;
+  const { rid } = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
@@ -516,7 +514,6 @@ const WarrantyProductSKU = ({ warrantyData, reload, setReload }) => {
   };
   useEffect(() => {
     // getDropdownList();
-
     getRepairDetails();
   }, []);
   return (
@@ -1795,4 +1792,4 @@ const WarrantyProductSKU = ({ warrantyData, reload, setReload }) => {
   );
 };
 
-export default WarrantyProductSKU;
+export default WarrantyDetails;

@@ -217,7 +217,7 @@ const AllWarrantyList = () => {
         newEndingTime = dayjs(endingTime).format("YYYY-MM-DD");
       }
 
-      url = `/api/v1/warranty?warranty_id=${warrantyNo?.trim()}&&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
+      url = `/api/v1/warranty?warranty_id=${warrantyNo?.trim()}&branch_id=${newBranch}&startDate=${newStartingTime}&endDate=${newEndingTime}&status=${newStatus}&limit=${newLimit}&page=${
         newPageNO + 1
       }`;
     }
@@ -376,9 +376,9 @@ const AllWarrantyList = () => {
           </Typography>
         </Grid>
         <Grid size={6} style={{ textAlign: "right" }}>
-          {ifixit_admin_panel?.user?.permission?.includes("update_repair") && (
+          {/* {ifixit_admin_panel?.user?.permission?.includes("update_repair") && (
             <>
-              {/* <AddWarranty /> */}
+      
 
               <Button
                 variant="outlined"
@@ -394,7 +394,7 @@ const AllWarrantyList = () => {
                 Add Warranty
               </Button>
             </>
-          )}
+          )} */}
         </Grid>
       </Grid>
 
@@ -801,12 +801,12 @@ const AllWarrantyList = () => {
                         "view_spare_parts_details"
                       ) && (
                         <TableCell align="right">
-                          {/* &nbsp; &nbsp;
+                          &nbsp; &nbsp;
                           <WarrantyProductSKU
                             warrantyData={row}
                             reload={reload}
                             setReload={setReload}
-                          />{" "} */}
+                          />{" "}
                           &nbsp; &nbsp;
                           <Button
                             size="small"
@@ -814,7 +814,7 @@ const AllWarrantyList = () => {
                             color="info"
                             startIcon={<ListAltOutlinedIcon />}
                             component={Link}
-                            to={`/repair/details/${rid}`}
+                            to={`/repair/${row?.repair_id}/warranty/details/${row?._id}`}
                           >
                             Details
                           </Button>

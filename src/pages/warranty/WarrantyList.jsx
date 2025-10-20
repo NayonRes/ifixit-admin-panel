@@ -296,11 +296,36 @@ const WarrantyList = () => {
       return null;
     }
   };
+  const getRepairDetails = async () => {
+    setRepairLoading(true);
+
+    let url = `/api/v1/repair/${encodeURIComponent(rid.trim())}`;
+    let allData = await getDataWithToken(url);
+    console.log("allData?.data?.data", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setRepairDetails(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        // setMessage("No data found");
+      }
+    } else {
+      setRepairLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setRepairLoading(false);
+  };
   useEffect(() => {
     getData();
 
     getData2();
     getWarrantyData();
+    getRepairDetails();
   }, [reload]);
 
   return (
@@ -319,8 +344,6 @@ const WarrantyList = () => {
         <Grid size={6} style={{ textAlign: "right" }}>
           {ifixit_admin_panel?.user?.permission?.includes("update_repair") && (
             <>
-              {/* <AddWarranty /> */}
-
               <Button
                 variant="outlined"
                 disableElevation
@@ -1095,15 +1118,19 @@ const WarrantyList = () => {
                       ) && (
                         <TableCell align="right">
                           &nbsp; &nbsp;
-                          <WarrantyProductSKU warrantyData={row} reload={reload} setReload={setReload}/> &nbsp;
-                          &nbsp;
+                          <WarrantyProductSKU
+                            warrantyData={row}
+                            reload={reload}
+                            setReload={setReload}
+                          />{" "}
+                          &nbsp; &nbsp;
                           <Button
                             size="small"
                             variant="outlined"
                             color="info"
                             startIcon={<ListAltOutlinedIcon />}
                             component={Link}
-                            to={`/repair/details/${rid}`}
+                            to={`/repair/${rid}/warranty/details/${row?._id}`}
                           >
                             Details
                           </Button>
