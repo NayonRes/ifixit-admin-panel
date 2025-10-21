@@ -695,7 +695,7 @@ const RepairDetails = ({ clearFilter }) => {
 
               {details?.payment_info?.length > 0 && (
                 <>
-                  {details?.due_amount && (
+                  {details?.due_amount > -1 && (
                     <Typography
                       variant="medium"
                       color="text.main"
@@ -714,7 +714,7 @@ const RepairDetails = ({ clearFilter }) => {
                     </Typography>
                   )}
 
-                  {details?.discount_amount && (
+                  {details?.discount_amount > -1 && (
                     <Typography
                       variant="medium"
                       color="text.main"
@@ -1549,7 +1549,7 @@ const RepairDetails = ({ clearFilter }) => {
         </Box>
       </div>
 
-      <div
+      {/* <div
         style={{
           background: "#fff",
           border: "1px solid #EAECF1",
@@ -1560,8 +1560,8 @@ const RepairDetails = ({ clearFilter }) => {
           marginTop: 20,
         }}
       >
-        <Box sx={{ padding: "12px", margin: "16px" }}>
-          {/* <Typography
+        <Box sx={{ padding: "12px", margin: "16px" }}> */}
+      {/* <Typography
             variant="h6"
             gutterBottom
             component="div"
@@ -1569,7 +1569,7 @@ const RepairDetails = ({ clearFilter }) => {
           >
             Warranty Items
           </Typography> */}
-          {/* <Box sx={{ my: "16px" }}>
+      {/* <Box sx={{ my: "16px" }}>
             <Grid container spacing={2}>
               <Grid size={12}>
                 <Typography
@@ -1761,8 +1761,8 @@ const RepairDetails = ({ clearFilter }) => {
               </TableBody>
             </Table>
           </TableContainer> */}
-        </Box>
-      </div>
+      {/* </Box>
+      </div> */}
     </>
   );
 };
