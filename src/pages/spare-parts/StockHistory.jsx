@@ -25,7 +25,16 @@ import axios from "axios";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import { AuthContext } from "../../context/AuthContext";
-import { Box, Collapse, TableContainer } from "@mui/material";
+import {
+  Box,
+  Collapse,
+  TableContainer,
+  Card,
+  CardContent,
+  Divider,
+  Chip,
+  Paper,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -89,8 +98,6 @@ const StockHistory = () => {
 
   const [imageDialog, setImageDialog] = useState(false);
   const [images, setImages] = useState([]);
-  const [detailDialog, setDetailDialog] = useState(false);
-  const [details, setDetails] = useState([]);
   const [brandId, setBrandId] = useState([]);
   const [categoryId, setCategoryId] = useState([]);
   const [deviceId, setDeviceId] = useState([]);
@@ -99,11 +106,6 @@ const StockHistory = () => {
   const [categoryList, setCategoryList] = useState([]);
   const [deviceList, setDeviceList] = useState([]);
   const [modelList, setModelList] = useState([]);
-
-  const handleDetailClose = () => {
-    setDetails({});
-    setDetailDialog(false);
-  };
 
   const customeTextFeild = {
     // padding: "15px 20px",
@@ -193,20 +195,16 @@ const StockHistory = () => {
   };
 
   const clearFilter = (event) => {
-    setName("");
-    setNumber("");
-    setBrandId("");
-    setCategoryId("");
-    setDeviceId("");
-    setModelId("");
-    setStatus("");
-
-    setPage(0);
-    const newUrl = `/api/v1/blog?limit=${rowsPerPage}&page=1`;
-    getData(0, rowsPerPage, newUrl);
+    setSku_number("");
+    setTableDataList([]);
+    setMessage("");
   };
 
   const getData = async () => {
+    if (sku_number.trim() === "") {
+      handleSnakbarOpen("SKU number is required", "error");
+      return;
+    }
     setLoading(true);
     let newPageNO = page;
     let url;
@@ -222,11 +220,13 @@ const StockHistory = () => {
     console.log("allData?.data?.data", allData?.data?.data);
 
     if (allData.status >= 200 && allData.status < 300) {
-      setTableDataList(allData?.data?.data);
       // setRowsPerPage(allData?.data?.limit);
 
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
+      if (allData.data.data.length > 0) {
+        setTableDataList(allData?.data?.data);
+      } else {
+        setTableDataList([]);
+        handleSnakbarOpen("No data found", "error");
       }
     } else {
       setLoading(false);
@@ -247,337 +247,385 @@ const StockHistory = () => {
             component="div"
             sx={{ color: "#0F1624", fontWeight: 600 }}
           >
-            Stock History
+            {/* Stock History */}
           </Typography>
         </Grid>
-        <Grid size={6} style={{ textAlign: "right" }}>
-          {ifixit_admin_panel?.user?.permission?.includes("add_blog") && (
-            <Button
-              variant="contained"
-              disableElevation
-              sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-              component={Link}
-              to="/add-blog"
-              // onClick={() => {
-              //   setAddDialog(true);
-              //   getCategoryList();
-              //   getBrandList();
-              //   getDeviceList();
-              // }}
-              startIcon={
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-                    stroke="white"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              }
-            >
-              Add Blog
-            </Button>
-          )}
-          {/* <AddSpareParts clearFilter={clearFilter} /> */}
-
-          {/* <IconButton
-            onClick={() => setOpen(!open)}
-            // size="large"
-            aria-label="show 5 new notifications"
-            color="inherit"
-          >
-            <Badge badgeContent={5} color="error">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12.3807 14.2348C13.9595 14.0475 15.4819 13.6763 16.9259 13.1432C15.7286 11.8142 14.9998 10.0547 14.9998 8.125V7.54099C14.9999 7.52734 15 7.51368 15 7.5C15 4.73858 12.7614 2.5 10 2.5C7.23858 2.5 5 4.73858 5 7.5L4.99984 8.125C4.99984 10.0547 4.27106 11.8142 3.07373 13.1432C4.51784 13.6763 6.04036 14.0475 7.61928 14.2348M12.3807 14.2348C11.6 14.3274 10.8055 14.375 9.99984 14.375C9.19431 14.375 8.3999 14.3274 7.61928 14.2348M12.3807 14.2348C12.4582 14.4759 12.5 14.7331 12.5 15C12.5 16.3807 11.3807 17.5 10 17.5C8.61929 17.5 7.5 16.3807 7.5 15C7.5 14.7331 7.54183 14.476 7.61928 14.2348"
-                  stroke="#656E81"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </Badge>
-          </IconButton> */}
-        </Grid>
+        <Grid size={6} style={{ textAlign: "right" }}></Grid>
       </Grid>
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid #EAECF1",
-          borderRadius: "12px",
+      <Card
+        sx={{
+          background: "#e8e8e8",
+          border: "none",
+          borderRadius: "16px",
           overflow: "hidden",
-          padding: "16px 0",
-          boxShadow: "0px 1px 2px 0px rgba(15, 22, 36, 0.05)",
+          boxShadow: "none",
+          mb: 3,
         }}
       >
-        <Grid
-          container
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ px: 1.5, mb: 1.75 }}
-        >
-          {/* <Grid size={{ xs: 12, sm: 12, md: 12, lg: 2, xl: 2 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              component="div"
-              sx={{ color: "#0F1624", fontWeight: 600, margin: 0 }}
-            >
-              Details
-            </Typography>
-          </Grid> */}
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
-            <Box sx={{ flexGrow: 1 }}>
-              <Grid
-                container
-                justifyContent="right"
-                alignItems="center"
-                spacing={1}
+        <Box sx={{ p: 3 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              color: "#0F1624",
+              fontWeight: 700,
+              mb: 3,
+              textAlign: "center",
+            }}
+          >
+            Search Stock History
+          </Typography>
+
+          <Grid
+            container
+            spacing={2}
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Grid size={6} md={6} lg={4}>
+              <TextField
+                fullWidth
+                type="number"
+                variant="outlined"
+                // label="Enter SKU Number"
+                placeholder="e.g., XXXXXXXXX"
+                value={sku_number}
+                onChange={(e) => setSku_number(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    getData();
+                  }
+                }}
+                sx={{
+                  // ...customeTextFeild,
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "white",
+                    borderRadius: "12px",
+                    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
+                    "&:hover fieldset": {
+                      borderColor: "#667eea",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#667eea",
+                      borderWidth: 2,
+                    },
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#667eea",
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <Box sx={{ mr: 2, color: "#667eea" }}>
+                      <SearchIcon
+                        sx={{
+                          fontSize: "32px",
+                          position: "relative",
+                          top: "5px",
+                        }}
+                      />
+                    </Box>
+                  ),
+                }}
+              />
+            </Grid>
+
+            <Grid size={12} md={6} lg={4}>
+              <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={getData}
+                  disabled={loading || sku_number.trim() === ""}
+                  sx={{
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    borderRadius: "12px",
+                    px: 4,
+                    py: 1.5,
+                    fontWeight: 600,
+                    textTransform: "none",
+                    boxShadow: "0px 4px 16px rgba(102, 126, 234, 0.4)",
+                    "&:hover": {
+                      background:
+                        "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+                      boxShadow: "0px 6px 20px rgba(102, 126, 234, 0.6)",
+                    },
+                    "&:disabled": {
+                      background: "#e0e0e0",
+                      color: "#9e9e9e",
+                    },
+                  }}
+                  startIcon={
+                    loading ? (
+                      <PulseLoader size={8} color="white" />
+                    ) : (
+                      <SearchIcon />
+                    )
+                  }
+                >
+                  {loading ? "Searching..." : "Search Stock"}
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={clearFilter}
+                  sx={{
+                    borderRadius: "12px",
+                    px: 3,
+                    py: 1.5,
+                    fontWeight: 600,
+                    textTransform: "none",
+                    borderColor: "#667eea",
+                    color: "#667eea",
+                    "&:hover": {
+                      borderColor: "#5a6fd8",
+                      backgroundColor: "rgba(102, 126, 234, 0.04)",
+                    },
+                  }}
+                  startIcon={<RestartAltIcon />}
+                >
+                  Clear
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+
+          {sku_number.trim() !== "" && (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography variant="body2" color="text.secondary">
+                Searching for SKU: <strong>{sku_number}</strong>
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Card>
+
+      {/* Stock Details and Repair History Section */}
+      {!loading && tableDataList.length > 0 && tableDataList[0] && (
+        <Box sx={{ mt: 3 }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            component="div"
+            sx={{ color: "#0F1624", fontWeight: 600, mb: 2 }}
+          >
+            Stock Details & Repair History
+          </Typography>
+
+          <Grid container spacing={3}>
+            {/* Stock Information Card */}
+            <Grid size={12} md={6}>
+              <Card
+                sx={{
+                  p: 3,
+                  height: "100%",
+                  // background:
+                  //   "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background: "#fff",
+                  color: "#0F1624",
+                }}
               >
-                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <TextField
-                    required
+                <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+                  Stock Information
+                </Typography>
+
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 500, mb: 1 }}>
+                    {tableDataList[0]?.product_data?.[0]?.name || "N/A"}
+                  </Typography>
+                  <Chip
+                    label={
+                      tableDataList[0]?.product_variation_data?.[0]?.name ||
+                      "N/A"
+                    }
                     size="small"
-                    fullWidth
-                    id="name"
-                    placeholder="Full Name"
-                    variant="outlined"
-                    sx={{ ...customeTextFeild }}
-                    value={name}
-                    onChange={(e) => {
-                      setName(e.target.value);
+                    sx={{
+                      mb: 2,
                     }}
                   />
-                </Grid> */}
+                </Box>
 
-                <Grid size={2}>
-                  <TextField
-                    sx={{ ...customeTextFeild }}
-                    id="number"
-                    fullWidth
-                    size="small"
-                    variant="outlined"
-                    label="SKU Number"
-                    value={sku_number}
-                    onChange={(e) => setSku_number(e.target.value)}
-                  />
+                <Grid container spacing={2}>
+                  <Grid size={6}>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      SKU Number
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                      {tableDataList[0]?.sku_number || "N/A"}
+                    </Typography>
+                  </Grid>
+                  <Grid size={6}>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      Stock Status
+                    </Typography>
+                    <Chip
+                      label={tableDataList[0]?.stock_status || "N/A"}
+                      size="small"
+                      color={
+                        tableDataList[0]?.stock_status === "Attached"
+                          ? "success"
+                          : tableDataList[0]?.stock_status === "Available"
+                          ? "success"
+                          : tableDataList[0]?.stock_status === "Returned"
+                          ? "info"
+                          : tableDataList[0]?.stock_status === "Sold"
+                          ? "secondary"
+                          : tableDataList[0]?.stock_status === "Abnormal"
+                          ? "error"
+                          : "default"
+                      }
+                      variant="filled"
+                      sx={{
+                        mt: 0.5,
+                      }}
+                    />
+                  </Grid>
+                  <Grid size={6}>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      Branch
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {tableDataList[0]?.branch_data?.[0]?.name || "N/A"}
+                    </Typography>
+                  </Grid>
+                  <Grid size={6}>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      Warranty
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {tableDataList[0]?.product_data?.[0]?.warranty || "N/A"}{" "}
+                      months
+                    </Typography>
+                  </Grid>
+                  <Grid size={12}>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      Purchase Date
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {tableDataList[0]?.purchase_data?.[0]?.purchase_date
+                        ? moment(
+                            tableDataList[0].purchase_data[0].purchase_date
+                          ).format("DD MMM, YYYY")
+                        : "N/A"}
+                    </Typography>
+                  </Grid>
                 </Grid>
+              </Card>
+            </Grid>
 
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Grid container spacing={{ lg: 1, xl: 1 }}>
-                      <Grid size={4}>
-                        <Button
-                          fullWidth
-                          variant="outlined"
-                          color="info"
-                          disableElevation
-                          size="small"
-                          sx={{ py: "4px" }}
-                          onClick={clearFilter}
+            {/* Repair History Card */}
+            <Grid size={12} md={6}>
+              <Card sx={{ p: 3, height: "100%" }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: 600, mb: 2, color: "#0F1624" }}
+                >
+                  Repair History
+                </Typography>
+
+                {tableDataList[0]?.repair_attached_spareparts_data?.length >
+                0 ? (
+                  <Box sx={{ maxHeight: 400, overflowY: "auto" }}>
+                    {tableDataList[0].repair_attached_spareparts_data.map(
+                      (repair, repairIndex) => (
+                        <Card
+                          key={repairIndex}
+                          sx={{
+                            mb: 2,
+                            p: 2,
+                            backgroundColor: "#f8f9fa",
+                            border: "1px solid #e9ecef",
+                            borderRadius: "8px",
+                            borderLeft: "4px solid #667eea",
+                          }}
                         >
-                          <RestartAltIcon />
-                        </Button>
-                      </Grid>
-                      <Grid size={8}>
-                        <Button
-                          fullWidth
-                          variant="contained"
-                          disableElevation
-                          color="info"
-                          sx={{ py: "4px" }}
-                          size="small"
-                          startIcon={<SearchIcon />}
-                          onClick={(event) => getData()}
-                        >
-                          Search
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Box>
-          </Grid>
-        </Grid>
-        <div
-          style={{
-            overflowX: "auto",
-
-            minWidth: "100%",
-            width: "Calc(100vw - 385px)",
-            // padding: "10px 16px 0px",
-            boxSizing: "border-box",
-          }}
-        >
-          <TableContainer sx={{ maxHeight: "Calc(100vh - 250px)" }}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  <TableCell colSpan={2}>Title</TableCell>
-
-                  <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
-                  {checkMultiplePermission([
-                    "update_service",
-                    "view_service_details",
-                  ]) && (
-                    <TableCell align="right" style={{ whiteSpace: "nowrap" }}>
-                      Actions
-                    </TableCell>
-                  )}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {!loading &&
-                  tableDataList.length > 0 &&
-                  tableDataList.map((row, i) => (
-                    <TableRow
-                      key={i}
-                      // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell sx={{ width: 50 }}>
-                        <img
-                          src={
-                            row?.image?.url?.length > 0
-                              ? row?.image?.url
-                              : "/noImage.jpg"
-                          }
-                          alt=""
-                          width={40}
-                        />
-                      </TableCell>
-
-                      <TableCell>{row?.title}</TableCell>
-
-                      <TableCell>
-                        {row?.status ? (
-                          <>
-                            <TaskAltOutlinedIcon
-                              style={{
-                                color: "#10ac84",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
-                            />{" "}
-                            <span
-                              style={{
-                                color: "#10ac84",
-                              }}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              mb: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ fontWeight: 600 }}
                             >
-                              Active &nbsp;
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <HighlightOffOutlinedIcon
-                              style={{
-                                color: "#ee5253",
-                                height: "16px",
-                                position: "relative",
-                                top: "4px",
-                              }}
-                            />
-                            <span
-                              style={{
-                                color: "#ee5253",
-                              }}
-                            >
-                              Inactive
-                            </span>
-                          </>
-                        )}
-                      </TableCell>
-
-                      {/* <TableCell align="center" style={{ minWidth: "130px" }}>
-                        <Invoice data={row} />
-                      </TableCell> */}
-
-                      {checkMultiplePermission([
-                        "update_blog",
-                        // "view_service_details",
-                      ]) && (
-                        <TableCell align="right">
-                          {/* {ifixit_admin_panel?.user?.permission?.includes(
-                            "view_service_details"
-                          ) && (
-                            <>
-                              <Button
+                              {repair.warranty_id ? "Warranty ID" : "Repair ID"}
+                              : {repair.warranty_id || repair.repair_id}
+                            </Typography>
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                              <Chip
+                                label={
+                                  repair.warranty_id ? "Warranty" : "Repair"
+                                }
                                 size="small"
+                                color={
+                                  repair.warranty_id ? "warning" : "primary"
+                                }
                                 variant="outlined"
-                                color="info"
-                                startIcon={<ListAltOutlinedIcon />}
-                                component={Link}
-                                to={`/blog/details/${row?._id}`}
+                              />
+                              <Chip
+                                label={repair.status ? "Active" : "Inactive"}
+                                size="small"
+                                color={repair.status ? "success" : "default"}
+                              />
+                            </Box>
+                          </Box>
+
+                          <Typography
+                            variant="body2"
+                            sx={{ mb: 1, color: "text.secondary" }}
+                          >
+                            <strong>Attached:</strong>{" "}
+                            {moment(repair.created_at).format(
+                              "DD MMM, YYYY HH:mm A"
+                            )}
+                          </Typography>
+
+                          <Typography
+                            variant="body2"
+                            sx={{ mb: 1, color: "text.secondary" }}
+                          >
+                            <strong>Created by:</strong> {repair.created_by}
+                          </Typography>
+
+                          {repair.warranty_id &&
+                            repair.claimed_on_sku_number && (
+                              <Typography
+                                variant="body2"
+                                sx={{ mb: 1, color: "text.secondary" }}
                               >
-                                Details
-                              </Button>
-                              &nbsp;&nbsp;
-                            </>
-                          )} */}
+                                <strong>Claimed on SKU:</strong>{" "}
+                                {repair.claimed_on_sku_number}
+                              </Typography>
+                            )}
 
-                          {ifixit_admin_panel?.user?.permission?.includes(
-                            "update_blog"
-                          ) && (
-                            <Button
+                          {repair.is_warranty_claimed_sku && (
+                            <Chip
+                              label="Warranty Claimed"
                               size="small"
-                              variant="outlined"
-                              color="text"
-                              startIcon={<ListAltOutlinedIcon />}
-                              component={Link}
-                              to={`/blog/update/${row?._id}`}
-                            >
-                              Update
-                            </Button>
+                              color="warning"
+                              sx={{ mt: 1 }}
+                            />
                           )}
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))}
-
-                {!loading && tableDataList.length < 1 ? (
-                  <TableRow
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell colSpan={7} style={{ textAlign: "center" }}>
-                      <strong> {message}</strong>
-                    </TableCell>
-                  </TableRow>
-                ) : null}
-                {loading && pageLoading()}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-        {/* {tableDataList.length > 0 ? (
-          <div>
-            <TablePagination
-              style={{ display: "block", border: "none" }}
-              rowsPerPageOptions={[]}
-              count={totalData}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </div>
-        ) : (
-          <br />
-        )} */}
-      </div>
+                        </Card>
+                      )
+                    )}
+                  </Box>
+                ) : (
+                  <Box sx={{ textAlign: "center", py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      No repair history found for this item
+                    </Typography>
+                  </Box>
+                )}
+              </Card>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
     </>
   );
 };
