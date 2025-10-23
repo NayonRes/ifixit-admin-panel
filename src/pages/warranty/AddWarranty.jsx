@@ -48,9 +48,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import moment from "moment";
 import dayjs from "dayjs";
 import TechnicianList from "./TechnicianList";
-import RepairStatusList from "./RepairStatusList";
+import WarrantyStatusList from "./WarrantyStatusList";
 import WarrantyPaymentList from "./WarrantyPaymentList";
 import { handlePutData } from "../../services/PutDataService";
+import RefundTransaction from "../refund/RefundTransaction";
 
 const AddWarranty = ({}) => {
   const navigate = useNavigate();
@@ -294,7 +295,9 @@ const AddWarranty = ({}) => {
       },
     },
   };
-
+  const showRefund = () => {
+    return repairStatus === "Cancelled" || repairStatus === "Failed";
+  };
   const getPreviousProducts = async (sku) => {
     let url;
     let result = {};
@@ -889,7 +892,7 @@ const AddWarranty = ({}) => {
               />
             </Grid>
             <Grid size={12}>
-              <RepairStatusList
+              <WarrantyStatusList
                 repairStatus={repairStatus}
                 setRepairStatus={setRepairStatus}
                 setLastUpdatedRepairStatus={setLastUpdatedRepairStatus}
@@ -972,12 +975,31 @@ const AddWarranty = ({}) => {
             )}
           </Grid>
           <Box sx={{ px: 1, mt: 2, textAlign: "right" }}>
+            {showRefund() && (
+              <>
+                <RefundTransaction
+                  transaction_name="Warranty Refund"
+                  transaction_source_id={wid}
+                  transaction_source_type="warranty"
+                  transaction_type="debit"
+                  totalCollection={
+                    Array.isArray(allInfo?.payment_info)
+                      ? allInfo?.payment_info.reduce(
+                          (sum, i) => sum + (i.amount || 0),
+                          0
+                        )
+                      : 0
+                  }
+                />
+              </>
+            )}
             <Button
               variant="contained"
               disabled={warrantyLoading}
               // type="submit"
               onClick={() => onWarrantySubmit()}
               sx={{
+                ml: 1,
                 px: 2,
                 py: 1.25,
                 fontSize: "14px",
@@ -995,7 +1017,7 @@ const AddWarranty = ({}) => {
                 size={10}
                 speedMultiplier={0.5}
               />{" "}
-              {warrantyLoading === false && "Save Warranty Details"}
+              {warrantyLoading === false && "Save Warranty"}
             </Button>
           </Box>
           {/* 111 */}

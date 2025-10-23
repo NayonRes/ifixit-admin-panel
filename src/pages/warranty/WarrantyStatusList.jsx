@@ -5,7 +5,7 @@ import { statusList, deliveryStatusList } from "../../data";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
 import { getDataWithToken } from "../../services/GetDataService";
-import RepairStatusHistory from "./RepairStatusHistory";
+import WarrantyStatusHistory from "./WarrantyStatusHistory";
 import { useParams, useSearchParams } from "react-router-dom";
 
 const style = {
@@ -71,7 +71,7 @@ const style = {
   },
 };
 
-const RepairStatusList = ({
+const WarrantyStatusList = ({
   repairStatus,
   setRepairStatus,
   setLastUpdatedRepairStatus,
@@ -148,7 +148,7 @@ const RepairStatusList = ({
       </Grid>
       {rid?.length > 0 && (
         <Grid container spacing={2} sx={{ mt: 4 }}>
-          <RepairStatusHistory
+          <WarrantyStatusHistory
             repair_status_history_data={repair_status_history_data}
             technicianLoading={technicianLoading}
             setTechnicianLoading={setTechnicianLoading}
@@ -168,4 +168,4 @@ const RepairStatusList = ({
   );
 };
 
-export default RepairStatusList;
+export default WarrantyStatusList;

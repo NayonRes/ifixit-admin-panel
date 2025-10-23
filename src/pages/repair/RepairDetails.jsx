@@ -158,7 +158,7 @@ const RepairDetails = ({ clearFilter }) => {
               color="info"
               startIcon={<LocalPrintshopOutlinedIcon />}
             >
-              Repair Invoice
+              Invoice
             </Button>
           </Grid>
         </Grid>

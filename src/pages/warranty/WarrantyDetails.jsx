@@ -180,19 +180,19 @@ const WarrantyDetails = ({ clearFilter }) => {
             {" "}
             <Button
               component={Link}
-              to={`/repair/invoice/${rid}`}
+              to={`/repair/${rid}/warranty/invoice/${wid}`}
               variant="outlined"
               color="info"
               startIcon={<LocalPrintshopOutlinedIcon />}
             >
-              Repair Invoice
+               Invoice
             </Button>
           </Grid>
         </Grid>
       </Box>
       <div
         style={{
-          background: "#fff",
+          background: "#dfdfdfff",
           border: "1px solid #EAECF1",
           borderRadius: "12px",
           overflow: "hidden",
