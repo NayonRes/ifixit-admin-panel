@@ -977,21 +977,42 @@ export default function Layout() {
                         </ListItem>
                       )} */}
                       {checkPermission("all_branch_stock_list") && (
-                        <ListItem disablePadding sx={{ display: "block" }}>
-                          <ListItemButton
-                            component={Link}
-                            to="/all-branch-stock"
-                            sx={[
-                              { ...listButtonStyle },
-                              pathname === "/all-branch-stock" && {
-                                ...activeStyle,
-                              },
-                            ]}
-                            style={{ marginBottom: "0px" }}
-                          >
-                            <ListItemText primary="All Branch Stock" />
-                          </ListItemButton>
-                        </ListItem>
+                        <>
+                          <ListItem disablePadding sx={{ display: "block" }}>
+                            <ListItemButton
+                              component={Link}
+                              to="/all-branch-stock"
+                              sx={[
+                                { ...listButtonStyle },
+                                pathname === "/all-branch-stock" && {
+                                  ...activeStyle,
+                                },
+                              ]}
+                              style={{ marginBottom: "0px" }}
+                            >
+                              <ListItemText primary="All Branch Stock" />
+                            </ListItemButton>
+                          </ListItem>
+                        </>
+                      )}
+                      {checkPermission("view_stock_details") && (
+                        <>
+                          <ListItem disablePadding sx={{ display: "block" }}>
+                            <ListItemButton
+                              component={Link}
+                              to="/stock-history"
+                              sx={[
+                                { ...listButtonStyle },
+                                pathname === "/stock-history" && {
+                                  ...activeStyle,
+                                },
+                              ]}
+                              style={{ marginBottom: "0px" }}
+                            >
+                              <ListItemText primary="Stock History" />
+                            </ListItemButton>
+                          </ListItem>
+                        </>
                       )}
                     </List>
                   </Collapse>
