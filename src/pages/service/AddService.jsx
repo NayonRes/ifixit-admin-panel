@@ -152,6 +152,7 @@ const AddService = ({ clearFilter }) => {
 
   const [message, setMessage] = useState("");
   const [orderNo, setOrderNo] = useState();
+  const [endpoint, setEndpoint] = useState("");
   const [model, setModel] = useState([]);
   const [modelNames, setModelNames] = useState([]);
 
@@ -198,6 +199,7 @@ const AddService = ({ clearFilter }) => {
     setName("");
     setTitle("");
     setOrderNo();
+    setEndpoint("");
     setBrandId("");
     setCategoryId("");
     setDeviceId("");
@@ -255,6 +257,7 @@ const AddService = ({ clearFilter }) => {
     let data = {
       title: title,
       order_no: orderNo,
+      endpoint: endpoint,
       image: await fileToBase64(image),
       // model_id: modelId,
       device_id: deviceId,
@@ -921,7 +924,7 @@ const AddService = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Order No
+                Order No *
               </Typography>
               <TextField
                 required
@@ -935,6 +938,29 @@ const AddService = ({ clearFilter }) => {
                 value={orderNo}
                 onChange={(e) => {
                   setOrderNo(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                URL Endpoint *
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="endpoint"
+                placeholder="Enter URL Endpoint"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={endpoint}
+                onChange={(e) => {
+                  setEndpoint(e.target.value);
                 }}
               />
             </Grid>

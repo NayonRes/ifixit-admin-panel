@@ -157,6 +157,7 @@ const UpdateService = ({ clearFilter }) => {
   const [allData, setAllData] = useState([]);
   const [status, setStatus] = useState("");
   const [orderNo, setOrderNo] = useState();
+  const [endpoint, setEndpoint] = useState("");
   const [model, setModel] = useState([]);
   const [modelNames, setModelNames] = useState([]);
 
@@ -202,6 +203,7 @@ const UpdateService = ({ clearFilter }) => {
     setName("");
     setTitle("");
     setOrderNo();
+    setEndpoint("");
     setBrandId("");
     setCategoryId("");
     setDeviceId("");
@@ -262,6 +264,7 @@ const UpdateService = ({ clearFilter }) => {
     let data = {
       title: title,
       order_no: orderNo,
+      endpoint: endpoint,
       status: status,
       // model_id: modelId,
       device_id: deviceId,
@@ -507,6 +510,7 @@ const UpdateService = ({ clearFilter }) => {
       setDetailsForTextEditorShow(allData?.data?.data[0]?.description);
       setTitle(allData?.data?.data[0]?.title);
       setOrderNo(allData?.data?.data[0]?.order_no);
+      setEndpoint(allData?.data?.data[0]?.endpoint);
       setDetails(allData?.data?.data[0]?.description);
       setModelId(allData?.data?.data[0]?.model_id);
       setStatus(allData?.data?.data[0]?.status);
@@ -933,7 +937,7 @@ const UpdateService = ({ clearFilter }) => {
                   gutterBottom
                   sx={{ fontWeight: 500 }}
                 >
-                  Order No
+                  Order No *
                 </Typography>
                 <TextField
                   required
@@ -947,6 +951,29 @@ const UpdateService = ({ clearFilter }) => {
                   value={orderNo}
                   onChange={(e) => {
                     setOrderNo(e.target.value);
+                  }}
+                />
+              </Grid>
+              <Grid size={6}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  URL Endpoint *
+                </Typography>
+                <TextField
+                  required
+                  size="small"
+                  fullWidth
+                  id="endpoint"
+                  placeholder="Enter URL Endpoint"
+                  variant="outlined"
+                  sx={{ ...customeTextFeild, mb: 2 }}
+                  value={endpoint}
+                  onChange={(e) => {
+                    setEndpoint(e.target.value);
                   }}
                 />
               </Grid>
