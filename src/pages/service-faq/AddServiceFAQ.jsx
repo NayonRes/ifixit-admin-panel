@@ -18,11 +18,25 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
-import IconButton from "@mui/material/IconButton";
 
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import EmailIcon from "@mui/icons-material/Email";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -30,8 +44,35 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
-import ImageUpload from "../../utils/ImageUpload";
 
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "16px 24px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#EAECF0",
+  borderStyle: "dashed",
+  backgroundColor: "#fff",
+  // color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+  borderRadius: "12px",
+};
+
+const focusedStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
 const form = {
   padding: "50px",
   background: "#fff",
@@ -39,24 +80,16 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const AddDevice = ({ clearFilter }) => {
+const AddServiceFAQ = ({ serviceId }) => {
   const navigate = useNavigate();
-
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
-  const [parent_id, setParent_id] = useState("");
-  const [deviceBrandId, setDeviceBrandId] = useState("");
-  const [deviceBrandList, setDeviceBrandList] = useState([]);
-  const [deviceList, setDeviceList] = useState([]);
-  const [file, setFile] = useState(null);
-  const [iconFile, setIconFile] = useState(null);
-  const [loading2, setLoading2] = useState(false);
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const [orderNo, setOrderNo] = useState();
-  const dropzoneRef = useRef(null);
-  const [endpoint, setEndpoint] = useState("");
+
   const [message, setMessage] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
@@ -81,47 +114,28 @@ const AddDevice = ({ clearFilter }) => {
   };
 
   const clearForm = () => {
-    setName("");
-    setOrderNo();
-    setEndpoint("");
-    setParent_id("");
-    setDeviceBrandId("");
-    setFile(null);
-    setIconFile(null);
+    setQuestion("");
+    setAnswer("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
+    // var formdata = new FormData();
+    // formdata.append("name", name);
 
-    let formdata = new FormData();
-    formdata.append("name", name.trim());
+    // formdata.append("parent_id", parent_id);
 
-    formdata.append("endpoint", endpoint);
-    if (deviceBrandId) {
-      formdata.append("device_brand_id", deviceBrandId);
-    }
+    let data = {
+      source_id: serviceId,
+      source_type: "service",
+      question: question.trim(),
+      answer: answer.trim(),
+      // parent_name: parent_id.trim(),
 
-    formdata.append("parent_id", parent_id === "None" ? "" : parent_id);
+      // parent_id: parent_id?.length > 0 ? parent_id : null,
+    };
 
-    formdata.append("order_no", orderNo);
-    if (file) {
-      formdata.append("image", file);
-    }
-    if (iconFile) {
-      formdata.append("icon", iconFile);
-    }
-
-    // let data = {
-    //   name: name.trim(),
-    //   parent_name: parent_id.trim(),
-    // };
-
-    let response = await handlePostData(
-      "/api/v1/device/create",
-      formdata,
-      true
-    );
+    let response = await handlePostData("/api/v1/question/create", data, false);
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -130,7 +144,6 @@ const AddDevice = ({ clearFilter }) => {
     }
     if (response.status >= 200 && response.status < 300) {
       handleSnakbarOpen("Added successfully", "success");
-      clearFilter();
 
       clearForm();
       handleDialogClose();
@@ -200,60 +213,17 @@ const AddDevice = ({ clearFilter }) => {
     },
   };
 
-  const getDropdownList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/deviceBrand/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      setDeviceBrandList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
-  const getDeviceList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/device/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      setDeviceList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
   useEffect(() => {}, []);
   return (
     <>
       <Button
-        variant="contained"
+        variant="outlined"
+        size="small"
         disableElevation
-        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+        // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
-          getDropdownList();
-          getDeviceList();
-          // getDropdownListWithChildren();
+          // getDropdownList();
         }}
         startIcon={
           <svg
@@ -265,7 +235,7 @@ const AddDevice = ({ clearFilter }) => {
           >
             <path
               d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-              stroke="white"
+              stroke="#4238CA"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -273,7 +243,7 @@ const AddDevice = ({ clearFilter }) => {
           </svg>
         }
       >
-        Add Device
+        Add Service FAQ
       </Button>
 
       <Dialog
@@ -301,7 +271,7 @@ const AddDevice = ({ clearFilter }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Add Device
+          Ask Your Question
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddDialog(false)}
@@ -338,19 +308,21 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Device Name
+            Question
           </Typography>
           <TextField
             required
             size="small"
             fullWidth
-            id="name"
-            placeholder="Full Name"
+            id="question"
+            placeholder="Enter Question"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={name}
+            multiline
+            rows={3}
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={question}
             onChange={(e) => {
-              setName(e.target.value);
+              setQuestion(e.target.value);
             }}
           />
           <Typography
@@ -359,120 +331,37 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No
-          </Typography>
-          <TextField
-            required
-            type="number"
-            onWheel={(e) => e.target.blur()}
-            size="small"
-            fullWidth
-            id="name"
-            placeholder="Enter Order No"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={orderNo}
-            onChange={(e) => {
-              setOrderNo(e.target.value);
-            }}
-          />
-
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            URL Endpoint *{" "}
-            <span style={{ color: "#898989" }}>
-              {" "}
-              (e.g: /services/xxxxxx-repair)
-            </span>
+            Answer
           </Typography>
           <TextField
             required
             size="small"
             fullWidth
-            id="endpoint"
-            placeholder="Enter URL Endpoint"
+            id="answer"
+            placeholder="Enter Answer"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={endpoint}
+            multiline
+            rows={6}
+            sx={{ ...customeTextFeild }}
+            value={answer}
             onChange={(e) => {
-              setEndpoint(e.target.value);
+              setAnswer(e.target.value);
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Select Device Brand
+            Parent Brand
           </Typography>
 
           <FormControl
             fullWidth
             size="small"
             sx={{
-              mb: 3,
-              ...customeSelectFeild,
-              "& label.Mui-focused": {
-                color: "rgba(0,0,0,0)",
-              },
-
-              "& .MuiOutlinedInput-input img": {
-                position: "relative",
-                top: "2px",
-              },
-            }}
-          >
-            {deviceBrandId?.length < 1 && (
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ color: "#b3b3b3", fontWeight: 300 }}
-              >
-                Select Device Brand
-              </InputLabel>
-            )}
-            <Select
-              // required
-              labelId="demo-simple-select-label"
-              id="baseLanguage"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 250, // Set the max height here
-                  },
-                },
-              }}
-              value={deviceBrandId}
-              onChange={(e) => {
-                setDeviceBrandId(e.target.value);
-              }}
-            >
-              {deviceBrandList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
-                  {item?.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Select Parent Device
-          </Typography>
-
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{
-              mb: 3,
               ...customeSelectFeild,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
@@ -489,11 +378,11 @@ const AddDevice = ({ clearFilter }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Parent Device
+                Select Brand
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -504,50 +393,15 @@ const AddDevice = ({ clearFilter }) => {
                 },
               }}
               value={parent_id}
-              onChange={(e) => {
-                setParent_id(e.target.value);
-              }}
+              onChange={(e) => setParent_id(e.target.value)}
             >
-              <MenuItem value={"None"}>None</MenuItem>
-              {deviceList
-                .filter((item) => item.name.toLowerCase().includes("series"))
-                ?.map((item) => (
-                  <MenuItem key={item} value={item?._id}>
-                    {item?.name}
-                  </MenuItem>
-                ))}
+              {branchList?.map((item) => (
+                <MenuItem key={item} value={item?.name}>
+                  {item?.name}
+                </MenuItem>
+              ))}
             </Select>
-          </FormControl>
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Device Image
-          </Typography>
-          <Box sx={{ mb: 3 }}>
-            <ImageUpload
-              file={file}
-              setFile={setFile}
-              dimension="Size: (400 : 260)"
-            />
-          </Box>
-          {/* <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Device Icon
-          </Typography>
-          <Box>
-            <ImageUpload
-              file={iconFile}
-              setFile={setIconFile}
-              dimension="Dimensions (1 : 1)"
-            />
-          </Box> */}
+          </FormControl> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -596,4 +450,4 @@ const AddDevice = ({ clearFilter }) => {
   );
 };
 
-export default AddDevice;
+export default AddServiceFAQ;

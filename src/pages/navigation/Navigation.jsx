@@ -62,6 +62,7 @@ import WarrantyDetails from "../warranty/WarrantyDetails";
 import AllWarrantyList from "../warranty/AllWarrantyList";
 import WarrantyInvoice from "../warranty/WarrantyInvoice";
 import StockHistory from "../spare-parts/StockHistory";
+import ServiceFAQList from "../service-faq/ServiceFAQList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -264,6 +265,14 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <ServiceList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="service-faq-list"
+          element={
+            <PrivateRoute>
+              <ServiceFAQList />
             </PrivateRoute>
           }
         />

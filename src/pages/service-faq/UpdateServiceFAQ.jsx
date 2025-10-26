@@ -1,6 +1,14 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Grid from "@mui/material/Grid2";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -10,10 +18,25 @@ import { Box, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useSnackbar } from "notistack";
 import PulseLoader from "react-spinners/PulseLoader";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDropzone } from "react-dropzone";
 import { getDataWithToken } from "../../services/GetDataService";
 
+import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import EmailIcon from "@mui/icons-material/Email";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -22,28 +45,53 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
 import { handlePutData } from "../../services/PutDataService";
-import ImageUpload from "../../utils/ImageUpload";
 
-const UpdateDevice = ({ clearFilter, row }) => {
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "16px 24px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#EAECF0",
+  borderStyle: "dashed",
+  backgroundColor: "#fff",
+  // color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+  borderRadius: "12px",
+};
+
+const focusedStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
+const form = {
+  padding: "50px",
+  background: "#fff",
+  borderRadius: "10px",
+  width: "400px",
+  boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
+};
+const UpdateServiceFAQ = ({ clearFilter, row }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [updateDialog, setUpdateDialog] = useState(false);
-  const [name, setName] = useState("");
-  const [parent_id, setParent_id] = useState("");
-  const [deviceBrandId, setDeviceBrandId] = useState("");
-
-  const [file, setFile] = useState(null);
-  const [iconFile, setIconFile] = useState(null);
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
   const [status, setStatus] = useState("");
-  const [deviceBrandList, SetDeviceBrandList] = useState([]);
-  const [deviceList, setDeviceList] = useState([]);
-  const [loading2, setLoading2] = useState(false);
+
   const [loading, setLoading] = useState(false);
-  const [orderNo, setOrderNo] = useState();
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
-  const dropzoneRef = useRef(null);
-  const [endpoint, setEndpoint] = useState("");
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
@@ -65,41 +113,28 @@ const UpdateDevice = ({ clearFilter, row }) => {
   };
 
   const clearForm = () => {
-    setName("");
-    setOrderNo();
-    setEndpoint("");
-    setFile(null);
-    setIconFile(null);
+    setQuestion("");
+    setAnswer("");
+
     setStatus("");
   };
-
   const onSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    var formdata = new FormData();
-    formdata.append("name", name.trim());
+    let data = {
+      // source_id: row?.services_data[0]?._id,
+      // source_type: "service",
+      question: question.trim(),
+      answer: answer.trim(),
+      status: status,
+    };
 
-    if (deviceBrandId) {
-      formdata.append("device_brand_id", deviceBrandId);
-    }
-
-    formdata.append("parent_id", parent_id === "None" ? "" : parent_id);
-
-    formdata.append("order_no", orderNo);
-    formdata.append("endpoint", endpoint);
-    formdata.append("status", status);
-    if (file) {
-      formdata.append("image", file);
-    }
-    if (iconFile) {
-      formdata.append("icon", iconFile);
-    }
     let response = await handlePutData(
-      `/api/v1/device/update/${row?._id}`,
-      formdata,
-      true
+      `/api/v1/question/update/${row?._id}`,
+      data,
+      false
     );
 
     console.log("response", response);
@@ -179,89 +214,20 @@ const UpdateDevice = ({ clearFilter, row }) => {
     },
   };
 
-  const getDropdownList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/deviceBrand/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      SetDeviceBrandList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
-  const getDeviceList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/device/dropdownlist`;
-    let allData = await getDataWithToken(url);
-
-    if (allData.status >= 200 && allData.status < 300) {
-      setDeviceList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
   useEffect(() => {
-    setName(row?.name);
-    setOrderNo(row?.order_no);
-    setEndpoint(row?.endpoint);
-    setParent_id(row?.parent_id === null ? "" : row?.parent_id);
-    setDeviceBrandId(row?.device_brand_id === null ? "" : row?.device_brand_id);
+    setQuestion(row?.question);
+    setAnswer(row?.answer);
     setStatus(row?.status);
   }, [updateDialog]);
   return (
     <>
-      {/* <Button
-        variant="contained"
-        disableElevation
-        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
-        onClick={() => setUpdateDialog(true)}
-        startIcon={
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        }
-      >
-     Update Device
-      </Button> */}
-
       <IconButton
         variant="contained"
         // color="success"
         disableElevation
         onClick={() => {
           setUpdateDialog(true);
-          getDropdownList();
-          getDeviceList();
+          // getDropdownList();
         }}
       >
         {/* <EditOutlinedIcon /> */}
@@ -308,7 +274,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Update Device
+          Update Service FAQ
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setUpdateDialog(false)}
@@ -345,19 +311,21 @@ const UpdateDevice = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Device Name
+            Question
           </Typography>
           <TextField
             required
             size="small"
             fullWidth
-            id="name"
-            placeholder="Full Name"
+            id="question"
+            placeholder="Enter Question"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={name}
+            multiline
+            rows={3}
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={question}
             onChange={(e) => {
-              setName(e.target.value);
+              setQuestion(e.target.value);
             }}
           />
           <Typography
@@ -366,63 +334,37 @@ const UpdateDevice = ({ clearFilter, row }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Order No
+            Answer
           </Typography>
           <TextField
             required
-            type="number"
-            onWheel={(e) => e.target.blur()}
             size="small"
             fullWidth
-            id="name"
-            placeholder="Enter Order No"
+            id="answer"
+            placeholder="Enter Answer"
             variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={orderNo}
+            multiline
+            rows={6}
+            sx={{ ...customeTextFeild }}
+            value={answer}
             onChange={(e) => {
-              setOrderNo(e.target.value);
+              setAnswer(e.target.value);
             }}
           />
 
-          <Typography
+          {/* <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            URL Endpoint *{" "}
-            <span style={{ color: "#898989" }}>
-              {" "}
-              (e.g: /services/xxxxxx-repair)
-            </span>
-          </Typography>
-          <TextField
-            required
-            size="small"
-            fullWidth
-            id="endpoint"
-            placeholder="Enter URL Endpoint"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={endpoint}
-            onChange={(e) => {
-              setEndpoint(e.target.value);
-            }}
-          />
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Select Device Brand
+            Parent Brand
           </Typography>
 
           <FormControl
             fullWidth
             size="small"
             sx={{
-              mb: 3,
               ...customeSelectFeild,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
@@ -432,62 +374,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
                 position: "relative",
                 top: "2px",
               },
-            }}
-          >
-            {deviceBrandId?.length < 1 && (
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ color: "#b3b3b3", fontWeight: 300 }}
-              >
-                Select Device Brand
-              </InputLabel>
-            )}
-            <Select
-              // required
-              labelId="demo-simple-select-label"
-              id="baseLanguage"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 250, // Set the max height here
-                  },
-                },
-              }}
-              value={deviceBrandId}
-              onChange={(e) => {
-                setDeviceBrandId(e.target.value);
-              }}
-            >
-              {deviceBrandList?.map((item) => (
-                <MenuItem key={item} value={item?._id}>
-                  {item?.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Select Parent Device
-          </Typography>
-
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{
               mb: 3,
-              ...customeSelectFeild,
-              "& label.Mui-focused": {
-                color: "rgba(0,0,0,0)",
-              },
-
-              "& .MuiOutlinedInput-input img": {
-                position: "relative",
-                top: "2px",
-              },
             }}
           >
             {parent_id?.length < 1 && (
@@ -495,11 +382,11 @@ const UpdateDevice = ({ clearFilter, row }) => {
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Parent Device
+                Select Brand
               </InputLabel>
             )}
             <Select
-              // required
+              required
               labelId="demo-simple-select-label"
               id="baseLanguage"
               MenuProps={{
@@ -510,21 +397,15 @@ const UpdateDevice = ({ clearFilter, row }) => {
                 },
               }}
               value={parent_id}
-              onChange={(e) => {
-                setParent_id(e.target.value);
-              }}
+              onChange={(e) => setParent_id(e.target.value)}
             >
-              <MenuItem value={"None"}>None</MenuItem>
-              {deviceList
-                .filter((item) => item.name.toLowerCase().includes("series"))
-                ?.map((item) => (
-                  <MenuItem key={item} value={item?._id}>
-                    {item?.name}
-                  </MenuItem>
-                ))}
+              {branchList?.map((item) => (
+                <MenuItem key={item} value={item?.name}>
+                  {item?.name}
+                </MenuItem>
+              ))}
             </Select>
-          </FormControl>
-
+          </FormControl> */}
           <Typography
             variant="medium"
             color="text.main"
@@ -537,7 +418,6 @@ const UpdateDevice = ({ clearFilter, row }) => {
             fullWidth
             size="small"
             sx={{
-              mb: 3,
               ...customeSelectFeild,
               "& label.Mui-focused": {
                 color: "rgba(0,0,0,0)",
@@ -575,37 +455,6 @@ const UpdateDevice = ({ clearFilter, row }) => {
               <MenuItem value={false}>Inactive</MenuItem>
             </Select>
           </FormControl>
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Device Image
-          </Typography>
-          <Box sx={{ mb: 3 }}>
-            <ImageUpload
-              file={file}
-              setFile={setFile}
-              dimension="Size: (400 : 260)"
-            />
-          </Box>
-
-          {/* <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Device Icon
-          </Typography>
-          <Box>
-            <ImageUpload
-              file={iconFile}
-              setFile={setIconFile}
-              dimension=" Dimensions (1 : 1)"
-            />
-          </Box> */}
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -654,4 +503,4 @@ const UpdateDevice = ({ clearFilter, row }) => {
   );
 };
 
-export default UpdateDevice;
+export default UpdateServiceFAQ;
