@@ -160,6 +160,8 @@ const UpdateService = ({ clearFilter }) => {
   const [endpoint, setEndpoint] = useState("");
   const [model, setModel] = useState([]);
   const [modelNames, setModelNames] = useState([]);
+  const [modelEndpoints, setModelEndpoints] = useState({});
+  const modelEndpointsDataRef = useRef(null);
 
   const handleBranchChange = (event) => {
     const {
@@ -174,10 +176,17 @@ const UpdateService = ({ clearFilter }) => {
     const {
       target: { value },
     } = event;
-    setModel(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
+    const newModels = typeof value === "string" ? value.split(",") : value;
+    setModel(newModels);
+
+    // Remove endpoint data for unselected models
+    const newEndpoints = { ...modelEndpoints };
+    Object.keys(newEndpoints).forEach((modelName) => {
+      if (!newModels.includes(modelName)) {
+        delete newEndpoints[modelName];
+      }
+    });
+    setModelEndpoints(newEndpoints);
   };
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
@@ -261,10 +270,17 @@ const UpdateService = ({ clearFilter }) => {
     );
     console.log("newRepairServiceList", newRepairServiceList);
     console.log("newStepList", newStepList);
+
+    // Prepare model data with endpoints
+    const modelEndpointsArray = model?.map((modelName) => ({
+      model_id: modelList.find((obj) => obj.name === modelName)?._id,
+      endpoint: modelEndpoints[modelName] || "",
+    }));
+
     let data = {
       title: title,
       order_no: orderNo,
-      endpoint: endpoint,
+      // endpoint: endpoint,
       status: status,
       // model_id: modelId,
       device_id: deviceId,
@@ -275,6 +291,7 @@ const UpdateService = ({ clearFilter }) => {
       model_id: model?.map(
         (item) => modelList.find((obj) => obj.name === item)._id
       ),
+      endpoints: modelEndpointsArray, // Include model endpoints
       steps: newStepList,
       repair_info: newRepairServiceList,
       description: details,
@@ -499,6 +516,13 @@ const UpdateService = ({ clearFilter }) => {
     getModelList(e.target.value);
   };
 
+  const handleModelEndpointChange = (modelName, endpoint) => {
+    setModelEndpoints((prev) => ({
+      ...prev,
+      [modelName]: endpoint,
+    }));
+  };
+
   const getData = async () => {
     setLoading3(true);
 
@@ -510,7 +534,7 @@ const UpdateService = ({ clearFilter }) => {
       setDetailsForTextEditorShow(allData?.data?.data[0]?.description);
       setTitle(allData?.data?.data[0]?.title);
       setOrderNo(allData?.data?.data[0]?.order_no);
-      setEndpoint(allData?.data?.data[0]?.endpoint);
+      // setEndpoint(allData?.data?.data[0]?.endpoint);
       setDetails(allData?.data?.data[0]?.description);
       setModelId(allData?.data?.data[0]?.model_id);
       setStatus(allData?.data?.data[0]?.status);
@@ -557,7 +581,14 @@ const UpdateService = ({ clearFilter }) => {
         allData?.data?.data[0]?.branch_data?.map((item) => item?.name)
       );
       // model_data
-      setModel(allData?.data?.data[0]?.model_data?.map((item) => item?.name));
+      const modelNames = allData?.data?.data[0]?.model_data?.map(
+        (item) => item?.name
+      );
+      setModel(modelNames);
+
+      // Store model_endpoints data to load after modelList is populated
+      const modelEndpointsData = allData?.data?.data[0]?.endpoints;
+      modelEndpointsDataRef.current = modelEndpointsData;
 
       setAllData(allData?.data?.data);
 
@@ -577,6 +608,20 @@ const UpdateService = ({ clearFilter }) => {
     getDeviceList();
     getData();
   }, []);
+
+  // Load model endpoints when modelList is populated
+  useEffect(() => {
+    if (modelEndpointsDataRef.current && modelList.length > 0) {
+      const endpoints = {};
+      modelEndpointsDataRef.current.forEach((item) => {
+        const modelName = modelList.find((m) => m._id === item.model_id)?.name;
+        if (modelName) {
+          endpoints[modelName] = item.endpoint;
+        }
+      });
+      setModelEndpoints(endpoints);
+    }
+  }, [modelList]);
 
   return (
     <>
@@ -856,6 +901,38 @@ const UpdateService = ({ clearFilter }) => {
                   </Select>
                 </FormControl>
               </Grid>
+
+              {/* Model Endpoints */}
+              {model?.map((modelName) => (
+                <Grid key={modelName} size={6}>
+                  <Typography
+                    variant="medium"
+                    color="text.main"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Endpoint for {modelName} *{" "}
+                    <span style={{ color: "#898989" }}>
+                      {" "}
+                      (e.g: /services/xxxxxx-repair/model-name/service name)
+                    </span>
+                  </Typography>
+                  <TextField
+                    required
+                    size="small"
+                    fullWidth
+                    id={`endpoint-${modelName}`}
+                    placeholder={`Enter endpoint for ${modelName}`}
+                    variant="outlined"
+                    sx={{ ...customeTextFeild, mb: 2 }}
+                    value={modelEndpoints[modelName] || ""}
+                    onChange={(e) =>
+                      handleModelEndpointChange(modelName, e.target.value)
+                    }
+                  />
+                </Grid>
+              ))}
+
               <Grid size={6}>
                 <Typography
                   variant="medium"
@@ -954,7 +1031,7 @@ const UpdateService = ({ clearFilter }) => {
                   }}
                 />
               </Grid>
-              <Grid size={6}>
+              {/* <Grid size={6}>
                 <Typography
                   variant="medium"
                   color="text.main"
@@ -976,7 +1053,7 @@ const UpdateService = ({ clearFilter }) => {
                     setEndpoint(e.target.value);
                   }}
                 />
-              </Grid>
+              </Grid> */}
               <Grid size={6}>
                 <Typography
                   variant="medium"
