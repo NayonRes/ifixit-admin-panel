@@ -160,7 +160,7 @@ const DeviceList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 7;
+    let loadingNumber = 8;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_device")) {
       loadingNumber = loadingNumber + 1;
@@ -546,6 +546,9 @@ const DeviceList = () => {
                   </TableCell>
 
                   <TableCell style={{ whiteSpace: "nowrap" }}>
+                  Endpoint
+                  </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
                     Parent Device
                   </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>
@@ -616,6 +619,7 @@ const DeviceList = () => {
                                               )} */}
                       </TableCell>
                       <TableCell>{row?.name}</TableCell>
+                      <TableCell>{row?.endpoint ? row?.endpoint : "----------"}</TableCell>
                       <TableCell>
                         {row?.parent_data?.length > 0
                           ? row?.parent_data[0]?.name

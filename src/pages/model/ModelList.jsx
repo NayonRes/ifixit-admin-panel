@@ -121,7 +121,7 @@ const ModelList = () => {
 
   const pageLoading = () => {
     let content = [];
-    let loadingNumber = 4;
+    let loadingNumber = 5;
 
     if (ifixit_admin_panel?.user?.permission?.includes("update_model")) {
       loadingNumber = loadingNumber + 1;
@@ -482,6 +482,9 @@ const ModelList = () => {
                   <TableCell style={{ whiteSpace: "nowrap" }}>
                     Order No
                   </TableCell>
+                  <TableCell style={{ whiteSpace: "nowrap" }}>
+                    Endpoint
+                  </TableCell>
                   <TableCell style={{ whiteSpace: "nowrap" }}>Status</TableCell>
                   {ifixit_admin_panel?.user?.permission?.includes(
                     "update_model"
@@ -516,6 +519,7 @@ const ModelList = () => {
                       </TableCell>
                       <TableCell>{row?.name}</TableCell>
                       <TableCell>{row?.order_no}</TableCell>
+                      <TableCell>{row?.endpoint ? row?.endpoint : "----------"}</TableCell>
 
                       <TableCell>
                         {row?.status ? (

@@ -383,32 +383,6 @@ const AddDevice = ({ clearFilter }) => {
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            URL Endpoint *{" "}
-            <span style={{ color: "#898989" }}>
-              {" "}
-              (e.g: /services/xxxxxx-repair)
-            </span>
-          </Typography>
-          <TextField
-            required
-            size="small"
-            fullWidth
-            id="endpoint"
-            placeholder="Enter URL Endpoint"
-            variant="outlined"
-            sx={{ ...customeTextFeild, mb: 2 }}
-            value={endpoint}
-            onChange={(e) => {
-              setEndpoint(e.target.value);
-            }}
-          />
-
-          <Typography
-            variant="medium"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
             Select Device Brand
           </Typography>
 
@@ -506,6 +480,7 @@ const AddDevice = ({ clearFilter }) => {
               value={parent_id}
               onChange={(e) => {
                 setParent_id(e.target.value);
+                setEndpoint("");
               }}
             >
               <MenuItem value={"None"}>None</MenuItem>
@@ -518,6 +493,36 @@ const AddDevice = ({ clearFilter }) => {
                 ))}
             </Select>
           </FormControl>
+          {/* {(!parent_id || parent_id === "None") && (
+            <> */}
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            URL Endpoint
+            <span style={{ color: "#898989" }}>
+              {" "}
+              (e.g: /services/xxxxxx-repair)
+            </span>
+          </Typography>
+
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="endpoint"
+            placeholder="Enter URL Endpoint"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={endpoint}
+            onChange={(e) => {
+              setEndpoint(e.target.value);
+            }}
+          />
+          {/* </>
+          )} */}
           <Typography
             variant="medium"
             color="text.main"

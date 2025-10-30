@@ -62,7 +62,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   const [file, setFile] = useState(null);
   const dropzoneRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
-
+  const [endpoint, setEndpoint] = useState("");
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
       setUpdateDialog(false);
@@ -84,6 +84,7 @@ const UpdateModel = ({ clearFilter, row }) => {
 
   const clearForm = () => {
     setName("");
+    setEndpoint("");
     setOrderNo();
     setParent_id("");
     setStatus("");
@@ -97,6 +98,7 @@ const UpdateModel = ({ clearFilter, row }) => {
     let formdata = new FormData();
     formdata.append("name", name.trim());
     formdata.append("order_no", orderNo);
+    formdata.append("endpoint", endpoint);
     formdata.append("device_id", parent_id.trim());
     formdata.append("status", status);
     if (file) {
@@ -216,6 +218,7 @@ const UpdateModel = ({ clearFilter, row }) => {
   };
   useEffect(() => {
     setName(row?.name);
+    setEndpoint(row?.endpoint);
     setOrderNo(row?.order_no);
     setStatus(row?.status);
     setParent_id(row?.device_id === null ? "" : row?.device_id);
@@ -349,6 +352,29 @@ const UpdateModel = ({ clearFilter, row }) => {
             value={orderNo}
             onChange={(e) => {
               setOrderNo(e.target.value);
+            }}
+          />
+
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            URL Endpoint *{" "}
+            <span style={{ color: "#898989" }}> (e.g: /xxxx-xxxx-xxxx)</span>
+          </Typography>
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="endpoint"
+            placeholder="Enter URL Endpoint"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={endpoint}
+            onChange={(e) => {
+              setEndpoint(e.target.value);
             }}
           />
           <Typography
