@@ -21,8 +21,8 @@ import { allIssueCheckList } from "../../data";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 
-const Invoice = () => {
-  const { rid } = useParams();
+const WarrantyInvoice = () => {
+  const { rid, wid } = useParams();
   const contentRef = useRef();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [details, setDetails] = useState("");
@@ -31,17 +31,40 @@ const Invoice = () => {
   const [loading, setLoading] = useState(false);
   const [issueLoading2, setIssueLoading2] = useState(false);
   const [issueList, setIssueList] = useState([]);
-
+  const [warrantyDetails, setwarrantyDetails] = useState("");
   // const handlePrint = useReactToPrint({ contentRef });
   const handlePrint = useReactToPrint({
     contentRef: contentRef,
-    // documentTitle: "AwesomeFileName",
+    documentTitle: `Invoice-${warrantyDetails?.warranty_id}`,
     // ignoreGlobalStyles: true,
     // pageStyle: ".head {background: red; }",
     // onAfterPrint: handleAfterPrint,
     // onBeforePrint: handleBeforePrint,
   });
+  const getWarrantyData = async () => {
+    setLoading(true);
 
+    let url = `/api/v1/warranty/${encodeURIComponent(wid.trim())}`;
+    let allData = await getDataWithToken(url);
+    console.log("warranty data -------------------", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setwarrantyDetails(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        // setMessage("No data found");
+      }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading(false);
+  };
   const handleSnakbarOpen = (msg, vrnt) => {
     let duration;
     if (vrnt === "error") {
@@ -128,6 +151,7 @@ const Invoice = () => {
   };
   useEffect(() => {
     getData();
+    getWarrantyData();
   }, []);
 
   return (
@@ -142,10 +166,7 @@ const Invoice = () => {
           size="large"
           startIcon={<LocalPrintshopOutlinedIcon />}
         >
-          Print{" "}
-          {details?.delivery_status === "Not Delivered"
-            ? "Job Card"
-            : "Invoice"}
+          Print Invoice
         </Button>
       </Box>
       <Box
@@ -224,20 +245,14 @@ const Invoice = () => {
         >
           <Grid size="auto" sx={{ fontSize: "14px" }}>
             {" "}
-            {details?.delivery_status === "Not Delivered"
-              ? "JOB CARD"
-              : "INVOICE"}{" "}
-            NO: {details?.repair_id}
+            INVOICE NO: {warrantyDetails?.warranty_id}
           </Grid>
           <Grid size="auto" sx={{ fontSize: "16px", fontWeight: 500 }}>
-            REPAIR{" "}
-            {details?.delivery_status === "Not Delivered"
-              ? "JOB CARD"
-              : "INVOICE"}{" "}
+            WARRANTY INVOICE
           </Grid>
 
           <Grid size="auto" sx={{ fontSize: "14px" }}>
-            DATE:{dayjs(details?.created_at).format("YYYY-MM-DD")}{" "}
+            DATE:{dayjs(warrantyDetails?.created_at).format("YYYY-MM-DD")}{" "}
           </Grid>
         </Grid>
         <Grid
@@ -344,96 +359,21 @@ const Invoice = () => {
                 </Typography>
               </Grid>
 
-              <Grid size={12}>
+              {/* <Grid size={12}>
                 <Typography variant="medium" sx={{}}>
                   Pre Status
                 </Typography>
               </Grid>
               <Grid size={12}>
                 <Grid container spacing={1}>
-                  {issueList?.sort((a, b) => a.order_no - b.order_no)?.map((item, index) => {
-                    let newstatus = details?.repair_checklist?.checklist.find(
-                      (res) => res?.issue_id === item?._id
-                    )?.status;
-                    console.log("details newstatus", newstatus);
+                  {issueList
+                    ?.sort((a, b) => a.order_no - b.order_no)
+                    ?.map((item, index) => {
+                      let newstatus = details?.repair_checklist?.checklist.find(
+                        (res) => res?.issue_id === item?._id
+                      )?.status;
+                      console.log("details newstatus", newstatus);
 
-                    return (
-                      <Grid
-                        key={index}
-                        size={6}
-                        sx={{
-                          display: "flex",
-
-                          alignItems: "center",
-                          gap: 1,
-                          // backgroundColor: "#F8F9FA",
-                          // p: 1,
-                          borderRadius: 2,
-
-                          userSelect: "none",
-                        }}
-                      >
-                        <Box
-                          // onClick={() => handleCheckboxChange(index)}
-                          sx={{ display: "flex", alignItems: "center " }}
-                        >
-                          {newstatus === "Functional" ? (
-                            <>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="17"
-                                height="17"
-                                viewBox="0 0 20 20"
-                                style={{ position: "relative", left: -2 }}
-                              >
-                                <path
-                                  fill="currentColor"
-                                  d="m10.6 15.508l6.396-6.396l-.707-.708l-5.689 5.688l-2.85-2.85l-.708.708zM5.616 20q-.691 0-1.153-.462T4 18.384V5.616q0-.691.463-1.153T5.616 4h12.769q.69 0 1.153.463T20 5.616v12.769q0 .69-.462 1.153T18.384 20zm0-1h12.769q.23 0 .423-.192t.192-.424V5.616q0-.231-.192-.424T18.384 5H5.616q-.231 0-.424.192T5 5.616v12.769q0 .23.192.423t.423.192M5 5v14z"
-                                  stroke-width="1"
-                                  stroke="#35b522"
-                                />
-                              </svg>
-                            </>
-                          ) : newstatus === "Damaged" ? (
-                            <img
-                              src="/cross.png"
-                              alt=""
-                              style={{ width: "16px" }}
-                              // onClick={() => handleCheckboxChange(index, false)}
-                            />
-                          ) : (
-                            <CheckBoxOutlineBlankIcon
-                              sx={{
-                                color: "#999",
-                                width: "16px",
-                                height: "16px",
-                              }}
-                              // onClick={() =>
-                              //   handleCheckboxChange(index, "Functional")
-                              // }
-                            />
-                          )}
-                        </Box>
-                        <Typography
-                          variant="small"
-                          color="text.secondary"
-                          sx={{ fontWeight: 500 }}
-                        >
-                          {item.name}
-                        </Typography>
-                      </Grid>
-                    );
-                  })}
-
-                  {/* {
-                    // details?.repair_checklist?.checklist
-                    //   ?.filter(
-                    //     (item) =>
-                    //       !allIssueCheckList.some(
-                    //         (check) => check.name === item.name
-                    //       )
-                    //   )
-                    details?.repair_checklist?.checklist?.map((item, index) => {
                       return (
                         <Grid
                           key={index}
@@ -454,7 +394,7 @@ const Invoice = () => {
                             // onClick={() => handleCheckboxChange(index)}
                             sx={{ display: "flex", alignItems: "center " }}
                           >
-                            {item?.status === "Functional" ? (
+                            {newstatus === "Functional" ? (
                               <>
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -471,7 +411,7 @@ const Invoice = () => {
                                   />
                                 </svg>
                               </>
-                            ) : item?.status === "Damaged" ? (
+                            ) : newstatus === "Damaged" ? (
                               <img
                                 src="/cross.png"
                                 alt=""
@@ -500,8 +440,8 @@ const Invoice = () => {
                           </Typography>
                         </Grid>
                       );
-                    })
-                  } */}
+                    })}
+
                   <Grid
                     size={6}
                     sx={{
@@ -538,7 +478,7 @@ const Invoice = () => {
                     </Box>
                   </Grid>
                 </Grid>
-              </Grid>
+              </Grid> */}
             </Grid>
           </Grid>
           <Grid size={6} sx={{ pl: 1 }}>
@@ -562,98 +502,34 @@ const Invoice = () => {
                           "& td, & th": { fontSize: "12px", py: 0.5, px: 0 },
                         }}
                       >
-                        {/* <TableHead>
-                          <TableRow>
-                            <TableCell
-                              sx={{ fontWeight: 600, fontSize: "10px" }}
-                            >
-                              Service Name
+                        <TableBody>
+                          <TableRow
+                            sx={{
+                              "& td, & th": {
+                                border: 0,
+                              },
+                            }}
+                          >
+                            <TableCell component="th" scope="row">
+                              Service Charge
                             </TableCell>
 
                             <TableCell
                               align="right"
-                              sx={{ fontWeight: 600, fontSize: "10px" }}
+                              // sx={{ background: "#ddd" }}
                             >
-                              Cost
+                              <Box
+                                sx={{
+                                  background: "#ddd",
+                                  py: 0.5,
+                                  px: 1,
+                                  borderRadius: "4px",
+                                }}
+                              >
+                                {warrantyDetails?.service_charge}
+                              </Box>
                             </TableCell>
                           </TableRow>
-                        </TableHead> */}
-                        <TableBody>
-                          {details?.issues?.length > 0 &&
-                            details?.issues?.map((item) => (
-                              <TableRow
-                                key={item.name}
-                                sx={{
-                                  "& td, & th": {
-                                    border: 0,
-                                  },
-                                }}
-                              >
-                                <TableCell component="th" scope="row">
-                                  {item.name}
-                                </TableCell>
-
-                                <TableCell
-                                  align="right"
-                                  // sx={{ background: "#ddd" }}
-                                >
-                                  <Box
-                                    sx={{
-                                      background: "#ddd",
-                                      py: 0.5,
-                                      px: 1,
-                                      borderRadius: "4px",
-                                    }}
-                                  >
-                                    {item.repair_cost}
-                                  </Box>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-
-                          {details?.product_details?.length > 0 &&
-                            details?.product_details?.map((item) => (
-                              <TableRow
-                                key={item.name}
-                                sx={{
-                                  "& td, & th": {
-                                    border: 0,
-                                  },
-                                }}
-                              >
-                                <TableCell component="th" scope="row">
-                                  {item.name}
-                                </TableCell>
-
-                                <TableCell
-                                  align="right"
-                                  // sx={{ background: "#ddd" }}
-                                >
-                                  <Box
-                                    sx={{
-                                      background: "#ddd",
-                                      py: 0.5,
-                                      px: 1,
-                                      borderRadius: "4px",
-                                    }}
-                                  >
-                                    {item.price}
-                                  </Box>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-
-                          {/* <TableRow
-                            sx={{
-                              background: "#eee",
-                              "& td, & th": { fontSize: "10px" },
-                            }}
-                          >
-                            <TableCell>Total</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 600 }}>
-                              {repairCost}
-                            </TableCell>
-                          </TableRow> */}
                         </TableBody>
                       </Table>
                     </TableContainer>
@@ -676,7 +552,7 @@ const Invoice = () => {
                         <TableCell sx={{}}>Total Amount</TableCell>
 
                         <TableCell align="right" sx={{}}>
-                          {repairCost + spareParsCost}
+                          {warrantyDetails?.service_charge}
                         </TableCell>
                       </TableRow>
                       {/* <TableRow>
@@ -697,7 +573,7 @@ const Invoice = () => {
                         <TableCell sx={{}}>Due Amount</TableCell>
 
                         <TableCell align="right" sx={{}}>
-                          - {details?.due_amount}
+                          - {warrantyDetails?.due_amount}
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -705,8 +581,8 @@ const Invoice = () => {
 
                         <TableCell align="right" sx={{}}>
                           -{" "}
-                          {details?.discount_amount
-                            ? details?.discount_amount
+                          {warrantyDetails?.discount_amount
+                            ? warrantyDetails?.discount_amount
                             : 0}
                         </TableCell>
                       </TableRow>
@@ -714,9 +590,8 @@ const Invoice = () => {
                         <TableCell sx={{}}>Total Paid Amount</TableCell>
 
                         <TableCell align="right">
-                          {repairCost +
-                            spareParsCost -
-                            details?.discount_amount}
+                          {warrantyDetails?.service_charge -
+                            warrantyDetails?.discount_amount}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -763,4 +638,4 @@ const Invoice = () => {
   );
 };
 
-export default Invoice;
+export default WarrantyInvoice;

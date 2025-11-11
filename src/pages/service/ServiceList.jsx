@@ -57,6 +57,7 @@ import { designationList, roleList } from "../../data";
 // import AddSpareParts from "./AddSpareParts";
 // import UpdateSpareParts from "./UpdateSpareParts";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
+import AddServiceFAQ from "../service-faq/AddServiceFAQ";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -610,7 +611,7 @@ const ServiceList = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
+                {/* <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
                     fullWidth
@@ -644,7 +645,7 @@ const ServiceList = () => {
                       ))}
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2.4, xl: 2 }}>
                   <FormControl
                     variant="outlined"
@@ -910,16 +911,20 @@ const ServiceList = () => {
                           {ifixit_admin_panel?.user?.permission?.includes(
                             "update_service"
                           ) && (
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              color="text"
-                              startIcon={<ListAltOutlinedIcon />}
-                              component={Link}
-                              to={`/service/update/${row?._id}`}
-                            >
-                              Update
-                            </Button>
+                            <>
+                              <AddServiceFAQ serviceId={row?._id} />
+                              &nbsp;&nbsp;
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="text"
+                                startIcon={<ListAltOutlinedIcon />}
+                                component={Link}
+                                to={`/service/update/${row?._id}`}
+                              >
+                                Update
+                              </Button>
+                            </>
                           )}
                         </TableCell>
                       )}

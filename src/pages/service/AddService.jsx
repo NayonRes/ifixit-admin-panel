@@ -152,8 +152,10 @@ const AddService = ({ clearFilter }) => {
 
   const [message, setMessage] = useState("");
   const [orderNo, setOrderNo] = useState();
+  const [endpoint, setEndpoint] = useState("");
   const [model, setModel] = useState([]);
   const [modelNames, setModelNames] = useState([]);
+  const [modelEndpoints, setModelEndpoints] = useState({});
 
   const handleBranchChange = (event) => {
     const {
@@ -168,10 +170,17 @@ const AddService = ({ clearFilter }) => {
     const {
       target: { value },
     } = event;
-    setModel(
-      // On autofill we get a stringified value.
-      typeof value === "string" ? value.split(",") : value
-    );
+    const newModels = typeof value === "string" ? value.split(",") : value;
+    setModel(newModels);
+
+    // Remove endpoint data for unselected models
+    const newEndpoints = { ...modelEndpoints };
+    Object.keys(newEndpoints).forEach((modelName) => {
+      if (!newModels.includes(modelName)) {
+        delete newEndpoints[modelName];
+      }
+    });
+    setModelEndpoints(newEndpoints);
   };
 
   const handleDialogClose = (event, reason) => {
@@ -198,6 +207,7 @@ const AddService = ({ clearFilter }) => {
     setName("");
     setTitle("");
     setOrderNo();
+    setEndpoint("");
     setBrandId("");
     setCategoryId("");
     setDeviceId("");
@@ -252,9 +262,17 @@ const AddService = ({ clearFilter }) => {
     );
     console.log("newRepairServiceList", newRepairServiceList);
     console.log("newStepList", newStepList);
+
+    // Prepare model data with endpoints
+    const modelEndpointsArray = model?.map((modelName) => ({
+      model_id: modelList.find((obj) => obj.name === modelName)?._id,
+      endpoint: modelEndpoints[modelName] || "",
+    }));
+
     let data = {
       title: title,
       order_no: orderNo,
+      // endpoint: endpoint,
       image: await fileToBase64(image),
       // model_id: modelId,
       device_id: deviceId,
@@ -265,6 +283,7 @@ const AddService = ({ clearFilter }) => {
       model_id: model?.map(
         (item) => modelList.find((obj) => obj.name === item)._id
       ),
+      endpoints: modelEndpointsArray, // Include model endpoints
       steps: newStepList,
       repair_info: newRepairServiceList,
       description: details,
@@ -510,6 +529,13 @@ const AddService = ({ clearFilter }) => {
     setDeviceId(e.target.value);
     setModelId("");
     getModelList(e.target.value);
+  };
+
+  const handleModelEndpointChange = (modelName, endpoint) => {
+    setModelEndpoints((prev) => ({
+      ...prev,
+      [modelName]: endpoint,
+    }));
   };
   useEffect(() => {
     // getCategoryList();
@@ -838,6 +864,37 @@ const AddService = ({ clearFilter }) => {
               </FormControl> */}
             </Grid>
 
+            {/* Model Endpoints */}
+            {model?.map((modelName) => (
+              <Grid key={modelName} size={6}>
+                <Typography
+                  variant="medium"
+                  color="text.main"
+                  gutterBottom
+                  sx={{ fontWeight: 500 }}
+                >
+                  Endpoint for {modelName} *{" "}
+                  <span style={{ color: "#898989" }}>
+                    {" "}
+                    (e.g: /services/xxxxxx-repair/model-name/service-name)
+                  </span>
+                </Typography>
+                <TextField
+                  required
+                  size="small"
+                  fullWidth
+                  id={`endpoint-${modelName}`}
+                  placeholder={`Enter endpoint for ${modelName}`}
+                  variant="outlined"
+                  sx={{ ...customeTextFeild, mb: 2 }}
+                  value={modelEndpoints[modelName] || ""}
+                  onChange={(e) =>
+                    handleModelEndpointChange(modelName, e.target.value)
+                  }
+                />
+              </Grid>
+            ))}
+
             <Grid size={6}>
               <Typography
                 variant="medium"
@@ -921,7 +978,7 @@ const AddService = ({ clearFilter }) => {
                 gutterBottom
                 sx={{ fontWeight: 500 }}
               >
-                Order No
+                Order No *
               </Typography>
               <TextField
                 required
@@ -938,6 +995,29 @@ const AddService = ({ clearFilter }) => {
                 }}
               />
             </Grid>
+            {/* <Grid size={6}>
+              <Typography
+                variant="medium"
+                color="text.main"
+                gutterBottom
+                sx={{ fontWeight: 500 }}
+              >
+                URL Endpoint *
+              </Typography>
+              <TextField
+                required
+                size="small"
+                fullWidth
+                id="endpoint"
+                placeholder="Enter URL Endpoint"
+                variant="outlined"
+                sx={{ ...customeTextFeild, mb: 2 }}
+                value={endpoint}
+                onChange={(e) => {
+                  setEndpoint(e.target.value);
+                }}
+              />
+            </Grid> */}
             <Grid size={12}>
               <Typography
                 variant="medium"

@@ -302,7 +302,7 @@ const ModelList = ({
     if (allData?.status >= 200 && allData?.status < 300) {
       if (allData?.data?.data?.length > 0) {
         let issues = allData?.data?.data?.map((item) => ({
-          model_id: item?._id,
+          issue_id: item?._id,
           name: item?.name,
           status: false,
         }));
@@ -316,7 +316,7 @@ const ModelList = ({
 
           const updatedAllArr = issues?.map((item) => {
             const match = preArr.find(
-              (preItem) => preItem.model_id === item.model_id
+              (preItem) => preItem.issue_id === item.issue_id
             );
             return match ? { ...item, status: match.status } : item;
           });

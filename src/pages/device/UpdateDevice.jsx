@@ -43,6 +43,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
   const dropzoneRef = useRef(null);
+  const [endpoint, setEndpoint] = useState("");
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
@@ -66,6 +67,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   const clearForm = () => {
     setName("");
     setOrderNo();
+    setEndpoint("");
     setFile(null);
     setIconFile(null);
     setStatus("");
@@ -86,6 +88,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
     formdata.append("parent_id", parent_id === "None" ? "" : parent_id);
 
     formdata.append("order_no", orderNo);
+    formdata.append("endpoint", endpoint);
     formdata.append("status", status);
     if (file) {
       formdata.append("image", file);
@@ -218,6 +221,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
   useEffect(() => {
     setName(row?.name);
     setOrderNo(row?.order_no);
+    setEndpoint(row?.endpoint);
     setParent_id(row?.parent_id === null ? "" : row?.parent_id);
     setDeviceBrandId(row?.device_brand_id === null ? "" : row?.device_brand_id);
     setStatus(row?.status);
@@ -379,6 +383,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
               setOrderNo(e.target.value);
             }}
           />
+
           <Typography
             variant="medium"
             color="text.main"
@@ -482,6 +487,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
               value={parent_id}
               onChange={(e) => {
                 setParent_id(e.target.value);
+                // setEndpoint("");
               }}
             >
               <MenuItem value={"None"}>None</MenuItem>
@@ -495,6 +501,36 @@ const UpdateDevice = ({ clearFilter, row }) => {
             </Select>
           </FormControl>
 
+          {/* {(!parent_id || parent_id === "None") && (
+            <> */}
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            URL Endpoint
+            <span style={{ color: "#898989" }}>
+              {" "}
+              (e.g: /services/xxxxxx-repair)
+            </span>
+          </Typography>
+
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="endpoint"
+            placeholder="Enter URL Endpoint"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={endpoint}
+            onChange={(e) => {
+              setEndpoint(e.target.value);
+            }}
+          />
+          {/* </>
+          )} */}
           <Typography
             variant="medium"
             color="text.main"
@@ -557,7 +593,7 @@ const UpdateDevice = ({ clearFilter, row }) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-            dimension="Size: (400 : 260)"
+              dimension="Size: (400 : 260)"
             />
           </Box>
 

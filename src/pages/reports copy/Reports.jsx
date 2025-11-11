@@ -1,5 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Box, Chip, Paper, Skeleton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ColorPalette from "../../color-palette/ColorPalette";
 import { BackHand } from "@mui/icons-material";
@@ -7,9 +19,11 @@ import { getDataWithToken } from "../../services/GetDataService";
 import { AuthContext } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 
+import ClearIcon from "@mui/icons-material/Clear";
+
 import { useSnackbar } from "notistack";
 import dayjs from "dayjs";
-import ReportDetails from "./ReportDetails";
+import ReportRepair from "./ReportRepair";
 
 const style = {
   nav: {
@@ -84,19 +98,16 @@ const Reports = ({
 
   const { enqueueSnackbar } = useSnackbar();
   const [technicianList, setTechnicianList] = useState([]);
-
+  const [branchList, setBranchList] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState("");
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [message, setMessage] = useState("");
-
-  const [transactionData, setTransactionData] = useState([]);
-  const [transactionLoading, setTransactionLoading] = useState(false);
-  const [repairListDialog, setDetailsDialog] = useState(false);
+  const [repairList, setRepairList] = useState([]);
+  const [repairListDialog, setRepairListDialog] = useState(false);
   const [createdBy, setCreatedBy] = useState(null);
-
-  
-  const handleDetailsDialogClose = () => {
-    setDetailsDialog(false);
+  const handleRepairListDialogClose = () => {
+    setRepairListDialog(false);
     setCreatedBy(null);
   };
 
@@ -119,7 +130,43 @@ const Reports = ({
     let branch_id = decodedToken?.user?.branch_id;
     return branch_id;
   };
+  const getTechnician2 = async () => {
+    setLoading(true);
 
+    let branch_id = getBranchId();
+    // let url = `/api/v1/device/get-by-parent?parent_name=Primary`;
+    let newBranchId;
+    if (ifixit_admin_panel?.user?.is_main_branch) {
+      newBranchId = selectedBranch;
+    } else {
+      newBranchId = branch_id;
+    }
+
+    let url = `/api/v1/user/dropdownlist?designation=Technician&branch_id=${newBranchId}`;
+    let allData = await getDataWithToken(url);
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+    console.log("technician list", allData?.data.data);
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setTechnicianList(allData?.data.data);
+
+      let name = allData?.data.data.filter((i) => i._id === technician);
+      // setTechnicianName(name[0]?.name);
+
+      if (allData.data.data.length < 1) {
+        setMessage("No Data found");
+      } else {
+        setMessage("");
+      }
+    } else {
+      handleSnakbarOpen(allData?.data?.message, "error");
+      setLoading(false);
+    }
+    setLoading(false);
+  };
   const getUsers = async () => {
     setLoading2(true);
 
@@ -134,6 +181,7 @@ const Reports = ({
       logout();
       return;
     }
+    console.log("technician list", allData?.data.data);
 
     if (allData.status >= 200 && allData.status < 300) {
       setLoading2(false);
@@ -175,13 +223,43 @@ const Reports = ({
       handleSnakbarOpen(allData?.data?.message, "error");
     }
   };
+  const getBranchData = async () => {
+    setLoading(true);
 
-  const getTransactions = async () => {
-    setTransactionLoading(true);
+    let branch_id = getBranchId();
+    setSelectedBranch(branch_id);
 
-    let url = `/api/v1/transactionHistory/all?startDate=${dayjs().format(
+    let url = `/api/v1/branch/dropdownlist`;
+    let allData = await getDataWithToken(url);
+    console.log("BranchData:", allData?.data?.data);
+
+    if (allData?.status === 401) {
+      logout();
+      return;
+    }
+
+    if (allData.status >= 200 && allData.status < 300) {
+      setBranchList(allData?.data?.data);
+
+      if (allData.data.data.length < 1) {
+        // setMessage("No data found");
+      }
+    } else {
+      setLoading(false);
+      handleSnakbarOpen(allData?.data?.message, "error");
+    }
+    setLoading(false);
+  };
+
+  // useEffect(() => {
+  //   getBranchData();
+  // }, []);
+  const getReports = async () => {
+    setLoading(true);
+
+    let url = `/api/v1/repair?startDate=${dayjs().format(
       "YYYY-MM-DD"
-    )}`;
+    )}&status=true&limit=1000&page=1`;
 
     let allData = await getDataWithToken(url);
 
@@ -189,10 +267,9 @@ const Reports = ({
       logout();
       return;
     }
-    console.log("TransactionData ====================", allData?.data?.data);
 
     if (allData?.status >= 200 && allData?.status < 300) {
-      setTransactionData(allData?.data?.data);
+      setRepairList(allData?.data?.data);
 
       if (allData?.data?.data.length < 1) {
         setMessage("No data found");
@@ -201,65 +278,68 @@ const Reports = ({
       setLoading(false);
       handleSnakbarOpen(allData?.data?.message, "error");
     }
-    setTransactionLoading(false);
+    setLoading(false);
   };
+  const calculateTotalAmount = (data) => {
+    console.log("data ================", data?.due_amount);
 
-  const userReportData = (userEmail) => {
-    // Filter transactions by created_by (user email)
-    let allData = transactionData?.filter(
-      (item) => item?.created_by === userEmail
+    const issueTotal = data?.issues?.length
+      ? data.issues.reduce((acc, issue) => acc + (issue.repair_cost || 0), 0)
+      : 0;
+
+    const sparePartsTotal = data?.product_details?.length
+      ? data.product_details.reduce((acc, part) => acc + (part.price || 0), 0)
+      : 0;
+    const dueAmount =
+      typeof data?.due_amount === "number" ? data.due_amount : 0;
+    const totalCost = issueTotal + sparePartsTotal;
+
+    return totalCost;
+  };
+  const userReportData = (id) => {
+    console.log("repairList", repairList);
+
+    let allData = repairList?.filter(
+      (item) => item?.created_by_info[0]?._id === id
     );
 
-    let totalCreditAmount = 0;
-    let totalDebitAmount = 0;
-    let totalTransactionAmount = 0;
-
+    let totalPayableAmount = 0;
+    let totalAmount = 0;
     if (allData?.length > 0) {
-      allData.forEach((transaction) => {
-        // Calculate total amount for this transaction
-        const transactionTotal = transaction?.transaction_info?.length
-          ? transaction.transaction_info.reduce(
-              (sum, item) => sum + (item.amount || 0),
-              0
-            )
+      totalPayableAmount = allData.reduce((total, row) => {
+        const paymentTotal = row?.payment_info?.length
+          ? row.payment_info.reduce((sum, item) => sum + item.amount, 0)
           : 0;
 
-        totalTransactionAmount += transactionTotal;
+        const dueAmount =
+          typeof row?.due_amount === "number" ? row.due_amount : 0;
 
-        // Credit = Income, Debit = Outgoings (Expenses/Refunds)
-        if (transaction.transaction_type === "credit") {
-          totalCreditAmount += transactionTotal;
-        } else if (transaction.transaction_type === "debit") {
-          totalDebitAmount += transactionTotal;
-        }
-      });
+        return total + paymentTotal + dueAmount;
+      }, 0);
+      console.log(
+        "totalPayableAmount ********************",
+        totalPayableAmount
+      );
 
-      console.log("Transaction data for user:", userEmail, allData);
-      console.log("Total Credit Amount (Income):", totalCreditAmount);
-      console.log("Total Debit Amount (Outgoings):", totalDebitAmount);
-      console.log("Total Transaction Amount:", totalTransactionAmount);
+      totalAmount = allData?.reduce((total, item) => {
+        return total + calculateTotalAmount(item);
+      }, 0);
+
+      console.log("totalAmount", totalAmount);
     }
+    // console.log("totalPayableAmount", totalPayableAmount);
 
+    // console.log("allData", allData);
     return {
       length: allData?.length > 0 ? allData?.length : 0,
-      totalCreditAmount: totalCreditAmount, // Income
-      totalDebitAmount: totalDebitAmount, // Outgoings (Expenses/Refunds)
-      totalIncomeAmount: totalCreditAmount, // Same as credit
-      totalOutgoingsAmount: totalDebitAmount, // Same as debit
-      netBalance: totalCreditAmount - totalDebitAmount, // Net Balance
-      totalAmount: totalTransactionAmount,
+
+      totalPayableAmount: totalPayableAmount,
+      totalAmount: totalAmount,
     };
   };
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        await Promise.all([getUsers(), getTransactions()]);
-      } catch (error) {
-        console.error("Error loading data:", error);
-      }
-    };
-
-    loadData();
+    getUsers();
+    getReports();
   }, []);
 
   return (
@@ -326,7 +406,7 @@ const Reports = ({
                 </Typography>
                 {item?.users?.length > 0 &&
                   item?.users?.map((item, i) => {
-                    const report = userReportData(item?.email);
+                    const report = userReportData(item?._id);
                     return (
                       <Grid size={3} key={i}>
                         <Box
@@ -350,7 +430,7 @@ const Reports = ({
                           role="button"
                           onClick={() => {
                             setCreatedBy(item?.email);
-                            setDetailsDialog(true);
+                            setRepairListDialog(true);
                           }}
                         >
                           <Grid
@@ -409,44 +489,13 @@ const Reports = ({
                                 }}
                               />
                             </Grid>
-
-                                <Grid size={6} sx={{}}>
-                              <Typography
-                                variant="medium"
-                                color="text.light"
-                                sx={{ fontWeight: 400 }}
-                              >
-                                Total Income
-                              </Typography>
-                              <Typography
-                                variant="base"
-                                sx={{ fontWeight: 600, color: "#2E7D32" }}
-                              >
-                                ৳ {report?.totalIncomeAmount}
-                              </Typography>
-                            </Grid>
-                            <Grid size={6} sx={{ textAlign: "right" }}>
-                              <Typography
-                                variant="medium"
-                                color="text.light"
-                                sx={{ fontWeight: 400 }}
-                              >
-                                Total Outgoings (Expenses/Refunds)
-                              </Typography>
-                              <Typography
-                                variant="base"
-                                sx={{ fontWeight: 600, color: "#D32F2F" }}
-                              >
-                                ৳ {report?.totalOutgoingsAmount}
-                              </Typography>
-                            </Grid>
                             <Grid size={6} sx={{}}>
                               <Typography
                                 variant="medium"
                                 color="text.light"
                                 sx={{ fontWeight: 400 }}
                               >
-                                Total Transaction Amount
+                                Total Amount
                               </Typography>
                               <Typography
                                 variant="base"
@@ -461,22 +510,15 @@ const Reports = ({
                                 color="text.light"
                                 sx={{ fontWeight: 400 }}
                               >
-                                Net Balance
+                                Total Payable Amount
                               </Typography>
                               <Typography
                                 variant="base"
-                                sx={{
-                                  fontWeight: 600,
-                                  color:
-                                    report?.netBalance >= 0
-                                      ? "#2E7D32"
-                                      : "#D32F2F",
-                                }}
+                                sx={{ fontWeight: 600 }}
                               >
-                                ৳ {report?.netBalance}
+                                ৳ {report?.totalPayableAmount}
                               </Typography>
                             </Grid>
-                        
                           </Grid>
 
                           <Grid
@@ -524,79 +566,54 @@ const Reports = ({
           )}
 
           {loading2 && (
-            <>
-              <Grid size={12}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: 3,
-                  }}
-                >
-                  <Skeleton
-                    variant="rectangular"
-                    height={250}
-                    sx={{ flex: 1 }}
-                  />
-                  <Skeleton
-                    variant="rectangular"
-                    height={250}
-                    sx={{ flex: 1 }}
-                  />
-                  <Skeleton
-                    variant="rectangular"
-                    height={250}
-                    sx={{ flex: 1 }}
-                  />
-                  <Skeleton
-                    variant="rectangular"
-                    height={250}
-                    sx={{ flex: 1 }}
-                  />
-                </Box>
-              </Grid>
-              <Grid size={12}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: 3,
-                  }}
-                >
-                  <Skeleton
-                    variant="rectangular"
-                    height={250}
-                    sx={{ flex: 1 }}
-                  />
-                  <Skeleton
-                    variant="rectangular"
-                    height={250}
-                    sx={{ flex: 1 }}
-                  />
-                  <Skeleton
-                    variant="rectangular"
-                    height={250}
-                    sx={{ flex: 1 }}
-                  />
-                  <Skeleton
-                    variant="rectangular"
-                    height={250}
-                    sx={{ flex: 1 }}
-                  />
-                </Box>
-              </Grid>
-            </>
+            <Grid size={12}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 3,
+                }}
+              >
+                <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+                <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+                <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+                <Skeleton variant="rectangular" height={110} sx={{ flex: 1 }} />
+              </Box>
+            </Grid>
           )}
         </Grid>
       </Paper>
+      <Dialog
+        open={repairListDialog}
+        onClose={handleRepairListDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        maxWidth="xl"
+        fullWidth={true}
+      >
+        {/* <div style={{ padding: "10px", minWidth: "300px" }}> */}
+        <DialogTitle id="alert-dialog-title">
+          {" "}
+          <Grid container>
+            <Grid size={6}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {" "}
+                Repair List
+              </Typography>
+            </Grid>
+            <Grid size={6} style={{ textAlign: "right" }}>
+              <IconButton onClick={handleRepairListDialogClose}>
+                <ClearIcon style={{ color: "#205295" }} />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </DialogTitle>
+        <DialogContent>
+          {createdBy && <ReportRepair created_by={createdBy} />}
+        </DialogContent>
 
-      {repairListDialog && (
-        <ReportDetails
-          created_by={createdBy}
-          isDialog={true}
-          onClose={handleDetailsDialogClose}
-        />
-      )}
+        {/* </div> */}
+      </Dialog>
     </div>
   );
 };

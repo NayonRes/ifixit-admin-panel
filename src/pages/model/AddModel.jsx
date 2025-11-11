@@ -59,7 +59,7 @@ const AddModel = ({ clearFilter }) => {
   const [file, setFile] = useState(null);
   const [orderNo, setOrderNo] = useState();
   const dropzoneRef = useRef(null);
-
+  const [endpoint, setEndpoint] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
@@ -83,6 +83,7 @@ const AddModel = ({ clearFilter }) => {
 
   const clearForm = () => {
     setName("");
+    setEndpoint("");
     setOrderNo();
     setParent_id("");
     setFile(null);
@@ -100,6 +101,7 @@ const AddModel = ({ clearFilter }) => {
     let formdata = new FormData();
     formdata.append("name", name.trim());
     formdata.append("order_no", orderNo);
+    formdata.append("endpoint", endpoint);
     formdata.append("device_id", parent_id.trim());
     if (file) {
       formdata.append("image", file);
@@ -321,6 +323,7 @@ const AddModel = ({ clearFilter }) => {
               setName(e.target.value);
             }}
           />
+
           <Typography
             variant="medium"
             color="text.main"
@@ -342,6 +345,29 @@ const AddModel = ({ clearFilter }) => {
             value={orderNo}
             onChange={(e) => {
               setOrderNo(e.target.value);
+            }}
+          />
+
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            URL Endpoint *{" "}
+            <span style={{ color: "#898989" }}> (e.g: /xxxx-xxxx-xxxx)</span>
+          </Typography>
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="endpoint"
+            placeholder="Enter URL Endpoint"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={endpoint}
+            onChange={(e) => {
+              setEndpoint(e.target.value);
             }}
           />
           <Typography

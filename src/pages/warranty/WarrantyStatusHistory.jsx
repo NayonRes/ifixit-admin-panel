@@ -47,6 +47,7 @@ export default function RepairStatusHistory({
 }) {
   const [searchParams] = useSearchParams();
   const { rid } = useParams();
+  const { wid } = useParams();
 
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [tableDataList, setTableDataList] = useState([]);
@@ -197,7 +198,7 @@ export default function RepairStatusHistory({
   const getData = async () => {
     setLoading(true);
 
-    let url = `/api/v1/repairStatusHistory?repair_id=${rid}&warranty_id=null&limit=1000&page=1`;
+    let url = `/api/v1/repairStatusHistory?repair_id=${rid}&warranty_id=${wid}&limit=100&page=1`;
     // let url = `/api/v1/repair?serial=${serial}&limit=100&page=1`;
     let allData = await getDataWithToken(url);
     console.log("allData?.data?.data::::::", allData?.data?.data);
@@ -222,36 +223,39 @@ export default function RepairStatusHistory({
     setLoading(false);
   };
   useEffect(() => {
-    getData();
+    if (wid) {
+      getData();
+    }
     // console.log("repair_status_history_data", statusList);
   }, []);
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Paper sx={{ mb: 3 }}>
-        <Typography variant="body1" sx={{ fontWeight: 600, p: 2 }}>
-          New History
-        </Typography>
-        <TableContainer>
-          <Table aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{}}>Status</TableCell>
-                <TableCell>Note</TableCell>
-                {/* <TableCell align="right">Action</TableCell> */}
-              </TableRow>
-            </TableHead>
-            <TableBody
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableRow
+      {repairStatus && (
+        <Paper sx={{ mb: 3 }}>
+          <Typography variant="body1" sx={{ fontWeight: 600, p: 2 }}>
+            New History
+          </Typography>
+          <TableContainer>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{}}>Status</TableCell>
+                  <TableCell>Note</TableCell>
+                  {/* <TableCell align="right">Action</TableCell> */}
+                </TableRow>
+              </TableHead>
+              <TableBody
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell sx={{ color: getColor(repairStatus) }}>
-                  {repairStatus}{" "}
-                </TableCell>
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell sx={{ color: getColor(repairStatus) }}>
+                    {repairStatus}{" "}
+                  </TableCell>
 
-                {/* <TableCell sx={{ minWidth: "10px", width: "300px" }}>
+                  {/* <TableCell sx={{ minWidth: "10px", width: "300px" }}>
                   <FormControl
                     fullWidth
                     size="small"
@@ -304,29 +308,29 @@ export default function RepairStatusHistory({
                     </Select>
                   </FormControl>
                 </TableCell> */}
-                <TableCell sx={{ minWidth: "10px" }}>
-                  <TextField
-                    fullWidth
-                    required
-                    size="small"
-                    id="remarks"
-                    placeholder="Note"
-                    variant="outlined"
-                    sx={{
-                      ...customeTextFeild,
-                      "& .MuiOutlinedInput-input": {
-                        padding: "6.5px 12px",
-                        fontSize: "14px",
-                      },
-                      minWidth: "150px",
-                    }}
-                    value={repairStatusRemarks}
-                    onChange={(e) => setRepairStatusRemarks(e.target.value)}
-                    // onChange={(e) => setNewStatusRemarks(e.target.value)}
-                  />
-                </TableCell>
+                  <TableCell sx={{ minWidth: "10px" }}>
+                    <TextField
+                      fullWidth
+                      required
+                      size="small"
+                      id="remarks"
+                      placeholder="Note"
+                      variant="outlined"
+                      sx={{
+                        ...customeTextFeild,
+                        "& .MuiOutlinedInput-input": {
+                          padding: "6.5px 12px",
+                          fontSize: "14px",
+                        },
+                        minWidth: "150px",
+                      }}
+                      value={repairStatusRemarks}
+                      onChange={(e) => setRepairStatusRemarks(e.target.value)}
+                      // onChange={(e) => setNewStatusRemarks(e.target.value)}
+                    />
+                  </TableCell>
 
-                {/* <TableCell
+                  {/* <TableCell
                   align="right"
                   sx={{ whiteSpace: "nowrap", width: "90px" }}
                 >
@@ -349,11 +353,14 @@ export default function RepairStatusHistory({
                     {saveLoading === false && "Save"}
                   </Button>
                 </TableCell> */}
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      )}
+
+      {tableDataList?.length > 0}
       <Paper>
         <Typography variant="body1" sx={{ fontWeight: 600, p: 2 }}>
           History ({tableDataList.length})

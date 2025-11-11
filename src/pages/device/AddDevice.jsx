@@ -56,7 +56,7 @@ const AddDevice = ({ clearFilter }) => {
   const [loading, setLoading] = useState(false);
   const [orderNo, setOrderNo] = useState();
   const dropzoneRef = useRef(null);
-
+  const [endpoint, setEndpoint] = useState("");
   const [message, setMessage] = useState("");
 
   const { enqueueSnackbar } = useSnackbar();
@@ -83,6 +83,7 @@ const AddDevice = ({ clearFilter }) => {
   const clearForm = () => {
     setName("");
     setOrderNo();
+    setEndpoint("");
     setParent_id("");
     setDeviceBrandId("");
     setFile(null);
@@ -95,6 +96,8 @@ const AddDevice = ({ clearFilter }) => {
 
     let formdata = new FormData();
     formdata.append("name", name.trim());
+
+    formdata.append("endpoint", endpoint);
     if (deviceBrandId) {
       formdata.append("device_brand_id", deviceBrandId);
     }
@@ -477,6 +480,7 @@ const AddDevice = ({ clearFilter }) => {
               value={parent_id}
               onChange={(e) => {
                 setParent_id(e.target.value);
+                setEndpoint("");
               }}
             >
               <MenuItem value={"None"}>None</MenuItem>
@@ -489,6 +493,36 @@ const AddDevice = ({ clearFilter }) => {
                 ))}
             </Select>
           </FormControl>
+          {/* {(!parent_id || parent_id === "None") && (
+            <> */}
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            URL Endpoint
+            <span style={{ color: "#898989" }}>
+              {" "}
+              (e.g: /services/xxxxxx-repair)
+            </span>
+          </Typography>
+
+          <TextField
+            required
+            size="small"
+            fullWidth
+            id="endpoint"
+            placeholder="Enter URL Endpoint"
+            variant="outlined"
+            sx={{ ...customeTextFeild, mb: 2 }}
+            value={endpoint}
+            onChange={(e) => {
+              setEndpoint(e.target.value);
+            }}
+          />
+          {/* </>
+          )} */}
           <Typography
             variant="medium"
             color="text.main"

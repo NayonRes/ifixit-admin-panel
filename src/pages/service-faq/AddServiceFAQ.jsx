@@ -44,8 +44,35 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
-import CurrencyExchangeOutlinedIcon from "@mui/icons-material/CurrencyExchangeOutlined";
 
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "16px 24px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#EAECF0",
+  borderStyle: "dashed",
+  backgroundColor: "#fff",
+  // color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+  borderRadius: "12px",
+};
+
+const focusedStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
 const form = {
   padding: "50px",
   background: "#fff",
@@ -53,23 +80,15 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const RefundTransaction = ({
-  transaction_name,
-  transaction_source_id,
-  transaction_source_type,
-  transaction_type,
-  totalCollection,
-}) => {
+const AddServiceFAQ = ({ serviceId }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
   const [addDialog, setAddDialog] = useState(false);
   const [name, setName] = useState("");
-  const [parent_id, setParent_id] = useState("");
-  const [branchList, setBranchList] = useState([]);
-  const [loading2, setLoading2] = useState(false);
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [remarks, setRemarks] = useState("");
 
   const [message, setMessage] = useState("");
 
@@ -95,28 +114,28 @@ const RefundTransaction = ({
   };
 
   const clearForm = () => {
-    setAmount("");
-    setRemarks("");
+    setQuestion("");
+    setAnswer("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
+    // var formdata = new FormData();
+    // formdata.append("name", name);
+
+    // formdata.append("parent_id", parent_id);
 
     let data = {
-      transaction_name: transaction_name,
-      transaction_source_id: transaction_source_id,
-      transaction_info: [{ name: "Cash", amount: amount }],
-      transaction_source_type: transaction_source_type,
-      transaction_type: transaction_type,
-      remarks: remarks,
+      source_id: serviceId,
+      source_type: "service",
+      question: question.trim(),
+      answer: answer.trim(),
+      // parent_name: parent_id.trim(),
+
+      // parent_id: parent_id?.length > 0 ? parent_id : null,
     };
 
-    let response = await handlePostData(
-      "/api/v1/transactionHistory/create",
-      data,
-      false
-    );
+    let response = await handlePostData("/api/v1/question/create", data, false);
 
     console.log("response", response);
     if (response?.status === 401) {
@@ -124,7 +143,7 @@ const RefundTransaction = ({
       return;
     }
     if (response.status >= 200 && response.status < 300) {
-      handleSnakbarOpen("Refund successfully", "success");
+      handleSnakbarOpen("Added successfully", "success");
 
       clearForm();
       handleDialogClose();
@@ -194,44 +213,37 @@ const RefundTransaction = ({
     },
   };
 
-  const getDropdownList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/category/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
-  useEffect(() => {
-    // getDropdownList();
-  }, []);
+  useEffect(() => {}, []);
   return (
     <>
       <Button
-        color="error"
-        variant="contained"
+        variant="outlined"
+        size="small"
         disableElevation
-        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
+        // sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
           setAddDialog(true);
           // getDropdownList();
         }}
-        startIcon={<CurrencyExchangeOutlinedIcon />}
+        startIcon={
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9.99996 4.16675V15.8334M4.16663 10.0001H15.8333"
+              stroke="#4238CA"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        }
       >
-        Refund
+        Add Service FAQ
       </Button>
 
       <Dialog
@@ -259,7 +271,7 @@ const RefundTransaction = ({
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Adjust Refund
+          Ask Your Question
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
             onClick={() => setAddDialog(false)}
@@ -291,74 +303,49 @@ const RefundTransaction = ({
           }}
         >
           <Typography
-            variant="subtitle1"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Total Collection : <b>TK. {totalCollection}</b>
-          </Typography>
-          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Refund Amount
+            Question
           </Typography>
           <TextField
             required
-            type="number"
             size="small"
             fullWidth
-            id="refund"
-            placeholder="Refund Amount"
+            id="question"
+            placeholder="Enter Question"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
-            value={amount}
-            // onChange={(e) => {
-            //   setName(e.target.value);
-            // }}
+            multiline
+            rows={3}
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={question}
             onChange={(e) => {
-              const value = e.target.value;
-
-              // allow only digits (no e, -, +)
-              if (/^\d*$/.test(value)) {
-                setAmount(value);
-              }
-            }}
-            onKeyDown={(e) => {
-              // Prevent typing e, +, -, .
-              if (["e", "E", "+", "-", "."].includes(e.key)) {
-                e.preventDefault();
-              }
+              setQuestion(e.target.value);
             }}
           />
           <Typography
             variant="medium"
             color="text.main"
             gutterBottom
-            sx={{ fontWeight: 500, mt: 3 }}
+            sx={{ fontWeight: 500 }}
           >
-            Remarks
+            Answer
           </Typography>
           <TextField
             required
-            type="number"
             size="small"
             fullWidth
-            id="refund"
-            placeholder="Remarks"
+            id="answer"
+            placeholder="Enter Answer"
             variant="outlined"
             multiline
-            rows={3}
+            rows={6}
             sx={{ ...customeTextFeild }}
-            value={remarks}
-            // onChange={(e) => {
-            //   setName(e.target.value);
-            // }}
+            value={answer}
             onChange={(e) => {
-              setRemarks(e.target.value);
+              setAnswer(e.target.value);
             }}
           />
 
@@ -368,8 +355,9 @@ const RefundTransaction = ({
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Category
+            Parent Brand
           </Typography>
+
           <FormControl
             fullWidth
             size="small"
@@ -390,7 +378,7 @@ const RefundTransaction = ({
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Category
+                Select Brand
               </InputLabel>
             )}
             <Select
@@ -462,4 +450,4 @@ const RefundTransaction = ({
   );
 };
 
-export default RefundTransaction;
+export default AddServiceFAQ;

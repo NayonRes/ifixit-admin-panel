@@ -44,8 +44,36 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { designationList, roleList } from "../../data";
 import { handlePostData } from "../../services/PostDataService";
-import CurrencyExchangeOutlinedIcon from "@mui/icons-material/CurrencyExchangeOutlined";
+import { handlePutData } from "../../services/PutDataService";
 
+const baseStyle = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "16px 24px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#EAECF0",
+  borderStyle: "dashed",
+  backgroundColor: "#fff",
+  // color: "#bdbdbd",
+  outline: "none",
+  transition: "border .24s ease-in-out",
+  borderRadius: "12px",
+};
+
+const focusedStyle = {
+  borderColor: "#2196f3",
+};
+
+const acceptStyle = {
+  borderColor: "#00e676",
+};
+
+const rejectStyle = {
+  borderColor: "#ff1744",
+};
 const form = {
   padding: "50px",
   background: "#fff",
@@ -53,31 +81,21 @@ const form = {
   width: "400px",
   boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
 };
-const RefundTransaction = ({
-  transaction_name,
-  transaction_source_id,
-  transaction_source_type,
-  transaction_type,
-  totalCollection,
-}) => {
+const UpdateServiceFAQ = ({ clearFilter, row }) => {
   const navigate = useNavigate();
   const { login, ifixit_admin_panel, logout } = useContext(AuthContext);
-  const [addDialog, setAddDialog] = useState(false);
-  const [name, setName] = useState("");
-  const [parent_id, setParent_id] = useState("");
-  const [branchList, setBranchList] = useState([]);
-  const [loading2, setLoading2] = useState(false);
+  const [updateDialog, setUpdateDialog] = useState(false);
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [status, setStatus] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [remarks, setRemarks] = useState("");
-
   const [message, setMessage] = useState("");
-
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDialogClose = (event, reason) => {
     if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
-      setAddDialog(false);
+      setUpdateDialog(false);
     }
   };
 
@@ -95,8 +113,10 @@ const RefundTransaction = ({
   };
 
   const clearForm = () => {
-    setAmount("");
-    setRemarks("");
+    setQuestion("");
+    setAnswer("");
+
+    setStatus("");
   };
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -104,16 +124,15 @@ const RefundTransaction = ({
     setLoading(true);
 
     let data = {
-      transaction_name: transaction_name,
-      transaction_source_id: transaction_source_id,
-      transaction_info: [{ name: "Cash", amount: amount }],
-      transaction_source_type: transaction_source_type,
-      transaction_type: transaction_type,
-      remarks: remarks,
+      // source_id: row?.services_data[0]?._id,
+      // source_type: "service",
+      question: question.trim(),
+      answer: answer.trim(),
+      status: status,
     };
 
-    let response = await handlePostData(
-      "/api/v1/transactionHistory/create",
+    let response = await handlePutData(
+      `/api/v1/question/update/${row?._id}`,
       data,
       false
     );
@@ -124,11 +143,12 @@ const RefundTransaction = ({
       return;
     }
     if (response.status >= 200 && response.status < 300) {
-      handleSnakbarOpen("Refund successfully", "success");
-
+      handleSnakbarOpen("Updated successfully", "success");
+      clearFilter(); // this is for get the table list again
       clearForm();
       handleDialogClose();
     } else {
+      setLoading(false);
       handleSnakbarOpen(response?.data?.message, "error");
     }
 
@@ -194,48 +214,43 @@ const RefundTransaction = ({
     },
   };
 
-  const getDropdownList = async () => {
-    setLoading2(true);
-
-    let url = `/api/v1/category/dropdownlist`;
-    let allData = await getDataWithToken(url);
-    if (allData?.status === 401) {
-      logout();
-      return;
-    }
-    if (allData.status >= 200 && allData.status < 300) {
-      setBranchList(allData?.data?.data);
-
-      if (allData.data.data.length < 1) {
-        setMessage("No data found");
-      }
-    } else {
-      setLoading2(false);
-      handleSnakbarOpen(allData?.data?.message, "error");
-    }
-    setLoading2(false);
-  };
   useEffect(() => {
-    // getDropdownList();
-  }, []);
+    setQuestion(row?.question);
+    setAnswer(row?.answer);
+    setStatus(row?.status);
+  }, [updateDialog]);
   return (
     <>
-      <Button
-        color="error"
+      <IconButton
         variant="contained"
+        // color="success"
         disableElevation
-        sx={{ py: 1.125, px: 2, borderRadius: "6px" }}
         onClick={() => {
-          setAddDialog(true);
+          setUpdateDialog(true);
           // getDropdownList();
         }}
-        startIcon={<CurrencyExchangeOutlinedIcon />}
       >
-        Refund
-      </Button>
+        {/* <EditOutlinedIcon /> */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          id="Outline"
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+        >
+          <path
+            d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"
+            fill="#787878"
+          />
+          <path
+            d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"
+            fill="#787878"
+          />
+        </svg>
+      </IconButton>
 
       <Dialog
-        open={addDialog}
+        open={updateDialog}
         onClose={handleDialogClose}
         sx={{
           "& .MuiPaper-root": {
@@ -259,10 +274,10 @@ const RefundTransaction = ({
             borderBottom: "1px solid #EAECF1",
           }}
         >
-          Adjust Refund
+          Update Service FAQ
           <IconButton
             sx={{ position: "absolute", right: 0, top: 0 }}
-            onClick={() => setAddDialog(false)}
+            onClick={() => setUpdateDialog(false)}
           >
             <svg
               width="46"
@@ -291,74 +306,49 @@ const RefundTransaction = ({
           }}
         >
           <Typography
-            variant="subtitle1"
-            color="text.main"
-            gutterBottom
-            sx={{ fontWeight: 500 }}
-          >
-            Total Collection : <b>TK. {totalCollection}</b>
-          </Typography>
-          <Typography
             variant="medium"
             color="text.main"
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Refund Amount
+            Question
           </Typography>
           <TextField
             required
-            type="number"
             size="small"
             fullWidth
-            id="refund"
-            placeholder="Refund Amount"
+            id="question"
+            placeholder="Enter Question"
             variant="outlined"
-            sx={{ ...customeTextFeild }}
-            value={amount}
-            // onChange={(e) => {
-            //   setName(e.target.value);
-            // }}
+            multiline
+            rows={3}
+            sx={{ ...customeTextFeild, mb: 3 }}
+            value={question}
             onChange={(e) => {
-              const value = e.target.value;
-
-              // allow only digits (no e, -, +)
-              if (/^\d*$/.test(value)) {
-                setAmount(value);
-              }
-            }}
-            onKeyDown={(e) => {
-              // Prevent typing e, +, -, .
-              if (["e", "E", "+", "-", "."].includes(e.key)) {
-                e.preventDefault();
-              }
+              setQuestion(e.target.value);
             }}
           />
           <Typography
             variant="medium"
             color="text.main"
             gutterBottom
-            sx={{ fontWeight: 500, mt: 3 }}
+            sx={{ fontWeight: 500 }}
           >
-            Remarks
+            Answer
           </Typography>
           <TextField
             required
-            type="number"
             size="small"
             fullWidth
-            id="refund"
-            placeholder="Remarks"
+            id="answer"
+            placeholder="Enter Answer"
             variant="outlined"
             multiline
-            rows={3}
+            rows={6}
             sx={{ ...customeTextFeild }}
-            value={remarks}
-            // onChange={(e) => {
-            //   setName(e.target.value);
-            // }}
+            value={answer}
             onChange={(e) => {
-              setRemarks(e.target.value);
+              setAnswer(e.target.value);
             }}
           />
 
@@ -368,8 +358,9 @@ const RefundTransaction = ({
             gutterBottom
             sx={{ fontWeight: 500 }}
           >
-            Parent Category
+            Parent Brand
           </Typography>
+
           <FormControl
             fullWidth
             size="small"
@@ -383,6 +374,7 @@ const RefundTransaction = ({
                 position: "relative",
                 top: "2px",
               },
+              mb: 3,
             }}
           >
             {parent_id?.length < 1 && (
@@ -390,7 +382,7 @@ const RefundTransaction = ({
                 id="demo-simple-select-label"
                 sx={{ color: "#b3b3b3", fontWeight: 300 }}
               >
-                Select Category
+                Select Brand
               </InputLabel>
             )}
             <Select
@@ -414,6 +406,55 @@ const RefundTransaction = ({
               ))}
             </Select>
           </FormControl> */}
+          <Typography
+            variant="medium"
+            color="text.main"
+            gutterBottom
+            sx={{ fontWeight: 500 }}
+          >
+            Select Status
+          </Typography>
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{
+              ...customeSelectFeild,
+              "& label.Mui-focused": {
+                color: "rgba(0,0,0,0)",
+              },
+
+              "& .MuiOutlinedInput-input img": {
+                position: "relative",
+                top: "2px",
+              },
+            }}
+          >
+            {/* {parent_id?.length < 1 && (
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ color: "#b3b3b3", fontWeight: 300 }}
+              >
+                Select Status
+              </InputLabel>
+            )} */}
+            <Select
+              // required
+              labelId="demo-simple-select-label"
+              id="baseLanguage"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 250, // Set the max height here
+                  },
+                },
+              }}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <MenuItem value={true}>Active</MenuItem>
+              <MenuItem value={false}>Inactive</MenuItem>
+            </Select>
+          </FormControl>
         </DialogContent>
 
         <DialogActions sx={{ px: 2 }}>
@@ -462,4 +503,4 @@ const RefundTransaction = ({
   );
 };
 
-export default RefundTransaction;
+export default UpdateServiceFAQ;

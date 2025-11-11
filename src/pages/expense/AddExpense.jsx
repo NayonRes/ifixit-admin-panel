@@ -173,7 +173,6 @@ const AddExpense = ({ clearFilter }) => {
     }
     setLoading(true);
 
-  
     let token = ifixit_admin_panel.token;
     const decodedToken = jwtDecode(token);
     let data = {
@@ -183,6 +182,12 @@ const AddExpense = ({ clearFilter }) => {
       amount: amount,
       expense_date: dayjs(expenseDate).toDate(),
       remarks: remarks,
+
+      // for adjust transaction
+      transaction_name:
+        expenseCategoryList?.find((res) => res._id === expenseCategoryId.trim())
+          ?.name || "",
+      transaction_info: [{ name: "Cash", amount: amount }],
     };
 
     let response = await handlePostData("/api/v1/expense/create", data, false);
@@ -490,7 +495,7 @@ const AddExpense = ({ clearFilter }) => {
             size="small"
             fullWidth
             id="amount"
-            placeholder="Full Name"
+            placeholder="Amount"
             variant="outlined"
             sx={{ ...customeTextFeild, mb: 3 }}
             value={amount}
@@ -514,7 +519,7 @@ const AddExpense = ({ clearFilter }) => {
             multiline
             rows={3}
             id="remarks"
-            placeholder="Full Name"
+            placeholder="Note"
             variant="outlined"
             sx={{ ...customeTextFeild }}
             value={remarks}

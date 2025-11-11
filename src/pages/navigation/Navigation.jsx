@@ -56,6 +56,13 @@ import Reports from "../reports/Reports";
 import ExpenseCategoryList from "../expense-category/ExpenseCategoryList";
 import ExpenseList from "../expense/ExpenseList";
 import IssueList from "../issue/IssueList";
+import WarrantyList from "../warranty/WarrantyList";
+import AddWarranty from "../warranty/AddWarranty";
+import WarrantyDetails from "../warranty/WarrantyDetails";
+import AllWarrantyList from "../warranty/AllWarrantyList";
+import WarrantyInvoice from "../warranty/WarrantyInvoice";
+import StockHistory from "../spare-parts/StockHistory";
+import ServiceFAQList from "../service-faq/ServiceFAQList";
 
 // import NoMatch from "../NoMatch";
 // import Dialog from "@mui/material/Dialog";
@@ -262,6 +269,14 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
+          path="service-faq-list"
+          element={
+            <PrivateRoute>
+              <ServiceFAQList />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="service/update/:id"
           element={
             <PrivateRoute>
@@ -374,6 +389,14 @@ const Navigation = ({ notificationCartName }) => {
           }
         />
         <Route
+          path="stock-history"
+          element={
+            <PrivateRoute>
+              <StockHistory />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="spare-parts/:id"
           element={
             <PrivateRoute>
@@ -443,6 +466,55 @@ const Navigation = ({ notificationCartName }) => {
           element={
             <PrivateRoute>
               <RepairDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/:rid/warranty/details/:wid"
+          element={
+            <PrivateRoute>
+              <WarrantyDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/:rid/warranty/invoice/:wid"
+          element={
+            <PrivateRoute>
+              <WarrantyInvoice />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="repair/:rid/warranty"
+          element={
+            <PrivateRoute>
+              <WarrantyList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="warranty-list"
+          element={
+            <PrivateRoute>
+              <AllWarrantyList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/:rid/add-warranty"
+          element={
+            <PrivateRoute>
+              <AddWarranty />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="repair/:rid/update-warranty/:wid"
+          element={
+            <PrivateRoute>
+              <AddWarranty />
             </PrivateRoute>
           }
         />
