@@ -355,7 +355,7 @@ const AddModel = ({ clearFilter }) => {
             sx={{ fontWeight: 500 }}
           >
             URL Endpoint *{" "}
-            <span style={{ color: "#898989" }}> (e.g: /xxxx-xxxx-xxxx)</span>
+            <span style={{ color: "#898989" }}> (e.g: xxxx-xxxx-xxxx)</span>
           </Typography>
           <TextField
             required
